@@ -18,11 +18,17 @@ function _eject(resource, id) {
 
 /**
  * @doc method
- * @id DS.methods:eject
- * @name eject(resourceName, id)
+ * @id DS.sync_methods:eject
+ * @name eject(name, id)
  * @description
  * Synchronously remove the item of type `resourceName` with the given primary key from the data store (not from the
  * server).
+ *
+ * Example:
+ *
+ * ```js
+ * TODO: eject(resourceName, id) example
+ * ```
  *
  * ## Throws
  *
@@ -37,7 +43,7 @@ function eject(resourceName, id) {
 	if (!store[resourceName]) {
 		throw new errors.RuntimeError('DS.eject(resourceName, id): ' + resourceName + ' is not a registered resource!');
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
-		throw new errors.IllegalArgumentError('DS.eject(resourceName, id): id: You must provide an id!', { id: { actual: typeof id, expected: 'string|number' } });
+		throw new errors.IllegalArgumentError('DS.eject(resourceName, id): id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 
 	try {

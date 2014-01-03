@@ -3,7 +3,15 @@ module.exports = {
 	isArray: angular.isArray,
 	isObject: angular.isObject,
 	isNumber: angular.isNumber,
+	toJson: angular.toJson,
+	upperCase: require('mout/string/upperCase'),
 	deepMixIn: require('mout/object/deepMixIn'),
+	forOwn: require('mout/object/forOwn'),
+	contains: require('mout/array/contains'),
+	filter: require('mout/array/filter'),
+	toLookUp: require('mout/array/toLookup'),
+	slice: require('mout/array/slice'),
+	sort: require('mout/array/sort'),
 	updateTimestamp: function (timestamp) {
 		var newTimestamp = typeof Date.now === 'function' ? Date.now() : new Date().getTime();
 		if (timestamp && newTimestamp <= timestamp) {

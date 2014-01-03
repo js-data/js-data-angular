@@ -17,10 +17,23 @@ function _inject(resource, attrs) {
 
 /**
  * @doc method
- * @id DS.methods:inject
- * @name inject(resourceName, attrs)
+ * @id DS.sync_methods:inject
+ * @name inject(name, attrs)
  * @description
  * Inject an item of type `resourceName` (which already exists on the server) into the data store.
+ *
+ * Example:
+ *
+ * ```js
+ * TODO: inject(resourceName, attrs) example
+ * ```
+ *
+ * ## Throws
+ *
+ * - `{IllegalArgumentError}` - Argument `attrs` must be an object.
+ * - `{RuntimeError}` - Argument `resourceName` must refer to an already registered resource.
+ * - `{UnhandledError}` - Thrown for any uncaught exception.
+ *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {object} attrs The item to inject into the data store.
  * @returns {object} A reference to the item that was injected into the data store.

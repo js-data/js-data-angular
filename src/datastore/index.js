@@ -8,7 +8,14 @@ function DataStoreProvider() {
 		services.$http = $http;
 		services.$q = $q;
 
+		var HTTP = require('./http');
+
 		return {
+			HTTP: HTTP.HTTP,
+			GET: HTTP.GET,
+			POST: HTTP.POST,
+			PUT: HTTP.PUT,
+			DEL: HTTP.DEL,
 			defineResource: require('./defineResource'),
 			destroy: require('./destroy'),
 			eject: require('./eject'),

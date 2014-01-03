@@ -1,4 +1,274 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var indexOf = require('./indexOf');
+
+    /**
+     * If array contains values.
+     */
+    function contains(arr, val) {
+        return indexOf(arr, val) !== -1;
+    }
+    module.exports = contains;
+
+
+},{"./indexOf":3}],2:[function(require,module,exports){
+var makeIterator = require('../function/makeIterator_');
+
+    /**
+     * Array filter
+     */
+    function filter(arr, callback, thisObj) {
+        callback = makeIterator(callback, thisObj);
+        var results = [];
+        if (arr == null) {
+            return results;
+        }
+
+        var i = -1, len = arr.length, value;
+        while (++i < len) {
+            value = arr[i];
+            if (callback(value, i, arr)) {
+                results.push(value);
+            }
+        }
+
+        return results;
+    }
+
+    module.exports = filter;
+
+
+
+},{"../function/makeIterator_":8}],3:[function(require,module,exports){
+
+
+    /**
+     * Array.indexOf
+     */
+    function indexOf(arr, item, fromIndex) {
+        fromIndex = fromIndex || 0;
+        if (arr == null) {
+            return -1;
+        }
+
+        var len = arr.length,
+            i = fromIndex < 0 ? len + fromIndex : fromIndex;
+        while (i < len) {
+            // we iterate over sparse items since there is no way to make it
+            // work properly on IE 7-8. see #64
+            if (arr[i] === item) {
+                return i;
+            }
+
+            i++;
+        }
+
+        return -1;
+    }
+
+    module.exports = indexOf;
+
+
+},{}],4:[function(require,module,exports){
+
+
+    var arrSlice = Array.prototype.slice;
+
+    /**
+     * Create slice of source array or array-like object
+     */
+    function slice(arr, start, end){
+        return arrSlice.call(arr, start, end);
+    }
+
+    module.exports = slice;
+
+
+
+},{}],5:[function(require,module,exports){
+
+
+    /**
+     * Merge sort (http://en.wikipedia.org/wiki/Merge_sort)
+     */
+    function mergeSort(arr, compareFn) {
+        if (arr == null) {
+            return [];
+        } else if (arr.length < 2) {
+            return arr;
+        }
+
+        if (compareFn == null) {
+            compareFn = defaultCompare;
+        }
+
+        var mid, left, right;
+
+        mid   = ~~(arr.length / 2);
+        left  = mergeSort( arr.slice(0, mid), compareFn );
+        right = mergeSort( arr.slice(mid, arr.length), compareFn );
+
+        return merge(left, right, compareFn);
+    }
+
+    function defaultCompare(a, b) {
+        return a < b ? -1 : (a > b? 1 : 0);
+    }
+
+    function merge(left, right, compareFn) {
+        var result = [];
+
+        while (left.length && right.length) {
+            if (compareFn(left[0], right[0]) <= 0) {
+                // if 0 it should preserve same order (stable)
+                result.push(left.shift());
+            } else {
+                result.push(right.shift());
+            }
+        }
+
+        if (left.length) {
+            result.push.apply(result, left);
+        }
+
+        if (right.length) {
+            result.push.apply(result, right);
+        }
+
+        return result;
+    }
+
+    module.exports = mergeSort;
+
+
+
+},{}],6:[function(require,module,exports){
+var isFunction = require('../lang/isFunction');
+
+    /**
+     * Creates an object that holds a lookup for the objects in the array.
+     */
+    function toLookup(arr, key) {
+        var result = {};
+        if (arr == null) {
+            return result;
+        }
+
+        var i = -1, len = arr.length, value;
+        if (isFunction(key)) {
+            while (++i < len) {
+                value = arr[i];
+                result[key(value)] = value;
+            }
+        } else {
+            while (++i < len) {
+                value = arr[i];
+                result[value[key]] = value;
+            }
+        }
+
+        return result;
+    }
+    module.exports = toLookup;
+
+
+},{"../lang/isFunction":11}],7:[function(require,module,exports){
+
+
+    /**
+     * Returns the first argument provided to it.
+     */
+    function identity(val){
+        return val;
+    }
+
+    module.exports = identity;
+
+
+
+},{}],8:[function(require,module,exports){
+var identity = require('./identity');
+var prop = require('./prop');
+var deepMatches = require('../object/deepMatches');
+
+    /**
+     * Converts argument into a valid iterator.
+     * Used internally on most array/object/collection methods that receives a
+     * callback/iterator providing a shortcut syntax.
+     */
+    function makeIterator(src, thisObj){
+        if (src == null) {
+            return identity;
+        }
+        switch(typeof src) {
+            case 'function':
+                // function is the first to improve perf (most common case)
+                // also avoid using `Function#call` if not needed, which boosts
+                // perf a lot in some cases
+                return (typeof thisObj !== 'undefined')? function(val, i, arr){
+                    return src.call(thisObj, val, i, arr);
+                } : src;
+            case 'object':
+                return function(val){
+                    return deepMatches(val, src);
+                };
+            case 'string':
+            case 'number':
+                return prop(src);
+        }
+    }
+
+    module.exports = makeIterator;
+
+
+
+},{"../object/deepMatches":16,"./identity":7,"./prop":9}],9:[function(require,module,exports){
+
+
+    /**
+     * Returns a function that gets a property of the passed object
+     */
+    function prop(name){
+        return function(obj){
+            return obj[name];
+        };
+    }
+
+    module.exports = prop;
+
+
+
+},{}],10:[function(require,module,exports){
+var isKind = require('./isKind');
+    /**
+     */
+    var isArray = Array.isArray || function (val) {
+        return isKind(val, 'Array');
+    };
+    module.exports = isArray;
+
+
+},{"./isKind":12}],11:[function(require,module,exports){
+var isKind = require('./isKind');
+    /**
+     */
+    function isFunction(val) {
+        return isKind(val, 'Function');
+    }
+    module.exports = isFunction;
+
+
+},{"./isKind":12}],12:[function(require,module,exports){
+var kindOf = require('./kindOf');
+    /**
+     * Check if value is from a specific "kind".
+     */
+    function isKind(val, kind){
+        return kindOf(val) === kind;
+    }
+    module.exports = isKind;
+
+
+},{"./kindOf":14}],13:[function(require,module,exports){
 
 
     /**
@@ -13,7 +283,101 @@
 
 
 
-},{}],2:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
+
+
+    var _rKind = /^\[object (.*)\]$/,
+        _toString = Object.prototype.toString,
+        UNDEF;
+
+    /**
+     * Gets the "kind" of value. (e.g. "String", "Number", etc)
+     */
+    function kindOf(val) {
+        if (val === null) {
+            return 'Null';
+        } else if (val === UNDEF) {
+            return 'Undefined';
+        } else {
+            return _rKind.exec( _toString.call(val) )[1];
+        }
+    }
+    module.exports = kindOf;
+
+
+},{}],15:[function(require,module,exports){
+
+
+    /**
+     * Typecast a value to a String, using an empty string value for null or
+     * undefined.
+     */
+    function toString(val){
+        return val == null ? '' : val.toString();
+    }
+
+    module.exports = toString;
+
+
+
+},{}],16:[function(require,module,exports){
+var forOwn = require('./forOwn');
+var isArray = require('../lang/isArray');
+
+    function containsMatch(array, pattern) {
+        var i = -1, length = array.length;
+        while (++i < length) {
+            if (deepMatches(array[i], pattern)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    function matchArray(target, pattern) {
+        var i = -1, patternLength = pattern.length;
+        while (++i < patternLength) {
+            if (!containsMatch(target, pattern[i])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    function matchObject(target, pattern) {
+        var result = true;
+        forOwn(pattern, function(val, key) {
+            if (!deepMatches(target[key], val)) {
+                // Return false to break out of forOwn early
+                return (result = false);
+            }
+        });
+
+        return result;
+    }
+
+    /**
+     * Recursively check if the objects match.
+     */
+    function deepMatches(target, pattern){
+        if (target && typeof target === 'object') {
+            if (isArray(target) && isArray(pattern)) {
+                return matchArray(target, pattern);
+            } else {
+                return matchObject(target, pattern);
+            }
+        } else {
+            return target === pattern;
+        }
+    }
+
+    module.exports = deepMatches;
+
+
+
+},{"../lang/isArray":10,"./forOwn":19}],17:[function(require,module,exports){
 var forOwn = require('./forOwn');
 var isPlainObject = require('../lang/isPlainObject');
 
@@ -49,7 +413,7 @@ var isPlainObject = require('../lang/isPlainObject');
 
 
 
-},{"../lang/isPlainObject":1,"./forOwn":4}],3:[function(require,module,exports){
+},{"../lang/isPlainObject":13,"./forOwn":19}],18:[function(require,module,exports){
 
 
     var _hasDontEnumBug,
@@ -113,7 +477,7 @@ var isPlainObject = require('../lang/isPlainObject');
 
 
 
-},{}],4:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 var hasOwn = require('./hasOwn');
 var forIn = require('./forIn');
 
@@ -134,7 +498,7 @@ var forIn = require('./forIn');
 
 
 
-},{"./forIn":3,"./hasOwn":5}],5:[function(require,module,exports){
+},{"./forIn":18,"./hasOwn":20}],20:[function(require,module,exports){
 
 
     /**
@@ -148,7 +512,19 @@ var forIn = require('./forIn');
 
 
 
-},{}],6:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
+var toString = require('../lang/toString');
+    /**
+     * "Safer" String.toUpperCase()
+     */
+    function upperCase(str){
+        str = toString(str);
+        return str.toUpperCase();
+    }
+    module.exports = upperCase;
+
+
+},{"../lang/toString":15}],22:[function(require,module,exports){
 /**
  * @method bubbleUp
  * @param {array} heap The heap.
@@ -316,17 +692,182 @@ BinaryHeap.prototype.size = function () {
 
 module.exports = BinaryHeap;
 
-},{}],7:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
+var utils = require('../../utils'),
+	errors = require('../../errors'),
+	services = require('../services');
+
+function _$http(deferred, config) {
+	var start = new Date().getTime();
+
+	services.$http(config).success(function (data, status, headers, config) {
+		services.$log.debug(config.method + ' request:' + config.url + ' Time taken: ' + (new Date().getTime() - start) + 'ms', arguments);
+		deferred.resolve(data);
+	}).error(function (data, status, headers, config) {
+			services.$log.error(arguments);
+			deferred.reject(data);
+		});
+}
+
+/**
+ * @doc method
+ * @id DS.async_methods:HTTP
+ * @name HTTP(config)
+ * @description
+ * Wrapper for `$http()`.
+ *
+ * Example:
+ *
+ * ```js
+ * TODO: HTTP(config) example
+ * ```
+ *
+ * @param {object} config Configuration for the request.
+ * @returns {Promise} Promise produced by the `$q` service.
+ */
+function HTTP(config) {
+	var deferred = services.$q.defer();
+
+	try {
+		if (!services.$rootScope.$$phase) {
+			services.$rootScope.$apply(function () {
+				_$http(deferred, config);
+			});
+		} else {
+			_$http(deferred, config);
+		}
+	} catch (err) {
+		deferred.reject(new errors.UnhandledError(err));
+	}
+
+	return deferred.promise;
+}
+
+/**
+ * @doc method
+ * @id DS.async_methods:GET
+ * @name GET(url[, config])
+ * @description
+ * Wrapper for `$http.get()`.
+ *
+ * Example:
+ *
+ * ```js
+ * TODO: GET(url[, config]) example
+ * ```
+ *
+ * @param {string} url The url of the request.
+ * @param {object} config Configuration for the request.
+ * @returns {Promise} Promise produced by the `$q` service.
+ */
+function GET(url, config) {
+	return HTTP(utils.deepMixIn(config, {
+		url: url,
+		method: 'GET'
+	}));
+}
+
+/**
+ * @doc method
+ * @id DS.async_methods:PUT
+ * @name PUT(url[, attrs][, config])
+ * @description
+ * Wrapper for `$http.put()`.
+ *
+ * Example:
+ *
+ * ```js
+ * TODO: PUT(url[, attrs][, config]) example
+ * ```
+ *
+ * @param {string} url The url of the request.
+ * @param {object} attrs Request payload.
+ * @param {object} config Configuration for the request.
+ * @returns {Promise} Promise produced by the `$q` service.
+ */
+function PUT(url, attrs, config) {
+	return HTTP(utils.deepMixIn(config, {
+		url: url,
+		data: attrs,
+		method: 'PUT'
+	}));
+}
+
+/**
+ * @doc method
+ * @id DS.async_methods:POST
+ * @name POST(url[, attrs][, config])
+ * @description
+ * Wrapper for `$http.post()`.
+ *
+ * Example:
+ *
+ * ```js
+ * TODO: POST(url[, attrs][, config]) example
+ * ```
+ *
+ * @param {string} url The url of the request.
+ * @param {object} attrs Request payload.
+ * @param {object} config Configuration for the request.
+ * @returns {Promise} Promise produced by the `$q` service.
+ */
+function POST(url, attrs, config) {
+	return HTTP(utils.deepMixIn(config, {
+		url: url,
+		data: attrs,
+		method: 'POST'
+	}));
+}
+
+/**
+ * @doc method
+ * @id DS.async_methods:DEL
+ * @name DEL(url[, config])
+ * @description
+ * Wrapper for `$http.delete()`.
+ *
+ * Example:
+ *
+ * ```js
+ * TODO: DEL(url[, config]) example
+ * ```
+ *
+ * @param {string} url The url of the request.
+ * @param {object} config Configuration for the request.
+ * @returns {Promise} Promise produced by the `$q` service.
+ */
+function DEL(url, config) {
+	return HTTP(utils.deepMixIn(config, {
+		url: url,
+		method: 'DELETE'
+	}));
+}
+
+module.exports = {
+	HTTP: HTTP,
+	GET: GET,
+	POST: POST,
+	PUT: PUT,
+	DEL: DEL
+};
+
+},{"../../errors":37,"../../utils":39,"../services":35}],24:[function(require,module,exports){
 var utils = require('../../utils'),
 	errors = require('../../errors'),
 	store = require('../store');
 
 /**
  * @doc method
- * @id DS.methods:defineResource
+ * @id DS.sync_methods:defineResource
  * @name defineResource(definition)
  * @description
  * Register a resource definition with the data store.
+ *
+ * Example:
+ *
+ * ```js
+ * TODO: defineResource(definition)
+ * ```
  *
  * ## Throws
  *
@@ -372,14 +913,77 @@ function defineResource(definition) {
 
 module.exports = defineResource;
 
-},{"../../errors":19,"../../utils":21,"../store":18}],8:[function(require,module,exports){
-function destroy() {
+},{"../../errors":37,"../../utils":39,"../store":36}],25:[function(require,module,exports){
+var utils = require('../../utils'),
+	errors = require('../../errors'),
+	store = require('../store');
 
+/**
+ * @doc method
+ * @id DS.async_methods:destroy
+ * @name destroy(resourceName, id)
+ * @description
+ * Delete the item of the type specified by `resourceName` with the primary key specified by `id` from the data store
+ * and the server.
+ *
+ * Example:
+ *
+ * ```js
+ * TODO: destroy(name, id) example
+ * ```
+ *
+ * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
+ * @param {string|number} id The primary key of the item to remove.
+ * @returns {Promise} Promise produced by the `$q` service.
+ *
+ * ## ResolvesWith:
+ *
+ * - `{string|number}` - `id` - The primary key of the destroyed item.
+ *
+ * ## RejectsWith:
+ *
+ * - `{IllegalArgumentError}` - `err` - Argument `id` must be a string or a number.
+ * - `{RuntimeError}` - `err` - Argument `resourceName` must refer to an already registered resource.
+ * - `{UnhandledError}` - `err` - Thrown for any uncaught exception.
+ */
+function destroy(resourceName, id) {
+	var deferred = $q.defer();
+	if (!store[resourceName]) {
+		deferred.reject(new errors.RuntimeError('DS.destroy(resourceName, id): ' + resourceName + ' is not a registered resource!'));
+	} else if (!utils.isString(id) && !utils.isNumber(id)) {
+		deferred.reject(new errors.IllegalArgumentError('DS.destroy(resourceName, id): id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
+	}
+
+	try {
+		var resource = store[resourceName];
+
+		this.DEL(resource.baseUrl + '/' + (resource.endpoint || resourceName + '/' + id), null).then(function (data) {
+			try {
+				delete resource.index[id];
+				delete resource.modified[id];
+
+				for (var i = 0; i < resource.collection.length; i++) {
+					if (resource.collection[i][resource.idAttribute || 'id'] == id) {
+						break;
+					}
+				}
+				resource.collection.splice(i, 1);
+				resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
+				deferred.resolve(id);
+			} catch (err) {
+				deferred.reject(new errors.UnhandledError(err));
+			}
+		}, deferred.reject);
+	} catch (err) {
+		deferred.reject(new errors.UnhandledError(err));
+	}
+
+	return deferred.promise;
 }
 
 module.exports = destroy;
 
-},{}],9:[function(require,module,exports){
+},{"../../errors":37,"../../utils":39,"../store":36}],26:[function(require,module,exports){
 var utils = require('../../utils'),
 	errors = require('../../errors'),
 	store = require('../store'),
@@ -400,11 +1004,17 @@ function _eject(resource, id) {
 
 /**
  * @doc method
- * @id DS.methods:eject
- * @name eject(resourceName, id)
+ * @id DS.sync_methods:eject
+ * @name eject(name, id)
  * @description
  * Synchronously remove the item of type `resourceName` with the given primary key from the data store (not from the
  * server).
+ *
+ * Example:
+ *
+ * ```js
+ * TODO: eject(resourceName, id) example
+ * ```
  *
  * ## Throws
  *
@@ -419,7 +1029,7 @@ function eject(resourceName, id) {
 	if (!store[resourceName]) {
 		throw new errors.RuntimeError('DS.eject(resourceName, id): ' + resourceName + ' is not a registered resource!');
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
-		throw new errors.IllegalArgumentError('DS.eject(resourceName, id): id: You must provide an id!', { id: { actual: typeof id, expected: 'string|number' } });
+		throw new errors.IllegalArgumentError('DS.eject(resourceName, id): id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 
 	try {
@@ -437,51 +1047,387 @@ function eject(resourceName, id) {
 
 module.exports = eject;
 
-},{"../../errors":19,"../../utils":21,"../services":17,"../store":18}],10:[function(require,module,exports){
-function filter() {
-
-}
-
-module.exports = filter;
-
-},{}],11:[function(require,module,exports){
-function findAll() {
-
-}
-
-module.exports = findAll;
-
-},{}],12:[function(require,module,exports){
-function find() {
-
-}
-
-module.exports = find;
-
-},{}],13:[function(require,module,exports){
+},{"../../errors":37,"../../utils":39,"../services":35,"../store":36}],27:[function(require,module,exports){
 var utils = require('../../utils'),
 	errors = require('../../errors'),
 	store = require('../store');
 
+/**
+ * @doc method
+ * @id DS.sync_methods:filter
+ * @name filter(name[, params][, loadFromServer])
+ * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
+ * @param {object=} params Parameter object that is serialized into the query string. Properties:
+ *
+ * - `{object=}` - `query` - The query object by which to filter items of the type specified by `resourceName`. Properties:
+ *      - `{object=}` - `where` - Where clause.
+ *      - `{number=}` - `limit` - Limit clause.
+ *      - `{skip=}` - `skip` - Skip clause.
+ * @param {boolean=} loadFromServer Whether to load the query from the server if it hasn't been loaded yet.
+ * @returns {array} The filtered collection of items of the type specified by `resourceName`.
+ */
+function filter(resourceName, params, loadFromServer) {
+	if (!store[resourceName]) {
+		throw new Error('DS.filter(resourceName, params, loadFromServer): ' + resourceName + ' is not a registered resource!');
+	} else if (params && !utils.isObject(params)) {
+		throw new Error('DS.filter(resourceName, params, loadFromServer): params: Must be an object!');
+	}
+
+	var resource = store[resourceName];
+
+	// Protect against null
+	params = params || {};
+	params.query = params.query || {};
+
+	var queryHash = utils.toJson(params);
+
+	if (!(queryHash in resource.completedQueries) && loadFromServer) {
+		// This particular query has never been completed
+
+		if (!resource.pendingQueries[queryHash]) {
+			// This particular query has never even been started
+			this.findAll(resourceName, params);
+		}
+
+		// Return empty results until the query completes
+		return [];
+	} else {
+		// The query has been completed, so hit the cache with the query
+
+		// Apply 'criteria'
+		var filtered = utils.filter(resource.collection, function (value) {
+			var keep = true;
+			utils.forOwn(params.query.criteria, function (value2, key2) {
+				if (key2.indexOf('.') !== -1) {
+					key2 = key2.split('.')[1];
+				}
+				if (value2['==']) {
+					if (value2['=='] == 'null') {
+						keep = keep && (value[key2] === null);
+					} else {
+						keep = keep && (value[key2] == value2['==']);
+					}
+				} else if (value2['!=']) {
+					keep = keep && (value[key2] != value2['!=']);
+				} else if (value2['>']) {
+					keep = keep && (value[key2] > value2['>']);
+				} else if (value2['>=']) {
+					keep = keep && (value[key2] >= value2['>=']);
+				} else if (value2['<']) {
+					keep = keep && (value[key2] < value2['<']);
+				} else if (value2['<=']) {
+					keep = keep && (value[key2] <= value2['<=']);
+				} else if (value2['in']) {
+					keep = keep && utils.contains(value2['in'], value[key2]);
+				}
+			});
+			return keep;
+		});
+
+		// Apply 'sort'
+		if (params.query.sort) {
+			utils.forOwn(params.query.sort, function (value, key) {
+				if (key.indexOf('.') !== -1) {
+					key = key.split('.')[1];
+				}
+				filtered = utils.sort(filtered, function (a, b) {
+					var cA = a[key], cB = b[key];
+					if (utils.isString(cA)) {
+						cA = utils.upperCase(cA);
+					}
+					if (utils.isString(cB)) {
+						cB = utils.upperCase(cB);
+					}
+					if (value === 'DESC') {
+						if (cB < cA) {
+							return -1;
+						} else if (cB > cA) {
+							return 1;
+						} else {
+							return 0;
+						}
+					} else {
+						if (cA < cB) {
+							return -1;
+						} else if (cA > cB) {
+							return 1;
+						} else {
+							return 0;
+						}
+					}
+				});
+			});
+		}
+
+		// Apply 'limit' and 'offset'
+		if (utils.isNumber(params.query.limit) && utils.isNumber(params.query.offset)) {
+			filtered = utils.slice(filtered, params.query.offset, params.query.offset + params.query.limit);
+		} else if (utils.isNumber(params.query.limit)) {
+			filtered = utils.slice(filtered, 0, params.query.limit);
+		} else if (utils.isNumber(params.query.offset)) {
+			filtered = utils.slice(filtered, params.query.offset);
+		}
+
+		return filtered;
+	}
+}
+
+module.exports = filter;
+
+},{"../../errors":37,"../../utils":39,"../store":36}],28:[function(require,module,exports){
+var utils = require('../../utils'),
+	errors = require('../../errors'),
+	store = require('../store'),
+	services = require('../services'),
+	GET = require('../HTTP').GET;
+
+/**
+ * @doc method
+ * @id DS.async_methods:find
+ * @name find(name, id[, forceRefresh])
+ * @description
+ * Asynchronously return the resource with the given id from the server. The result will be added to the data
+ * store when it returns from the server.
+ *
+ * Example:
+ *
+ * ```js
+ * TODO: find(resourceName, id[, forceRefresh]) example
+ * ```
+ *
+ * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
+ * @param {string|number} id The primary key of the item to retrieve.
+ * @param {boolean=} forceRefresh Bypass the cache.
+ * @returns {Promise} Promise produced by the `$q` service.
+ *
+ * ## ResolvesWith:
+ *
+ * - `{array}` - `item` - The item with the primary key specified by `id`.
+ *
+ * ## RejectsWith:
+ *
+ * - `{IllegalArgumentError}` - `err` - Argument `id` must be a string or a number.
+ * - `{RuntimeError}` - `err` - Argument `resourceName` must refer to an already registered resource.
+ * - `{UnhandledError}` - `err` - Thrown for any uncaught exception.
+ */
+function find(resourceName, id, forceRefresh) {
+	var deferred = $q.defer();
+	if (!store[resourceName]) {
+		deferred.reject(new errors.RuntimeError('DS.find(resourceName, id[, forceRefresh]): ' + resourceName + ' is not a registered resource!'));
+	} else if (!utils.isString(id) && !utils.isNumber(id)) {
+		deferred.reject(new errors.IllegalArgumentError('DS.find(resourceName, id[, forceRefresh]): id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
+	}
+
+	try {
+		var resource = store[resourceName];
+
+		if (id in resource.index && !forceRefresh) {
+			deferred.resolve(resource.index[id]);
+		} else {
+			GET(resource.baseUrl + '/' + (resource.endpoint || resourceName) + '/' + id, null).then(function (data) {
+				if (data) {
+					if (resource.index[id]) {
+						utils.deepMixIn(resource.index[id], data);
+					} else {
+						resource.index[id] = data;
+						resource.collection.push(resource.index[id]);
+					}
+					resource.modified[id] = utils.updateTimestamp(resource.modified[id]);
+					resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
+				}
+				deferred.resolve(resource.index[id]);
+			}, deferred.reject);
+		}
+	} catch (err) {
+		deferred.reject(new errors.UnhandledError(err));
+	}
+
+	return deferred.promise;
+}
+
+module.exports = find;
+
+},{"../../errors":37,"../../utils":39,"../HTTP":23,"../services":35,"../store":36}],29:[function(require,module,exports){
+var utils = require('../../utils'),
+	errors = require('../../errors'),
+	store = require('../store'),
+	services = require('../services'),
+	GET = require('../HTTP').GET;
+
+function processResults(data, resourceName, queryHash) {
+	var resource = store[resourceName];
+
+	data = data || [];
+
+	// Query is no longer pending
+	delete resource.pendingQueries[queryHash];
+	resource.completedQueries[queryHash] = new Date().getTime();
+
+	var temp = [];
+	for (var i = 0; i < data.length; i++) {
+		temp.push(data[i]);
+	}
+	// Merge the new values into the cache
+	resource.collection = utils.mergeArrays(resource.collection, data, resource.idAttribute || 'id');
+
+	// Update the data store's index for this resource
+	resource.index = utils.toLookup(resource.collection, resource.idAttribute || 'id');
+
+	// Update modified timestamp for values that were return by the server
+	for (var j = 0; j < temp.length; j++) {
+		resource.modified[temp[j][resource.idAttribute || 'id']] = utils.updateTimestamp(resource.modified[temp[j][resource.idAttribute || 'id']]);
+	}
+
+	// Update modified timestamp of collection
+	resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
+	return temp;
+}
+
+function _findAll(deferred, resourceName, params, forceRefresh) {
+	var resource = store[resourceName];
+
+	params.query = params.query || {};
+
+	var queryHash = utils.toJson(params);
+
+	if (forceRefresh) {
+		delete resource.completedQueries[queryHash];
+	}
+
+	if (!(queryHash in resource.completedQueries)) {
+		// This particular query has never been completed
+
+		if (!resource.pendingQueries[queryHash]) {
+
+			// This particular query has never even been started
+			resource.pendingQueries[queryHash] = GET(
+				resource.baseUrl + '/' + (resource.endpoint || resourceName),
+				{ params: params }
+			).then(function (data) {
+					try {
+						deferred.resolve(processResults(data, resourceName, queryHash));
+					} catch (err) {
+						deferred.reject(new errors.UnhandledErrror(err));
+					}
+				}, deferred.reject);
+		}
+	} else {
+		deferred.resolve(this.filter(resourceName, params));
+	}
+}
+
+/**
+ * @doc method
+ * @id DS.async_methods:findAll
+ * @name findAll(name[, params][, forceRefresh])
+ * @description
+ * Asynchronously return the resource from the server filtered by the query. The results will be added to the data
+ * store when it returns from the server.
+ *
+ * Example:
+ *
+ * ```js
+ * TODO: findAll(resourceName[, params][, forceRefresh]) example
+ * ```
+ *
+ * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
+ * @param {object=} params Parameter object that is serialized into the query string. Properties:
+ *
+ * - `{object=}` - `query` - The query object by which to filter items of the type specified by `resourceName`. Properties:
+ *      - `{object=}` - `where` - Where clause.
+ *      - `{number=}` - `limit` - Limit clause.
+ *      - `{skip=}` - `skip` - Skip clause.
+ *
+ * @param {boolean=} forceRefresh Bypass the cache.
+ *
+ * @returns {Promise} Promise produced by the `$q` service.
+ *
+ * ## ResolvesWith:
+ *
+ * - `{array}` - `items` - The collection of items returned by the server.
+ *
+ * ## RejectsWith:
+ *
+ * - `{IllegalArgumentError}` - `err` - Argument `params` must be an object.
+ * - `{RuntimeError}` - `err` - Argument `resourceName` must refer to an already registered resource.
+ * - `{UnhandledError}` - `err` - Thrown for any uncaught exception.
+ */
+function findAll(resourceName, params, forceRefresh) {
+	var deferred = services.$q.defer();
+
+	params = params || {};
+
+	if (!store[resourceName]) {
+		deferred.reject(new errors.RuntimeError('DS.findAll(resourceName[, params]): ' + resourceName + ' is not a registered resource!'));
+	} else if (!utils.isObject(params)) {
+		deferred.reject(new errors.IllegalArgumentError('DS.findAll(resourceName[, params]): params: Must be an object!', { params: { actual: typeof params, expected: 'object' } }));
+	}
+
+	try {
+		_findAll.apply(this, [deferred, resourceName, params, forceRefresh]);
+	} catch (err) {
+		deferred.reject(new errors.UnhandledErrror(err));
+	}
+
+	return deferred.promise;
+}
+
+module.exports = findAll;
+
+},{"../../errors":37,"../../utils":39,"../HTTP":23,"../services":35,"../store":36}],30:[function(require,module,exports){
+var utils = require('../../utils'),
+	errors = require('../../errors'),
+	store = require('../store');
+
+/**
+ * @doc method
+ * @id DS.sync_methods:get
+ * @name get(name, id)
+ * @description
+ * Synchronously return the resource with the given id. The data store will forward the request to the server if the
+ * item is not in the cache.
+ *
+ * Example:
+ *
+ * ```js
+ * TODO: get(resourceName, id) example
+ * ```
+ *
+ * ## Throws
+ *
+ * - `{IllegalArgumentError}` - Argument `id` must be a string or a number.
+ * - `{RuntimeError}` - Argument `resourceName` must refer to an already registered resource.
+ * - `{UnhandledError}` - Thrown for any uncaught exception.
+ *
+ * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
+ * @param {string|number} id The primary key of the item to retrieve.
+ * @returns {object} The item of the type specified by `resourceName` with the primary key specified by `id`.
+ */
 function get(resourceName, id) {
 	if (!store[resourceName]) {
 		throw new errors.IllegalArgumentError('DS.get(resourceName, id): ' + resourceName + ' is not a registered resource!');
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
-		throw new errors.IllegalArgumentError('DS.get(resourceName, id): id: You must provide an id!');
+		throw new errors.IllegalArgumentError('DS.get(resourceName, id): id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 
-	// cache miss, request resource from server
-	if (!(id in store[resourceName].index)) {
-		this.find(resourceName, id);
-	}
+	try {
+		// cache miss, request resource from server
+		if (!(id in store[resourceName].index)) {
+			this.find(resourceName, id);
+		}
 
-	// return resource from cache
-	return store[resourceName].index[id];
+		// return resource from cache
+		return store[resourceName].index[id];
+	} catch (err) {
+		throw new errors.UnhandledError(err);
+	}
 }
 
 module.exports = get;
 
-},{"../../errors":19,"../../utils":21,"../store":18}],14:[function(require,module,exports){
+},{"../../errors":37,"../../utils":39,"../store":36}],31:[function(require,module,exports){
+module.exports=require(23)
+},{"../../errors":37,"../../utils":39,"../services":35}],32:[function(require,module,exports){
 var services = require('./services');
 
 function DataStoreProvider() {
@@ -492,7 +1438,14 @@ function DataStoreProvider() {
 		services.$http = $http;
 		services.$q = $q;
 
+		var HTTP = require('./http');
+
 		return {
+			HTTP: HTTP.HTTP,
+			GET: HTTP.GET,
+			POST: HTTP.POST,
+			PUT: HTTP.PUT,
+			DEL: HTTP.DEL,
 			defineResource: require('./defineResource'),
 			destroy: require('./destroy'),
 			eject: require('./eject'),
@@ -508,7 +1461,7 @@ function DataStoreProvider() {
 
 module.exports = DataStoreProvider;
 
-},{"./defineResource":7,"./destroy":8,"./eject":9,"./filter":10,"./find":11,"./findAll":12,"./get":13,"./inject":15,"./lastModified":16,"./services":17}],15:[function(require,module,exports){
+},{"./defineResource":24,"./destroy":25,"./eject":26,"./filter":27,"./find":28,"./findAll":29,"./get":30,"./http":31,"./inject":33,"./lastModified":34,"./services":35}],33:[function(require,module,exports){
 var utils = require('../../utils'),
 	errors = require('../../errors'),
 	store = require('../store'),
@@ -528,10 +1481,23 @@ function _inject(resource, attrs) {
 
 /**
  * @doc method
- * @id DS.methods:inject
- * @name inject(resourceName, attrs)
+ * @id DS.sync_methods:inject
+ * @name inject(name, attrs)
  * @description
  * Inject an item of type `resourceName` (which already exists on the server) into the data store.
+ *
+ * Example:
+ *
+ * ```js
+ * TODO: inject(resourceName, attrs) example
+ * ```
+ *
+ * ## Throws
+ *
+ * - `{IllegalArgumentError}` - Argument `attrs` must be an object.
+ * - `{RuntimeError}` - Argument `resourceName` must refer to an already registered resource.
+ * - `{UnhandledError}` - Thrown for any uncaught exception.
+ *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {object} attrs The item to inject into the data store.
  * @returns {object} A reference to the item that was injected into the data store.
@@ -566,18 +1532,24 @@ function inject(resourceName, attrs) {
 
 module.exports = inject;
 
-},{"../../errors":19,"../../utils":21,"../services":17,"../store":18}],16:[function(require,module,exports){
+},{"../../errors":37,"../../utils":39,"../services":35,"../store":36}],34:[function(require,module,exports){
 var utils = require('../../utils'),
 	errors = require('../../errors'),
 	store = require('../store');
 
 /**
  * @doc method
- * @id DS.methods:lastModified
- * @name lastModified(resourceName[, id])
+ * @id DS.sync_methods:lastModified
+ * @name lastModified(name[, id])
  * @description
  * Return the timestamp of the last time either the collection for `resourceName` or the item of type `resourceName`
  * with the given primary key was modified.
+ *
+ * Example:
+ *
+ * ```js
+ * TODO: lastModified(resourceName, id) example
+ * ```
  *
  * ## Throws
  *
@@ -611,15 +1583,15 @@ function lastModified(resourceName, id) {
 
 module.exports = lastModified;
 
-},{"../../errors":19,"../../utils":21,"../store":18}],17:[function(require,module,exports){
+},{"../../errors":37,"../../utils":39,"../store":36}],35:[function(require,module,exports){
 module.exports = {};
 
-},{}],18:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 module.exports = {
 
 };
 
-},{}],19:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 /**
  * @doc interface
  * @id errors
@@ -804,7 +1776,7 @@ module.exports = {
 	}
 };
 
-},{}],20:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 (function (window, angular, undefined) {
 	'use strict';
 
@@ -821,13 +1793,21 @@ module.exports = {
 
 })(window, window.angular);
 
-},{"./binaryHeap":6,"./datastore":14}],21:[function(require,module,exports){
+},{"./binaryHeap":22,"./datastore":32}],39:[function(require,module,exports){
 module.exports = {
 	isString: angular.isString,
 	isArray: angular.isArray,
 	isObject: angular.isObject,
 	isNumber: angular.isNumber,
+	toJson: angular.toJson,
+	upperCase: require('mout/string/upperCase'),
 	deepMixIn: require('mout/object/deepMixIn'),
+	forOwn: require('mout/object/forOwn'),
+	contains: require('mout/array/contains'),
+	filter: require('mout/array/filter'),
+	toLookUp: require('mout/array/toLookup'),
+	slice: require('mout/array/slice'),
+	sort: require('mout/array/sort'),
 	updateTimestamp: function (timestamp) {
 		var newTimestamp = typeof Date.now === 'function' ? Date.now() : new Date().getTime();
 		if (timestamp && newTimestamp <= timestamp) {
@@ -851,4 +1831,4 @@ module.exports = {
 	}
 };
 
-},{"mout/object/deepMixIn":2}]},{},[20])
+},{"mout/array/contains":1,"mout/array/filter":2,"mout/array/slice":4,"mout/array/sort":5,"mout/array/toLookup":6,"mout/object/deepMixIn":17,"mout/object/forOwn":19,"mout/string/upperCase":21}]},{},[38])

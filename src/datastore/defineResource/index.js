@@ -4,10 +4,16 @@ var utils = require('../../utils'),
 
 /**
  * @doc method
- * @id DS.methods:defineResource
+ * @id DS.sync_methods:defineResource
  * @name defineResource(definition)
  * @description
  * Register a resource definition with the data store.
+ *
+ * Example:
+ *
+ * ```js
+ * TODO: defineResource(definition)
+ * ```
  *
  * ## Throws
  *

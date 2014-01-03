@@ -4,11 +4,17 @@ var utils = require('../../utils'),
 
 /**
  * @doc method
- * @id DS.methods:lastModified
- * @name lastModified(resourceName[, id])
+ * @id DS.sync_methods:lastModified
+ * @name lastModified(name[, id])
  * @description
  * Return the timestamp of the last time either the collection for `resourceName` or the item of type `resourceName`
  * with the given primary key was modified.
+ *
+ * Example:
+ *
+ * ```js
+ * TODO: lastModified(resourceName, id) example
+ * ```
  *
  * ## Throws
  *
