@@ -1,0 +1,28 @@
+{
+  "author": "Jason Dobry",
+  "name": "angular-data",
+  "description": "An in-browser data store for Angular.js.",
+  "version": "0.0.1-SNAPSHOT",
+  "homepage": "http://jmdobry.github.io/angular-data/",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jmdobry/angular-data.git"
+  },
+  "main": "./dist/angular-data.min.js",
+  "ignore": [
+    ".idea/",
+    ".bowerrc",
+    "*.iml",
+    "src/",
+    "doc/",
+    "guide/",
+    "coverage/",
+    ".jshintrc",
+    "Gruntfile.js",
+    "node_modules/",
+    "test/",
+    "karma.conf.js",
+    ".gitignore",
+    ".travis.yml"
+  ]
+}
