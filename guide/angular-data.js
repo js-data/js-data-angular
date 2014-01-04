@@ -9,7 +9,7 @@ docsApp.directive.documentationGroupList = function($timeout) {
 			'<div class="documentation-group-info sidenav">',
 			'<ul class="list-group nav">',
 			'<li ng-repeat="section in group.sections" class="documentation-group-section list-group-item">',
-			'<a href="{{section.url}}">{{section.title}} <i class="icon-chevron-right"></i></a>',
+			'<a href="{{section.url}}">{{section.title}}</a>',
 			'</li>',
 			'</ul>',
 			'</div>',
