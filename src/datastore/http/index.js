@@ -17,8 +17,10 @@ function _$http(deferred, config) {
 /**
  * @doc method
  * @id DS.async_methods:HTTP
- * @name HTTP(config)
+ * @name HTTP
  * @description
+ * `DS.HTTP(config)`
+ *
  * Wrapper for `$http()`.
  *
  * Example:
@@ -51,8 +53,10 @@ function HTTP(config) {
 /**
  * @doc method
  * @id DS.async_methods:GET
- * @name GET(url[, config])
+ * @name GET
  * @description
+ * `DS.GET(url[, config])`
+ *
  * Wrapper for `$http.get()`.
  *
  * Example:
@@ -75,8 +79,10 @@ function GET(url, config) {
 /**
  * @doc method
  * @id DS.async_methods:PUT
- * @name PUT(url[, attrs][, config])
+ * @name PUT
  * @description
+ * `DS.PUT(url[, attrs][, config])`
+ *
  * Wrapper for `$http.put()`.
  *
  * Example:
@@ -101,8 +107,10 @@ function PUT(url, attrs, config) {
 /**
  * @doc method
  * @id DS.async_methods:POST
- * @name POST(url[, attrs][, config])
+ * @name POST
  * @description
+ * `DS.POST(url[, attrs][, config])`
+ *
  * Wrapper for `$http.post()`.
  *
  * Example:
@@ -127,8 +135,10 @@ function POST(url, attrs, config) {
 /**
  * @doc method
  * @id DS.async_methods:DEL
- * @name DEL(url[, config])
+ * @name DEL
  * @description
+ * `DS.DEL(url[, config])`
+ *
  * Wrapper for `$http.delete()`.
  *
  * Example:
@@ -149,9 +159,114 @@ function DEL(url, config) {
 }
 
 module.exports = {
+	/**
+	 * @doc method
+	 * @id DS.async_methods:HTTP
+	 * @name HTTP
+	 * @methodOf DS
+	 * @description
+	 * `DS.HTTP(config)`
+	 *
+	 * Wrapper for `$http()`.
+	 *
+	 * Example:
+	 *
+	 * ```js
+	 * TODO: HTTP(config) example
+	 * ```
+	 *
+	 * @param {object} config Configuration for the request.
+	 * @returns {Promise} Promise produced by the `$q` service.
+	 */
 	HTTP: HTTP,
+
+	/**
+	 * @doc method
+	 * @id DS.async_methods:GET
+	 * @name GET
+	 * @methodOf DS
+	 * @description
+	 * `DS.GET(url[, config])`
+	 *
+	 * Wrapper for `$http.get()`.
+	 *
+	 * Example:
+	 *
+	 * ```js
+	 * TODO: GET(url[, config]) example
+	 * ```
+	 *
+	 * @param {string} url The url of the request.
+	 * @param {object} config Configuration for the request.
+	 * @returns {Promise} Promise produced by the `$q` service.
+	 */
 	GET: GET,
+
+	/**
+	 * @doc method
+	 * @id DS.async_methods:POST
+	 * @name POST
+	 * @methodOf DS
+	 * @description
+	 * `DS.POST(url[, attrs][, config])`
+	 *
+	 * Wrapper for `$http.post()`.
+	 *
+	 * Example:
+	 *
+	 * ```js
+	 * TODO: POST(url[, attrs][, config]) example
+	 * ```
+	 *
+	 * @param {string} url The url of the request.
+	 * @param {object} attrs Request payload.
+	 * @param {object} config Configuration for the request.
+	 * @returns {Promise} Promise produced by the `$q` service.
+	 */
 	POST: POST,
+
+	/**
+	 * @doc method
+	 * @id DS.async_methods:PUT
+	 * @name PUT
+	 * @methodOf DS
+	 * @description
+	 * `DS.PUT(url[, attrs][, config])`
+	 *
+	 * Wrapper for `$http.put()`.
+	 *
+	 * Example:
+	 *
+	 * ```js
+	 * TODO: PUT(url[, attrs][, config]) example
+	 * ```
+	 *
+	 * @param {string} url The url of the request.
+	 * @param {object} attrs Request payload.
+	 * @param {object} config Configuration for the request.
+	 * @returns {Promise} Promise produced by the `$q` service.
+	 */
 	PUT: PUT,
+
+	/**
+	 * @doc method
+	 * @id DS.async_methods:DEL
+	 * @name DEL
+	 * @methodOf DS
+	 * @description
+	 * `DS.DEL(url[, config])`
+	 *
+	 * Wrapper for `$http.delete()`.
+	 *
+	 * Example:
+	 *
+	 * ```js
+	 * TODO: DEL(url[, config]) example
+	 * ```
+	 *
+	 * @param {string} url The url of the request.
+	 * @param {object} config Configuration for the request.
+	 * @returns {Promise} Promise produced by the `$q` service.
+	 */
 	DEL: DEL
 };

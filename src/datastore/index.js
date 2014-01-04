@@ -1,6 +1,12 @@
-var services = require('./services');
+var utils = require('../utils'),
+	services = require('./services');
 
-function DataStoreProvider() {
+/**
+ * @doc interface
+ * @id DSProvider
+ * @name DSProvider
+ */
+function DSProvider() {
 	this.$get = ['$rootScope', '$log', '$http', '$q', function ($rootScope, $log, $http, $q) {
 
 		services.$rootScope = $rootScope;
@@ -8,25 +14,23 @@ function DataStoreProvider() {
 		services.$http = $http;
 		services.$q = $q;
 
-		var HTTP = require('./http');
+		/**
+		 * @doc interface
+		 * @id DS
+		 * @name DS
+		 * @description
+		 * Data store
+		 */
+		var DS = {};
 
-		return {
-			HTTP: HTTP.HTTP,
-			GET: HTTP.GET,
-			POST: HTTP.POST,
-			PUT: HTTP.PUT,
-			DEL: HTTP.DEL,
-			defineResource: require('./defineResource'),
-			destroy: require('./destroy'),
-			eject: require('./eject'),
-			filter: require('./filter'),
-			findAll: require('./findAll'),
-			find: require('./find'),
-			get: require('./get'),
-			inject: require('./inject'),
-			lastModified: require('./lastModified')
-		};
+		utils.deepMixIn(DS, require('./http'));
+		utils.deepMixIn(DS, require('./sync_methods'));
+		utils.deepMixIn(DS, require('./async_methods'));
+
+		utils.deepFreeze(DS);
+
+		return DS;
 	}];
 }
 
-module.exports = DataStoreProvider;
+module.exports = DSProvider;

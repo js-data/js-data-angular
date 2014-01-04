@@ -1,0 +1,90 @@
+@doc overview
+@id index
+@name Resource Guide
+@description
+
+# Resource Guide
+
+A _resource_ is the data and meta data associated with a particular RESTful endpoint.
+
+You define _resources_ and register them with the data store. A _resource definition_ tells angular-data
+about a particular _resource_, like what its root endpoint is and which attribute refers to the primary key of the
+resource. A _resource definition_ can also specify validation functions to be executed before create and update
+operations.
+
+See [defineResource(definition)](/documentation/api/api/DS.sync_methods:defineResource) for detailed API information.
+
+@doc overview
+@id overview
+@name Resource Guide
+@description
+
+A _resource_ is the data and meta data associated with a particular RESTful endpoint.
+
+You define _resources_ and register them with the data store. A _resource definition_ tells angular-data
+about a particular _resource_, like what its root endpoint is and which attribute refers to the primary key of the
+resource. A _resource definition_ can also specify validation functions to be executed before create and update
+operations.
+
+See [defineResource(definition)](/documentation/api/api/DS.sync_methods:defineResource) for detailed API information.
+
+@doc overview
+@id basic
+@name Define a basic resource
+@description
+
+The simplest resource definition:
+
+```js
+DS.defineResource('document');
+```
+
+With this definition the data store assumes the following:
+
+- Resource will be referred to as `"document"`
+- The RESTful endpoint for this resource is `"/document"`
+- The `idAttribute` (attribute that specifies the primary key) is `"id"`
+- This resource does not use any validation
+
+@doc overview
+@id advanced
+@name Advanced example
+@description
+
+An advanced resource definition:
+
+```js
+DS.defineResource({
+	name: 'document',
+	idAttribute: '_id',
+	endpoint: 'documents',
+	validate: function (attrs, context, cb) {
+		// context will be null if this is a create operation
+
+		if (!angular.isObject(attrs) {
+			cb('Must be an object!');
+		} else if (!angular.isString(attrs.title)) {
+			cb('title must be a string!');
+		}
+	},
+	updateValidate: function (attrs, context, cb) {
+		// If the item specified by the id passed to DS.update() is in the store, context will be a reference to this item
+		if (context && context.title === attrs.title) {
+			cb('New title must be different');
+		}
+		if (!angular.isObject(attrs) {
+			cb('Must be an object!');
+		} else if (!angular.isString(attrs.title)) {
+			cb('title must be a string!');
+		}
+	}
+});
+```
+
+With this definition the data store understands the following:
+
+- Resource will be referred to as `"document"`
+- The RESTful endpoint for this resource is `"/documents"`
+- The `idAttribute` (attribute that specifies the primary key) is `"_id"`
+- Before create operations the provided `validate` function must pass
+- Before update operations the provided `updateValidate` function must pass

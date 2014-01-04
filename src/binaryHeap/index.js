@@ -1,5 +1,9 @@
-/**
- * @method bubbleUp
+var defaults = require('./defaults');
+
+/*!
+ * @doc method
+ * @id BinaryHeap.private_functions:bubbleUp
+ * @name bubbleUp
  * @param {array} heap The heap.
  * @param {function} weightFunc The weight function.
  * @param {number} n The index of the element to bubble up.
@@ -24,8 +28,10 @@ function bubbleUp(heap, weightFunc, n) {
 	}
 }
 
-/**
- * @method bubbleDown
+/*!
+ * @doc method
+ * @id BinaryHeap.private_functions:bubbleDown
+ * @name bubbleDown
  * @param {array} heap The heap.
  * @param {function} weightFunc The weight function.
  * @param {number} n The index of the element to sink down.
@@ -67,30 +73,39 @@ function bubbleDown(heap, weightFunc, n) {
 }
 
 /**
- * @class BinaryHeap
- * @desc BinaryHeap implementation of a priority queue.
- * @param {function} weightFunc Function that returns the value that should be used for node value comparison.
- * @example
+ * @doc function
+ * @id BinaryHeap.class:constructor
+ * @name new BinaryHeap([weightFunc])
+ * @description
+ * BinaryHeap implementation of a priority queue.
+ *
+ * Example:
+ *
+ * ```js
  * angular.module('app').controller(function (BinaryHeap) {
  *      var bHeap = new BinaryHeap(function (x) {
  *          return x.value;
  *      });
- * );
+ * });
+ * ```
+ *
+ * @param {function} weightFunc Function that returns the value that should be used for node value comparison.
  */
 function BinaryHeap(weightFunc) {
 	if (weightFunc && typeof weightFunc !== 'function') {
 		throw new Error('BinaryHeap(weightFunc): weightFunc: must be a function!');
 	}
-	weightFunc = weightFunc || function (x) {
-		return x;
-	};
+	weightFunc = defaults.userProvidedDefaultWeightFunc || defaults.defaultWeightFunc;
 	this.weightFunc = weightFunc;
 	this.heap = [];
 }
 
 /**
- * @method BinaryHeap.push
- * @desc Push an element into the binary heap.
+ * @doc method
+ * @id BinaryHeap.instance_methods:push
+ * @name push(node)
+ * @description
+ * Push an element into the binary heap.
  * @param {*} node The element to push into the binary heap.
  */
 BinaryHeap.prototype.push = function (node) {
@@ -99,18 +114,24 @@ BinaryHeap.prototype.push = function (node) {
 };
 
 /**
- * @method BinaryHeap.peek
- * @desc Return, but do not remove, the minimum element in the binary heap.
- * @returns {*}
+ * @doc method
+ * @id BinaryHeap.instance_methods:peek
+ * @name peek( )
+ * @description
+ * Return, but do not remove, the minimum element in the binary heap.
+ * @returns {*} peeked node
  */
 BinaryHeap.prototype.peek = function () {
 	return this.heap[0];
 };
 
 /**
- * @method BinaryHeap.pop
- * @desc Remove and return the minimum element in the binary heap.
- * @returns {*}
+ * @doc method
+ * @id BinaryHeap.instance_methods:pop
+ * @name pop( )
+ * @description
+ * Remove and return the minimum element in the binary heap.
+ * @returns {*} popped node
  */
 BinaryHeap.prototype.pop = function () {
 	var front = this.heap[0],
@@ -123,9 +144,11 @@ BinaryHeap.prototype.pop = function () {
 };
 
 /**
- * @method BinaryHeap.remove
- * @desc Remove the first node in the priority queue that satisfies angular.equals comparison with
- * the given node.
+ * @doc method
+ * @id BinaryHeap.instance_methods:remove
+ * @name remove(node)
+ * @description
+ * Remove the first node in the priority queue that satisfies angular.equals comparison with the given node.
  * @param {*} node The node to remove.
  * @returns {*} The removed node.
  */
@@ -147,20 +170,33 @@ BinaryHeap.prototype.remove = function (node) {
 };
 
 /**
- * @method BinaryHeap.removeAll
- * @desc Remove all nodes from this BinaryHeap.
+ * @doc method
+ * @id BinaryHeap.instance_methods:removeAll
+ * @name removeAll( )
+ * @description
+ * Remove all nodes from this BinaryHeap.
  */
 BinaryHeap.prototype.removeAll = function () {
 	this.heap = [];
 };
 
 /**
- * @method BinaryHeap.size
- * @desc Return the size of the priority queue.
+ * @doc method
+ * @id BinaryHeap.instance_methods:size
+ * @name size( )
+ * @description
+ * Return the size of the priority queue.
  * @returns {number} The size of the priority queue.
  */
 BinaryHeap.prototype.size = function () {
 	return this.heap.length;
 };
 
+/**
+ * @doc interface
+ * @id BinaryHeap
+ * @name BinaryHeap
+ * @description
+ * Binary heap implementation of a priority queue.
+ */
 module.exports = BinaryHeap;
