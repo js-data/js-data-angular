@@ -180,30 +180,27 @@ module.exports = {
 
 	/**
 	 * @doc method
-	 * @id DS.async_methods:update
-	 * @name update
+	 * @id DS.async_methods:save
+	 * @name save
 	 * @methodOf DS
 	 * @description
-	 * `update(resourceName, id, attrs)`
+	 * `save(resourceName, id)`
 	 *
-	 * Update the item of the type specified by `resourceName` that has the primary key specified by `id` with the given
-	 * attributes.
+	 * save the item of the type specified by `resourceName` that has the primary key specified by `id`.
 	 *
 	 * Example:
 	 *
 	 * ```js
-	 * TODO: update(resourceName, id, attrs) example
+	 * TODO: save(resourceName, id) example
 	 * ```
 	 *
 	 * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
 	 * @param {string|number} id The primary key of the item to retrieve.
-	 * @param {object} attrs The attributes with which to update the item of the type specified by `resourceName` that has
-	 * the primary key specified by `id`.
 	 * @returns {Promise} Promise produced by the `$q` service.
 	 *
 	 * ## ResolvesWith:
 	 *
-	 * - `{object}` - `item` - A reference to the newly updated item.
+	 * - `{object}` - `item` - A reference to the newly saved item.
 	 *
 	 * ## RejectsWith:
 	 *
@@ -211,5 +208,5 @@ module.exports = {
 	 * - `{RuntimeError}` - `err` - Argument `resourceName` must refer to an already registered resource.
 	 * - `{UnhandledError}` - `err` - Thrown for any uncaught exception.
 	 */
-	update: require('./update')
+	save: require('./save')
 };

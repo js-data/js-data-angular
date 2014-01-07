@@ -1,7 +1,7 @@
-var utils = require('../../../utils'),
-	errors = require('../../../errors'),
-	store = require('../../store'),
-	services = require('../../services'),
+var utils = require('utils'),
+	errors = require('errors'),
+	store = require('store'),
+	services = require('services'),
 	GET = require('../../HTTP').GET;
 
 function processResults(data, resourceName, queryHash) {

@@ -1,6 +1,6 @@
-var utils = require('../../../utils'),
-	errors = require('../../../errors'),
-	store = require('../../store');
+var utils = require('utils'),
+	errors = require('errors'),
+	store = require('store');
 
 /**
  * @doc method
@@ -41,23 +41,15 @@ function destroy(resourceName, id) {
 	}
 
 	try {
-		var resource = store[resourceName];
+		var resource = store[resourceName],
+			_this = this;
 
-		this.DEL(utils.makePath(resource.url, id), null).then(function (data) {
+		_this.DEL(utils.makePath(resource.url, id), null).then(function () {
 			try {
-				delete resource.index[id];
-				delete resource.modified[id];
-
-				for (var i = 0; i < resource.collection.length; i++) {
-					if (resource.collection[i][resource.idAttribute || 'id'] == id) {
-						break;
-					}
-				}
-				resource.collection.splice(i, 1);
-				resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
+				_this.eject(resourceName, id);
 				deferred.resolve(id);
 			} catch (err) {
-				deferred.reject(new errors.UnhandledError(err));
+				deferred.reject(err);
 			}
 		}, deferred.reject);
 	} catch (err) {

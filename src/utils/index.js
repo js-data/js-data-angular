@@ -3,6 +3,7 @@ module.exports = {
 	isArray: angular.isArray,
 	isObject: angular.isObject,
 	isNumber: angular.isNumber,
+	isEmpty: require('mout/lang/isEmpty'),
 	toJson: angular.toJson,
 	makePath: require('mout/string/makePath'),
 	upperCase: require('mout/string/upperCase'),
@@ -50,5 +51,38 @@ module.exports = {
 				deepFreeze(prop); // Recursively call deepFreeze.
 			}
 		}
+	},
+	diffObjectFromOldObject: function (object, oldObject) {
+		var added = {};
+		var removed = {};
+		var changed = {};
+
+		for (var prop in oldObject) {
+			var newValue = object[prop];
+
+			if (newValue !== undefined && newValue === oldObject[prop])
+				continue;
+
+			if (!(prop in object)) {
+				removed[prop] = undefined;
+				continue;
+			}
+
+			if (newValue !== oldObject[prop])
+				changed[prop] = newValue;
+		}
+
+		for (var prop2 in object) {
+			if (prop2 in oldObject)
+				continue;
+
+			added[prop2] = object[prop2];
+		}
+
+		return {
+			added: added,
+			removed: removed,
+			changed: changed
+		};
 	}
 };

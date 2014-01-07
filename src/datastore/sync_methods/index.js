@@ -28,9 +28,6 @@ module.exports = {
 	 * - `{string=}` - `endpoint` - The attribute that specifies the primary key for this resource. Default is the value of `name`.
 	 * - `{string="/"}` - `baseUrl` - The url relative to which all AJAX requests will be made.
 	 * - `{function=}` - `validate` - The validation function to be executed before create operations.
-	 * - `{function=}` - `updateValidate` - The validation function to be executed before update operations. If this function
-	 * isn't provided but the `validate` function is, then the `validate` function will be used for both create and update
-	 * operations.
 	 */
 	defineResource: require('./defineResource'),
 
@@ -209,5 +206,146 @@ module.exports = {
 	 * @returns {number} The timestamp of the last time either the collection for `resourceName` or the item of type
 	 * `resourceName` with the given primary key was modified.
 	 */
-	lastModified: require('./lastModified')
+	lastModified: require('./lastModified'),
+
+	/**
+	 * @doc method
+	 * @id DS.sync_methods:lastSaved
+	 * @name lastSaved
+	 * @methodOf DS
+	 * @description
+	 * `lastSaved(resourceName[, id])`
+	 *
+	 * Return the timestamp of the last time either the collection for `resourceName` or the item of type `resourceName`
+	 * with the given primary key was saved via an async adapter.
+	 *
+	 * Example:
+	 *
+	 * ```js
+	 * TODO: lastSaved(resourceName, id) example
+	 * ```
+	 *
+	 * ## Throws
+	 *
+	 * - `{IllegalArgumentError}` - Argument `id` must be a string or a number.
+	 * - `{RuntimeError}` - Argument `resourceName` must refer to an already registered resource.
+	 * - `{UnhandledError}` - Thrown for any uncaught exception.
+	 *
+	 * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
+	 * @param {string|number=} id The primary key of the item to remove.
+	 * @returns {number} The timestamp of the last time either the collection for `resourceName` or the item of type
+	 * `resourceName` with the given primary key was modified.
+	 */
+	lastSaved: require('./lastSaved'),
+
+	/**
+	 * @doc method
+	 * @id DS.sync_methods:digest
+	 * @name digest
+	 * @methodOf DS
+	 * @description
+	 * `digest()`
+	 *
+	 * Trigger a digest loop that checks for changes and updates the `lastModified` timestamp if an object has changed.
+	 * Anything $watching `DS.lastModified(...)` will detect the updated timestamp and execute the callback function.
+	 *
+	 * Example:
+	 *
+	 * ```js
+	 * TODO: digest() example
+	 * ```
+	 *
+	 * ## Throws
+	 *
+	 * - `{UnhandledError}` - Thrown for any uncaught exception.
+	 */
+	digest: require('./digest'),
+
+	/**
+	 * @doc method
+	 * @id DS.sync_methods:changes
+	 * @name changes
+	 * @methodOf DS
+	 * @description
+	 * `changes(resourceName, id)`
+	 *
+	 * Synchronously return the changes object of the item of the type specified by `resourceName` that has the primary key
+	 * specified by `id`. This object represents the diff between the item in its current state and the state of the item
+	 * the last time it was saved via an async adapter.
+	 *
+	 * Example:
+	 *
+	 * ```js
+	 * TODO: changes(resourceName, id) example
+	 * ```
+	 *
+	 * ## Throws
+	 *
+	 * - `{IllegalArgumentError}` - Argument `id` must be a string or a number.
+	 * - `{RuntimeError}` - Argument `resourceName` must refer to an already registered resource.
+	 * - `{UnhandledError}` - Thrown for any uncaught exception.
+	 *
+	 * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
+	 * @param {string|number} id The primary key of the item of the changes to retrieve.
+	 * @returns {object} The changes of the item of the type specified by `resourceName` with the primary key specified by `id`.
+	 */
+	changes: require('./changes'),
+
+	/**
+	 * @doc method
+	 * @id DS.sync_methods:previous
+	 * @name previous
+	 * @methodOf DS
+	 * @description
+	 * `previous(resourceName, id)`
+	 *
+	 * Synchronously return the previous attributes of the item of the type specified by `resourceName` that has the primary key
+	 * specified by `id`. This object represents the state of the item the last time it was saved via an async adapter.
+	 *
+	 * Example:
+	 *
+	 * ```js
+	 * TODO: previous(resourceName, id) example
+	 * ```
+	 *
+	 * ## Throws
+	 *
+	 * - `{IllegalArgumentError}` - Argument `id` must be a string or a number.
+	 * - `{RuntimeError}` - Argument `resourceName` must refer to an already registered resource.
+	 * - `{UnhandledError}` - Thrown for any uncaught exception.
+	 *
+	 * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
+	 * @param {string|number} id The primary key of the item whose previous attributes are to be retrieved.
+	 * @returns {object} The previous attributes of the item of the type specified by `resourceName` with the primary key specified by `id`.
+	 */
+	previous: require('./previous'),
+
+	/**
+	 * @doc method
+	 * @id DS.sync_methods:hasChanges
+	 * @name hasChanges
+	 * @methodOf DS
+	 * @description
+	 * `hasChanges(resourceName, id)`
+	 *
+	 * Synchronously return whether object of the item of the type specified by `resourceName` that has the primary key
+	 * specified by `id` has changes.
+	 *
+	 * Example:
+	 *
+	 * ```js
+	 * TODO: hasChanges(resourceName, id) example
+	 * ```
+	 *
+	 * ## Throws
+	 *
+	 * - `{IllegalArgumentError}` - Argument `id` must be a string or a number.
+	 * - `{RuntimeError}` - Argument `resourceName` must refer to an already registered resource.
+	 * - `{UnhandledError}` - Thrown for any uncaught exception.
+	 *
+	 * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
+	 * @param {string|number} id The primary key of the item.
+	 * @returns {boolean} Whether the item of the type specified by `resourceName` with the primary key specified by `id` has changes.
+	 */
+	hasChanges: require('./hasChanges')
 };

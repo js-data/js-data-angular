@@ -65,6 +65,23 @@ module.exports = function (grunt) {
 			dist: {
 				files: {
 					'dist/angular-data.js': ['src/index.js']
+				},
+				// TODO: There's got to be a better way to consume observe-js without it polluting the global space
+				options: {
+					alias: [
+						'node_modules/observe-js/src/observe.js:observejs',
+						'src/datastore/store/index.js:store',
+						'src/datastore/services/index.js:services',
+						'src/errors/index.js:errors',
+						'src/utils/index.js:utils'
+					],
+					postBundleCB: function (err, src, next) {
+						if (err) {
+							next(err);
+						}
+						src = src.replace('(typeof global !== \'undefined\' && global ? global : window)', '((exports.Number = { isNaN: window.isNaN }) ? exports : exports)');
+						next(err, src);
+					}
 				}
 			}
 //		},
@@ -215,7 +232,7 @@ module.exports = function (grunt) {
 	});
 
 	grunt.registerTask('doc', ['clean:doc', 'docular', 'concat', 'copy', 'clean:afterDoc', 'uglify:scripts']);
-	grunt.registerTask('build', ['clean:dist', 'jshint', 'browserify', 'uglify:main', 'doc']);
+	grunt.registerTask('build', ['clean:dist', 'jshint', 'browserify', 'uglify:main']);
 	grunt.registerTask('default', ['build']);
 
 	// Used by the CLI build servers

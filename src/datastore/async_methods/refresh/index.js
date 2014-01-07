@@ -1,6 +1,6 @@
-var utils = require('../../../utils'),
-	errors = require('../../../errors'),
-	store = require('../../store'),
+var utils = require('utils'),
+	errors = require('errors'),
+	store = require('store'),
 	PUT = require('../../HTTP').PUT;
 
 /**

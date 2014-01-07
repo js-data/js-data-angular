@@ -4,18 +4,18 @@ var utils = require('utils'),
 
 /**
  * @doc method
- * @id DS.sync_methods:lastModified
- * @name lastModified
+ * @id DS.sync_methods:lastSaved
+ * @name lastSaved
  * @description
- * `lastModified(resourceName[, id])`
+ * `lastSaved(resourceName[, id])`
  *
  * Return the timestamp of the last time either the collection for `resourceName` or the item of type `resourceName`
- * with the given primary key was modified.
+ * with the given primary key was saved via an async adapter.
  *
  * Example:
  *
  * ```js
- * TODO: lastModified(resourceName, id) example
+ * TODO: lastSaved(resourceName, id) example
  * ```
  *
  * ## Throws
@@ -29,18 +29,18 @@ var utils = require('utils'),
  * @returns {number} The timestamp of the last time either the collection for `resourceName` or the item of type
  * `resourceName` with the given primary key was modified.
  */
-function lastModified(resourceName, id) {
+function lastSaved(resourceName, id) {
 	if (!store[resourceName]) {
-		throw new errors.RuntimeError('DS.lastModified(resourceName[, id]): ' + resourceName + ' is not a registered resource!');
+		throw new errors.RuntimeError('DS.lastSaved(resourceName[, id]): ' + resourceName + ' is not a registered resource!');
 	} else if (id && !utils.isString(id) && !utils.isNumber(id)) {
-		throw new errors.IllegalArgumentError('DS.lastModified(resourceName[, id]): id: Must be a string or number!', { id: { actual: typeof id, expected: 'string|number' } });
+		throw new errors.IllegalArgumentError('DS.lastSaved(resourceName[, id]): id: Must be a string or number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 	try {
 		if (id) {
-			if (!(id in store[resourceName].modified)) {
-				store[resourceName].modified[id] = 0;
+			if (!(id in store[resourceName].saved)) {
+				store[resourceName].saved[id] = 0;
 			}
-			return store[resourceName].modified[id];
+			return store[resourceName].saved[id];
 		}
 		return store[resourceName].collectionModified;
 	} catch (err) {
@@ -48,4 +48,4 @@ function lastModified(resourceName, id) {
 	}
 }
 
-module.exports = lastModified;
+module.exports = lastSaved;

@@ -1,23 +1,55 @@
-var utils = require('../../../utils'),
-	errors = require('../../../errors'),
-	store = require('../../store'),
-	services = require('../../services');
+var utils = require('utils'),
+	errors = require('errors'),
+	store = require('store'),
+	services = require('services'),
+	observe = require('observejs');
 
 function _inject(resource, attrs) {
+	var _this = this;
+
 	if (utils.isArray(attrs)) {
 		for (var i = 0; i < attrs.length; i++) {
-			_inject(attrs[i]);
+			_inject.call(_this, resource, attrs[i]);
 		}
 	} else {
-		var idAttribute = resource.idAttribute || 'id';
-		if (resource.index[attrs[idAttribute]]) {
-			utils.deepMixIn(resource.index[attrs[idAttribute]], attrs);
+		var id = attrs[resource.idAttribute || 'id'];
+
+		if (!(id in resource.index)) {
+			resource.index[id] = {};
+			resource.previous_attributes[id] = {};
+
+			utils.deepMixIn(resource.index[id], attrs);
+			utils.deepMixIn(resource.previous_attributes[id], attrs);
+
+			resource.collection.push(resource.index[id]);
+
+			resource.observers[id] = new observe.ObjectObserver(resource.index[id], function (added, removed, changed, getOldValueFn) {
+				try {
+					var innerId = getOldValueFn(resource.idAttribute || 'id');
+
+					if (resource.index[innerId][resource.idAttribute || 'id'] != innerId) {
+						resource.index[innerId][resource.idAttribute || 'id'] = innerId;
+						services.$log.error('You cannot change the primary key of an object! Reverting change to primary key.');
+					}
+
+					resource.changes[innerId] = utils.diffObjectFromOldObject(resource.index[innerId], resource.previous_attributes[innerId]);
+					resource.modified[innerId] = utils.updateTimestamp(resource.modified[innerId]);
+					resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
+
+					services.$log.debug('old value:', JSON.stringify(resource.previous_attributes[innerId], null, 2));
+					services.$log.debug('changes:', resource.changes[innerId]);
+					services.$log.debug('new value:', JSON.stringify(resource.index[innerId], null, 2));
+				} catch (err) {
+					services.$log.error(err.stack);
+					throw new errors.UnhandledError(err);
+				}
+			});
+
+			resource.observers[id].deliver();
 		} else {
-			resource.index[attrs[idAttribute]] = attrs;
-			resource.collection.push(resource.index[attrs[idAttribute]]);
+			utils.deepMixIn(resource.index[id], attrs);
+			resource.observers[id].deliver();
 		}
-		resource.modified[attrs[idAttribute]] = utils.updateTimestamp(resource.modified[attrs[idAttribute]]);
-		resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
 	}
 }
 
@@ -69,7 +101,8 @@ function inject(resourceName, attrs) {
 		throw new errors.IllegalArgumentError('DS.inject(resourceName, attrs): attrs: Must be an object or an array!', { attrs: { actual: typeof attrs, expected: 'object|array' } });
 	}
 
-	var resource = store[resourceName];
+	var resource = store[resourceName],
+		_this = this;
 
 	var idAttribute = resource.idAttribute || 'id';
 	if (!attrs[idAttribute]) {
@@ -78,10 +111,10 @@ function inject(resourceName, attrs) {
 		try {
 			if (!services.$rootScope.$$phase) {
 				services.$rootScope.$apply(function () {
-					_inject(store[resourceName], attrs);
+					_inject.apply(_this, [store[resourceName], attrs]);
 				});
 			} else {
-				_inject(store[resourceName], attrs);
+				_inject.apply(_this, [store[resourceName], attrs]);
 			}
 		} catch (err) {
 			throw new errors.UnhandledError(err);

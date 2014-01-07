@@ -44,5 +44,8 @@
   "scripts": {
     "test": "node node_modules/grunt-cli/bin/grunt build",
     "test_travis": "node node_modules/grunt-cli/bin/grunt travis"
+  },
+  "dependencies": {
+    "observe-js": "0.1.0"
   }
 }

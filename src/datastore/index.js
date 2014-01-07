@@ -1,5 +1,5 @@
-var utils = require('../utils'),
-	services = require('./services');
+var utils = require('utils'),
+	services = require('services');
 
 /**
  * @doc interface
@@ -28,6 +28,16 @@ function DSProvider() {
 		utils.deepMixIn(DS, require('./async_methods'));
 
 		utils.deepFreeze(DS);
+
+		var $dirtyCheckScope = $rootScope.$new();
+
+		$dirtyCheckScope.$watch(function () {
+			// Throttle angular-data's digest loop to tenths of a second
+			return new Date().getTime() / 100 | 0;
+		}, function () {
+			console.log('digesting');
+			DS.digest();
+		});
 
 		return DS;
 	}];

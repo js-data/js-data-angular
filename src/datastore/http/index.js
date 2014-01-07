@@ -1,6 +1,6 @@
-var utils = require('../../utils'),
-	errors = require('../../errors'),
-	services = require('../services');
+var utils = require('utils'),
+	errors = require('errors'),
+	services = require('services');
 
 function _$http(deferred, config) {
 	var start = new Date().getTime();

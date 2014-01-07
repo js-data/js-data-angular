@@ -1,7 +1,7 @@
-var utils = require('../../../utils'),
-	errors = require('../../../errors'),
-	store = require('../../store'),
-	services = require('../../services');
+var utils = require('utils'),
+	errors = require('errors'),
+	store = require('store'),
+	services = require('services');
 
 function _eject(resource, id) {
 	if (id) {
@@ -10,10 +10,14 @@ function _eject(resource, id) {
 				break;
 			}
 		}
-
 		resource.collection.splice(i, 1);
+		resource.observers[id].close();
+		delete resource.observers[id];
 		delete resource.index[id];
+		delete resource.changes[id];
+		delete resource.previous_attributes[id];
 		delete resource.modified[id];
+		delete resource.saved[id];
 	} else {
 		resource.collection = [];
 		resource.index = {};

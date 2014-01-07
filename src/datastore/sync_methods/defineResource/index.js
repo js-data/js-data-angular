@@ -1,6 +1,6 @@
-var utils = require('../../../utils'),
-	errors = require('../../../errors'),
-	store = require('../../store');
+var utils = require('utils'),
+	errors = require('errors'),
+	store = require('store');
 
 /**
  * @doc method
@@ -30,9 +30,6 @@ var utils = require('../../../utils'),
  * - `{string=}` - `endpoint` - The attribute that specifies the primary key for this resource. Default is the value of `name`.
  * - `{string="/"}` - `baseUrl` - The url relative to which all AJAX requests will be made.
  * - `{function=}` - `validate` - The validation function to be executed before create operations.
- * - `{function=}` - `updateValidate` - The validation function to be executed before update operations. If this function
- * isn't provided but the `validate` function is, then the `validate` function will be used for both create and update
- * operations.
  */
 function defineResource(definition) {
 	if (utils.isString(definition)) {
@@ -60,6 +57,10 @@ function defineResource(definition) {
 		resource.pendingQueries = {};
 		resource.index = {};
 		resource.modified = {};
+		resource.changes = {};
+		resource.previous_attributes = {};
+		resource.saved = {};
+		resource.observers = {};
 		resource.collectionModified = 0;
 	} catch (err) {
 		throw new errors.UnhandledError(err);

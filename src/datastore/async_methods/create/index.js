@@ -1,27 +1,7 @@
-var utils = require('../../../utils'),
-	errors = require('../../../errors'),
-	store = require('../../store'),
-	services = require('../../services'),
-	POST = require('../../HTTP').POST;
-
-function _create(deferred, resource, attrs) {
-	POST(resource.url, attrs, null).then(function (data) {
-		try {
-			var idAttribute = resource.idAttribute || 'id';
-			if (!data[idAttribute]) {
-				deferred.reject(new errors.RuntimeError('DS.create(resourceName, attrs): The server must return an object that has the idAttribute specified by the resource definition!'));
-			} else {
-				resource.index[data[idAttribute]] = data;
-				resource.modified[data[idAttribute]] = utils.updateTimestamp(resource.modified[data[idAttribute]]);
-				resource.collection.push(resource.index[data[idAttribute]]);
-				resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
-				deferred.resolve(resource.index[data[idAttribute]]);
-			}
-		} catch (err) {
-			deferred.reject(new errors.UnhandledError(err));
-		}
-	}, deferred.reject);
-}
+var utils = require('utils'),
+	errors = require('errors'),
+	store = require('store'),
+	services = require('services');
 
 /**
  * @doc method
@@ -62,18 +42,31 @@ function create(resourceName, attrs) {
 	}
 
 	try {
-		var resource = store[resourceName];
+		var resource = store[resourceName],
+			_this = this;
 
 		if (resource.validate) {
 			resource.validate(attrs, null, function (err) {
 				if (err) {
 					deferred.reject(err);
 				} else {
-					_create(deferred, resource, attrs);
+					_this.POST(resource.url, attrs, null).then(function (data) {
+						try {
+							deferred.resolve(_this.inject(resource.name, data));
+						} catch (err) {
+							deferred.reject(err);
+						}
+					}, deferred.reject);
 				}
 			});
 		} else {
-			_create(deferred, resource, attrs);
+			_this.POST(resource.url, attrs, null).then(function (data) {
+				try {
+					deferred.resolve(_this.inject(resource.name, data));
+				} catch (err) {
+					deferred.reject(err);
+				}
+			}, deferred.reject);
 		}
 	} catch (err) {
 		deferred.reject(new errors.UnhandledError(err));

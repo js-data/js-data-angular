@@ -1,7 +1,7 @@
-var utils = require('../../../utils'),
-	errors = require('../../../errors'),
-	store = require('../../store'),
-	services = require('../../services'),
+var utils = require('utils'),
+	errors = require('errors'),
+	store = require('store'),
+	services = require('services'),
 	GET = require('../../HTTP').GET;
 
 /**
@@ -43,24 +43,21 @@ function find(resourceName, id, forceRefresh) {
 		deferred.reject(new errors.IllegalArgumentError('DS.find(resourceName, id[, forceRefresh]): id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
 	}
 
+	var _this = this;
+
 	try {
 		var resource = store[resourceName];
 
 		if (id in resource.index && !forceRefresh) {
-			deferred.resolve(resource.index[id]);
+			deferred.resolve(_this.get(resourceName, id));
 		} else {
 			GET(utils.makePath(resource.url, id), null).then(function (data) {
-				if (data) {
-					if (resource.index[id]) {
-						utils.deepMixIn(resource.index[id], data);
-					} else {
-						resource.index[id] = data;
-						resource.collection.push(resource.index[id]);
-					}
-					resource.modified[id] = utils.updateTimestamp(resource.modified[id]);
-					resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
+				try {
+					_this.inject(resourceName, data);
+					deferred.resolve(_this.get(resourceName, id));
+				} catch (err) {
+					deferred.reject(err);
 				}
-				deferred.resolve(resource.index[id]);
 			}, deferred.reject);
 		}
 	} catch (err) {
