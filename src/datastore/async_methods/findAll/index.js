@@ -33,12 +33,12 @@ function processResults(data, resourceName, queryHash) {
 	return temp;
 }
 
-function _findAll(deferred, resourceName, params, forceRefresh) {
+function _findAll(deferred, resourceName, params, options) {
 	var resource = store[resourceName];
 
 	var queryHash = utils.toJson(params);
 
-	if (forceRefresh) {
+	if (options.bypassCache) {
 		delete resource.completedQueries[queryHash];
 	}
 
@@ -57,7 +57,7 @@ function _findAll(deferred, resourceName, params, forceRefresh) {
 			}, deferred.reject);
 		}
 	} else {
-		deferred.resolve(this.filter(resourceName, params));
+		deferred.resolve(this.filter(resourceName, params, options));
 	}
 }
 
@@ -66,51 +66,60 @@ function _findAll(deferred, resourceName, params, forceRefresh) {
  * @id DS.async_methods:findAll
  * @name findAll
  * @description
- * `findAll(resourceName[, params][, forceRefresh])`
- *
  * Asynchronously return the resource from the server filtered by the query. The results will be added to the data
  * store when it returns from the server.
  *
- * Example:
+ * ## Signature:
+ * ```js
+ * DS.findAll(resourceName, params[, options])
+ * ```
+ *
+ * ## Example:
  *
  * ```js
- * TODO: findAll(resourceName[, params][, forceRefresh]) example
+ * TODO: findAll(resourceName, params[, options]) example
  * ```
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
- * @param {object=} params Parameter object that is serialized into the query string. Properties:
+ * @param {object} params Parameter object that is serialized into the query string. Properties:
  *
  * - `{object=}` - `query` - The query object by which to filter items of the type specified by `resourceName`. Properties:
  *      - `{object=}` - `where` - Where clause.
  *      - `{number=}` - `limit` - Limit clause.
  *      - `{skip=}` - `skip` - Skip clause.
+ *      - `{orderBy=}` - `orderBy` - OrderBy clause.
  *
- * @param {boolean=} forceRefresh Bypass the cache.
+ * @param {object=} options Optional configuration. Properties:
+ * - `{boolean=}` - `bypassCache` - Bypass the cache. Default: `false`.
+ * - `{string=}` - `mergeStrategy` - If `findAll` is called, specify the merge strategy that should be used when the new
+ * items are injected into the data store. Default `"mergeWithExisting"`.
  *
  * @returns {Promise} Promise produced by the `$q` service.
  *
- * ## ResolvesWith:
+ * ## Resolves with:
  *
  * - `{array}` - `items` - The collection of items returned by the server.
  *
- * ## RejectsWith:
+ * ## Rejects with:
  *
- * - `{IllegalArgumentError}` - `err` - Argument `params` must be an object.
- * - `{RuntimeError}` - `err` - Argument `resourceName` must refer to an already registered resource.
- * - `{UnhandledError}` - `err` - Thrown for any uncaught exception.
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
  */
-function findAll(resourceName, params, forceRefresh) {
+function findAll(resourceName, params, options) {
 	var deferred = services.$q.defer();
 
-	params = params || {};
+	options = options || {};
 
 	if (!store[resourceName]) {
 		deferred.reject(new errors.RuntimeError('DS.findAll(resourceName[, params]): ' + resourceName + ' is not a registered resource!'));
 	} else if (!utils.isObject(params)) {
-		deferred.reject(new errors.IllegalArgumentError('DS.findAll(resourceName[, params]): params: Must be an object!', { params: { actual: typeof params, expected: 'object' } }));
+		deferred.reject(new errors.IllegalArgumentError('DS.findAll(resourceName, params[, options]): params: Must be an object!', { params: { actual: typeof params, expected: 'object' } }));
+	} else if (!utils.isObject(options)) {
+		deferred.reject(new errors.IllegalArgumentError('DS.findAll(resourceName, params[, options]): options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
 	} else {
 		try {
-			_findAll.apply(this, [deferred, resourceName, params, forceRefresh]);
+			_findAll.apply(this, [deferred, resourceName, params, options]);
 		} catch (err) {
 			deferred.reject(new errors.UnhandledError(err));
 		}

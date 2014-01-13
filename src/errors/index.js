@@ -142,6 +142,50 @@ ValidationError.prototype = Object.create(Error.prototype);
 ValidationError.prototype.constructor = ValidationError;
 
 /**
+ * @doc function
+ * @id errors.types:RuntimeError
+ * @name RuntimeError
+ * @description Error that is thrown/returned for invalid state during runtime.
+ * @param {string=} message Error message. Default: `"Runtime Error!"`.
+ * @param {object=} errors Object containing information about the error.
+ * @returns {RuntimeError} A new instance of `RuntimeError`.
+ */
+function RuntimeError(message, errors) {
+	Error.call(this);
+	Error.captureStackTrace(this, this.constructor);
+
+	/**
+	 * @doc property
+	 * @id errors.types:RuntimeError.type
+	 * @name type
+	 * @propertyOf errors.types:RuntimeError
+	 * @description Name of error type. Default: `"RuntimeError"`.
+	 */
+	this.type = this.constructor.name;
+
+	/**
+	 * @doc property
+	 * @id errors.types:RuntimeError.errors
+	 * @name errors
+	 * @propertyOf errors.types:RuntimeError
+	 * @description Object containing information about the error.
+	 */
+	this.errors = errors || {};
+
+	/**
+	 * @doc property
+	 * @id errors.types:RuntimeError.message
+	 * @name message
+	 * @propertyOf errors.types:RuntimeError
+	 * @description Error message. Default: `"Runtime Error!"`.
+	 */
+	this.message = message || 'RuntimeError Error!';
+}
+
+RuntimeError.prototype = Object.create(Error.prototype);
+RuntimeError.prototype.constructor = RuntimeError;
+
+/**
  * @doc interface
  * @id errors
  * @name angular-data error types
@@ -152,45 +196,5 @@ module.exports = {
 	UnhandledError: UnhandledError,
 	IllegalArgumentError: IllegalArgumentError,
 	ValidationError: ValidationError,
-
-	/**
-	 * @doc function
-	 * @id errors.types:RuntimeError
-	 * @name RuntimeError
-	 * @description Error that is thrown/returned for invalid state during runtime.
-	 * @param {string=} message Error message. Default: `"Runtime Error!"`.
-	 * @param {object=} errors Object containing information about the error.
-	 * @returns {RuntimeError} A new instance of `RuntimeError`.
-	 */
-	RuntimeError: function RuntimeError(message, errors) {
-		Error.call(this);
-		Error.captureStackTrace(this, this.constructor);
-
-		/**
-		 * @doc property
-		 * @id errors.types:RuntimeError.type
-		 * @name type
-		 * @propertyOf errors.types:RuntimeError
-		 * @description Name of error type. Default: `"RuntimeError"`.
-		 */
-		this.type = this.constructor.name;
-
-		/**
-		 * @doc property
-		 * @id errors.types:RuntimeError.errors
-		 * @name errors
-		 * @propertyOf errors.types:RuntimeError
-		 * @description Object containing information about the error.
-		 */
-		this.errors = errors || {};
-
-		/**
-		 * @doc property
-		 * @id errors.types:RuntimeError.message
-		 * @name message
-		 * @propertyOf errors.types:RuntimeError
-		 * @description Error message. Default: `"Runtime Error!"`.
-		 */
-		this.message = message || 'RuntimeError Error!';
-	}
+	RuntimeError: RuntimeError
 };

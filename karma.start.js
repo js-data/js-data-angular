@@ -15,7 +15,7 @@ var fail = function (msg) {
   TYPES_EXCEPT_BOOLEAN = ['string', 123, 123.123, null, undefined, {}, [], function () {}],
   TYPES_EXCEPT_FUNCTION = ['string', 123, 123.123, null, undefined, {}, [], true, false];
 
-angular.module('jmdobry.angular-data', ['ng', 'jmdobry.binary-heap', 'ngMock']);
+angular.module('jmdobry.angular-data', ['ng', /*'jmdobry.binary-heap',*/ 'ngMock']);
 
 beforeEach(module('jmdobry.angular-data'));
 
