@@ -48,7 +48,7 @@ module.exports = function (grunt) {
 						'* @copyright (c) 2014 Jason Dobry <http://jmdobry.github.io/angular-data>\n' +
 						'* @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>\n' +
 						'*\n' +
-						'* @overview In-browser data store for Angular.js.\n' +
+						'* @overview Data store for Angular.js.\n' +
 						'*/\n'
 				},
 				files: {

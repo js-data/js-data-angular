@@ -1,8 +1,10 @@
 ## angular-data
 
-__An in-browser data store for Angular.js.__
+__Data store for Angular.js.__
 
 __Current version:__ 0.0.1-SNAPSHOT
+
+This is a pre-alpha. Not much to see yet, but stay tuned!
 
 Copyright (C) 2014 Jason Dobry
 

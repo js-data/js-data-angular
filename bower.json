@@ -1,7 +1,7 @@
 {
   "author": "Jason Dobry",
   "name": "angular-data",
-  "description": "An in-browser data store for Angular.js.",
+  "description": "Data store for Angular.js.",
   "version": "0.0.1-SNAPSHOT",
   "homepage": "http://jmdobry.github.io/angular-data/",
   "repository": {

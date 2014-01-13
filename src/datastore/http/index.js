@@ -70,6 +70,7 @@ function HTTP(config) {
  * @returns {Promise} Promise produced by the `$q` service.
  */
 function GET(url, config) {
+	config = config || {};
 	return HTTP(utils.deepMixIn(config, {
 		url: url,
 		method: 'GET'
@@ -97,6 +98,7 @@ function GET(url, config) {
  * @returns {Promise} Promise produced by the `$q` service.
  */
 function PUT(url, attrs, config) {
+	config = config || {};
 	return HTTP(utils.deepMixIn(config, {
 		url: url,
 		data: attrs,
@@ -125,6 +127,7 @@ function PUT(url, attrs, config) {
  * @returns {Promise} Promise produced by the `$q` service.
  */
 function POST(url, attrs, config) {
+	config = config || {};
 	return HTTP(utils.deepMixIn(config, {
 		url: url,
 		data: attrs,
@@ -152,6 +155,7 @@ function POST(url, attrs, config) {
  * @returns {Promise} Promise produced by the `$q` service.
  */
 function DEL(url, config) {
+	config = config || {};
 	return HTTP(utils.deepMixIn(config, {
 		url: url,
 		method: 'DELETE'

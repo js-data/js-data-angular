@@ -35,7 +35,6 @@ function DSProvider() {
 			// Throttle angular-data's digest loop to tenths of a second
 			return new Date().getTime() / 100 | 0;
 		}, function () {
-			console.log('digesting');
 			DS.digest();
 		});
 

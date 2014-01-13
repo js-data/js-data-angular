@@ -1,25 +1,32 @@
+/* jshint loopfunc: true */
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store');
+	store = require('store'),
+	errorPrefix = 'DS.filter(resourceName, params[, options])';
 
 /**
  * @doc method
  * @id DS.sync_methods:filter
  * @name filter
  * @description
- * `filter(resourceName[, params][, loadFromServer])`
+ * Synchronously filter items in the data store of the type specified by `resourceName`.
  *
- * Example:
+ * ## Signature:
+ * ```js
+ * DS.filter(resourceName, params[, options])
+ * ```
+ *
+ * ## Example:
  *
  * ```js
- * TODO: get(resourceName, id) example
+ * TODO: filter(resourceName, params[, options]) example
  * ```
  *
  * ## Throws
  *
- * - `{IllegalArgumentError}` - Argument `params` must be an object.
- * - `{RuntimeError}` - Argument `resourceName` must refer to an already registered resource.
- * - `{UnhandledError}` - Thrown for any uncaught exception.
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {object=} params Parameter object that is serialized into the query string. Properties:
@@ -28,14 +35,20 @@ var utils = require('utils'),
  *      - `{object=}` - `where` - Where clause.
  *      - `{number=}` - `limit` - Limit clause.
  *      - `{skip=}` - `skip` - Skip clause.
- * @param {boolean=} loadFromServer Whether to load the query from the server if it hasn't been loaded yet.
+ * @param {object=} options Whether to load the query from the server if it hasn't been loaded yet. Properties:
+ * - `{boolean=}` - `bypassCache` - Bypass the cache.
+ *
  * @returns {array} The filtered collection of items of the type specified by `resourceName`.
  */
-function filter(resourceName, params, loadFromServer) {
+function filter(resourceName, params, options) {
+	options = options || {};
+
 	if (!store[resourceName]) {
-		throw new errors.RuntimeError('DS.filter(resourceName[, params][, loadFromServer]): ' + resourceName + ' is not a registered resource!');
-	} else if (params && !utils.isObject(params)) {
-		throw new errors.IllegalArgumentError('DS.filter(resourceName[, params][, loadFromServer]): params: Must be an object!', { params: { actual: typeof params, expected: 'object' } });
+		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+	} else if (!utils.isObject(params)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!', { params: { actual: typeof params, expected: 'object' } });
+	} else if (!utils.isObject(options)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
 	}
 
 	var resource = store[resourceName];
@@ -46,7 +59,7 @@ function filter(resourceName, params, loadFromServer) {
 
 	var queryHash = utils.toJson(params);
 
-	if (!(queryHash in resource.completedQueries) && loadFromServer) {
+	if (!(queryHash in resource.completedQueries) && options.loadFromServer) {
 		// This particular query has never been completed
 
 		if (!resource.pendingQueries[queryHash]) {
@@ -59,69 +72,90 @@ function filter(resourceName, params, loadFromServer) {
 	} else {
 		// The query has been completed, so hit the cache with the query
 
-		// Apply 'criteria'
+		// Apply 'where' clauses
 		var filtered = utils.filter(resource.collection, function (value) {
 			var keep = true;
-			utils.forOwn(params.query.criteria, function (value2, key2) {
-				if (key2.indexOf('.') !== -1) {
-					key2 = key2.split('.')[1];
+			if (params.query.where) {
+				if (!utils.isObject(params.query.where)) {
+					throw new errors.IllegalArgumentError(errorPrefix + 'params.query.where: Must be an object!', { params: { query: { where: { actual: typeof params.query.where, expected: 'object' } } } });
 				}
-				if (value2['==']) {
-					if (value2['=='] == 'null') {
-						keep = keep && (value[key2] === null);
-					} else {
-						keep = keep && (value[key2] == value2['==']);
+				utils.forOwn(params.query.where, function (value2, key2) {
+					if (utils.isString(value2)) {
+						value2 = {
+							'==': value2
+						};
 					}
-				} else if (value2['!=']) {
-					keep = keep && (value[key2] != value2['!=']);
-				} else if (value2['>']) {
-					keep = keep && (value[key2] > value2['>']);
-				} else if (value2['>=']) {
-					keep = keep && (value[key2] >= value2['>=']);
-				} else if (value2['<']) {
-					keep = keep && (value[key2] < value2['<']);
-				} else if (value2['<=']) {
-					keep = keep && (value[key2] <= value2['<=']);
-				} else if (value2['in']) {
-					keep = keep && utils.contains(value2['in'], value[key2]);
-				}
-			});
+					if (key2.indexOf('.') !== -1) {
+						key2 = key2.split('.')[1];
+					}
+					if (value2['==']) {
+						if (value2['=='] == 'null') {
+							keep = keep && (value[key2] === null);
+						} else {
+							keep = keep && (value[key2] == value2['==']);
+						}
+					} else if (value2['!=']) {
+						keep = keep && (value[key2] != value2['!=']);
+					} else if (value2['>']) {
+						keep = keep && (value[key2] > value2['>']);
+					} else if (value2['>=']) {
+						keep = keep && (value[key2] >= value2['>=']);
+					} else if (value2['<']) {
+						keep = keep && (value[key2] < value2['<']);
+					} else if (value2['<=']) {
+						keep = keep && (value[key2] <= value2['<=']);
+					} else if (value2['in']) {
+						keep = keep && utils.contains(value2['in'], value[key2]);
+					}
+				});
+			}
 			return keep;
 		});
 
-		// Apply 'sort'
-		if (params.query.sort) {
-			utils.forOwn(params.query.sort, function (value, key) {
-				if (key.indexOf('.') !== -1) {
-					key = key.split('.')[1];
+		// Apply 'orderBy'
+		if (params.query.orderBy) {
+			if (utils.isString(params.query.orderBy)) {
+				params.query.orderBy = [
+					[params.query.orderBy, 'ASC']
+				];
+			}
+			if (utils.isArray(params.query.orderBy)) {
+				for (var i = 0; i < params.query.orderBy.length; i++) {
+					if (utils.isString(params.query.orderBy[i])) {
+						params.query.orderBy[i] = [params.query.orderBy[i], 'ASC'];
+					} else if (!utils.isArray(params.query.orderBy[i])) {
+						throw new errors.IllegalArgumentError(errorPrefix + 'params.query.orderBy[' + i + ']: Must be an array!', { params: { query: { 'orderBy[i]': { actual: typeof params.query.orderBy[i], expected: 'array' } } } });
+					}
+					filtered = utils.sort(filtered, function (a, b) {
+						var cA = a[params.query.orderBy[i][0]], cB = b[params.query.orderBy[i][0]];
+						if (utils.isString(cA)) {
+							cA = utils.upperCase(cA);
+						}
+						if (utils.isString(cB)) {
+							cB = utils.upperCase(cB);
+						}
+						if (params.query.orderBy[i][1] === 'DESC') {
+							if (cB < cA) {
+								return -1;
+							} else if (cB > cA) {
+								return 1;
+							} else {
+								return 0;
+							}
+						} else {
+							if (cA < cB) {
+								return -1;
+							} else if (cA > cB) {
+								return 1;
+							} else {
+								return 0;
+							}
+						}
+					});
 				}
-				filtered = utils.sort(filtered, function (a, b) {
-					var cA = a[key], cB = b[key];
-					if (utils.isString(cA)) {
-						cA = utils.upperCase(cA);
-					}
-					if (utils.isString(cB)) {
-						cB = utils.upperCase(cB);
-					}
-					if (value === 'DESC') {
-						if (cB < cA) {
-							return -1;
-						} else if (cB > cA) {
-							return 1;
-						} else {
-							return 0;
-						}
-					} else {
-						if (cA < cB) {
-							return -1;
-						} else if (cA > cB) {
-							return 1;
-						} else {
-							return 0;
-						}
-					}
-				});
-			});
+			} else {
+				throw new errors.IllegalArgumentError(errorPrefix + 'params.query.orderBy: Must be an array!', { params: { query: { orderBy: { actual: typeof params.query.orderBy, expected: 'array' } } } });
+			}
 		}
 
 		// Apply 'limit' and 'offset'

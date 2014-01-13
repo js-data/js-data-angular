@@ -11,7 +11,7 @@ module.exports = {
 	forOwn: require('mout/object/forOwn'),
 	contains: require('mout/array/contains'),
 	filter: require('mout/array/filter'),
-	toLookUp: require('mout/array/toLookup'),
+	toLookup: require('mout/array/toLookup'),
 	slice: require('mout/array/slice'),
 	sort: require('mout/array/sort'),
 	updateTimestamp: function (timestamp) {

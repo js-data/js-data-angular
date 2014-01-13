@@ -1,3 +1,12 @@
+/**
+ * @author Jason Dobry <jason.dobry@gmail.com>
+ * @file angular-data.js
+ * @version 0.0.1-SNAPSHOT - Homepage <http://jmdobry.github.io/angular-data/>
+ * @copyright (c) 2014 Jason Dobry <http://jmdobry.github.io/angular-data>
+ * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
+ *
+ * @overview Data store for Angular.js.
+ */
 require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var indexOf = require('./indexOf');
 
@@ -1774,218 +1783,6 @@ var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? 
 })((exports.Number = { isNaN: window.isNaN }) ? exports : exports);
 
 },{}],27:[function(require,module,exports){
-module.exports = {
-	defaultWeightFunc: function (x) {
-		return x;
-	},
-	userProvidedDefaultWeightFunc: null
-};
-
-},{}],28:[function(require,module,exports){
-var defaults = require('./defaults');
-
-/*!
- * @doc method
- * @id BinaryHeap.private_functions:bubbleUp
- * @name bubbleUp
- * @param {array} heap The heap.
- * @param {function} weightFunc The weight function.
- * @param {number} n The index of the element to bubble up.
- */
-function bubbleUp(heap, weightFunc, n) {
-	var element = heap[n],
-		weight = weightFunc(element);
-	// When at 0, an element can not go up any further.
-	while (n > 0) {
-		// Compute the parent element's index, and fetch it.
-		var parentN = Math.floor((n + 1) / 2) - 1,
-			parent = heap[parentN];
-		// If the parent has a lesser weight, things are in order and we
-		// are done.
-		if (weight >= weightFunc(parent)) {
-			break;
-		} else {
-			heap[parentN] = element;
-			heap[n] = parent;
-			n = parentN;
-		}
-	}
-}
-
-/*!
- * @doc method
- * @id BinaryHeap.private_functions:bubbleDown
- * @name bubbleDown
- * @param {array} heap The heap.
- * @param {function} weightFunc The weight function.
- * @param {number} n The index of the element to sink down.
- */
-function bubbleDown(heap, weightFunc, n) {
-	var length = heap.length,
-		node = heap[n],
-		nodeWeight = weightFunc(node);
-
-	while (true) {
-		var child2N = (n + 1) * 2,
-			child1N = child2N - 1;
-		var swap = null;
-		if (child1N < length) {
-			var child1 = heap[child1N],
-				child1Weight = weightFunc(child1);
-			// If the score is less than our node's, we need to swap.
-			if (child1Weight < nodeWeight) {
-				swap = child1N;
-			}
-		}
-		// Do the same checks for the other child.
-		if (child2N < length) {
-			var child2 = heap[child2N],
-				child2Weight = weightFunc(child2);
-			if (child2Weight < (swap === null ? nodeWeight : weightFunc(heap[child1N]))) {
-				swap = child2N;
-			}
-		}
-
-		if (swap === null) {
-			break;
-		} else {
-			heap[n] = heap[swap];
-			heap[swap] = node;
-			n = swap;
-		}
-	}
-}
-
-/**
- * @doc function
- * @id BinaryHeap.class:constructor
- * @name new BinaryHeap([weightFunc])
- * @description
- * BinaryHeap implementation of a priority queue.
- *
- * Example:
- *
- * ```js
- * angular.module('app').controller(function (BinaryHeap) {
- *      var bHeap = new BinaryHeap(function (x) {
- *          return x.value;
- *      });
- * });
- * ```
- *
- * @param {function} weightFunc Function that returns the value that should be used for node value comparison.
- */
-function BinaryHeap(weightFunc) {
-	if (weightFunc && typeof weightFunc !== 'function') {
-		throw new Error('BinaryHeap(weightFunc): weightFunc: must be a function!');
-	}
-	weightFunc = defaults.userProvidedDefaultWeightFunc || defaults.defaultWeightFunc;
-	this.weightFunc = weightFunc;
-	this.heap = [];
-}
-
-/**
- * @doc method
- * @id BinaryHeap.instance_methods:push
- * @name push(node)
- * @description
- * Push an element into the binary heap.
- * @param {*} node The element to push into the binary heap.
- */
-BinaryHeap.prototype.push = function (node) {
-	this.heap.push(node);
-	bubbleUp(this.heap, this.weightFunc, this.heap.length - 1);
-};
-
-/**
- * @doc method
- * @id BinaryHeap.instance_methods:peek
- * @name peek( )
- * @description
- * Return, but do not remove, the minimum element in the binary heap.
- * @returns {*} peeked node
- */
-BinaryHeap.prototype.peek = function () {
-	return this.heap[0];
-};
-
-/**
- * @doc method
- * @id BinaryHeap.instance_methods:pop
- * @name pop( )
- * @description
- * Remove and return the minimum element in the binary heap.
- * @returns {*} popped node
- */
-BinaryHeap.prototype.pop = function () {
-	var front = this.heap[0],
-		end = this.heap.pop();
-	if (this.heap.length > 0) {
-		this.heap[0] = end;
-		bubbleDown(this.heap, this.weightFunc, 0);
-	}
-	return front;
-};
-
-/**
- * @doc method
- * @id BinaryHeap.instance_methods:remove
- * @name remove(node)
- * @description
- * Remove the first node in the priority queue that satisfies angular.equals comparison with the given node.
- * @param {*} node The node to remove.
- * @returns {*} The removed node.
- */
-BinaryHeap.prototype.remove = function (node) {
-	var length = this.heap.length;
-	for (var i = 0; i < length; i++) {
-		if (angular.equals(this.heap[i], node)) {
-			var removed = this.heap[i],
-				end = this.heap.pop();
-			if (i !== length - 1) {
-				this.heap[i] = end;
-				bubbleUp(this.heap, this.weightFunc, i);
-				bubbleDown(this.heap, this.weightFunc, i);
-			}
-			return removed;
-		}
-	}
-	return null;
-};
-
-/**
- * @doc method
- * @id BinaryHeap.instance_methods:removeAll
- * @name removeAll( )
- * @description
- * Remove all nodes from this BinaryHeap.
- */
-BinaryHeap.prototype.removeAll = function () {
-	this.heap = [];
-};
-
-/**
- * @doc method
- * @id BinaryHeap.instance_methods:size
- * @name size( )
- * @description
- * Return the size of the priority queue.
- * @returns {number} The size of the priority queue.
- */
-BinaryHeap.prototype.size = function () {
-	return this.heap.length;
-};
-
-/**
- * @doc interface
- * @id BinaryHeap
- * @name BinaryHeap
- * @description
- * Binary heap implementation of a priority queue.
- */
-module.exports = BinaryHeap;
-
-},{"./defaults":27}],29:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	services = require('services');
@@ -2058,6 +1855,7 @@ function HTTP(config) {
  * @returns {Promise} Promise produced by the `$q` service.
  */
 function GET(url, config) {
+	config = config || {};
 	return HTTP(utils.deepMixIn(config, {
 		url: url,
 		method: 'GET'
@@ -2085,6 +1883,7 @@ function GET(url, config) {
  * @returns {Promise} Promise produced by the `$q` service.
  */
 function PUT(url, attrs, config) {
+	config = config || {};
 	return HTTP(utils.deepMixIn(config, {
 		url: url,
 		data: attrs,
@@ -2113,6 +1912,7 @@ function PUT(url, attrs, config) {
  * @returns {Promise} Promise produced by the `$q` service.
  */
 function POST(url, attrs, config) {
+	config = config || {};
 	return HTTP(utils.deepMixIn(config, {
 		url: url,
 		data: attrs,
@@ -2140,6 +1940,7 @@ function POST(url, attrs, config) {
  * @returns {Promise} Promise produced by the `$q` service.
  */
 function DEL(url, config) {
+	config = config || {};
 	return HTTP(utils.deepMixIn(config, {
 		url: url,
 		method: 'DELETE'
@@ -2259,7 +2060,7 @@ module.exports = {
 	DEL: DEL
 };
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],30:[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],28:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	store = require('store'),
@@ -2339,7 +2140,7 @@ function create(resourceName, attrs) {
 
 module.exports = create;
 
-},{"errors":"hIh4e1","services":"cX8q+p","store":"hT1bCX","utils":"uE/lJt"}],31:[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","store":"hT1bCX","utils":"uE/lJt"}],29:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	store = require('store');
@@ -2403,7 +2204,7 @@ function destroy(resourceName, id) {
 
 module.exports = destroy;
 
-},{"errors":"hIh4e1","store":"hT1bCX","utils":"uE/lJt"}],32:[function(require,module,exports){
+},{"errors":"hIh4e1","store":"hT1bCX","utils":"uE/lJt"}],30:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	store = require('store'),
@@ -2475,7 +2276,7 @@ function find(resourceName, id, forceRefresh) {
 
 module.exports = find;
 
-},{"../../HTTP":29,"errors":"hIh4e1","services":"cX8q+p","store":"hT1bCX","utils":"uE/lJt"}],33:[function(require,module,exports){
+},{"../../HTTP":27,"errors":"hIh4e1","services":"cX8q+p","store":"hT1bCX","utils":"uE/lJt"}],31:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	store = require('store'),
@@ -2514,8 +2315,6 @@ function processResults(data, resourceName, queryHash) {
 function _findAll(deferred, resourceName, params, forceRefresh) {
 	var resource = store[resourceName];
 
-	params.query = params.query || {};
-
 	var queryHash = utils.toJson(params);
 
 	if (forceRefresh) {
@@ -2532,7 +2331,7 @@ function _findAll(deferred, resourceName, params, forceRefresh) {
 				try {
 					deferred.resolve(processResults(data, resourceName, queryHash));
 				} catch (err) {
-					deferred.reject(new errors.UnhandledErrror(err));
+					deferred.reject(new errors.UnhandledError(err));
 				}
 			}, deferred.reject);
 		}
@@ -2588,12 +2387,12 @@ function findAll(resourceName, params, forceRefresh) {
 		deferred.reject(new errors.RuntimeError('DS.findAll(resourceName[, params]): ' + resourceName + ' is not a registered resource!'));
 	} else if (!utils.isObject(params)) {
 		deferred.reject(new errors.IllegalArgumentError('DS.findAll(resourceName[, params]): params: Must be an object!', { params: { actual: typeof params, expected: 'object' } }));
-	}
-
-	try {
-		_findAll.apply(this, [deferred, resourceName, params, forceRefresh]);
-	} catch (err) {
-		deferred.reject(new errors.UnhandledErrror(err));
+	} else {
+		try {
+			_findAll.apply(this, [deferred, resourceName, params, forceRefresh]);
+		} catch (err) {
+			deferred.reject(new errors.UnhandledError(err));
+		}
 	}
 
 	return deferred.promise;
@@ -2601,7 +2400,7 @@ function findAll(resourceName, params, forceRefresh) {
 
 module.exports = findAll;
 
-},{"../../HTTP":29,"errors":"hIh4e1","services":"cX8q+p","store":"hT1bCX","utils":"uE/lJt"}],34:[function(require,module,exports){
+},{"../../HTTP":27,"errors":"hIh4e1","services":"cX8q+p","store":"hT1bCX","utils":"uE/lJt"}],32:[function(require,module,exports){
 module.exports = {
 	/**
 	 * @doc method
@@ -2815,7 +2614,7 @@ module.exports = {
 	save: require('./save')
 };
 
-},{"./create":30,"./destroy":31,"./find":32,"./findAll":33,"./refresh":35,"./save":36}],35:[function(require,module,exports){
+},{"./create":28,"./destroy":29,"./find":30,"./findAll":31,"./refresh":33,"./save":34}],33:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	store = require('store'),
@@ -2872,7 +2671,7 @@ function refresh(resourceName, id) {
 
 module.exports = refresh;
 
-},{"../../HTTP":29,"errors":"hIh4e1","store":"hT1bCX","utils":"uE/lJt"}],36:[function(require,module,exports){
+},{"../../HTTP":27,"errors":"hIh4e1","store":"hT1bCX","utils":"uE/lJt"}],34:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	store = require('store'),
@@ -2950,9 +2749,9 @@ function save(resourceName, id) {
 
 module.exports = save;
 
-},{"../../HTTP":29,"errors":"hIh4e1","services":"cX8q+p","store":"hT1bCX","utils":"uE/lJt"}],37:[function(require,module,exports){
-module.exports=require(29)
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],38:[function(require,module,exports){
+},{"../../HTTP":27,"errors":"hIh4e1","services":"cX8q+p","store":"hT1bCX","utils":"uE/lJt"}],35:[function(require,module,exports){
+module.exports=require(27)
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],36:[function(require,module,exports){
 var utils = require('utils'),
 	services = require('services');
 
@@ -2990,7 +2789,6 @@ function DSProvider() {
 			// Throttle angular-data's digest loop to tenths of a second
 			return new Date().getTime() / 100 | 0;
 		}, function () {
-			console.log('digesting');
 			DS.digest();
 		});
 
@@ -3000,11 +2798,11 @@ function DSProvider() {
 
 module.exports = DSProvider;
 
-},{"./async_methods":34,"./http":37,"./sync_methods":50,"services":"cX8q+p","utils":"uE/lJt"}],"cX8q+p":[function(require,module,exports){
+},{"./async_methods":32,"./http":35,"./sync_methods":48,"services":"cX8q+p","utils":"uE/lJt"}],"services":[function(require,module,exports){
+module.exports=require('cX8q+p');
+},{}],"cX8q+p":[function(require,module,exports){
 module.exports = {};
 
-},{}],"services":[function(require,module,exports){
-module.exports=require('cX8q+p');
 },{}],"hT1bCX":[function(require,module,exports){
 module.exports = {
 
@@ -3012,7 +2810,7 @@ module.exports = {
 
 },{}],"store":[function(require,module,exports){
 module.exports=require('hT1bCX');
-},{}],43:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	store = require('store');
@@ -3061,7 +2859,7 @@ function changes(resourceName, id) {
 
 module.exports = changes;
 
-},{"errors":"hIh4e1","store":"hT1bCX","utils":"uE/lJt"}],44:[function(require,module,exports){
+},{"errors":"hIh4e1","store":"hT1bCX","utils":"uE/lJt"}],42:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	store = require('store');
@@ -3133,7 +2931,7 @@ function defineResource(definition) {
 
 module.exports = defineResource;
 
-},{"errors":"hIh4e1","store":"hT1bCX","utils":"uE/lJt"}],45:[function(require,module,exports){
+},{"errors":"hIh4e1","store":"hT1bCX","utils":"uE/lJt"}],43:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	store = require('store'),
@@ -3176,7 +2974,7 @@ function digest() {
 
 module.exports = digest;
 
-},{"errors":"hIh4e1","observejs":"q+M0EE","services":"cX8q+p","store":"hT1bCX","utils":"uE/lJt"}],46:[function(require,module,exports){
+},{"errors":"hIh4e1","observejs":"q+M0EE","services":"cX8q+p","store":"hT1bCX","utils":"uE/lJt"}],44:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	store = require('store'),
@@ -3267,29 +3065,36 @@ function eject(resourceName, id) {
 
 module.exports = eject;
 
-},{"errors":"hIh4e1","services":"cX8q+p","store":"hT1bCX","utils":"uE/lJt"}],47:[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","store":"hT1bCX","utils":"uE/lJt"}],45:[function(require,module,exports){
+/* jshint loopfunc: true */
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store');
+	store = require('store'),
+	errorPrefix = 'DS.filter(resourceName, params[, options])';
 
 /**
  * @doc method
  * @id DS.sync_methods:filter
  * @name filter
  * @description
- * `filter(resourceName[, params][, loadFromServer])`
+ * Synchronously filter items in the data store of the type specified by `resourceName`.
  *
- * Example:
+ * ## Signature:
+ * ```js
+ * DS.filter(resourceName, params[, options])
+ * ```
+ *
+ * ## Example:
  *
  * ```js
- * TODO: get(resourceName, id) example
+ * TODO: filter(resourceName, params[, options]) example
  * ```
  *
  * ## Throws
  *
- * - `{IllegalArgumentError}` - Argument `params` must be an object.
- * - `{RuntimeError}` - Argument `resourceName` must refer to an already registered resource.
- * - `{UnhandledError}` - Thrown for any uncaught exception.
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {object=} params Parameter object that is serialized into the query string. Properties:
@@ -3298,14 +3103,20 @@ var utils = require('utils'),
  *      - `{object=}` - `where` - Where clause.
  *      - `{number=}` - `limit` - Limit clause.
  *      - `{skip=}` - `skip` - Skip clause.
- * @param {boolean=} loadFromServer Whether to load the query from the server if it hasn't been loaded yet.
+ * @param {object=} options Whether to load the query from the server if it hasn't been loaded yet. Properties:
+ * - `{boolean=}` - `bypassCache` - Bypass the cache.
+ *
  * @returns {array} The filtered collection of items of the type specified by `resourceName`.
  */
-function filter(resourceName, params, loadFromServer) {
+function filter(resourceName, params, options) {
+	options = options || {};
+
 	if (!store[resourceName]) {
-		throw new errors.RuntimeError('DS.filter(resourceName[, params][, loadFromServer]): ' + resourceName + ' is not a registered resource!');
-	} else if (params && !utils.isObject(params)) {
-		throw new errors.IllegalArgumentError('DS.filter(resourceName[, params][, loadFromServer]): params: Must be an object!', { params: { actual: typeof params, expected: 'object' } });
+		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+	} else if (!utils.isObject(params)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!', { params: { actual: typeof params, expected: 'object' } });
+	} else if (!utils.isObject(options)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
 	}
 
 	var resource = store[resourceName];
@@ -3316,7 +3127,7 @@ function filter(resourceName, params, loadFromServer) {
 
 	var queryHash = utils.toJson(params);
 
-	if (!(queryHash in resource.completedQueries) && loadFromServer) {
+	if (!(queryHash in resource.completedQueries) && options.loadFromServer) {
 		// This particular query has never been completed
 
 		if (!resource.pendingQueries[queryHash]) {
@@ -3329,69 +3140,90 @@ function filter(resourceName, params, loadFromServer) {
 	} else {
 		// The query has been completed, so hit the cache with the query
 
-		// Apply 'criteria'
+		// Apply 'where' clauses
 		var filtered = utils.filter(resource.collection, function (value) {
 			var keep = true;
-			utils.forOwn(params.query.criteria, function (value2, key2) {
-				if (key2.indexOf('.') !== -1) {
-					key2 = key2.split('.')[1];
+			if (params.query.where) {
+				if (!utils.isObject(params.query.where)) {
+					throw new errors.IllegalArgumentError(errorPrefix + 'params.query.where: Must be an object!', { params: { query: { where: { actual: typeof params.query.where, expected: 'object' } } } });
 				}
-				if (value2['==']) {
-					if (value2['=='] == 'null') {
-						keep = keep && (value[key2] === null);
-					} else {
-						keep = keep && (value[key2] == value2['==']);
+				utils.forOwn(params.query.where, function (value2, key2) {
+					if (utils.isString(value2)) {
+						value2 = {
+							'==': value2
+						};
 					}
-				} else if (value2['!=']) {
-					keep = keep && (value[key2] != value2['!=']);
-				} else if (value2['>']) {
-					keep = keep && (value[key2] > value2['>']);
-				} else if (value2['>=']) {
-					keep = keep && (value[key2] >= value2['>=']);
-				} else if (value2['<']) {
-					keep = keep && (value[key2] < value2['<']);
-				} else if (value2['<=']) {
-					keep = keep && (value[key2] <= value2['<=']);
-				} else if (value2['in']) {
-					keep = keep && utils.contains(value2['in'], value[key2]);
-				}
-			});
+					if (key2.indexOf('.') !== -1) {
+						key2 = key2.split('.')[1];
+					}
+					if (value2['==']) {
+						if (value2['=='] == 'null') {
+							keep = keep && (value[key2] === null);
+						} else {
+							keep = keep && (value[key2] == value2['==']);
+						}
+					} else if (value2['!=']) {
+						keep = keep && (value[key2] != value2['!=']);
+					} else if (value2['>']) {
+						keep = keep && (value[key2] > value2['>']);
+					} else if (value2['>=']) {
+						keep = keep && (value[key2] >= value2['>=']);
+					} else if (value2['<']) {
+						keep = keep && (value[key2] < value2['<']);
+					} else if (value2['<=']) {
+						keep = keep && (value[key2] <= value2['<=']);
+					} else if (value2['in']) {
+						keep = keep && utils.contains(value2['in'], value[key2]);
+					}
+				});
+			}
 			return keep;
 		});
 
-		// Apply 'sort'
-		if (params.query.sort) {
-			utils.forOwn(params.query.sort, function (value, key) {
-				if (key.indexOf('.') !== -1) {
-					key = key.split('.')[1];
+		// Apply 'orderBy'
+		if (params.query.orderBy) {
+			if (utils.isString(params.query.orderBy)) {
+				params.query.orderBy = [
+					[params.query.orderBy, 'ASC']
+				];
+			}
+			if (utils.isArray(params.query.orderBy)) {
+				for (var i = 0; i < params.query.orderBy.length; i++) {
+					if (utils.isString(params.query.orderBy[i])) {
+						params.query.orderBy[i] = [params.query.orderBy[i], 'ASC'];
+					} else if (!utils.isArray(params.query.orderBy[i])) {
+						throw new errors.IllegalArgumentError(errorPrefix + 'params.query.orderBy[' + i + ']: Must be an array!', { params: { query: { 'orderBy[i]': { actual: typeof params.query.orderBy[i], expected: 'array' } } } });
+					}
+					filtered = utils.sort(filtered, function (a, b) {
+						var cA = a[params.query.orderBy[i][0]], cB = b[params.query.orderBy[i][0]];
+						if (utils.isString(cA)) {
+							cA = utils.upperCase(cA);
+						}
+						if (utils.isString(cB)) {
+							cB = utils.upperCase(cB);
+						}
+						if (params.query.orderBy[i][1] === 'DESC') {
+							if (cB < cA) {
+								return -1;
+							} else if (cB > cA) {
+								return 1;
+							} else {
+								return 0;
+							}
+						} else {
+							if (cA < cB) {
+								return -1;
+							} else if (cA > cB) {
+								return 1;
+							} else {
+								return 0;
+							}
+						}
+					});
 				}
-				filtered = utils.sort(filtered, function (a, b) {
-					var cA = a[key], cB = b[key];
-					if (utils.isString(cA)) {
-						cA = utils.upperCase(cA);
-					}
-					if (utils.isString(cB)) {
-						cB = utils.upperCase(cB);
-					}
-					if (value === 'DESC') {
-						if (cB < cA) {
-							return -1;
-						} else if (cB > cA) {
-							return 1;
-						} else {
-							return 0;
-						}
-					} else {
-						if (cA < cB) {
-							return -1;
-						} else if (cA > cB) {
-							return 1;
-						} else {
-							return 0;
-						}
-					}
-				});
-			});
+			} else {
+				throw new errors.IllegalArgumentError(errorPrefix + 'params.query.orderBy: Must be an array!', { params: { query: { orderBy: { actual: typeof params.query.orderBy, expected: 'array' } } } });
+			}
 		}
 
 		// Apply 'limit' and 'offset'
@@ -3409,7 +3241,7 @@ function filter(resourceName, params, loadFromServer) {
 
 module.exports = filter;
 
-},{"errors":"hIh4e1","store":"hT1bCX","utils":"uE/lJt"}],48:[function(require,module,exports){
+},{"errors":"hIh4e1","store":"hT1bCX","utils":"uE/lJt"}],46:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	store = require('store');
@@ -3462,7 +3294,7 @@ function get(resourceName, id) {
 
 module.exports = get;
 
-},{"errors":"hIh4e1","store":"hT1bCX","utils":"uE/lJt"}],49:[function(require,module,exports){
+},{"errors":"hIh4e1","store":"hT1bCX","utils":"uE/lJt"}],47:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	store = require('store');
@@ -3516,7 +3348,7 @@ function hasChanges(resourceName, id) {
 
 module.exports = hasChanges;
 
-},{"errors":"hIh4e1","store":"hT1bCX","utils":"uE/lJt"}],50:[function(require,module,exports){
+},{"errors":"hIh4e1","store":"hT1bCX","utils":"uE/lJt"}],48:[function(require,module,exports){
 module.exports = {
 	/**
 	 * @doc method
@@ -3869,7 +3701,7 @@ module.exports = {
 	hasChanges: require('./hasChanges')
 };
 
-},{"./changes":43,"./defineResource":44,"./digest":45,"./eject":46,"./filter":47,"./get":48,"./hasChanges":49,"./inject":51,"./lastModified":52,"./lastSaved":53,"./previous":54}],51:[function(require,module,exports){
+},{"./changes":41,"./defineResource":42,"./digest":43,"./eject":44,"./filter":45,"./get":46,"./hasChanges":47,"./inject":49,"./lastModified":50,"./lastSaved":51,"./previous":52}],49:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	store = require('store'),
@@ -3997,7 +3829,7 @@ function inject(resourceName, attrs) {
 
 module.exports = inject;
 
-},{"errors":"hIh4e1","observejs":"q+M0EE","services":"cX8q+p","store":"hT1bCX","utils":"uE/lJt"}],52:[function(require,module,exports){
+},{"errors":"hIh4e1","observejs":"q+M0EE","services":"cX8q+p","store":"hT1bCX","utils":"uE/lJt"}],50:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	store = require('store');
@@ -4050,7 +3882,7 @@ function lastModified(resourceName, id) {
 
 module.exports = lastModified;
 
-},{"errors":"hIh4e1","store":"hT1bCX","utils":"uE/lJt"}],53:[function(require,module,exports){
+},{"errors":"hIh4e1","store":"hT1bCX","utils":"uE/lJt"}],51:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	store = require('store');
@@ -4103,7 +3935,7 @@ function lastSaved(resourceName, id) {
 
 module.exports = lastSaved;
 
-},{"errors":"hIh4e1","store":"hT1bCX","utils":"uE/lJt"}],54:[function(require,module,exports){
+},{"errors":"hIh4e1","store":"hT1bCX","utils":"uE/lJt"}],52:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	store = require('store');
@@ -4155,6 +3987,149 @@ module.exports = previous;
 module.exports=require('hIh4e1');
 },{}],"hIh4e1":[function(require,module,exports){
 /**
+ * @doc function
+ * @id errors.types:UnhandledError
+ * @name UnhandledError
+ * @description Error that is thrown/returned when Reheat encounters an uncaught/unknown exception.
+ * @param {Error} error The originally thrown error.
+ * @returns {UnhandledError} A new instance of `UnhandledError`.
+ */
+function UnhandledError(error) {
+	Error.call(this);
+	Error.captureStackTrace(this, this.constructor);
+
+	error = error || {};
+
+	/**
+	 * @doc property
+	 * @id errors.types:UnhandledError.type
+	 * @name type
+	 * @propertyOf errors.types:UnhandledError
+	 * @description Name of error type. Default: `"UnhandledError"`.
+	 */
+	this.type = this.constructor.name;
+
+	/**
+	 * @doc property
+	 * @id errors.types:UnhandledError.originalError
+	 * @name originalError
+	 * @propertyOf errors.types:UnhandledError
+	 * @description A reference to the original error that was thrown.
+	 */
+	this.originalError = error;
+
+	/**
+	 * @doc property
+	 * @id errors.types:UnhandledError.message
+	 * @name message
+	 * @propertyOf errors.types:UnhandledError
+	 * @description Message and stack trace. Same as `UnhandledError#stack`.
+	 */
+	this.message = 'UnhandledError: This is an uncaught exception. Please consider submitting an issue at https://github.com/jmdobry/angular-data/issues.\n\n' +
+		'Original Uncaught Exception:\n' + (error.stack ? error.stack.toString() : error.stack);
+
+	/**
+	 * @doc property
+	 * @id errors.types:UnhandledError.stack
+	 * @name stack
+	 * @propertyOf errors.types:UnhandledError
+	 * @description Message and stack trace. Same as `UnhandledError#message`.
+	 */
+	this.stack = this.message;
+}
+
+UnhandledError.prototype = Object.create(Error.prototype);
+UnhandledError.prototype.constructor = UnhandledError;
+
+/**
+ * @doc function
+ * @id errors.types:IllegalArgumentError
+ * @name IllegalArgumentError
+ * @description Error that is thrown/returned when a caller does not honor the pre-conditions of a method/function.
+ * @param {string=} message Error message. Default: `"Illegal Argument!"`.
+ * @param {object=} errors Object containing information about the error.
+ * @returns {IllegalArgumentError} A new instance of `IllegalArgumentError`.
+ */
+function IllegalArgumentError(message, errors) {
+	Error.call(this);
+	Error.captureStackTrace(this, this.constructor);
+
+	/**
+	 * @doc property
+	 * @id errors.types:IllegalArgumentError.type
+	 * @name type
+	 * @propertyOf errors.types:IllegalArgumentError
+	 * @description Name of error type. Default: `"IllegalArgumentError"`.
+	 */
+	this.type = this.constructor.name;
+
+	/**
+	 * @doc property
+	 * @id errors.types:IllegalArgumentError.errors
+	 * @name errors
+	 * @propertyOf errors.types:IllegalArgumentError
+	 * @description Object containing information about the error.
+	 */
+	this.errors = errors || {};
+
+	/**
+	 * @doc property
+	 * @id errors.types:IllegalArgumentError.message
+	 * @name message
+	 * @propertyOf errors.types:IllegalArgumentError
+	 * @description Error message. Default: `"Illegal Argument!"`.
+	 */
+	this.message = message || 'Illegal Argument!';
+}
+
+IllegalArgumentError.prototype = Object.create(Error.prototype);
+IllegalArgumentError.prototype.constructor = IllegalArgumentError;
+
+/**
+ * @doc function
+ * @id errors.types:ValidationError
+ * @name ValidationError
+ * @description Error that is thrown/returned when validation of a schema fails.
+ * @param {string=} message Error message. Default: `"Validation Error!"`.
+ * @param {object=} errors Object containing information about the error.
+ * @returns {ValidationError} A new instance of `ValidationError`.
+ */
+function ValidationError(message, errors) {
+	Error.call(this);
+	Error.captureStackTrace(this, this.constructor);
+
+	/**
+	 * @doc property
+	 * @id errors.types:ValidationError.type
+	 * @name type
+	 * @propertyOf errors.types:ValidationError
+	 * @description Name of error type. Default: `"ValidationError"`.
+	 */
+	this.type = this.constructor.name;
+
+	/**
+	 * @doc property
+	 * @id errors.types:ValidationError.errors
+	 * @name errors
+	 * @propertyOf errors.types:ValidationError
+	 * @description Object containing information about the error.
+	 */
+	this.errors = errors || {};
+
+	/**
+	 * @doc property
+	 * @id errors.types:ValidationError.message
+	 * @name message
+	 * @propertyOf errors.types:ValidationError
+	 * @description Error message. Default: `"Validation Error!"`.
+	 */
+	this.message = message || 'Validation Error!';
+}
+
+ValidationError.prototype = Object.create(Error.prototype);
+ValidationError.prototype.constructor = ValidationError;
+
+/**
  * @doc interface
  * @id errors
  * @name angular-data error types
@@ -4162,139 +4137,9 @@ module.exports=require('hIh4e1');
  * `UnhandledError`, `IllegalArgumentError` and `ValidationError`.
  */
 module.exports = {
-	/**
-	 * @doc function
-	 * @id errors.types:UnhandledError
-	 * @name UnhandledError
-	 * @description Error that is thrown/returned when Reheat encounters an uncaught/unknown exception.
-	 * @param {Error} error The originally thrown error.
-	 * @returns {UnhandledError} A new instance of `UnhandledError`.
-	 */
-	UnhandledError: function UnhandledError(error) {
-		Error.call(this);
-		Error.captureStackTrace(this, this.constructor);
-
-		error = error || {};
-
-		/**
-		 * @doc property
-		 * @id errors.types:UnhandledError.type
-		 * @name type
-		 * @propertyOf errors.types:UnhandledError
-		 * @description Name of error type. Default: `"UnhandledError"`.
-		 */
-		this.type = this.constructor.name;
-
-		/**
-		 * @doc property
-		 * @id errors.types:UnhandledError.originalError
-		 * @name originalError
-		 * @propertyOf errors.types:UnhandledError
-		 * @description A reference to the original error that was thrown.
-		 */
-		this.originalError = error;
-
-		/**
-		 * @doc property
-		 * @id errors.types:UnhandledError.message
-		 * @name message
-		 * @propertyOf errors.types:UnhandledError
-		 * @description Message and stack trace. Same as `UnhandledError#stack`.
-		 */
-		this.message = 'UnhandledError: This is an uncaught exception. Please consider submitting an issue at https://github.com/jmdobry/reheat/issues.\n\n' +
-			'Original Uncaught Exception:\n' + (error.stack ? error.stack.toString() : error.stack);
-
-		/**
-		 * @doc property
-		 * @id errors.types:UnhandledError.stack
-		 * @name stack
-		 * @propertyOf errors.types:UnhandledError
-		 * @description Message and stack trace. Same as `UnhandledError#message`.
-		 */
-		this.stack = this.message;
-	},
-
-	/**
-	 * @doc function
-	 * @id errors.types:IllegalArgumentError
-	 * @name IllegalArgumentError
-	 * @description Error that is thrown/returned when a caller does not honor the pre-conditions of a method/function.
-	 * @param {string=} message Error message. Default: `"Illegal Argument!"`.
-	 * @param {object=} errors Object containing information about the error.
-	 * @returns {IllegalArgumentError} A new instance of `IllegalArgumentError`.
-	 */
-	IllegalArgumentError: function IllegalArgumentError(message, errors) {
-		Error.call(this);
-		Error.captureStackTrace(this, this.constructor);
-
-		/**
-		 * @doc property
-		 * @id errors.types:IllegalArgumentError.type
-		 * @name type
-		 * @propertyOf errors.types:IllegalArgumentError
-		 * @description Name of error type. Default: `"IllegalArgumentError"`.
-		 */
-		this.type = this.constructor.name;
-
-		/**
-		 * @doc property
-		 * @id errors.types:IllegalArgumentError.errors
-		 * @name errors
-		 * @propertyOf errors.types:IllegalArgumentError
-		 * @description Object containing information about the error.
-		 */
-		this.errors = errors || {};
-
-		/**
-		 * @doc property
-		 * @id errors.types:IllegalArgumentError.message
-		 * @name message
-		 * @propertyOf errors.types:IllegalArgumentError
-		 * @description Error message. Default: `"Illegal Argument!"`.
-		 */
-		this.message = message || 'Illegal Argument!';
-	},
-
-	/**
-	 * @doc function
-	 * @id errors.types:ValidationError
-	 * @name ValidationError
-	 * @description Error that is thrown/returned when validation of a schema fails.
-	 * @param {string=} message Error message. Default: `"Validation Error!"`.
-	 * @param {object=} errors Object containing information about the error.
-	 * @returns {ValidationError} A new instance of `ValidationError`.
-	 */
-	ValidationError: function ValidationError(message, errors) {
-		Error.call(this);
-		Error.captureStackTrace(this, this.constructor);
-
-		/**
-		 * @doc property
-		 * @id errors.types:ValidationError.type
-		 * @name type
-		 * @propertyOf errors.types:ValidationError
-		 * @description Name of error type. Default: `"ValidationError"`.
-		 */
-		this.type = this.constructor.name;
-
-		/**
-		 * @doc property
-		 * @id errors.types:ValidationError.errors
-		 * @name errors
-		 * @propertyOf errors.types:ValidationError
-		 * @description Object containing information about the error.
-		 */
-		this.errors = errors || {};
-
-		/**
-		 * @doc property
-		 * @id errors.types:ValidationError.message
-		 * @name message
-		 * @propertyOf errors.types:ValidationError
-		 * @description Error message. Default: `"Validation Error!"`.
-		 */
-		this.message = message || 'Validation Error!';
-	},
+	UnhandledError: UnhandledError,
+	IllegalArgumentError: IllegalArgumentError,
+	ValidationError: ValidationError,
 
 	/**
 	 * @doc function
@@ -4338,55 +4183,55 @@ module.exports = {
 	}
 };
 
-},{}],57:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 (function (window, angular, undefined) {
 	'use strict';
 
-	angular.module('jmdobry.binary-heap', []);
+//	angular.module('jmdobry.binary-heap', []);
+//
+//	/**
+//	 * @doc interface
+//	 * @id BinaryHeapProvider
+//	 * @name BinaryHeapProvider
+//	 */
+//	function BinaryHeapProvider() {
+//
+//		var defaults = require('./binaryHeap/defaults');
+//
+//		/**
+//		 * @doc method
+//		 * @id BinaryHeapProvider.methods:setDefaultWeightFunction
+//		 * @name setDefaultWeightFunction
+//		 * @param {function} weightFunc New default weight function.
+//		 */
+//		function setDefaultWeightFunction(weightFunc) {
+//			if (!angular.isFunction(weightFunc)) {
+//				throw new Error('BinaryHeapProvider.setDefaultWeightFunction(weightFunc): weightFunc: Must be a function!');
+//			}
+//			defaults.userProvidedDefaultWeightFunc = weightFunc;
+//		}
+//
+//		/**
+//		 * @doc method
+//		 * @id BinaryHeapProvider.methods:setDefaultWeightFunction
+//		 * @name setDefaultWeightFunction
+//		 * @methodOf BinaryHeapProvider
+//		 * @param {function} weightFunc New default weight function.
+//		 */
+//		this.setDefaultWeightFunction = setDefaultWeightFunction;
+//
+//		this.$get = function () {
+//			return require('./binaryHeap');
+//		};
+//	}
+//	angular.module('jmdobry.binary-heap').provider('BinaryHeap', BinaryHeapProvider);
 
-	/**
-	 * @doc interface
-	 * @id BinaryHeapProvider
-	 * @name BinaryHeapProvider
-	 */
-	function BinaryHeapProvider() {
-
-		var defaults = require('./binaryHeap/defaults');
-
-		/**
-		 * @doc method
-		 * @id BinaryHeapProvider.methods:setDefaultWeightFunction
-		 * @name setDefaultWeightFunction
-		 * @param {function} weightFunc New default weight function.
-		 */
-		function setDefaultWeightFunction(weightFunc) {
-			if (!angular.isFunction(weightFunc)) {
-				throw new Error('BinaryHeapProvider.setDefaultWeightFunction(weightFunc): weightFunc: Must be a function!');
-			}
-			defaults.userProvidedDefaultWeightFunc = weightFunc;
-		}
-
-		/**
-		 * @doc method
-		 * @id BinaryHeapProvider.methods:setDefaultWeightFunction
-		 * @name setDefaultWeightFunction
-		 * @methodOf BinaryHeapProvider
-		 * @param {function} weightFunc New default weight function.
-		 */
-		this.setDefaultWeightFunction = setDefaultWeightFunction;
-
-		this.$get = function () {
-			return require('./binaryHeap');
-		};
-	}
-	angular.module('jmdobry.binary-heap').provider('BinaryHeap', BinaryHeapProvider);
-
-	angular.module('jmdobry.angular-data', ['ng', 'jmdobry.binary-heap']);
+	angular.module('jmdobry.angular-data', ['ng'/*, 'jmdobry.binary-heap'*/]);
 	angular.module('jmdobry.angular-data').provider('DS', require('./datastore'));
 
 })(window, window.angular);
 
-},{"./binaryHeap":28,"./binaryHeap/defaults":27,"./datastore":38}],"utils":[function(require,module,exports){
+},{"./datastore":36}],"utils":[function(require,module,exports){
 module.exports=require('uE/lJt');
 },{}],"uE/lJt":[function(require,module,exports){
 module.exports = {
@@ -4402,7 +4247,7 @@ module.exports = {
 	forOwn: require('mout/object/forOwn'),
 	contains: require('mout/array/contains'),
 	filter: require('mout/array/filter'),
-	toLookUp: require('mout/array/toLookup'),
+	toLookup: require('mout/array/toLookup'),
 	slice: require('mout/array/slice'),
 	sort: require('mout/array/sort'),
 	updateTimestamp: function (timestamp) {
@@ -4478,4 +4323,4 @@ module.exports = {
 	}
 };
 
-},{"mout/array/contains":1,"mout/array/filter":2,"mout/array/slice":5,"mout/array/sort":6,"mout/array/toLookup":7,"mout/lang/isEmpty":12,"mout/object/deepMixIn":19,"mout/object/forOwn":21,"mout/string/makePath":23,"mout/string/upperCase":24}]},{},[57])
+},{"mout/array/contains":1,"mout/array/filter":2,"mout/array/slice":5,"mout/array/sort":6,"mout/array/toLookup":7,"mout/lang/isEmpty":12,"mout/object/deepMixIn":19,"mout/object/forOwn":21,"mout/string/makePath":23,"mout/string/upperCase":24}]},{},[55])

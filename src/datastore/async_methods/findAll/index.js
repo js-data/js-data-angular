@@ -36,8 +36,6 @@ function processResults(data, resourceName, queryHash) {
 function _findAll(deferred, resourceName, params, forceRefresh) {
 	var resource = store[resourceName];
 
-	params.query = params.query || {};
-
 	var queryHash = utils.toJson(params);
 
 	if (forceRefresh) {
@@ -54,7 +52,7 @@ function _findAll(deferred, resourceName, params, forceRefresh) {
 				try {
 					deferred.resolve(processResults(data, resourceName, queryHash));
 				} catch (err) {
-					deferred.reject(new errors.UnhandledErrror(err));
+					deferred.reject(new errors.UnhandledError(err));
 				}
 			}, deferred.reject);
 		}
@@ -110,12 +108,12 @@ function findAll(resourceName, params, forceRefresh) {
 		deferred.reject(new errors.RuntimeError('DS.findAll(resourceName[, params]): ' + resourceName + ' is not a registered resource!'));
 	} else if (!utils.isObject(params)) {
 		deferred.reject(new errors.IllegalArgumentError('DS.findAll(resourceName[, params]): params: Must be an object!', { params: { actual: typeof params, expected: 'object' } }));
-	}
-
-	try {
-		_findAll.apply(this, [deferred, resourceName, params, forceRefresh]);
-	} catch (err) {
-		deferred.reject(new errors.UnhandledErrror(err));
+	} else {
+		try {
+			_findAll.apply(this, [deferred, resourceName, params, forceRefresh]);
+		} catch (err) {
+			deferred.reject(new errors.UnhandledError(err));
+		}
 	}
 
 	return deferred.promise;
