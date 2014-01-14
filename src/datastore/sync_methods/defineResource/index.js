@@ -51,7 +51,6 @@ function defineResource(definition) {
 		store[definition.name] = definition;
 
 		var resource = store[definition.name];
-		resource.url = utils.makePath(resource.baseUrl, (resource.endpoint || resource.name));
 		resource.collection = [];
 		resource.completedQueries = {};
 		resource.pendingQueries = {};

@@ -66,7 +66,17 @@ function find(resourceName, id, options) {
 			if (id in resource.index && !options.bypassCache) {
 				deferred.resolve(_this.get(resourceName, id));
 			} else {
-				GET(utils.makePath(resource.url, id), null).then(function (data) {
+				var url = utils.makePath(resource.baseUrl || services.$config.baseUrl, resource.endpoint || resource.name, id),
+					config = null;
+
+				if (options.bypassCache) {
+					config = {
+						headers: {
+							'Last-Modified': new Date(resource.modified[id])
+						}
+					};
+				}
+				GET(url, config).then(function (data) {
 					try {
 						_this.inject(resourceName, data);
 						deferred.resolve(_this.get(resourceName, id));

@@ -7,7 +7,8 @@ var utils = require('utils'),
 
 function _save(deferred, resource, id, options) {
 	var _this = this;
-	PUT(utils.makePath(resource.url, id), resource.index[id], null).then(function (data) {
+	var url = utils.makePath(resource.baseUrl || services.$config.baseUrl, resource.endpoint || resource.name, id);
+	PUT(url, resource.index[id], null).then(function (data) {
 		var saved = _this.inject(resource.name, data, options);
 		resource.saved[id] = utils.updateTimestamp(resource.saved[id]);
 		deferred.resolve(saved);
@@ -29,7 +30,14 @@ function _save(deferred, resource, id, options) {
  * ## Example:
  *
  * ```js
- * TODO: save(resourceName, id) example
+ *  var document = DS.get('document', 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f');
+ *
+ *  document.title = 'How to cook in style';
+ *
+ *  DS.save('document', 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f')
+ *  .then(function (document) {
+ *      document; // A reference to the document that's been saved to the server
+ *  });
  * ```
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.

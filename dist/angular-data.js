@@ -1,8 +1,8 @@
 /**
  * @author Jason Dobry <jason.dobry@gmail.com>
- * @file angular-data.js
- * @version 0.0.1-SNAPSHOT - Homepage <http://jmdobry.github.io/angular-data/>
- * @copyright (c) 2014 Jason Dobry <http://jmdobry.github.io/angular-data>
+ * @file angular-data.min.js
+ * @version 0.1.0-SNAPSHOT - Homepage <http://jmdobry.github.io/angular-data/>
+ * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/angular-data>
  * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
  *
  * @overview Data store for Angular.js.
@@ -2064,21 +2064,33 @@ module.exports = {
 var utils = require('utils'),
 	errors = require('errors'),
 	store = require('store'),
-	services = require('services');
+	services = require('services'),
+	errorPrefix = 'DS.create(resourceName, attrs): ';
 
 /**
  * @doc method
  * @id DS.async_methods:create
  * @name create
  * @description
- * `create(resourceName, attrs)`
+ * Create a new resource and save it to the server.
  *
- * Create a new resource.
+ * ## Signature:
+ * ```js
+ * DS.create(resourceName, attrs)
+ * ```
  *
- * Example:
+ * ## Example:
  *
  * ```js
- * TODO: create(resourceName, attrs)
+ * DS.create('document', { author: 'John Anderson' })
+ *  .then(function (document) {
+ *      document; // { id: 'aab7ff66-e21e-46e2-8be8-264d82aee535', author: 'John Anderson' }
+ *
+ *      // The new document is already in the data store
+ *      DS.get('document', document.id); // { id: 'aab7ff66-e21e-46e2-8be8-264d82aee535', author: 'John Anderson' }
+ *  }, function (err) {
+ *      // handle error
+ *  });
  * ```
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
@@ -2086,34 +2098,36 @@ var utils = require('utils'),
  * the primary key specified by `id`.
  * @returns {Promise} Promise produced by the `$q` service.
  *
- * ## ResolvesWith:
+ * ## Resolves with:
  *
  * - `{object}` - `item` - A reference to the newly created item.
  *
- * ## RejectsWith:
+ * ## Rejects with:
  *
- * - `{IllegalArgumentError}` - `err` - Argument `attrs` must be an object.
- * - `{RuntimeError}` - `err` - Argument `resourceName` must refer to an already registered resource.
- * - `{UnhandledError}` - `err` - Thrown for any uncaught exception.
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
  */
 function create(resourceName, attrs) {
 	var deferred = $q.defer();
 	if (!store[resourceName]) {
-		deferred.reject(new errors.RuntimeError('DS.create(resourceName, attrs): ' + resourceName + ' is not a registered resource!'));
+		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
 	} else if (!utils.isObject(attrs)) {
-		deferred.reject(new errors.IllegalArgumentError('DS.create(resourceName, attrs): attrs: Must be an object!', { attrs: { actual: typeof attrs, expected: 'object' } }));
+		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'attrs: Must be an object!', { attrs: { actual: typeof attrs, expected: 'object' } }));
 	}
 
 	try {
 		var resource = store[resourceName],
-			_this = this;
+			_this = this,
+			url = utils.makePath(resource.baseUrl || services.$config.baseUrl, resource.endpoint || resource.name);
 
 		if (resource.validate) {
 			resource.validate(attrs, null, function (err) {
 				if (err) {
 					deferred.reject(err);
 				} else {
-					_this.POST(resource.url, attrs, null).then(function (data) {
+
+					_this.POST(url, attrs, null).then(function (data) {
 						try {
 							deferred.resolve(_this.inject(resource.name, data));
 						} catch (err) {
@@ -2123,7 +2137,7 @@ function create(resourceName, attrs) {
 				}
 			});
 		} else {
-			_this.POST(resource.url, attrs, null).then(function (data) {
+			_this.POST(url, attrs, null).then(function (data) {
 				try {
 					deferred.resolve(_this.inject(resource.name, data));
 				} catch (err) {
@@ -2143,51 +2157,64 @@ module.exports = create;
 },{"errors":"hIh4e1","services":"cX8q+p","store":"hT1bCX","utils":"uE/lJt"}],29:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store');
+	store = require('store'),
+	errorPrefix = 'DS.destroy(resourceName, id): ';
 
 /**
  * @doc method
  * @id DS.async_methods:destroy
  * @name destroy
  * @description
- * `destroy(resourceName, id)`
- *
  * Delete the item of the type specified by `resourceName` with the primary key specified by `id` from the data store
  * and the server.
  *
- * Example:
+ * ## Signature:
+ * ```js
+ * DS.destroy(resourceName, id);
+ * ```
+ *
+ * ## Example:
  *
  * ```js
- * TODO: destroy(type, id) example
+ * DS.destroy('document', 'aab7ff66-e21e-46e2-8be8-264d82aee535')
+ *  .then(function (id) {
+ *      id; // 'aab7ff66-e21e-46e2-8be8-264d82aee535'
+ *
+ *      // The document is gone
+ *      DS.get('document', 'aab7ff66-e21e-46e2-8be8-264d82aee535'); // undefined
+ *  }, function (err) {
+ *      // Handle error
+ *  });
  * ```
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to remove.
  * @returns {Promise} Promise produced by the `$q` service.
  *
- * ## ResolvesWith:
+ * ## Resolves with:
  *
  * - `{string|number}` - `id` - The primary key of the destroyed item.
  *
- * ## RejectsWith:
+ * ## Rejects with:
  *
- * - `{IllegalArgumentError}` - `err` - Argument `id` must be a string or a number.
- * - `{RuntimeError}` - `err` - Argument `resourceName` must refer to an already registered resource.
- * - `{UnhandledError}` - `err` - Thrown for any uncaught exception.
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
  */
 function destroy(resourceName, id) {
 	var deferred = $q.defer();
 	if (!store[resourceName]) {
-		deferred.reject(new errors.RuntimeError('DS.destroy(resourceName, id): ' + resourceName + ' is not a registered resource!'));
+		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
-		deferred.reject(new errors.IllegalArgumentError('DS.destroy(resourceName, id): id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
+		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
 	}
 
 	try {
 		var resource = store[resourceName],
-			_this = this;
+			_this = this,
+			url = utils.makePath(resource.baseUrl || services.$config.baseUrl, resource.endpoint || resource.name, id);
 
-		_this.DEL(utils.makePath(resource.url, id), null).then(function () {
+		_this.DEL(url, null).then(function () {
 			try {
 				_this.eject(resourceName, id);
 				deferred.resolve(id);
@@ -2209,66 +2236,96 @@ var utils = require('utils'),
 	errors = require('errors'),
 	store = require('store'),
 	services = require('services'),
-	GET = require('../../HTTP').GET;
+	GET = require('../../HTTP').GET,
+	errorPrefix = 'DS.find(resourceName, id[, options]): ';
 
 /**
  * @doc method
  * @id DS.async_methods:find
  * @name find
  * @description
- * `find(resourceName, id[, forceRefresh])`
- *
  * Asynchronously return the resource with the given id from the server. The result will be added to the data
  * store when it returns from the server.
  *
- * Example:
+ * ## Signature:
+ * ```js
+ * DS.find(resourceName, id[, options])
+ * ```
+ *
+ * ## Example:
  *
  * ```js
- * TODO: find(resourceName, id[, forceRefresh]) example
+ *  DS.get('document', 5); // undefined
+ *  DS.find('document', 5).then(function (document) {
+ *      document; // { id: 5, author: 'John Anderson' }
+ *
+ *      DS.get('document', 5); // { id: 5, author: 'John Anderson' }
+ *  }, function (err) {
+ *      // Handled errors
+ *  });
  * ```
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to retrieve.
- * @param {boolean=} forceRefresh Bypass the cache.
+ * @param {object=} options Optional configuration. Properties:
+ * - `{boolean=}` - `bypassCache` - Bypass the cache. Default: `false`.
+ * - `{string=}` - `mergeStrategy` - If `findAll` is called, specify the merge strategy that should be used when the new
+ * items are injected into the data store. Default: `"mergeWithExisting"`.
  * @returns {Promise} Promise produced by the `$q` service.
  *
- * ## ResolvesWith:
+ * ## Resolves with:
  *
- * - `{array}` - `item` - The item with the primary key specified by `id`.
+ * - `{object}` - `item` - The item with the primary key specified by `id`.
  *
- * ## RejectsWith:
+ * ## Rejects with:
  *
- * - `{IllegalArgumentError}` - `err` - Argument `id` must be a string or a number.
- * - `{RuntimeError}` - `err` - Argument `resourceName` must refer to an already registered resource.
- * - `{UnhandledError}` - `err` - Thrown for any uncaught exception.
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
  */
-function find(resourceName, id, forceRefresh) {
+function find(resourceName, id, options) {
 	var deferred = $q.defer();
 	if (!store[resourceName]) {
-		deferred.reject(new errors.RuntimeError('DS.find(resourceName, id[, forceRefresh]): ' + resourceName + ' is not a registered resource!'));
+		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
-		deferred.reject(new errors.IllegalArgumentError('DS.find(resourceName, id[, forceRefresh]): id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
-	}
+		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
+	} else if (!utils.isObject(options)) {
+		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
+	} else {
+		var _this = this;
 
-	var _this = this;
+		try {
+			var resource = store[resourceName];
 
-	try {
-		var resource = store[resourceName];
+			if (id in resource.index && !options.bypassCache) {
+				deferred.resolve(_this.get(resourceName, id));
+			} else {
+				var url = utils.makePath(resource.baseUrl || services.$config.baseUrl, resource.endpoint || resource.name, id),
+					config = null;
 
-		if (id in resource.index && !forceRefresh) {
-			deferred.resolve(_this.get(resourceName, id));
-		} else {
-			GET(utils.makePath(resource.url, id), null).then(function (data) {
-				try {
-					_this.inject(resourceName, data);
-					deferred.resolve(_this.get(resourceName, id));
-				} catch (err) {
-					deferred.reject(err);
+				if (options.bypassCache) {
+					config = {
+						headers: {
+							'Last-Modified': new Date(resource.modified[id])
+						}
+					};
 				}
-			}, deferred.reject);
+				GET(url, config).then(function (data) {
+					try {
+						_this.inject(resourceName, data);
+						deferred.resolve(_this.get(resourceName, id));
+					} catch (err) {
+						deferred.reject(err);
+					}
+				}, deferred.reject);
+			}
+		} catch (err) {
+			if (!(err instanceof errors.UnhandledError)) {
+				deferred.reject(new errors.UnhandledError(err));
+			} else {
+				deferred.reject(err);
+			}
 		}
-	} catch (err) {
-		deferred.reject(new errors.UnhandledError(err));
 	}
 
 	return deferred.promise;
@@ -2281,7 +2338,8 @@ var utils = require('utils'),
 	errors = require('errors'),
 	store = require('store'),
 	services = require('services'),
-	GET = require('../../HTTP').GET;
+	GET = require('../../HTTP').GET,
+	errorPrefix = 'DS.findAll(resourceName, params[, options]): ';
 
 function processResults(data, resourceName, queryHash) {
 	var resource = store[resourceName];
@@ -2312,12 +2370,12 @@ function processResults(data, resourceName, queryHash) {
 	return temp;
 }
 
-function _findAll(deferred, resourceName, params, forceRefresh) {
+function _findAll(deferred, resourceName, params, options) {
 	var resource = store[resourceName];
 
 	var queryHash = utils.toJson(params);
 
-	if (forceRefresh) {
+	if (options.bypassCache) {
 		delete resource.completedQueries[queryHash];
 	}
 
@@ -2327,7 +2385,8 @@ function _findAll(deferred, resourceName, params, forceRefresh) {
 		if (!resource.pendingQueries[queryHash]) {
 
 			// This particular query has never even been started
-			resource.pendingQueries[queryHash] = GET(resource.url, { params: params }).then(function (data) {
+			var url = utils.makePath(resource.baseUrl || services.$config.baseUrl, resource.endpoint || resource.name);
+			resource.pendingQueries[queryHash] = GET(url, { params: params }).then(function (data) {
 				try {
 					deferred.resolve(processResults(data, resourceName, queryHash));
 				} catch (err) {
@@ -2336,7 +2395,7 @@ function _findAll(deferred, resourceName, params, forceRefresh) {
 			}, deferred.reject);
 		}
 	} else {
-		deferred.resolve(this.filter(resourceName, params));
+		deferred.resolve(this.filter(resourceName, params, options));
 	}
 }
 
@@ -2345,51 +2404,82 @@ function _findAll(deferred, resourceName, params, forceRefresh) {
  * @id DS.async_methods:findAll
  * @name findAll
  * @description
- * `findAll(resourceName[, params][, forceRefresh])`
- *
  * Asynchronously return the resource from the server filtered by the query. The results will be added to the data
  * store when it returns from the server.
  *
- * Example:
+ * ## Signature:
+ * ```js
+ * DS.findAll(resourceName, params[, options])
+ * ```
+ *
+ * ## Example:
  *
  * ```js
- * TODO: findAll(resourceName[, params][, forceRefresh]) example
+ *  var query = {
+ *      where: {
+ *          author: {
+ *              '==': 'John Anderson'
+ *          }
+ *      }
+ *  };
+ *
+ *  DS.findAll('document', {
+ *      query: query
+ *  }).then(function (documents) {
+ *      documents;  // [{ id: 'aab7ff66-e21e-46e2-8be8-264d82aee535', author: 'John Anderson', title: 'How to cook' },
+ *                  //  { id: 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f', author: 'John Anderson', title: 'How NOT to cook' }]
+ *
+ *      // The documents are now in the data store
+ *      DS.filter('document', {
+ *          query: query
+ *      }); // [{ id: 'aab7ff66-e21e-46e2-8be8-264d82aee535', author: 'John Anderson', title: 'How to cook' },
+ *          //  { id: 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f', author: 'John Anderson', title: 'How NOT to cook' }]
+ *
+ *  }, function (err) {
+ *      // handle error
+ *  });
  * ```
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
- * @param {object=} params Parameter object that is serialized into the query string. Properties:
+ * @param {object} params Parameter object that is serialized into the query string. Properties:
  *
  * - `{object=}` - `query` - The query object by which to filter items of the type specified by `resourceName`. Properties:
  *      - `{object=}` - `where` - Where clause.
  *      - `{number=}` - `limit` - Limit clause.
  *      - `{skip=}` - `skip` - Skip clause.
+ *      - `{orderBy=}` - `orderBy` - OrderBy clause.
  *
- * @param {boolean=} forceRefresh Bypass the cache.
+ * @param {object=} options Optional configuration. Properties:
+ * - `{boolean=}` - `bypassCache` - Bypass the cache. Default: `false`.
+ * - `{string=}` - `mergeStrategy` - If `findAll` is called, specify the merge strategy that should be used when the new
+ * items are injected into the data store. Default `"mergeWithExisting"`.
  *
  * @returns {Promise} Promise produced by the `$q` service.
  *
- * ## ResolvesWith:
+ * ## Resolves with:
  *
  * - `{array}` - `items` - The collection of items returned by the server.
  *
- * ## RejectsWith:
+ * ## Rejects with:
  *
- * - `{IllegalArgumentError}` - `err` - Argument `params` must be an object.
- * - `{RuntimeError}` - `err` - Argument `resourceName` must refer to an already registered resource.
- * - `{UnhandledError}` - `err` - Thrown for any uncaught exception.
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
  */
-function findAll(resourceName, params, forceRefresh) {
+function findAll(resourceName, params, options) {
 	var deferred = services.$q.defer();
 
-	params = params || {};
+	options = options || {};
 
 	if (!store[resourceName]) {
-		deferred.reject(new errors.RuntimeError('DS.findAll(resourceName[, params]): ' + resourceName + ' is not a registered resource!'));
+		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
 	} else if (!utils.isObject(params)) {
-		deferred.reject(new errors.IllegalArgumentError('DS.findAll(resourceName[, params]): params: Must be an object!', { params: { actual: typeof params, expected: 'object' } }));
+		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!', { params: { actual: typeof params, expected: 'object' } }));
+	} else if (!utils.isObject(options)) {
+		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
 	} else {
 		try {
-			_findAll.apply(this, [deferred, resourceName, params, forceRefresh]);
+			_findAll.apply(this, [deferred, resourceName, params, options]);
 		} catch (err) {
 			deferred.reject(new errors.UnhandledError(err));
 		}
@@ -2408,30 +2498,7 @@ module.exports = {
 	 * @name create
 	 * @methodOf DS
 	 * @description
-	 * `create(resourceName, attrs)`
-	 *
-	 * Create a new resource.
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * TODO: create(resourceName, attrs)
-	 * ```
-	 *
-	 * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
-	 * @param {object} attrs The attributes with which to update the item of the type specified by `resourceName` that has
-	 * the primary key specified by `id`.
-	 * @returns {Promise} Promise produced by the `$q` service.
-	 *
-	 * ## ResolvesWith:
-	 *
-	 * - `{object}` - `item` - A reference to the newly created item.
-	 *
-	 * ## RejectsWith:
-	 *
-	 * - `{IllegalArgumentError}` - `err` - Argument `attrs` must be an object.
-	 * - `{RuntimeError}` - `err` - Argument `resourceName` must refer to an already registered resource.
-	 * - `{UnhandledError}` - `err` - Thrown for any uncaught exception.
+	 * See [DS.create](/documentation/api/api/DS.async_methods:create).
 	 */
 	create: require('./create'),
 
@@ -2441,30 +2508,7 @@ module.exports = {
 	 * @name destroy
 	 * @methodOf DS
 	 * @description
-	 * `destroy(resourceName, id)`
-	 *
-	 * Delete the item of the type specified by `resourceName` with the primary key specified by `id` from the data store
-	 * and the server.
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * TODO: destroy(type, id) example
-	 * ```
-	 *
-	 * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
-	 * @param {string|number} id The primary key of the item to remove.
-	 * @returns {Promise} Promise produced by the `$q` service.
-	 *
-	 * ## ResolvesWith:
-	 *
-	 * - `{string|number}` - `id` - The primary key of the destroyed item.
-	 *
-	 * ## RejectsWith:
-	 *
-	 * - `{IllegalArgumentError}` - `err` - Argument `id` must be a string or a number.
-	 * - `{RuntimeError}` - `err` - Argument `resourceName` must refer to an already registered resource.
-	 * - `{UnhandledError}` - `err` - Thrown for any uncaught exception.
+	 * See [DS.destroy](/documentation/api/api/DS.async_methods:destroy).
 	 */
 	destroy: require('./destroy'),
 
@@ -2474,31 +2518,7 @@ module.exports = {
 	 * @name find
 	 * @methodOf DS
 	 * @description
-	 * `find(resourceName, id[, forceRefresh])`
-	 *
-	 * Asynchronously return the resource with the given id from the server. The result will be added to the data
-	 * store when it returns from the server.
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * TODO: find(resourceName, id[, forceRefresh]) example
-	 * ```
-	 *
-	 * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
-	 * @param {string|number} id The primary key of the item to retrieve.
-	 * @param {boolean=} forceRefresh Bypass the cache.
-	 * @returns {Promise} Promise produced by the `$q` service.
-	 *
-	 * ## ResolvesWith:
-	 *
-	 * - `{array}` - `item` - The item with the primary key specified by `id`.
-	 *
-	 * ## RejectsWith:
-	 *
-	 * - `{IllegalArgumentError}` - `err` - Argument `id` must be a string or a number.
-	 * - `{RuntimeError}` - `err` - Argument `resourceName` must refer to an already registered resource.
-	 * - `{UnhandledError}` - `err` - Thrown for any uncaught exception.
+	 * See [DS.find](/documentation/api/api/DS.async_methods:find).
 	 */
 	find: require('./find'),
 
@@ -2508,38 +2528,7 @@ module.exports = {
 	 * @name findAll
 	 * @methodOf DS
 	 * @description
-	 * `findAll(resourceName[, params][, forceRefresh])`
-	 *
-	 * Asynchronously return the resource from the server filtered by the query. The results will be added to the data
-	 * store when it returns from the server.
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * TODO: findAll(resourceName[, params][, forceRefresh]) example
-	 * ```
-	 *
-	 * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
-	 * @param {object=} params Parameter object that is serialized into the query string. Properties:
-	 *
-	 * - `{object=}` - `query` - The query object by which to filter items of the type specified by `resourceName`. Properties:
-	 *      - `{object=}` - `where` - Where clause.
-	 *      - `{number=}` - `limit` - Limit clause.
-	 *      - `{skip=}` - `skip` - Skip clause.
-	 *
-	 * @param {boolean=} forceRefresh Bypass the cache.
-	 *
-	 * @returns {Promise} Promise produced by the `$q` service.
-	 *
-	 * ## ResolvesWith:
-	 *
-	 * - `{array}` - `items` - The collection of items returned by the server.
-	 *
-	 * ## RejectsWith:
-	 *
-	 * - `{IllegalArgumentError}` - `err` - Argument `params` must be an object.
-	 * - `{RuntimeError}` - `err` - Argument `resourceName` must refer to an already registered resource.
-	 * - `{UnhandledError}` - `err` - Thrown for any uncaught exception.
+	 * See [DS.findAll](/documentation/api/api/DS.async_methods:findAll).
 	 */
 	findAll: require('./findAll'),
 
@@ -2549,35 +2538,7 @@ module.exports = {
 	 * @name refresh
 	 * @methodOf DS
 	 * @description
-	 * `refresh(resourceName, id)`
-	 *
-	 * Like find(), except the resource is only refreshed from the server if it already exists in the data store.
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * TODO: refresh(resourceName, id) example
-	 * ```
-	 *
-	 * ## Throws
-	 *
-	 * - `{IllegalArgumentError}` - Argument `id` must be a string or a number.
-	 * - `{RuntimeError}` - Argument `resourceName` must refer to an already registered resource.
-	 *
-	 * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
-	 * @param {string|number} id The primary key of the item to refresh from the server.
-	 * @returns {false|Promise} `false` if the item doesn't already exist in the data store. A `Promise` if the item does
-	 * exist in the data store and is being refreshed.
-	 *
-	 * ## ResolvesWith:
-	 *
-	 * - `{object}` - `item` - A reference to the refreshed item.
-	 *
-	 * ## RejectsWith:
-	 *
-	 * - `{IllegalArgumentError}` - `err` - Argument `id` must be a string or a number.
-	 * - `{RuntimeError}` - `err` - Argument `resourceName` must refer to an already registered resource.
-	 * - `{UnhandledError}` - `err` - Thrown for any uncaught exception.
+	 * See [DS.refresh](/documentation/api/api/DS.async_methods:refresh).
 	 */
 	refresh: require('./refresh'),
 
@@ -2587,29 +2548,7 @@ module.exports = {
 	 * @name save
 	 * @methodOf DS
 	 * @description
-	 * `save(resourceName, id)`
-	 *
-	 * save the item of the type specified by `resourceName` that has the primary key specified by `id`.
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * TODO: save(resourceName, id) example
-	 * ```
-	 *
-	 * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
-	 * @param {string|number} id The primary key of the item to retrieve.
-	 * @returns {Promise} Promise produced by the `$q` service.
-	 *
-	 * ## ResolvesWith:
-	 *
-	 * - `{object}` - `item` - A reference to the newly saved item.
-	 *
-	 * ## RejectsWith:
-	 *
-	 * - `{IllegalArgumentError}` - `err` - Argument `id` must be a string or a number.
-	 * - `{RuntimeError}` - `err` - Argument `resourceName` must refer to an already registered resource.
-	 * - `{UnhandledError}` - `err` - Thrown for any uncaught exception.
+	 * See [DS.save](/documentation/api/api/DS.async_methods:save).
 	 */
 	save: require('./save')
 };
@@ -2618,48 +2557,67 @@ module.exports = {
 var utils = require('utils'),
 	errors = require('errors'),
 	store = require('store'),
-	PUT = require('../../HTTP').PUT;
+	PUT = require('../../HTTP').PUT,
+	errorPrefix = 'DS.refresh(resourceName, id): ';
 
 /**
  * @doc method
  * @id DS.async_methods:refresh
  * @name refresh
  * @description
- * `refresh(resourceName, id)`
- *
  * Like find(), except the resource is only refreshed from the server if it already exists in the data store.
  *
- * Example:
+ * ## Signature:
+ * ```js
+ * DS.refresh(resourceName, id)
+ * ```
+ * ## Example:
  *
  * ```js
- * TODO: refresh(resourceName, id) example
+ *  // Exists in the data store, but we want a fresh copy
+ *  DS.get('document', 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f');
+ *
+ *  DS.refresh('document', 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f')
+ *  .then(function (document) {
+ *      document; // The fresh copy
+ *  });
+ *
+ *  // Does not exist in the data store
+ *  DS.get('document', 'aab7ff66-e21e-46e2-8be8-264d82aee535');
+ *
+ *  DS.refresh('document', 'aab7ff66-e21e-46e2-8be8-264d82aee535'); // false
  * ```
  *
  * ## Throws
  *
- * - `{IllegalArgumentError}` - Argument `id` must be a string or a number.
- * - `{RuntimeError}` - Argument `resourceName` must refer to an already registered resource.
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to refresh from the server.
+ * @param {object=} options Optional configuration. Properties:
+ * - `{string=}` - `mergeStrategy` - Specify what merge strategy is to be used when the fresh item returns from the
+ * server and needs to be inserted into the data store. Default `"mergeWithExisting"`.
  * @returns {false|Promise} `false` if the item doesn't already exist in the data store. A `Promise` if the item does
  * exist in the data store and is being refreshed.
  *
- * ## ResolvesWith:
+ * ## Resolves with:
  *
  * - `{object}` - `item` - A reference to the refreshed item.
  *
- * ## RejectsWith:
+ * ## Rejects with:
  *
- * - `{IllegalArgumentError}` - `err` - Argument `id` must be a string or a number.
- * - `{RuntimeError}` - `err` - Argument `resourceName` must refer to an already registered resource.
- * - `{UnhandledError}` - `err` - Thrown for any uncaught exception.
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
  */
-function refresh(resourceName, id) {
+function refresh(resourceName, id, options) {
 	if (!store[resourceName]) {
-		throw new errors.RuntimeError('DS.refresh(resourceName, id): ' + resourceName + ' is not a registered resource!');
+		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
 		throw new errors.IllegalArgumentError('DS.refresh(resourceName, id): id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+	} else if (!utils.isObject(options)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
 	}
 
 	if (id in store[resourceName].index) {
@@ -2676,13 +2634,15 @@ var utils = require('utils'),
 	errors = require('errors'),
 	store = require('store'),
 	services = require('services'),
-	PUT = require('../../HTTP').PUT;
+	PUT = require('../../HTTP').PUT,
+	errorPrefix = 'DS.save(resourceName, id[, options]): ';
 
-function _save(deferred, resource, id, attrs) {
+function _save(deferred, resource, id, options) {
 	var _this = this;
-	PUT(utils.makePath(resource.url, id), attrs, null).then(function (data) {
-		var saved = _this.inject(resource.name, data);
-		resource.saved[saved[resource.idAttribute]] = utils.saveTimestamp(resource.saved[saved[resource.idAttribute]]);
+	var url = utils.makePath(resource.baseUrl || services.$config.baseUrl, resource.endpoint || resource.name, id);
+	PUT(url, resource.index[id], null).then(function (data) {
+		var saved = _this.inject(resource.name, data, options);
+		resource.saved[id] = utils.updateTimestamp(resource.saved[id]);
 		deferred.resolve(saved);
 	}, deferred.reject);
 }
@@ -2692,56 +2652,79 @@ function _save(deferred, resource, id, attrs) {
  * @id DS.async_methods:save
  * @name save
  * @description
- * `save(resourceName, id)`
+ * Save the item of the type specified by `resourceName` that has the primary key specified by `id`.
  *
- * save the item of the type specified by `resourceName` that has the primary key specified by `id`.
+ * ## Signature:
+ * ```js
+ * DS.save(resourceName, id[, options])
+ * ```
  *
- * Example:
+ * ## Example:
  *
  * ```js
- * TODO: save(resourceName, id) example
+ *  var document = DS.get('document', 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f');
+ *
+ *  document.title = 'How to cook in style';
+ *
+ *  DS.save('document', 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f')
+ *  .then(function (document) {
+ *      document; // A reference to the document that's been saved to the server
+ *  });
  * ```
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to retrieve.
+ * @param {object=} options Optional configuration. Properties:
+ * - `{string=}` - `mergeStrategy` - When the updated item returns from the server, specify the merge strategy that
+ * should be used when the updated item is injected into the data store. Default: `"mergeWithExisting"`.
+ *
  * @returns {Promise} Promise produced by the `$q` service.
  *
- * ## ResolvesWith:
+ * ## Resolves with:
  *
  * - `{object}` - `item` - A reference to the newly saved item.
  *
- * ## RejectsWith:
+ * ## Rejects with:
  *
- * - `{IllegalArgumentError}` - `err` - Argument `id` must be a string or a number.
- * - `{RuntimeError}` - `err` - Argument `resourceName` must refer to an already registered resource.
- * - `{UnhandledError}` - `err` - Thrown for any uncaught exception.
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
  */
-function save(resourceName, id) {
+function save(resourceName, id, options) {
 	var deferred = $q.defer();
+
+	options = options || {};
+
 	if (!store[resourceName]) {
-		deferred.reject(new errors.RuntimeError('DS.save(resourceName, id, attrs): ' + resourceName + ' is not a registered resource!'));
+		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
-		deferred.reject(new errors.IllegalArgumentError('DS.save(resourceName, id, attrs): id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
-	}
+		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
+	} else if (!utils.isObject(options)) {
+		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'id: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
+	} else {
+		var _this = this;
 
-	var _this = this;
+		try {
+			var resource = store[resourceName];
 
-	try {
-		var resource = store[resourceName];
-
-		if (resource.validate) {
-			resource.validate(resource.index[resource.idAttribute || 'id'], function (err) {
-				if (err) {
-					deferred.reject(err);
-				} else {
-					_save.call(_this, deferred, resource, id);
-				}
-			});
-		} else {
-			_save.call(_this, deferred, resource, id);
+			if (resource.schema) {
+				resource.schema.validate(resource.index[id], function (err) {
+					if (err) {
+						deferred.reject(err);
+					} else {
+						_save.call(_this, deferred, resource, id, options);
+					}
+				});
+			} else {
+				_save.call(_this, deferred, resource, id, options);
+			}
+		} catch (err) {
+			if (!(err instanceof errors.UnhandledError)) {
+				deferred.reject(new errors.UnhandledError(err));
+			} else {
+				deferred.reject(err);
+			}
 		}
-	} catch (err) {
-		deferred.reject(new errors.UnhandledError(err));
 	}
 
 	return deferred.promise;
@@ -2753,7 +2736,35 @@ module.exports = save;
 module.exports=require(27)
 },{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],36:[function(require,module,exports){
 var utils = require('utils'),
-	services = require('services');
+	errors = require('errors'),
+	IllegalArgumentError = errors.IllegalArgumentError,
+	services = require('services'),
+	errorPrefix = 'DSProvider.config(options): ';
+
+/**
+ * @doc method
+ * @id DSProvider.methods:config
+ * @name config
+ * @description
+ * Configure the DS service.
+ *
+ * ## Throws:
+ *
+ * - `{IllegalArgumentError}`
+ *
+ * @param {object} options Configuration for the data store.
+ */
+function config(options) {
+	options = options || {};
+
+	if (!utils.isObject(options)) {
+		throw new IllegalArgumentError(errorPrefix + 'options: Must be an object!', { actual: typeof options, expected: 'object' });
+	} else if (!utils.isString(options.baseUrl)) {
+		throw new IllegalArgumentError(errorPrefix + 'options: Must be an object!', { baseUrl: { actual: typeof options, expected: 'object' } });
+	}
+
+	utils.deepMixIn(services.$config, options);
+}
 
 /**
  * @doc interface
@@ -2761,6 +2772,17 @@ var utils = require('utils'),
  * @name DSProvider
  */
 function DSProvider() {
+
+	/**
+	 * @doc method
+	 * @id DSProvider.methods:config
+	 * @name config
+	 * @methodOf DSProvider
+	 * @description
+	 * See [DSProvider.config](/documentation/api/api/DSProvider.methods:config).
+	 */
+	this.config = config;
+
 	this.$get = ['$rootScope', '$log', '$http', '$q', function ($rootScope, $log, $http, $q) {
 
 		services.$rootScope = $rootScope;
@@ -2798,10 +2820,12 @@ function DSProvider() {
 
 module.exports = DSProvider;
 
-},{"./async_methods":32,"./http":35,"./sync_methods":48,"services":"cX8q+p","utils":"uE/lJt"}],"services":[function(require,module,exports){
+},{"./async_methods":32,"./http":35,"./sync_methods":48,"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],"services":[function(require,module,exports){
 module.exports=require('cX8q+p');
 },{}],"cX8q+p":[function(require,module,exports){
-module.exports = {};
+module.exports = {
+	$config: {}
+};
 
 },{}],"hT1bCX":[function(require,module,exports){
 module.exports = {
@@ -2813,20 +2837,24 @@ module.exports=require('hT1bCX');
 },{}],41:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store');
+	store = require('store'),
+	errorPrefix = 'DS.changes(resourceName, id): ';
 
 /**
  * @doc method
  * @id DS.sync_methods:changes
  * @name changes
  * @description
- * `changes(resourceName, id)`
- *
  * Synchronously return the changes object of the item of the type specified by `resourceName` that has the primary key
  * specified by `id`. This object represents the diff between the item in its current state and the state of the item
  * the last time it was saved via an async adapter.
  *
- * Example:
+ * ## Signature:
+ * ```js
+ * DS.changes(resourceName, id)
+ * ```
+ *
+ * ## Example:
  *
  * ```js
  * TODO: changes(resourceName, id) example
@@ -2834,9 +2862,9 @@ var utils = require('utils'),
  *
  * ## Throws
  *
- * - `{IllegalArgumentError}` - Argument `id` must be a string or a number.
- * - `{RuntimeError}` - Argument `resourceName` must refer to an already registered resource.
- * - `{UnhandledError}` - Thrown for any uncaught exception.
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item of the changes to retrieve.
@@ -2844,14 +2872,13 @@ var utils = require('utils'),
  */
 function changes(resourceName, id) {
 	if (!store[resourceName]) {
-		throw new errors.IllegalArgumentError('DS.changes(resourceName, id): ' + resourceName + ' is not a registered resource!');
+		throw new errors.IllegalArgumentError(errorPrefix + resourceName + ' is not a registered resource!');
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
-		throw new errors.IllegalArgumentError('DS.changes(resourceName, id): id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 
 	try {
-		// return resource from cache
-		return angular.copy(store[resourceName].changes[id]);
+		return utils.deepMixIn({}, store[resourceName].changes[id]);
 	} catch (err) {
 		throw new errors.UnhandledError(err);
 	}
@@ -2913,7 +2940,6 @@ function defineResource(definition) {
 		store[definition.name] = definition;
 
 		var resource = store[definition.name];
-		resource.url = utils.makePath(resource.baseUrl, (resource.endpoint || resource.name));
 		resource.collection = [];
 		resource.completedQueries = {};
 		resource.pendingQueries = {};
@@ -3097,14 +3123,18 @@ var utils = require('utils'),
  * - `{UnhandledError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
- * @param {object=} params Parameter object that is serialized into the query string. Properties:
+ * @param {object} params Parameter object that is serialized into the query string. Properties:
  *
  * - `{object=}` - `query` - The query object by which to filter items of the type specified by `resourceName`. Properties:
  *      - `{object=}` - `where` - Where clause.
  *      - `{number=}` - `limit` - Limit clause.
  *      - `{skip=}` - `skip` - Skip clause.
- * @param {object=} options Whether to load the query from the server if it hasn't been loaded yet. Properties:
- * - `{boolean=}` - `bypassCache` - Bypass the cache.
+ *      - `{orderBy=}` - `orderBy` - OrderBy clause.
+ *
+ * @param {object=} options Optional configuration. Properties:
+ * - `{boolean=}` - `bypassCache` - Bypass the cache. Default: `false`.
+ * - `{string=}` - `mergeStrategy` - If `findAll` is called, specify the merge strategy that should be used when the new
+ * items are injected into the data store. Default: `"mergeWithExisting"`.
  *
  * @returns {array} The filtered collection of items of the type specified by `resourceName`.
  */
@@ -3119,123 +3149,132 @@ function filter(resourceName, params, options) {
 		throw new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
 	}
 
-	var resource = store[resourceName];
+	try {
+		var resource = store[resourceName];
 
-	// Protect against null
-	params = params || {};
-	params.query = params.query || {};
+		// Protect against null
+		params = params || {};
+		params.query = params.query || {};
 
-	var queryHash = utils.toJson(params);
+		var queryHash = utils.toJson(params);
 
-	if (!(queryHash in resource.completedQueries) && options.loadFromServer) {
-		// This particular query has never been completed
+		if (!(queryHash in resource.completedQueries) && options.bypassCache) {
+			// This particular query has never been completed
 
-		if (!resource.pendingQueries[queryHash]) {
-			// This particular query has never even been started
-			this.findAll(resourceName, params);
-		}
-
-		// Return empty results until the query completes
-		return [];
-	} else {
-		// The query has been completed, so hit the cache with the query
-
-		// Apply 'where' clauses
-		var filtered = utils.filter(resource.collection, function (value) {
-			var keep = true;
-			if (params.query.where) {
-				if (!utils.isObject(params.query.where)) {
-					throw new errors.IllegalArgumentError(errorPrefix + 'params.query.where: Must be an object!', { params: { query: { where: { actual: typeof params.query.where, expected: 'object' } } } });
-				}
-				utils.forOwn(params.query.where, function (value2, key2) {
-					if (utils.isString(value2)) {
-						value2 = {
-							'==': value2
-						};
-					}
-					if (key2.indexOf('.') !== -1) {
-						key2 = key2.split('.')[1];
-					}
-					if (value2['==']) {
-						if (value2['=='] == 'null') {
-							keep = keep && (value[key2] === null);
-						} else {
-							keep = keep && (value[key2] == value2['==']);
-						}
-					} else if (value2['!=']) {
-						keep = keep && (value[key2] != value2['!=']);
-					} else if (value2['>']) {
-						keep = keep && (value[key2] > value2['>']);
-					} else if (value2['>=']) {
-						keep = keep && (value[key2] >= value2['>=']);
-					} else if (value2['<']) {
-						keep = keep && (value[key2] < value2['<']);
-					} else if (value2['<=']) {
-						keep = keep && (value[key2] <= value2['<=']);
-					} else if (value2['in']) {
-						keep = keep && utils.contains(value2['in'], value[key2]);
-					}
-				});
+			if (!resource.pendingQueries[queryHash]) {
+				// This particular query has never even been started
+				this.findAll(resourceName, params, options);
 			}
-			return keep;
-		});
 
-		// Apply 'orderBy'
-		if (params.query.orderBy) {
-			if (utils.isString(params.query.orderBy)) {
-				params.query.orderBy = [
-					[params.query.orderBy, 'ASC']
-				];
-			}
-			if (utils.isArray(params.query.orderBy)) {
-				for (var i = 0; i < params.query.orderBy.length; i++) {
-					if (utils.isString(params.query.orderBy[i])) {
-						params.query.orderBy[i] = [params.query.orderBy[i], 'ASC'];
-					} else if (!utils.isArray(params.query.orderBy[i])) {
-						throw new errors.IllegalArgumentError(errorPrefix + 'params.query.orderBy[' + i + ']: Must be an array!', { params: { query: { 'orderBy[i]': { actual: typeof params.query.orderBy[i], expected: 'array' } } } });
+			// Return empty results until the query completes
+			return [];
+		} else {
+			// The query has been completed, so hit the cache with the query
+
+			var filtered = utils.filter(resource.collection, function (value) {
+				var keep = true;
+
+				// Apply 'where' clauses
+				if (params.query.where) {
+					if (!utils.isObject(params.query.where)) {
+						throw new errors.IllegalArgumentError(errorPrefix + 'params.query.where: Must be an object!', { params: { query: { where: { actual: typeof params.query.where, expected: 'object' } } } });
 					}
-					filtered = utils.sort(filtered, function (a, b) {
-						var cA = a[params.query.orderBy[i][0]], cB = b[params.query.orderBy[i][0]];
-						if (utils.isString(cA)) {
-							cA = utils.upperCase(cA);
+					utils.forOwn(params.query.where, function (value2, key2) {
+						if (utils.isString(value2)) {
+							value2 = {
+								'==': value2
+							};
 						}
-						if (utils.isString(cB)) {
-							cB = utils.upperCase(cB);
+						if (key2.indexOf('.') !== -1) {
+							key2 = key2.split('.')[1];
 						}
-						if (params.query.orderBy[i][1] === 'DESC') {
-							if (cB < cA) {
-								return -1;
-							} else if (cB > cA) {
-								return 1;
+						if (value2['==']) {
+							if (value2['=='] == 'null') {
+								keep = keep && (value[key2] === null);
 							} else {
-								return 0;
+								keep = keep && (value[key2] == value2['==']);
 							}
-						} else {
-							if (cA < cB) {
-								return -1;
-							} else if (cA > cB) {
-								return 1;
-							} else {
-								return 0;
-							}
+						} else if (value2['!=']) {
+							keep = keep && (value[key2] != value2['!=']);
+						} else if (value2['>']) {
+							keep = keep && (value[key2] > value2['>']);
+						} else if (value2['>=']) {
+							keep = keep && (value[key2] >= value2['>=']);
+						} else if (value2['<']) {
+							keep = keep && (value[key2] < value2['<']);
+						} else if (value2['<=']) {
+							keep = keep && (value[key2] <= value2['<=']);
+						} else if (value2['in']) {
+							keep = keep && utils.contains(value2['in'], value[key2]);
 						}
 					});
 				}
-			} else {
-				throw new errors.IllegalArgumentError(errorPrefix + 'params.query.orderBy: Must be an array!', { params: { query: { orderBy: { actual: typeof params.query.orderBy, expected: 'array' } } } });
+				return keep;
+			});
+
+			// Apply 'orderBy'
+			if (params.query.orderBy) {
+				if (utils.isString(params.query.orderBy)) {
+					params.query.orderBy = [
+						[params.query.orderBy, 'ASC']
+					];
+				}
+				if (utils.isArray(params.query.orderBy)) {
+					for (var i = 0; i < params.query.orderBy.length; i++) {
+						if (utils.isString(params.query.orderBy[i])) {
+							params.query.orderBy[i] = [params.query.orderBy[i], 'ASC'];
+						} else if (!utils.isArray(params.query.orderBy[i])) {
+							throw new errors.IllegalArgumentError(errorPrefix + 'params.query.orderBy[' + i + ']: Must be an array!', { params: { query: { 'orderBy[i]': { actual: typeof params.query.orderBy[i], expected: 'array' } } } });
+						}
+						filtered = utils.sort(filtered, function (a, b) {
+							var cA = a[params.query.orderBy[i][0]], cB = b[params.query.orderBy[i][0]];
+							if (utils.isString(cA)) {
+								cA = utils.upperCase(cA);
+							}
+							if (utils.isString(cB)) {
+								cB = utils.upperCase(cB);
+							}
+							if (params.query.orderBy[i][1] === 'DESC') {
+								if (cB < cA) {
+									return -1;
+								} else if (cB > cA) {
+									return 1;
+								} else {
+									return 0;
+								}
+							} else {
+								if (cA < cB) {
+									return -1;
+								} else if (cA > cB) {
+									return 1;
+								} else {
+									return 0;
+								}
+							}
+						});
+					}
+				} else {
+					throw new errors.IllegalArgumentError(errorPrefix + 'params.query.orderBy: Must be an array!', { params: { query: { orderBy: { actual: typeof params.query.orderBy, expected: 'array' } } } });
+				}
 			}
-		}
 
-		// Apply 'limit' and 'offset'
-		if (utils.isNumber(params.query.limit) && utils.isNumber(params.query.offset)) {
-			filtered = utils.slice(filtered, params.query.offset, params.query.offset + params.query.limit);
-		} else if (utils.isNumber(params.query.limit)) {
-			filtered = utils.slice(filtered, 0, params.query.limit);
-		} else if (utils.isNumber(params.query.offset)) {
-			filtered = utils.slice(filtered, params.query.offset);
-		}
+			// Apply 'limit' and 'offset'
+			if (utils.isNumber(params.query.limit) && utils.isNumber(params.query.offset)) {
+				filtered = utils.slice(filtered, params.query.offset, params.query.offset + params.query.limit);
+			} else if (utils.isNumber(params.query.limit)) {
+				filtered = utils.slice(filtered, 0, params.query.limit);
+			} else if (utils.isNumber(params.query.offset)) {
+				filtered = utils.slice(filtered, params.query.offset);
+			}
 
-		return filtered;
+			return filtered;
+		}
+	} catch (err) {
+		if (err instanceof errors.IllegalArgumentError) {
+			throw err;
+		} else {
+			throw new errors.UnhandledError(err);
+		}
 	}
 }
 
@@ -3244,19 +3283,23 @@ module.exports = filter;
 },{"errors":"hIh4e1","store":"hT1bCX","utils":"uE/lJt"}],46:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store');
+	store = require('store'),
+	errorPrefix = 'DS.get(resourceName, id): ';
 
 /**
  * @doc method
  * @id DS.sync_methods:get
  * @name get
  * @description
- * `get(resourceName, id)`
- *
  * Synchronously return the resource with the given id. The data store will forward the request to the server if the
  * item is not in the cache.
  *
- * Example:
+ * ## Signature:
+ * ```js
+ * DS.get(resourceName, id)
+ * ```
+ *
+ * ## Example:
  *
  * ```js
  * TODO: get(resourceName, id) example
@@ -3264,9 +3307,9 @@ var utils = require('utils'),
  *
  * ## Throws
  *
- * - `{IllegalArgumentError}` - Argument `id` must be a string or a number.
- * - `{RuntimeError}` - Argument `resourceName` must refer to an already registered resource.
- * - `{UnhandledError}` - Thrown for any uncaught exception.
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to retrieve.
@@ -3274,9 +3317,9 @@ var utils = require('utils'),
  */
 function get(resourceName, id) {
 	if (!store[resourceName]) {
-		throw new errors.IllegalArgumentError('DS.get(resourceName, id): ' + resourceName + ' is not a registered resource!');
+		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
-		throw new errors.IllegalArgumentError('DS.get(resourceName, id): id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 
 	try {
@@ -4130,6 +4173,50 @@ ValidationError.prototype = Object.create(Error.prototype);
 ValidationError.prototype.constructor = ValidationError;
 
 /**
+ * @doc function
+ * @id errors.types:RuntimeError
+ * @name RuntimeError
+ * @description Error that is thrown/returned for invalid state during runtime.
+ * @param {string=} message Error message. Default: `"Runtime Error!"`.
+ * @param {object=} errors Object containing information about the error.
+ * @returns {RuntimeError} A new instance of `RuntimeError`.
+ */
+function RuntimeError(message, errors) {
+	Error.call(this);
+	Error.captureStackTrace(this, this.constructor);
+
+	/**
+	 * @doc property
+	 * @id errors.types:RuntimeError.type
+	 * @name type
+	 * @propertyOf errors.types:RuntimeError
+	 * @description Name of error type. Default: `"RuntimeError"`.
+	 */
+	this.type = this.constructor.name;
+
+	/**
+	 * @doc property
+	 * @id errors.types:RuntimeError.errors
+	 * @name errors
+	 * @propertyOf errors.types:RuntimeError
+	 * @description Object containing information about the error.
+	 */
+	this.errors = errors || {};
+
+	/**
+	 * @doc property
+	 * @id errors.types:RuntimeError.message
+	 * @name message
+	 * @propertyOf errors.types:RuntimeError
+	 * @description Error message. Default: `"Runtime Error!"`.
+	 */
+	this.message = message || 'RuntimeError Error!';
+}
+
+RuntimeError.prototype = Object.create(Error.prototype);
+RuntimeError.prototype.constructor = RuntimeError;
+
+/**
  * @doc interface
  * @id errors
  * @name angular-data error types
@@ -4140,47 +4227,7 @@ module.exports = {
 	UnhandledError: UnhandledError,
 	IllegalArgumentError: IllegalArgumentError,
 	ValidationError: ValidationError,
-
-	/**
-	 * @doc function
-	 * @id errors.types:RuntimeError
-	 * @name RuntimeError
-	 * @description Error that is thrown/returned for invalid state during runtime.
-	 * @param {string=} message Error message. Default: `"Runtime Error!"`.
-	 * @param {object=} errors Object containing information about the error.
-	 * @returns {RuntimeError} A new instance of `RuntimeError`.
-	 */
-	RuntimeError: function RuntimeError(message, errors) {
-		Error.call(this);
-		Error.captureStackTrace(this, this.constructor);
-
-		/**
-		 * @doc property
-		 * @id errors.types:RuntimeError.type
-		 * @name type
-		 * @propertyOf errors.types:RuntimeError
-		 * @description Name of error type. Default: `"RuntimeError"`.
-		 */
-		this.type = this.constructor.name;
-
-		/**
-		 * @doc property
-		 * @id errors.types:RuntimeError.errors
-		 * @name errors
-		 * @propertyOf errors.types:RuntimeError
-		 * @description Object containing information about the error.
-		 */
-		this.errors = errors || {};
-
-		/**
-		 * @doc property
-		 * @id errors.types:RuntimeError.message
-		 * @name message
-		 * @propertyOf errors.types:RuntimeError
-		 * @description Error message. Default: `"Runtime Error!"`.
-		 */
-		this.message = message || 'RuntimeError Error!';
-	}
+	RuntimeError: RuntimeError
 };
 
 },{}],55:[function(require,module,exports){

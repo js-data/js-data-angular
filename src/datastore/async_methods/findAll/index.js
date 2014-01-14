@@ -2,7 +2,8 @@ var utils = require('utils'),
 	errors = require('errors'),
 	store = require('store'),
 	services = require('services'),
-	GET = require('../../HTTP').GET;
+	GET = require('../../HTTP').GET,
+	errorPrefix = 'DS.findAll(resourceName, params[, options]): ';
 
 function processResults(data, resourceName, queryHash) {
 	var resource = store[resourceName];
@@ -48,7 +49,8 @@ function _findAll(deferred, resourceName, params, options) {
 		if (!resource.pendingQueries[queryHash]) {
 
 			// This particular query has never even been started
-			resource.pendingQueries[queryHash] = GET(resource.url, { params: params }).then(function (data) {
+			var url = utils.makePath(resource.baseUrl || services.$config.baseUrl, resource.endpoint || resource.name);
+			resource.pendingQueries[queryHash] = GET(url, { params: params }).then(function (data) {
 				try {
 					deferred.resolve(processResults(data, resourceName, queryHash));
 				} catch (err) {
@@ -77,7 +79,29 @@ function _findAll(deferred, resourceName, params, options) {
  * ## Example:
  *
  * ```js
- * TODO: findAll(resourceName, params[, options]) example
+ *  var query = {
+ *      where: {
+ *          author: {
+ *              '==': 'John Anderson'
+ *          }
+ *      }
+ *  };
+ *
+ *  DS.findAll('document', {
+ *      query: query
+ *  }).then(function (documents) {
+ *      documents;  // [{ id: 'aab7ff66-e21e-46e2-8be8-264d82aee535', author: 'John Anderson', title: 'How to cook' },
+ *                  //  { id: 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f', author: 'John Anderson', title: 'How NOT to cook' }]
+ *
+ *      // The documents are now in the data store
+ *      DS.filter('document', {
+ *          query: query
+ *      }); // [{ id: 'aab7ff66-e21e-46e2-8be8-264d82aee535', author: 'John Anderson', title: 'How to cook' },
+ *          //  { id: 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f', author: 'John Anderson', title: 'How NOT to cook' }]
+ *
+ *  }, function (err) {
+ *      // handle error
+ *  });
  * ```
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
@@ -112,11 +136,11 @@ function findAll(resourceName, params, options) {
 	options = options || {};
 
 	if (!store[resourceName]) {
-		deferred.reject(new errors.RuntimeError('DS.findAll(resourceName[, params]): ' + resourceName + ' is not a registered resource!'));
+		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
 	} else if (!utils.isObject(params)) {
-		deferred.reject(new errors.IllegalArgumentError('DS.findAll(resourceName, params[, options]): params: Must be an object!', { params: { actual: typeof params, expected: 'object' } }));
+		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!', { params: { actual: typeof params, expected: 'object' } }));
 	} else if (!utils.isObject(options)) {
-		deferred.reject(new errors.IllegalArgumentError('DS.findAll(resourceName, params[, options]): options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
+		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
 	} else {
 		try {
 			_findAll.apply(this, [deferred, resourceName, params, options]);

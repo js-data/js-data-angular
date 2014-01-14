@@ -45,7 +45,7 @@ module.exports = function (grunt) {
 						'* @author Jason Dobry <jason.dobry@gmail.com>\n' +
 						'* @file angular-data.min.js\n' +
 						'* @version <%= pkg.version %> - Homepage <http://jmdobry.github.io/angular-data/>\n' +
-						'* @copyright (c) 2014 Jason Dobry <http://jmdobry.github.io/angular-data>\n' +
+						'* @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/angular-data>\n' +
 						'* @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>\n' +
 						'*\n' +
 						'* @overview Data store for Angular.js.\n' +

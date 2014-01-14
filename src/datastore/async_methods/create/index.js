@@ -1,21 +1,33 @@
 var utils = require('utils'),
 	errors = require('errors'),
 	store = require('store'),
-	services = require('services');
+	services = require('services'),
+	errorPrefix = 'DS.create(resourceName, attrs): ';
 
 /**
  * @doc method
  * @id DS.async_methods:create
  * @name create
  * @description
- * `create(resourceName, attrs)`
+ * Create a new resource and save it to the server.
  *
- * Create a new resource.
+ * ## Signature:
+ * ```js
+ * DS.create(resourceName, attrs)
+ * ```
  *
- * Example:
+ * ## Example:
  *
  * ```js
- * TODO: create(resourceName, attrs)
+ * DS.create('document', { author: 'John Anderson' })
+ *  .then(function (document) {
+ *      document; // { id: 'aab7ff66-e21e-46e2-8be8-264d82aee535', author: 'John Anderson' }
+ *
+ *      // The new document is already in the data store
+ *      DS.get('document', document.id); // { id: 'aab7ff66-e21e-46e2-8be8-264d82aee535', author: 'John Anderson' }
+ *  }, function (err) {
+ *      // handle error
+ *  });
  * ```
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
@@ -23,34 +35,36 @@ var utils = require('utils'),
  * the primary key specified by `id`.
  * @returns {Promise} Promise produced by the `$q` service.
  *
- * ## ResolvesWith:
+ * ## Resolves with:
  *
  * - `{object}` - `item` - A reference to the newly created item.
  *
- * ## RejectsWith:
+ * ## Rejects with:
  *
- * - `{IllegalArgumentError}` - `err` - Argument `attrs` must be an object.
- * - `{RuntimeError}` - `err` - Argument `resourceName` must refer to an already registered resource.
- * - `{UnhandledError}` - `err` - Thrown for any uncaught exception.
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
  */
 function create(resourceName, attrs) {
 	var deferred = $q.defer();
 	if (!store[resourceName]) {
-		deferred.reject(new errors.RuntimeError('DS.create(resourceName, attrs): ' + resourceName + ' is not a registered resource!'));
+		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
 	} else if (!utils.isObject(attrs)) {
-		deferred.reject(new errors.IllegalArgumentError('DS.create(resourceName, attrs): attrs: Must be an object!', { attrs: { actual: typeof attrs, expected: 'object' } }));
+		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'attrs: Must be an object!', { attrs: { actual: typeof attrs, expected: 'object' } }));
 	}
 
 	try {
 		var resource = store[resourceName],
-			_this = this;
+			_this = this,
+			url = utils.makePath(resource.baseUrl || services.$config.baseUrl, resource.endpoint || resource.name);
 
 		if (resource.validate) {
 			resource.validate(attrs, null, function (err) {
 				if (err) {
 					deferred.reject(err);
 				} else {
-					_this.POST(resource.url, attrs, null).then(function (data) {
+
+					_this.POST(url, attrs, null).then(function (data) {
 						try {
 							deferred.resolve(_this.inject(resource.name, data));
 						} catch (err) {
@@ -60,7 +74,7 @@ function create(resourceName, attrs) {
 				}
 			});
 		} else {
-			_this.POST(resource.url, attrs, null).then(function (data) {
+			_this.POST(url, attrs, null).then(function (data) {
 				try {
 					deferred.resolve(_this.inject(resource.name, data));
 				} catch (err) {

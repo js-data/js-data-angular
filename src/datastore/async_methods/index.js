@@ -5,30 +5,7 @@ module.exports = {
 	 * @name create
 	 * @methodOf DS
 	 * @description
-	 * `create(resourceName, attrs)`
-	 *
-	 * Create a new resource.
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * TODO: create(resourceName, attrs)
-	 * ```
-	 *
-	 * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
-	 * @param {object} attrs The attributes with which to update the item of the type specified by `resourceName` that has
-	 * the primary key specified by `id`.
-	 * @returns {Promise} Promise produced by the `$q` service.
-	 *
-	 * ## ResolvesWith:
-	 *
-	 * - `{object}` - `item` - A reference to the newly created item.
-	 *
-	 * ## RejectsWith:
-	 *
-	 * - `{IllegalArgumentError}` - `err` - Argument `attrs` must be an object.
-	 * - `{RuntimeError}` - `err` - Argument `resourceName` must refer to an already registered resource.
-	 * - `{UnhandledError}` - `err` - Thrown for any uncaught exception.
+	 * See [DS.create](/documentation/api/api/DS.async_methods:create).
 	 */
 	create: require('./create'),
 
@@ -38,30 +15,7 @@ module.exports = {
 	 * @name destroy
 	 * @methodOf DS
 	 * @description
-	 * `destroy(resourceName, id)`
-	 *
-	 * Delete the item of the type specified by `resourceName` with the primary key specified by `id` from the data store
-	 * and the server.
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * TODO: destroy(type, id) example
-	 * ```
-	 *
-	 * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
-	 * @param {string|number} id The primary key of the item to remove.
-	 * @returns {Promise} Promise produced by the `$q` service.
-	 *
-	 * ## ResolvesWith:
-	 *
-	 * - `{string|number}` - `id` - The primary key of the destroyed item.
-	 *
-	 * ## RejectsWith:
-	 *
-	 * - `{IllegalArgumentError}` - `err` - Argument `id` must be a string or a number.
-	 * - `{RuntimeError}` - `err` - Argument `resourceName` must refer to an already registered resource.
-	 * - `{UnhandledError}` - `err` - Thrown for any uncaught exception.
+	 * See [DS.destroy](/documentation/api/api/DS.async_methods:destroy).
 	 */
 	destroy: require('./destroy'),
 
@@ -71,31 +25,7 @@ module.exports = {
 	 * @name find
 	 * @methodOf DS
 	 * @description
-	 * `find(resourceName, id[, forceRefresh])`
-	 *
-	 * Asynchronously return the resource with the given id from the server. The result will be added to the data
-	 * store when it returns from the server.
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * TODO: find(resourceName, id[, forceRefresh]) example
-	 * ```
-	 *
-	 * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
-	 * @param {string|number} id The primary key of the item to retrieve.
-	 * @param {boolean=} forceRefresh Bypass the cache.
-	 * @returns {Promise} Promise produced by the `$q` service.
-	 *
-	 * ## ResolvesWith:
-	 *
-	 * - `{array}` - `item` - The item with the primary key specified by `id`.
-	 *
-	 * ## RejectsWith:
-	 *
-	 * - `{IllegalArgumentError}` - `err` - Argument `id` must be a string or a number.
-	 * - `{RuntimeError}` - `err` - Argument `resourceName` must refer to an already registered resource.
-	 * - `{UnhandledError}` - `err` - Thrown for any uncaught exception.
+	 * See [DS.find](/documentation/api/api/DS.async_methods:find).
 	 */
 	find: require('./find'),
 
@@ -105,38 +35,7 @@ module.exports = {
 	 * @name findAll
 	 * @methodOf DS
 	 * @description
-	 * `findAll(resourceName[, params][, forceRefresh])`
-	 *
-	 * Asynchronously return the resource from the server filtered by the query. The results will be added to the data
-	 * store when it returns from the server.
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * TODO: findAll(resourceName[, params][, forceRefresh]) example
-	 * ```
-	 *
-	 * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
-	 * @param {object=} params Parameter object that is serialized into the query string. Properties:
-	 *
-	 * - `{object=}` - `query` - The query object by which to filter items of the type specified by `resourceName`. Properties:
-	 *      - `{object=}` - `where` - Where clause.
-	 *      - `{number=}` - `limit` - Limit clause.
-	 *      - `{skip=}` - `skip` - Skip clause.
-	 *
-	 * @param {boolean=} forceRefresh Bypass the cache.
-	 *
-	 * @returns {Promise} Promise produced by the `$q` service.
-	 *
-	 * ## ResolvesWith:
-	 *
-	 * - `{array}` - `items` - The collection of items returned by the server.
-	 *
-	 * ## RejectsWith:
-	 *
-	 * - `{IllegalArgumentError}` - `err` - Argument `params` must be an object.
-	 * - `{RuntimeError}` - `err` - Argument `resourceName` must refer to an already registered resource.
-	 * - `{UnhandledError}` - `err` - Thrown for any uncaught exception.
+	 * See [DS.findAll](/documentation/api/api/DS.async_methods:findAll).
 	 */
 	findAll: require('./findAll'),
 
@@ -146,35 +45,7 @@ module.exports = {
 	 * @name refresh
 	 * @methodOf DS
 	 * @description
-	 * `refresh(resourceName, id)`
-	 *
-	 * Like find(), except the resource is only refreshed from the server if it already exists in the data store.
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * TODO: refresh(resourceName, id) example
-	 * ```
-	 *
-	 * ## Throws
-	 *
-	 * - `{IllegalArgumentError}` - Argument `id` must be a string or a number.
-	 * - `{RuntimeError}` - Argument `resourceName` must refer to an already registered resource.
-	 *
-	 * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
-	 * @param {string|number} id The primary key of the item to refresh from the server.
-	 * @returns {false|Promise} `false` if the item doesn't already exist in the data store. A `Promise` if the item does
-	 * exist in the data store and is being refreshed.
-	 *
-	 * ## ResolvesWith:
-	 *
-	 * - `{object}` - `item` - A reference to the refreshed item.
-	 *
-	 * ## RejectsWith:
-	 *
-	 * - `{IllegalArgumentError}` - `err` - Argument `id` must be a string or a number.
-	 * - `{RuntimeError}` - `err` - Argument `resourceName` must refer to an already registered resource.
-	 * - `{UnhandledError}` - `err` - Thrown for any uncaught exception.
+	 * See [DS.refresh](/documentation/api/api/DS.async_methods:refresh).
 	 */
 	refresh: require('./refresh'),
 
@@ -184,29 +55,7 @@ module.exports = {
 	 * @name save
 	 * @methodOf DS
 	 * @description
-	 * `save(resourceName, id)`
-	 *
-	 * save the item of the type specified by `resourceName` that has the primary key specified by `id`.
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * TODO: save(resourceName, id) example
-	 * ```
-	 *
-	 * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
-	 * @param {string|number} id The primary key of the item to retrieve.
-	 * @returns {Promise} Promise produced by the `$q` service.
-	 *
-	 * ## ResolvesWith:
-	 *
-	 * - `{object}` - `item` - A reference to the newly saved item.
-	 *
-	 * ## RejectsWith:
-	 *
-	 * - `{IllegalArgumentError}` - `err` - Argument `id` must be a string or a number.
-	 * - `{RuntimeError}` - `err` - Argument `resourceName` must refer to an already registered resource.
-	 * - `{UnhandledError}` - `err` - Thrown for any uncaught exception.
+	 * See [DS.save](/documentation/api/api/DS.async_methods:save).
 	 */
 	save: require('./save')
 };

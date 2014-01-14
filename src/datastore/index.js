@@ -1,5 +1,33 @@
 var utils = require('utils'),
-	services = require('services');
+	errors = require('errors'),
+	IllegalArgumentError = errors.IllegalArgumentError,
+	services = require('services'),
+	errorPrefix = 'DSProvider.config(options): ';
+
+/**
+ * @doc method
+ * @id DSProvider.methods:config
+ * @name config
+ * @description
+ * Configure the DS service.
+ *
+ * ## Throws:
+ *
+ * - `{IllegalArgumentError}`
+ *
+ * @param {object} options Configuration for the data store.
+ */
+function config(options) {
+	options = options || {};
+
+	if (!utils.isObject(options)) {
+		throw new IllegalArgumentError(errorPrefix + 'options: Must be an object!', { actual: typeof options, expected: 'object' });
+	} else if (!utils.isString(options.baseUrl)) {
+		throw new IllegalArgumentError(errorPrefix + 'options: Must be an object!', { baseUrl: { actual: typeof options, expected: 'object' } });
+	}
+
+	utils.deepMixIn(services.$config, options);
+}
 
 /**
  * @doc interface
@@ -7,6 +35,17 @@ var utils = require('utils'),
  * @name DSProvider
  */
 function DSProvider() {
+
+	/**
+	 * @doc method
+	 * @id DSProvider.methods:config
+	 * @name config
+	 * @methodOf DSProvider
+	 * @description
+	 * See [DSProvider.config](/documentation/api/api/DSProvider.methods:config).
+	 */
+	this.config = config;
+
 	this.$get = ['$rootScope', '$log', '$http', '$q', function ($rootScope, $log, $http, $q) {
 
 		services.$rootScope = $rootScope;
