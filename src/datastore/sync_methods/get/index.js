@@ -1,6 +1,6 @@
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store'),
+	services = require('services'),
 	errorPrefix = 'DS.get(resourceName, id): ';
 
 /**
@@ -33,7 +33,7 @@ var utils = require('utils'),
  * @returns {object} The item of the type specified by `resourceName` with the primary key specified by `id`.
  */
 function get(resourceName, id) {
-	if (!store[resourceName]) {
+	if (!services.store[resourceName]) {
 		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
 		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
@@ -41,12 +41,12 @@ function get(resourceName, id) {
 
 	try {
 		// cache miss, request resource from server
-		if (!(id in store[resourceName].index)) {
+		if (!(id in services.store[resourceName].index)) {
 			this.find(resourceName, id);
 		}
 
 		// return resource from cache
-		return store[resourceName].index[id];
+		return services.store[resourceName].index[id];
 	} catch (err) {
 		throw new errors.UnhandledError(err);
 	}

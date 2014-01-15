@@ -1,13 +1,12 @@
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store'),
 	services = require('services'),
 	PUT = require('../../HTTP').PUT,
 	errorPrefix = 'DS.save(resourceName, id[, options]): ';
 
 function _save(deferred, resource, id, options) {
 	var _this = this;
-	var url = utils.makePath(resource.baseUrl || services.$config.baseUrl, resource.endpoint || resource.name, id);
+	var url = utils.makePath(resource.baseUrl || services.config.baseUrl, resource.endpoint || resource.name, id);
 	PUT(url, resource.index[id], null).then(function (data) {
 		var saved = _this.inject(resource.name, data, options);
 		resource.saved[id] = utils.updateTimestamp(resource.saved[id]);
@@ -63,7 +62,7 @@ function save(resourceName, id, options) {
 
 	options = options || {};
 
-	if (!store[resourceName]) {
+	if (!services.store[resourceName]) {
 		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
 		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
@@ -73,7 +72,7 @@ function save(resourceName, id, options) {
 		var _this = this;
 
 		try {
-			var resource = store[resourceName];
+			var resource = services.store[resourceName];
 
 			if (resource.schema) {
 				resource.schema.validate(resource.index[id], function (err) {

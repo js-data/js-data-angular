@@ -26,7 +26,7 @@ function config(options) {
 		throw new IllegalArgumentError(errorPrefix + 'options: Must be an object!', { baseUrl: { actual: typeof options, expected: 'object' } });
 	}
 
-	utils.deepMixIn(services.$config, options);
+	utils.deepMixIn(services.config, options);
 }
 
 /**
@@ -52,6 +52,7 @@ function DSProvider() {
 		services.$log = $log;
 		services.$http = $http;
 		services.$q = $q;
+		services.store = {};
 
 		/**
 		 * @doc interface
@@ -65,6 +66,8 @@ function DSProvider() {
 		utils.deepMixIn(DS, require('./http'));
 		utils.deepMixIn(DS, require('./sync_methods'));
 		utils.deepMixIn(DS, require('./async_methods'));
+
+		DS.errors = errors;
 
 		utils.deepFreeze(DS);
 

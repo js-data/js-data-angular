@@ -1,6 +1,5 @@
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store'),
 	services = require('services');
 
 function _eject(resource, id) {
@@ -67,7 +66,7 @@ function _eject(resource, id) {
  * @param {string|number} id The primary key of the item to eject.
  */
 function eject(resourceName, id) {
-	if (!store[resourceName]) {
+	if (!services.store[resourceName]) {
 		throw new errors.RuntimeError('DS.eject(resourceName, id): ' + resourceName + ' is not a registered resource!');
 	} else if (id && !utils.isString(id) && !utils.isNumber(id)) {
 		throw new errors.IllegalArgumentError('DS.eject(resourceName, id): id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
@@ -76,10 +75,10 @@ function eject(resourceName, id) {
 	try {
 		if (!services.$rootScope.$$phase) {
 			services.$rootScope.$apply(function () {
-				_eject(store[resourceName], id);
+				_eject(services.store[resourceName], id);
 			});
 		} else {
-			_eject(store[resourceName], id);
+			_eject(services.store[resourceName], id);
 		}
 	} catch (err) {
 		throw new errors.UnhandledError(err);

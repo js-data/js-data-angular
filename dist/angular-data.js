@@ -2063,7 +2063,6 @@ module.exports = {
 },{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],28:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store'),
 	services = require('services'),
 	errorPrefix = 'DS.create(resourceName, attrs): ';
 
@@ -2110,16 +2109,16 @@ var utils = require('utils'),
  */
 function create(resourceName, attrs) {
 	var deferred = $q.defer();
-	if (!store[resourceName]) {
+	if (!services.store[resourceName]) {
 		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
 	} else if (!utils.isObject(attrs)) {
 		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'attrs: Must be an object!', { attrs: { actual: typeof attrs, expected: 'object' } }));
 	}
 
 	try {
-		var resource = store[resourceName],
+		var resource = services.store[resourceName],
 			_this = this,
-			url = utils.makePath(resource.baseUrl || services.$config.baseUrl, resource.endpoint || resource.name);
+			url = utils.makePath(resource.baseUrl || services.config.baseUrl, resource.endpoint || resource.name);
 
 		if (resource.validate) {
 			resource.validate(attrs, null, function (err) {
@@ -2154,10 +2153,10 @@ function create(resourceName, attrs) {
 
 module.exports = create;
 
-},{"errors":"hIh4e1","services":"cX8q+p","store":"hT1bCX","utils":"uE/lJt"}],29:[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],29:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store'),
+	services = require('services'),
 	errorPrefix = 'DS.destroy(resourceName, id): ';
 
 /**
@@ -2203,16 +2202,16 @@ var utils = require('utils'),
  */
 function destroy(resourceName, id) {
 	var deferred = $q.defer();
-	if (!store[resourceName]) {
+	if (!services.store[resourceName]) {
 		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
 		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
 	}
 
 	try {
-		var resource = store[resourceName],
+		var resource = services.store[resourceName],
 			_this = this,
-			url = utils.makePath(resource.baseUrl || services.$config.baseUrl, resource.endpoint || resource.name, id);
+			url = utils.makePath(resource.baseUrl || services.config.baseUrl, resource.endpoint || resource.name, id);
 
 		_this.DEL(url, null).then(function () {
 			try {
@@ -2231,10 +2230,9 @@ function destroy(resourceName, id) {
 
 module.exports = destroy;
 
-},{"errors":"hIh4e1","store":"hT1bCX","utils":"uE/lJt"}],30:[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],30:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store'),
 	services = require('services'),
 	GET = require('../../HTTP').GET,
 	errorPrefix = 'DS.find(resourceName, id[, options]): ';
@@ -2285,7 +2283,7 @@ var utils = require('utils'),
  */
 function find(resourceName, id, options) {
 	var deferred = $q.defer();
-	if (!store[resourceName]) {
+	if (!services.store[resourceName]) {
 		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
 		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
@@ -2295,12 +2293,12 @@ function find(resourceName, id, options) {
 		var _this = this;
 
 		try {
-			var resource = store[resourceName];
+			var resource = services.store[resourceName];
 
 			if (id in resource.index && !options.bypassCache) {
 				deferred.resolve(_this.get(resourceName, id));
 			} else {
-				var url = utils.makePath(resource.baseUrl || services.$config.baseUrl, resource.endpoint || resource.name, id),
+				var url = utils.makePath(resource.baseUrl || services.config.baseUrl, resource.endpoint || resource.name, id),
 					config = null;
 
 				if (options.bypassCache) {
@@ -2333,16 +2331,15 @@ function find(resourceName, id, options) {
 
 module.exports = find;
 
-},{"../../HTTP":27,"errors":"hIh4e1","services":"cX8q+p","store":"hT1bCX","utils":"uE/lJt"}],31:[function(require,module,exports){
+},{"../../HTTP":27,"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],31:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store'),
 	services = require('services'),
 	GET = require('../../HTTP').GET,
 	errorPrefix = 'DS.findAll(resourceName, params[, options]): ';
 
 function processResults(data, resourceName, queryHash) {
-	var resource = store[resourceName];
+	var resource = services.store[resourceName];
 
 	data = data || [];
 
@@ -2371,7 +2368,7 @@ function processResults(data, resourceName, queryHash) {
 }
 
 function _findAll(deferred, resourceName, params, options) {
-	var resource = store[resourceName];
+	var resource = services.store[resourceName];
 
 	var queryHash = utils.toJson(params);
 
@@ -2385,7 +2382,7 @@ function _findAll(deferred, resourceName, params, options) {
 		if (!resource.pendingQueries[queryHash]) {
 
 			// This particular query has never even been started
-			var url = utils.makePath(resource.baseUrl || services.$config.baseUrl, resource.endpoint || resource.name);
+			var url = utils.makePath(resource.baseUrl || services.config.baseUrl, resource.endpoint || resource.name);
 			resource.pendingQueries[queryHash] = GET(url, { params: params }).then(function (data) {
 				try {
 					deferred.resolve(processResults(data, resourceName, queryHash));
@@ -2471,7 +2468,7 @@ function findAll(resourceName, params, options) {
 
 	options = options || {};
 
-	if (!store[resourceName]) {
+	if (!services.store[resourceName]) {
 		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
 	} else if (!utils.isObject(params)) {
 		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!', { params: { actual: typeof params, expected: 'object' } }));
@@ -2490,7 +2487,7 @@ function findAll(resourceName, params, options) {
 
 module.exports = findAll;
 
-},{"../../HTTP":27,"errors":"hIh4e1","services":"cX8q+p","store":"hT1bCX","utils":"uE/lJt"}],32:[function(require,module,exports){
+},{"../../HTTP":27,"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],32:[function(require,module,exports){
 module.exports = {
 	/**
 	 * @doc method
@@ -2556,7 +2553,7 @@ module.exports = {
 },{"./create":28,"./destroy":29,"./find":30,"./findAll":31,"./refresh":33,"./save":34}],33:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store'),
+	services = require('services'),
 	PUT = require('../../HTTP').PUT,
 	errorPrefix = 'DS.refresh(resourceName, id): ';
 
@@ -2612,7 +2609,7 @@ var utils = require('utils'),
  * - `{UnhandledError}`
  */
 function refresh(resourceName, id, options) {
-	if (!store[resourceName]) {
+	if (!services.store[resourceName]) {
 		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
 		throw new errors.IllegalArgumentError('DS.refresh(resourceName, id): id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
@@ -2620,7 +2617,7 @@ function refresh(resourceName, id, options) {
 		throw new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
 	}
 
-	if (id in store[resourceName].index) {
+	if (id in services.store[resourceName].index) {
 		return this.find(resourceName, id, true);
 	} else {
 		return false;
@@ -2629,17 +2626,16 @@ function refresh(resourceName, id, options) {
 
 module.exports = refresh;
 
-},{"../../HTTP":27,"errors":"hIh4e1","store":"hT1bCX","utils":"uE/lJt"}],34:[function(require,module,exports){
+},{"../../HTTP":27,"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],34:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store'),
 	services = require('services'),
 	PUT = require('../../HTTP').PUT,
 	errorPrefix = 'DS.save(resourceName, id[, options]): ';
 
 function _save(deferred, resource, id, options) {
 	var _this = this;
-	var url = utils.makePath(resource.baseUrl || services.$config.baseUrl, resource.endpoint || resource.name, id);
+	var url = utils.makePath(resource.baseUrl || services.config.baseUrl, resource.endpoint || resource.name, id);
 	PUT(url, resource.index[id], null).then(function (data) {
 		var saved = _this.inject(resource.name, data, options);
 		resource.saved[id] = utils.updateTimestamp(resource.saved[id]);
@@ -2695,7 +2691,7 @@ function save(resourceName, id, options) {
 
 	options = options || {};
 
-	if (!store[resourceName]) {
+	if (!services.store[resourceName]) {
 		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
 		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
@@ -2705,7 +2701,7 @@ function save(resourceName, id, options) {
 		var _this = this;
 
 		try {
-			var resource = store[resourceName];
+			var resource = services.store[resourceName];
 
 			if (resource.schema) {
 				resource.schema.validate(resource.index[id], function (err) {
@@ -2732,7 +2728,7 @@ function save(resourceName, id, options) {
 
 module.exports = save;
 
-},{"../../HTTP":27,"errors":"hIh4e1","services":"cX8q+p","store":"hT1bCX","utils":"uE/lJt"}],35:[function(require,module,exports){
+},{"../../HTTP":27,"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],35:[function(require,module,exports){
 module.exports=require(27)
 },{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],36:[function(require,module,exports){
 var utils = require('utils'),
@@ -2763,7 +2759,7 @@ function config(options) {
 		throw new IllegalArgumentError(errorPrefix + 'options: Must be an object!', { baseUrl: { actual: typeof options, expected: 'object' } });
 	}
 
-	utils.deepMixIn(services.$config, options);
+	utils.deepMixIn(services.config, options);
 }
 
 /**
@@ -2789,6 +2785,7 @@ function DSProvider() {
 		services.$log = $log;
 		services.$http = $http;
 		services.$q = $q;
+		services.store = {};
 
 		/**
 		 * @doc interface
@@ -2802,6 +2799,8 @@ function DSProvider() {
 		utils.deepMixIn(DS, require('./http'));
 		utils.deepMixIn(DS, require('./sync_methods'));
 		utils.deepMixIn(DS, require('./async_methods'));
+
+		DS.errors = errors;
 
 		utils.deepFreeze(DS);
 
@@ -2824,7 +2823,10 @@ module.exports = DSProvider;
 module.exports=require('cX8q+p');
 },{}],"cX8q+p":[function(require,module,exports){
 module.exports = {
-	$config: {}
+	config: {
+		idAttribute: 'id'
+	},
+	store: {}
 };
 
 },{}],"hT1bCX":[function(require,module,exports){
@@ -2837,7 +2839,7 @@ module.exports=require('hT1bCX');
 },{}],41:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store'),
+	services = require('services'),
 	errorPrefix = 'DS.changes(resourceName, id): ';
 
 /**
@@ -2871,14 +2873,14 @@ var utils = require('utils'),
  * @returns {object} The changes of the item of the type specified by `resourceName` with the primary key specified by `id`.
  */
 function changes(resourceName, id) {
-	if (!store[resourceName]) {
+	if (!services.store[resourceName]) {
 		throw new errors.IllegalArgumentError(errorPrefix + resourceName + ' is not a registered resource!');
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
 		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 
 	try {
-		return utils.deepMixIn({}, store[resourceName].changes[id]);
+		return utils.deepMixIn({}, services.store[resourceName].changes[id]);
 	} catch (err) {
 		throw new errors.UnhandledError(err);
 	}
@@ -2886,10 +2888,10 @@ function changes(resourceName, id) {
 
 module.exports = changes;
 
-},{"errors":"hIh4e1","store":"hT1bCX","utils":"uE/lJt"}],42:[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],42:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store');
+	services = require('services');
 
 /**
  * @doc method
@@ -2932,14 +2934,14 @@ function defineResource(definition) {
 		throw new errors.IllegalArgumentError('DS.defineResource(definition): definition.name: Must be a string!', { definition: { name: { actual: typeof definition.name, expected: 'string' } } });
 	} else if (definition.idAttribute && !utils.isString(definition.idAttribute)) {
 		throw new errors.IllegalArgumentError('DS.defineResource(definition): definition.idAttribute: Must be a string!', { definition: { idAttribute: { actual: typeof definition.idAttribute, expected: 'string' } } });
-	} else if (store[definition.name]) {
+	} else if (services.store[definition.name]) {
 		throw new errors.RuntimeError('DS.defineResource(definition): ' + definition.name + ' is already registered!');
 	}
 
 	try {
-		store[definition.name] = definition;
+		services.store[definition.name] = definition;
 
-		var resource = store[definition.name];
+		var resource = services.store[definition.name];
 		resource.collection = [];
 		resource.completedQueries = {};
 		resource.pendingQueries = {};
@@ -2950,6 +2952,7 @@ function defineResource(definition) {
 		resource.saved = {};
 		resource.observers = {};
 		resource.collectionModified = 0;
+		resource.idAttribute = resource.idAttribute || services.config.idAttribute || 'id';
 	} catch (err) {
 		throw new errors.UnhandledError(err);
 	}
@@ -2957,10 +2960,9 @@ function defineResource(definition) {
 
 module.exports = defineResource;
 
-},{"errors":"hIh4e1","store":"hT1bCX","utils":"uE/lJt"}],43:[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],43:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store'),
 	services = require('services'),
 	observe = require('observejs');
 
@@ -3000,10 +3002,9 @@ function digest() {
 
 module.exports = digest;
 
-},{"errors":"hIh4e1","observejs":"q+M0EE","services":"cX8q+p","store":"hT1bCX","utils":"uE/lJt"}],44:[function(require,module,exports){
+},{"errors":"hIh4e1","observejs":"q+M0EE","services":"cX8q+p","utils":"uE/lJt"}],44:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store'),
 	services = require('services');
 
 function _eject(resource, id) {
@@ -3070,7 +3071,7 @@ function _eject(resource, id) {
  * @param {string|number} id The primary key of the item to eject.
  */
 function eject(resourceName, id) {
-	if (!store[resourceName]) {
+	if (!services.store[resourceName]) {
 		throw new errors.RuntimeError('DS.eject(resourceName, id): ' + resourceName + ' is not a registered resource!');
 	} else if (id && !utils.isString(id) && !utils.isNumber(id)) {
 		throw new errors.IllegalArgumentError('DS.eject(resourceName, id): id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
@@ -3079,10 +3080,10 @@ function eject(resourceName, id) {
 	try {
 		if (!services.$rootScope.$$phase) {
 			services.$rootScope.$apply(function () {
-				_eject(store[resourceName], id);
+				_eject(services.store[resourceName], id);
 			});
 		} else {
-			_eject(store[resourceName], id);
+			_eject(services.store[resourceName], id);
 		}
 	} catch (err) {
 		throw new errors.UnhandledError(err);
@@ -3091,12 +3092,12 @@ function eject(resourceName, id) {
 
 module.exports = eject;
 
-},{"errors":"hIh4e1","services":"cX8q+p","store":"hT1bCX","utils":"uE/lJt"}],45:[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],45:[function(require,module,exports){
 /* jshint loopfunc: true */
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store'),
-	errorPrefix = 'DS.filter(resourceName, params[, options])';
+	services = require('services'),
+	errorPrefix = 'DS.filter(resourceName, params[, options]): ';
 
 /**
  * @doc method
@@ -3132,7 +3133,7 @@ var utils = require('utils'),
  *      - `{orderBy=}` - `orderBy` - OrderBy clause.
  *
  * @param {object=} options Optional configuration. Properties:
- * - `{boolean=}` - `bypassCache` - Bypass the cache. Default: `false`.
+ * - `{boolean=}` - `loadFromServer` - Send the query to server if it has not been sent yet. Default: `false`.
  * - `{string=}` - `mergeStrategy` - If `findAll` is called, specify the merge strategy that should be used when the new
  * items are injected into the data store. Default: `"mergeWithExisting"`.
  *
@@ -3141,7 +3142,7 @@ var utils = require('utils'),
 function filter(resourceName, params, options) {
 	options = options || {};
 
-	if (!store[resourceName]) {
+	if (!services.store[resourceName]) {
 		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
 	} else if (!utils.isObject(params)) {
 		throw new errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!', { params: { actual: typeof params, expected: 'object' } });
@@ -3150,125 +3151,115 @@ function filter(resourceName, params, options) {
 	}
 
 	try {
-		var resource = store[resourceName];
+		var resource = services.store[resourceName];
 
 		// Protect against null
-		params = params || {};
 		params.query = params.query || {};
 
 		var queryHash = utils.toJson(params);
 
-		if (!(queryHash in resource.completedQueries) && options.bypassCache) {
+		if (!(queryHash in resource.completedQueries) && options.loadFromServer) {
 			// This particular query has never been completed
 
 			if (!resource.pendingQueries[queryHash]) {
 				// This particular query has never even been started
 				this.findAll(resourceName, params, options);
 			}
+		}
 
-			// Return empty results until the query completes
-			return [];
-		} else {
-			// The query has been completed, so hit the cache with the query
+		// The query has been completed, so hit the cache with the query
+		var filtered = utils.filter(resource.collection, function (value) {
+			var keep = true;
 
-			var filtered = utils.filter(resource.collection, function (value) {
-				var keep = true;
-
-				// Apply 'where' clauses
-				if (params.query.where) {
-					if (!utils.isObject(params.query.where)) {
-						throw new errors.IllegalArgumentError(errorPrefix + 'params.query.where: Must be an object!', { params: { query: { where: { actual: typeof params.query.where, expected: 'object' } } } });
+			// Apply 'where' clauses
+			if (params.query.where) {
+				if (!utils.isObject(params.query.where)) {
+					throw new errors.IllegalArgumentError(errorPrefix + 'params.query.where: Must be an object!', { params: { query: { where: { actual: typeof params.query.where, expected: 'object' } } } });
+				}
+				utils.forOwn(params.query.where, function (value2, key2) {
+					if (utils.isString(value2)) {
+						value2 = {
+							'===': value2
+						};
 					}
-					utils.forOwn(params.query.where, function (value2, key2) {
-						if (utils.isString(value2)) {
-							value2 = {
-								'==': value2
-							};
+					if ('==' in value2) {
+						keep = keep && (value[key2] == value2['==']);
+					} else if ('===' in value2) {
+						keep = keep && (value[key2] === value2['===']);
+					} else if ('!=' in value2) {
+						keep = keep && (value[key2] != value2['!=']);
+					} else if ('>' in value2) {
+						keep = keep && (value[key2] > value2['>']);
+					} else if ('>=' in value2) {
+						keep = keep && (value[key2] >= value2['>=']);
+					} else if ('<' in value2) {
+						keep = keep && (value[key2] < value2['<']);
+					} else if ('<=' in value2) {
+						keep = keep && (value[key2] <= value2['<=']);
+					} else if ('in' in value2) {
+						keep = keep && utils.contains(value2['in'], value[key2]);
+					}
+				});
+			}
+			return keep;
+		});
+
+		// Apply 'orderBy'
+		if (params.query.orderBy) {
+			if (utils.isString(params.query.orderBy)) {
+				params.query.orderBy = [
+					[params.query.orderBy, 'ASC']
+				];
+			}
+			if (utils.isArray(params.query.orderBy)) {
+				for (var i = 0; i < params.query.orderBy.length; i++) {
+					if (utils.isString(params.query.orderBy[i])) {
+						params.query.orderBy[i] = [params.query.orderBy[i], 'ASC'];
+					} else if (!utils.isArray(params.query.orderBy[i])) {
+						throw new errors.IllegalArgumentError(errorPrefix + 'params.query.orderBy[' + i + ']: Must be a string or an array!', { params: { query: { 'orderBy[i]': { actual: typeof params.query.orderBy[i], expected: 'string|array' } } } });
+					}
+					filtered = utils.sort(filtered, function (a, b) {
+						var cA = a[params.query.orderBy[i][0]], cB = b[params.query.orderBy[i][0]];
+						if (utils.isString(cA)) {
+							cA = utils.upperCase(cA);
 						}
-						if (key2.indexOf('.') !== -1) {
-							key2 = key2.split('.')[1];
+						if (utils.isString(cB)) {
+							cB = utils.upperCase(cB);
 						}
-						if (value2['==']) {
-							if (value2['=='] == 'null') {
-								keep = keep && (value[key2] === null);
+						if (params.query.orderBy[i][1] === 'DESC') {
+							if (cB < cA) {
+								return -1;
+							} else if (cB > cA) {
+								return 1;
 							} else {
-								keep = keep && (value[key2] == value2['==']);
+								return 0;
 							}
-						} else if (value2['!=']) {
-							keep = keep && (value[key2] != value2['!=']);
-						} else if (value2['>']) {
-							keep = keep && (value[key2] > value2['>']);
-						} else if (value2['>=']) {
-							keep = keep && (value[key2] >= value2['>=']);
-						} else if (value2['<']) {
-							keep = keep && (value[key2] < value2['<']);
-						} else if (value2['<=']) {
-							keep = keep && (value[key2] <= value2['<=']);
-						} else if (value2['in']) {
-							keep = keep && utils.contains(value2['in'], value[key2]);
+						} else {
+							if (cA < cB) {
+								return -1;
+							} else if (cA > cB) {
+								return 1;
+							} else {
+								return 0;
+							}
 						}
 					});
 				}
-				return keep;
-			});
-
-			// Apply 'orderBy'
-			if (params.query.orderBy) {
-				if (utils.isString(params.query.orderBy)) {
-					params.query.orderBy = [
-						[params.query.orderBy, 'ASC']
-					];
-				}
-				if (utils.isArray(params.query.orderBy)) {
-					for (var i = 0; i < params.query.orderBy.length; i++) {
-						if (utils.isString(params.query.orderBy[i])) {
-							params.query.orderBy[i] = [params.query.orderBy[i], 'ASC'];
-						} else if (!utils.isArray(params.query.orderBy[i])) {
-							throw new errors.IllegalArgumentError(errorPrefix + 'params.query.orderBy[' + i + ']: Must be an array!', { params: { query: { 'orderBy[i]': { actual: typeof params.query.orderBy[i], expected: 'array' } } } });
-						}
-						filtered = utils.sort(filtered, function (a, b) {
-							var cA = a[params.query.orderBy[i][0]], cB = b[params.query.orderBy[i][0]];
-							if (utils.isString(cA)) {
-								cA = utils.upperCase(cA);
-							}
-							if (utils.isString(cB)) {
-								cB = utils.upperCase(cB);
-							}
-							if (params.query.orderBy[i][1] === 'DESC') {
-								if (cB < cA) {
-									return -1;
-								} else if (cB > cA) {
-									return 1;
-								} else {
-									return 0;
-								}
-							} else {
-								if (cA < cB) {
-									return -1;
-								} else if (cA > cB) {
-									return 1;
-								} else {
-									return 0;
-								}
-							}
-						});
-					}
-				} else {
-					throw new errors.IllegalArgumentError(errorPrefix + 'params.query.orderBy: Must be an array!', { params: { query: { orderBy: { actual: typeof params.query.orderBy, expected: 'array' } } } });
-				}
+			} else {
+				throw new errors.IllegalArgumentError(errorPrefix + 'params.query.orderBy: Must be a string or an array!', { params: { query: { orderBy: { actual: typeof params.query.orderBy, expected: 'string|array' } } } });
 			}
-
-			// Apply 'limit' and 'offset'
-			if (utils.isNumber(params.query.limit) && utils.isNumber(params.query.offset)) {
-				filtered = utils.slice(filtered, params.query.offset, params.query.offset + params.query.limit);
-			} else if (utils.isNumber(params.query.limit)) {
-				filtered = utils.slice(filtered, 0, params.query.limit);
-			} else if (utils.isNumber(params.query.offset)) {
-				filtered = utils.slice(filtered, params.query.offset);
-			}
-
-			return filtered;
 		}
+
+		// Apply 'limit' and 'skip'
+		if (utils.isNumber(params.query.limit) && utils.isNumber(params.query.skip)) {
+			filtered = utils.slice(filtered, params.query.skip, params.query.skip + params.query.limit);
+		} else if (utils.isNumber(params.query.limit)) {
+			filtered = utils.slice(filtered, 0, params.query.limit);
+		} else if (utils.isNumber(params.query.skip)) {
+			filtered = utils.slice(filtered, params.query.skip);
+		}
+
+		return filtered;
 	} catch (err) {
 		if (err instanceof errors.IllegalArgumentError) {
 			throw err;
@@ -3280,10 +3271,10 @@ function filter(resourceName, params, options) {
 
 module.exports = filter;
 
-},{"errors":"hIh4e1","store":"hT1bCX","utils":"uE/lJt"}],46:[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],46:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store'),
+	services = require('services'),
 	errorPrefix = 'DS.get(resourceName, id): ';
 
 /**
@@ -3316,7 +3307,7 @@ var utils = require('utils'),
  * @returns {object} The item of the type specified by `resourceName` with the primary key specified by `id`.
  */
 function get(resourceName, id) {
-	if (!store[resourceName]) {
+	if (!services.store[resourceName]) {
 		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
 		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
@@ -3324,12 +3315,12 @@ function get(resourceName, id) {
 
 	try {
 		// cache miss, request resource from server
-		if (!(id in store[resourceName].index)) {
+		if (!(id in services.store[resourceName].index)) {
 			this.find(resourceName, id);
 		}
 
 		// return resource from cache
-		return store[resourceName].index[id];
+		return services.store[resourceName].index[id];
 	} catch (err) {
 		throw new errors.UnhandledError(err);
 	}
@@ -3337,10 +3328,10 @@ function get(resourceName, id) {
 
 module.exports = get;
 
-},{"errors":"hIh4e1","store":"hT1bCX","utils":"uE/lJt"}],47:[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],47:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store');
+	services = require('services');
 
 function diffIsEmpty(diff) {
 	return utils.isEmpty(diff.added) &&
@@ -3375,7 +3366,7 @@ function diffIsEmpty(diff) {
  * @returns {boolean} Whether the item of the type specified by `resourceName` with the primary key specified by `id` has changes.
  */
 function hasChanges(resourceName, id) {
-	if (!store[resourceName]) {
+	if (!services.store[resourceName]) {
 		throw new errors.IllegalArgumentError('DS.hasChanges(resourceName, id): ' + resourceName + ' is not a registered resource!');
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
 		throw new errors.IllegalArgumentError('DS.hasChanges(resourceName, id): id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
@@ -3383,7 +3374,7 @@ function hasChanges(resourceName, id) {
 
 	try {
 		// return resource from cache
-		return diffIsEmpty(store[resourceName].changes[id]);
+		return diffIsEmpty(services.store[resourceName].changes[id]);
 	} catch (err) {
 		throw new errors.UnhandledError(err);
 	}
@@ -3391,7 +3382,7 @@ function hasChanges(resourceName, id) {
 
 module.exports = hasChanges;
 
-},{"errors":"hIh4e1","store":"hT1bCX","utils":"uE/lJt"}],48:[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],48:[function(require,module,exports){
 module.exports = {
 	/**
 	 * @doc method
@@ -3747,7 +3738,6 @@ module.exports = {
 },{"./changes":41,"./defineResource":42,"./digest":43,"./eject":44,"./filter":45,"./get":46,"./hasChanges":47,"./inject":49,"./lastModified":50,"./lastSaved":51,"./previous":52}],49:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store'),
 	services = require('services'),
 	observe = require('observejs');
 
@@ -3842,13 +3832,13 @@ function _inject(resource, attrs) {
  * the items that were injected into the data store.
  */
 function inject(resourceName, attrs) {
-	if (!store[resourceName]) {
+	if (!services.store[resourceName]) {
 		throw new errors.RuntimeError('DS.inject(resourceName, attrs): ' + resourceName + ' is not a registered resource!');
 	} else if (!utils.isObject(attrs) && !utils.isArray(attrs)) {
 		throw new errors.IllegalArgumentError('DS.inject(resourceName, attrs): attrs: Must be an object or an array!', { attrs: { actual: typeof attrs, expected: 'object|array' } });
 	}
 
-	var resource = store[resourceName],
+	var resource = services.store[resourceName],
 		_this = this;
 
 	var idAttribute = resource.idAttribute || 'id';
@@ -3858,10 +3848,10 @@ function inject(resourceName, attrs) {
 		try {
 			if (!services.$rootScope.$$phase) {
 				services.$rootScope.$apply(function () {
-					_inject.apply(_this, [store[resourceName], attrs]);
+					_inject.apply(_this, [services.store[resourceName], attrs]);
 				});
 			} else {
-				_inject.apply(_this, [store[resourceName], attrs]);
+				_inject.apply(_this, [services.store[resourceName], attrs]);
 			}
 		} catch (err) {
 			throw new errors.UnhandledError(err);
@@ -3872,10 +3862,10 @@ function inject(resourceName, attrs) {
 
 module.exports = inject;
 
-},{"errors":"hIh4e1","observejs":"q+M0EE","services":"cX8q+p","store":"hT1bCX","utils":"uE/lJt"}],50:[function(require,module,exports){
+},{"errors":"hIh4e1","observejs":"q+M0EE","services":"cX8q+p","utils":"uE/lJt"}],50:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store');
+	services = require('services');
 
 /**
  * @doc method
@@ -3905,19 +3895,19 @@ var utils = require('utils'),
  * `resourceName` with the given primary key was modified.
  */
 function lastModified(resourceName, id) {
-	if (!store[resourceName]) {
+	if (!services.store[resourceName]) {
 		throw new errors.RuntimeError('DS.lastModified(resourceName[, id]): ' + resourceName + ' is not a registered resource!');
 	} else if (id && !utils.isString(id) && !utils.isNumber(id)) {
 		throw new errors.IllegalArgumentError('DS.lastModified(resourceName[, id]): id: Must be a string or number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 	try {
 		if (id) {
-			if (!(id in store[resourceName].modified)) {
-				store[resourceName].modified[id] = 0;
+			if (!(id in services.store[resourceName].modified)) {
+				services.store[resourceName].modified[id] = 0;
 			}
-			return store[resourceName].modified[id];
+			return services.store[resourceName].modified[id];
 		}
-		return store[resourceName].collectionModified;
+		return services.store[resourceName].collectionModified;
 	} catch (err) {
 		throw new errors.UnhandledError(err);
 	}
@@ -3925,10 +3915,10 @@ function lastModified(resourceName, id) {
 
 module.exports = lastModified;
 
-},{"errors":"hIh4e1","store":"hT1bCX","utils":"uE/lJt"}],51:[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],51:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store');
+	services = require('services');
 
 /**
  * @doc method
@@ -3958,19 +3948,19 @@ var utils = require('utils'),
  * `resourceName` with the given primary key was modified.
  */
 function lastSaved(resourceName, id) {
-	if (!store[resourceName]) {
+	if (!services.store[resourceName]) {
 		throw new errors.RuntimeError('DS.lastSaved(resourceName[, id]): ' + resourceName + ' is not a registered resource!');
 	} else if (id && !utils.isString(id) && !utils.isNumber(id)) {
 		throw new errors.IllegalArgumentError('DS.lastSaved(resourceName[, id]): id: Must be a string or number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 	try {
 		if (id) {
-			if (!(id in store[resourceName].saved)) {
-				store[resourceName].saved[id] = 0;
+			if (!(id in services.store[resourceName].saved)) {
+				services.store[resourceName].saved[id] = 0;
 			}
-			return store[resourceName].saved[id];
+			return services.store[resourceName].saved[id];
 		}
-		return store[resourceName].collectionModified;
+		return services.store[resourceName].collectionModified;
 	} catch (err) {
 		throw new errors.UnhandledError(err);
 	}
@@ -3978,22 +3968,26 @@ function lastSaved(resourceName, id) {
 
 module.exports = lastSaved;
 
-},{"errors":"hIh4e1","store":"hT1bCX","utils":"uE/lJt"}],52:[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],52:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store');
+	services = require('services'),
+	errorPrefix = 'DS.previous(resourceName, id): ';
 
 /**
  * @doc method
  * @id DS.sync_methods:previous
  * @name previous
  * @description
- * `previous(resourceName, id)`
- *
  * Synchronously return the previous attributes of the item of the type specified by `resourceName` that has the primary key
  * specified by `id`. This object represents the state of the item the last time it was saved via an async adapter.
  *
- * Example:
+ * ## Signature:
+ * ```js
+ * DS.previous(resourceName, id)
+ * ```
+ *
+ * ## Example:
  *
  * ```js
  * TODO: previous(resourceName, id) example
@@ -4001,24 +3995,24 @@ var utils = require('utils'),
  *
  * ## Throws
  *
- * - `{IllegalArgumentError}` - Argument `id` must be a string or a number.
- * - `{RuntimeError}` - Argument `resourceName` must refer to an already registered resource.
- * - `{UnhandledError}` - Thrown for any uncaught exception.
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item whose previous attributes are to be retrieved.
  * @returns {object} The previous attributes of the item of the type specified by `resourceName` with the primary key specified by `id`.
  */
 function previous(resourceName, id) {
-	if (!store[resourceName]) {
-		throw new errors.IllegalArgumentError('DS.previous(resourceName, id): ' + resourceName + ' is not a registered resource!');
+	if (!services.store[resourceName]) {
+		throw new errors.IllegalArgumentError(errorPrefix + resourceName + ' is not a registered resource!');
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
-		throw new errors.IllegalArgumentError('DS.previous(resourceName, id): id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 
 	try {
 		// return resource from cache
-		return angular.copy(store[resourceName].previous_attributes[id]);
+		return angular.copy(services.store[resourceName].previous_attributes[id]);
 	} catch (err) {
 		throw new errors.UnhandledError(err);
 	}
@@ -4026,7 +4020,7 @@ function previous(resourceName, id) {
 
 module.exports = previous;
 
-},{"errors":"hIh4e1","store":"hT1bCX","utils":"uE/lJt"}],"errors":[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],"errors":[function(require,module,exports){
 module.exports=require('hIh4e1');
 },{}],"hIh4e1":[function(require,module,exports){
 /**
@@ -4039,7 +4033,9 @@ module.exports=require('hIh4e1');
  */
 function UnhandledError(error) {
 	Error.call(this);
-	Error.captureStackTrace(this, this.constructor);
+	if (typeof Error.captureStackTrace === 'function') {
+		Error.captureStackTrace(this, this.constructor);
+	}
 
 	error = error || {};
 
@@ -4095,7 +4091,9 @@ UnhandledError.prototype.constructor = UnhandledError;
  */
 function IllegalArgumentError(message, errors) {
 	Error.call(this);
-	Error.captureStackTrace(this, this.constructor);
+	if (typeof Error.captureStackTrace === 'function') {
+		Error.captureStackTrace(this, this.constructor);
+	}
 
 	/**
 	 * @doc property
@@ -4139,7 +4137,9 @@ IllegalArgumentError.prototype.constructor = IllegalArgumentError;
  */
 function ValidationError(message, errors) {
 	Error.call(this);
-	Error.captureStackTrace(this, this.constructor);
+	if (typeof Error.captureStackTrace === 'function') {
+		Error.captureStackTrace(this, this.constructor);
+	}
 
 	/**
 	 * @doc property
@@ -4183,7 +4183,9 @@ ValidationError.prototype.constructor = ValidationError;
  */
 function RuntimeError(message, errors) {
 	Error.call(this);
-	Error.captureStackTrace(this, this.constructor);
+	if (typeof Error.captureStackTrace === 'function') {
+		Error.captureStackTrace(this, this.constructor);
+	}
 
 	/**
 	 * @doc property
@@ -4278,9 +4280,7 @@ module.exports = {
 
 })(window, window.angular);
 
-},{"./datastore":36}],"utils":[function(require,module,exports){
-module.exports=require('uE/lJt');
-},{}],"uE/lJt":[function(require,module,exports){
+},{"./datastore":36}],"uE/lJt":[function(require,module,exports){
 module.exports = {
 	isString: angular.isString,
 	isArray: angular.isArray,
@@ -4370,4 +4370,6 @@ module.exports = {
 	}
 };
 
-},{"mout/array/contains":1,"mout/array/filter":2,"mout/array/slice":5,"mout/array/sort":6,"mout/array/toLookup":7,"mout/lang/isEmpty":12,"mout/object/deepMixIn":19,"mout/object/forOwn":21,"mout/string/makePath":23,"mout/string/upperCase":24}]},{},[55])
+},{"mout/array/contains":1,"mout/array/filter":2,"mout/array/slice":5,"mout/array/sort":6,"mout/array/toLookup":7,"mout/lang/isEmpty":12,"mout/object/deepMixIn":19,"mout/object/forOwn":21,"mout/string/makePath":23,"mout/string/upperCase":24}],"utils":[function(require,module,exports){
+module.exports=require('uE/lJt');
+},{}]},{},[55])

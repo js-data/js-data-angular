@@ -1,6 +1,5 @@
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store'),
 	services = require('services'),
 	GET = require('../../HTTP').GET,
 	errorPrefix = 'DS.find(resourceName, id[, options]): ';
@@ -51,7 +50,7 @@ var utils = require('utils'),
  */
 function find(resourceName, id, options) {
 	var deferred = $q.defer();
-	if (!store[resourceName]) {
+	if (!services.store[resourceName]) {
 		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
 		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
@@ -61,12 +60,12 @@ function find(resourceName, id, options) {
 		var _this = this;
 
 		try {
-			var resource = store[resourceName];
+			var resource = services.store[resourceName];
 
 			if (id in resource.index && !options.bypassCache) {
 				deferred.resolve(_this.get(resourceName, id));
 			} else {
-				var url = utils.makePath(resource.baseUrl || services.$config.baseUrl, resource.endpoint || resource.name, id),
+				var url = utils.makePath(resource.baseUrl || services.config.baseUrl, resource.endpoint || resource.name, id),
 					config = null;
 
 				if (options.bypassCache) {

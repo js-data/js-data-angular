@@ -1,6 +1,6 @@
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store'),
+	services = require('services'),
 	errorPrefix = 'DS.changes(resourceName, id): ';
 
 /**
@@ -34,14 +34,14 @@ var utils = require('utils'),
  * @returns {object} The changes of the item of the type specified by `resourceName` with the primary key specified by `id`.
  */
 function changes(resourceName, id) {
-	if (!store[resourceName]) {
+	if (!services.store[resourceName]) {
 		throw new errors.IllegalArgumentError(errorPrefix + resourceName + ' is not a registered resource!');
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
 		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 
 	try {
-		return utils.deepMixIn({}, store[resourceName].changes[id]);
+		return utils.deepMixIn({}, services.store[resourceName].changes[id]);
 	} catch (err) {
 		throw new errors.UnhandledError(err);
 	}

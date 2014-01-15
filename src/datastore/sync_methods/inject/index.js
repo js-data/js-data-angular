@@ -1,6 +1,5 @@
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store'),
 	services = require('services'),
 	observe = require('observejs');
 
@@ -95,13 +94,13 @@ function _inject(resource, attrs) {
  * the items that were injected into the data store.
  */
 function inject(resourceName, attrs) {
-	if (!store[resourceName]) {
+	if (!services.store[resourceName]) {
 		throw new errors.RuntimeError('DS.inject(resourceName, attrs): ' + resourceName + ' is not a registered resource!');
 	} else if (!utils.isObject(attrs) && !utils.isArray(attrs)) {
 		throw new errors.IllegalArgumentError('DS.inject(resourceName, attrs): attrs: Must be an object or an array!', { attrs: { actual: typeof attrs, expected: 'object|array' } });
 	}
 
-	var resource = store[resourceName],
+	var resource = services.store[resourceName],
 		_this = this;
 
 	var idAttribute = resource.idAttribute || 'id';
@@ -111,10 +110,10 @@ function inject(resourceName, attrs) {
 		try {
 			if (!services.$rootScope.$$phase) {
 				services.$rootScope.$apply(function () {
-					_inject.apply(_this, [store[resourceName], attrs]);
+					_inject.apply(_this, [services.store[resourceName], attrs]);
 				});
 			} else {
-				_inject.apply(_this, [store[resourceName], attrs]);
+				_inject.apply(_this, [services.store[resourceName], attrs]);
 			}
 		} catch (err) {
 			throw new errors.UnhandledError(err);

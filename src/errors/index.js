@@ -8,7 +8,9 @@
  */
 function UnhandledError(error) {
 	Error.call(this);
-	Error.captureStackTrace(this, this.constructor);
+	if (typeof Error.captureStackTrace === 'function') {
+		Error.captureStackTrace(this, this.constructor);
+	}
 
 	error = error || {};
 
@@ -64,7 +66,9 @@ UnhandledError.prototype.constructor = UnhandledError;
  */
 function IllegalArgumentError(message, errors) {
 	Error.call(this);
-	Error.captureStackTrace(this, this.constructor);
+	if (typeof Error.captureStackTrace === 'function') {
+		Error.captureStackTrace(this, this.constructor);
+	}
 
 	/**
 	 * @doc property
@@ -108,7 +112,9 @@ IllegalArgumentError.prototype.constructor = IllegalArgumentError;
  */
 function ValidationError(message, errors) {
 	Error.call(this);
-	Error.captureStackTrace(this, this.constructor);
+	if (typeof Error.captureStackTrace === 'function') {
+		Error.captureStackTrace(this, this.constructor);
+	}
 
 	/**
 	 * @doc property
@@ -152,7 +158,9 @@ ValidationError.prototype.constructor = ValidationError;
  */
 function RuntimeError(message, errors) {
 	Error.call(this);
-	Error.captureStackTrace(this, this.constructor);
+	if (typeof Error.captureStackTrace === 'function') {
+		Error.captureStackTrace(this, this.constructor);
+	}
 
 	/**
 	 * @doc property

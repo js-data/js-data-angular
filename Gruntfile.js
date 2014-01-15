@@ -38,6 +38,10 @@ module.exports = function (grunt) {
 			all: ['Gruntfile.js', 'src/**/*.js', 'test/*.js'],
 			jshintrc: '.jshintrc'
 		},
+		watch: {
+			files: ['src/**/*.js'],
+			tasks: ['build']
+		},
 		uglify: {
 			main: {
 				options: {
@@ -84,21 +88,24 @@ module.exports = function (grunt) {
 					}
 				}
 			}
-//		},
-//		karma: {
-//			options: {
-//				configFile: './karma.conf.js'
-//			},
-//			dev: {
-//				browsers: ['Chrome'],
-//				autoWatch: true,
-//				singleRun: false
-//			},
-//		},
-//		coveralls: {
-//			options: {
-//				coverage_dir: 'coverage'
-//			}
+		},
+		karma: {
+			options: {
+				configFile: './karma.conf.js'
+			},
+			dev: {
+				browsers: ['Chrome'],
+				autoWatch: true,
+				singleRun: false
+			},
+			ci: {
+				browsers: ['Firefox', 'PhantomJS']
+			}
+		},
+		coveralls: {
+			options: {
+				coverage_dir: 'coverage'
+			}
 		},
 
 		concat: {
@@ -231,11 +238,11 @@ module.exports = function (grunt) {
 		}
 	});
 
+	grunt.registerTask('test', ['clean:coverage', 'karma:dev']);
 	grunt.registerTask('doc', ['clean:doc', 'docular', 'concat', 'copy', 'clean:afterDoc', 'uglify:scripts']);
 	grunt.registerTask('build', ['clean:dist', 'jshint', 'browserify', 'uglify:main']);
 	grunt.registerTask('default', ['build']);
 
-	// Used by the CLI build servers
-	grunt.registerTask('test-cli', ['karma:1.0.4', 'karma:1.0.5', 'karma:1.0.6', 'karma:1.0.7', 'karma:1.0.8', 'karma:1.1.4', 'karma:1.1.5']);
-	grunt.registerTask('cli', ['clean', 'jshint', 'copy', 'uglify', 'test-cli', 'coveralls']);
+	// Used by TravisCI
+	grunt.registerTask('ci', ['build', 'karma:ci', 'coveralls', 'doc']);
 };

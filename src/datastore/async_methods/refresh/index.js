@@ -1,6 +1,6 @@
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store'),
+	services = require('services'),
 	PUT = require('../../HTTP').PUT,
 	errorPrefix = 'DS.refresh(resourceName, id): ';
 
@@ -56,7 +56,7 @@ var utils = require('utils'),
  * - `{UnhandledError}`
  */
 function refresh(resourceName, id, options) {
-	if (!store[resourceName]) {
+	if (!services.store[resourceName]) {
 		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
 		throw new errors.IllegalArgumentError('DS.refresh(resourceName, id): id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
@@ -64,7 +64,7 @@ function refresh(resourceName, id, options) {
 		throw new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
 	}
 
-	if (id in store[resourceName].index) {
+	if (id in services.store[resourceName].index) {
 		return this.find(resourceName, id, true);
 	} else {
 		return false;

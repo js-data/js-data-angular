@@ -1,6 +1,5 @@
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store'),
 	services = require('services'),
 	errorPrefix = 'DS.create(resourceName, attrs): ';
 
@@ -47,16 +46,16 @@ var utils = require('utils'),
  */
 function create(resourceName, attrs) {
 	var deferred = $q.defer();
-	if (!store[resourceName]) {
+	if (!services.store[resourceName]) {
 		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
 	} else if (!utils.isObject(attrs)) {
 		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'attrs: Must be an object!', { attrs: { actual: typeof attrs, expected: 'object' } }));
 	}
 
 	try {
-		var resource = store[resourceName],
+		var resource = services.store[resourceName],
 			_this = this,
-			url = utils.makePath(resource.baseUrl || services.$config.baseUrl, resource.endpoint || resource.name);
+			url = utils.makePath(resource.baseUrl || services.config.baseUrl, resource.endpoint || resource.name);
 
 		if (resource.validate) {
 			resource.validate(attrs, null, function (err) {

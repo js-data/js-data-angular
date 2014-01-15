@@ -1,12 +1,11 @@
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store'),
 	services = require('services'),
 	GET = require('../../HTTP').GET,
 	errorPrefix = 'DS.findAll(resourceName, params[, options]): ';
 
 function processResults(data, resourceName, queryHash) {
-	var resource = store[resourceName];
+	var resource = services.store[resourceName];
 
 	data = data || [];
 
@@ -35,7 +34,7 @@ function processResults(data, resourceName, queryHash) {
 }
 
 function _findAll(deferred, resourceName, params, options) {
-	var resource = store[resourceName];
+	var resource = services.store[resourceName];
 
 	var queryHash = utils.toJson(params);
 
@@ -49,7 +48,7 @@ function _findAll(deferred, resourceName, params, options) {
 		if (!resource.pendingQueries[queryHash]) {
 
 			// This particular query has never even been started
-			var url = utils.makePath(resource.baseUrl || services.$config.baseUrl, resource.endpoint || resource.name);
+			var url = utils.makePath(resource.baseUrl || services.config.baseUrl, resource.endpoint || resource.name);
 			resource.pendingQueries[queryHash] = GET(url, { params: params }).then(function (data) {
 				try {
 					deferred.resolve(processResults(data, resourceName, queryHash));
@@ -135,7 +134,7 @@ function findAll(resourceName, params, options) {
 
 	options = options || {};
 
-	if (!store[resourceName]) {
+	if (!services.store[resourceName]) {
 		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
 	} else if (!utils.isObject(params)) {
 		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!', { params: { actual: typeof params, expected: 'object' } }));

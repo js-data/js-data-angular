@@ -1,6 +1,6 @@
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store');
+	services = require('services');
 
 /**
  * @doc method
@@ -43,14 +43,14 @@ function defineResource(definition) {
 		throw new errors.IllegalArgumentError('DS.defineResource(definition): definition.name: Must be a string!', { definition: { name: { actual: typeof definition.name, expected: 'string' } } });
 	} else if (definition.idAttribute && !utils.isString(definition.idAttribute)) {
 		throw new errors.IllegalArgumentError('DS.defineResource(definition): definition.idAttribute: Must be a string!', { definition: { idAttribute: { actual: typeof definition.idAttribute, expected: 'string' } } });
-	} else if (store[definition.name]) {
+	} else if (services.store[definition.name]) {
 		throw new errors.RuntimeError('DS.defineResource(definition): ' + definition.name + ' is already registered!');
 	}
 
 	try {
-		store[definition.name] = definition;
+		services.store[definition.name] = definition;
 
-		var resource = store[definition.name];
+		var resource = services.store[definition.name];
 		resource.collection = [];
 		resource.completedQueries = {};
 		resource.pendingQueries = {};
@@ -61,6 +61,7 @@ function defineResource(definition) {
 		resource.saved = {};
 		resource.observers = {};
 		resource.collectionModified = 0;
+		resource.idAttribute = resource.idAttribute || services.config.idAttribute || 'id';
 	} catch (err) {
 		throw new errors.UnhandledError(err);
 	}

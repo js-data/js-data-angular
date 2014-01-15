@@ -1,6 +1,5 @@
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store'),
 	services = require('services'),
 	observe = require('observejs');
 

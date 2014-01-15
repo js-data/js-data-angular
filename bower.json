@@ -24,5 +24,9 @@
     "karma.conf.js",
     ".gitignore",
     ".travis.yml"
-  ]
+  ],
+  "devDependencies": {
+    "angular": "~1.2.8",
+    "angular-mocks": "~1.2.8"
+  }
 }

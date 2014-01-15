@@ -1,3 +1,6 @@
 module.exports = {
-	$config: {}
+	config: {
+		idAttribute: 'id'
+	},
+	store: {}
 };

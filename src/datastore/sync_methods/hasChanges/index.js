@@ -1,6 +1,6 @@
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store');
+	services = require('services');
 
 function diffIsEmpty(diff) {
 	return utils.isEmpty(diff.added) &&
@@ -35,7 +35,7 @@ function diffIsEmpty(diff) {
  * @returns {boolean} Whether the item of the type specified by `resourceName` with the primary key specified by `id` has changes.
  */
 function hasChanges(resourceName, id) {
-	if (!store[resourceName]) {
+	if (!services.store[resourceName]) {
 		throw new errors.IllegalArgumentError('DS.hasChanges(resourceName, id): ' + resourceName + ' is not a registered resource!');
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
 		throw new errors.IllegalArgumentError('DS.hasChanges(resourceName, id): id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
@@ -43,7 +43,7 @@ function hasChanges(resourceName, id) {
 
 	try {
 		// return resource from cache
-		return diffIsEmpty(store[resourceName].changes[id]);
+		return diffIsEmpty(services.store[resourceName].changes[id]);
 	} catch (err) {
 		throw new errors.UnhandledError(err);
 	}

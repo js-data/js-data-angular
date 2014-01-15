@@ -1,6 +1,6 @@
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store');
+	services = require('services');
 
 /**
  * @doc method
@@ -30,19 +30,19 @@ var utils = require('utils'),
  * `resourceName` with the given primary key was modified.
  */
 function lastSaved(resourceName, id) {
-	if (!store[resourceName]) {
+	if (!services.store[resourceName]) {
 		throw new errors.RuntimeError('DS.lastSaved(resourceName[, id]): ' + resourceName + ' is not a registered resource!');
 	} else if (id && !utils.isString(id) && !utils.isNumber(id)) {
 		throw new errors.IllegalArgumentError('DS.lastSaved(resourceName[, id]): id: Must be a string or number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 	try {
 		if (id) {
-			if (!(id in store[resourceName].saved)) {
-				store[resourceName].saved[id] = 0;
+			if (!(id in services.store[resourceName].saved)) {
+				services.store[resourceName].saved[id] = 0;
 			}
-			return store[resourceName].saved[id];
+			return services.store[resourceName].saved[id];
 		}
-		return store[resourceName].collectionModified;
+		return services.store[resourceName].collectionModified;
 	} catch (err) {
 		throw new errors.UnhandledError(err);
 	}

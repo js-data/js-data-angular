@@ -1,6 +1,6 @@
 var utils = require('utils'),
 	errors = require('errors'),
-	store = require('store'),
+	services = require('services'),
 	errorPrefix = 'DS.destroy(resourceName, id): ';
 
 /**
@@ -46,16 +46,16 @@ var utils = require('utils'),
  */
 function destroy(resourceName, id) {
 	var deferred = $q.defer();
-	if (!store[resourceName]) {
+	if (!services.store[resourceName]) {
 		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
 		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
 	}
 
 	try {
-		var resource = store[resourceName],
+		var resource = services.store[resourceName],
 			_this = this,
-			url = utils.makePath(resource.baseUrl || services.$config.baseUrl, resource.endpoint || resource.name, id);
+			url = utils.makePath(resource.baseUrl || services.config.baseUrl, resource.endpoint || resource.name, id);
 
 		_this.DEL(url, null).then(function () {
 			try {
