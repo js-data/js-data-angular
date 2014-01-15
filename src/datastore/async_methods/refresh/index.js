@@ -56,6 +56,8 @@ var utils = require('utils'),
  * - `{UnhandledError}`
  */
 function refresh(resourceName, id, options) {
+	options = options || {};
+
 	if (!services.store[resourceName]) {
 		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {

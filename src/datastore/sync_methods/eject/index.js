@@ -1,6 +1,7 @@
 var utils = require('utils'),
 	errors = require('errors'),
-	services = require('services');
+	services = require('services'),
+	errorPrefix = 'DS.eject(resourceName, id): ';
 
 function _eject(resource, id) {
 	if (id) {
@@ -30,13 +31,16 @@ function _eject(resource, id) {
  * @id DS.sync_methods:eject
  * @name eject
  * @description
- * `eject(resourceName[, id])`
- *
  * Eject the item of the specified type that has the given primary key from the data store. If no primary key is
  * provided, eject all items of the specified type from the data store. Ejection only removes items from the data store
  * and does not attempt to delete items on the server.
  *
- * Example:
+ * ## Signature:
+ * ```js
+ * DS.eject(resourceName[, id])
+ * ```
+ *
+ * ## Examples:
  *
  * ```js
  * DS.get('document', 45); // { title: 'How to Cook', id: 45 }
@@ -58,18 +62,18 @@ function _eject(resource, id) {
  *
  * ## Throws
  *
- * - `{IllegalArgumentError}` - If provided, argument `id` must be a string or a number.
- * - `{RuntimeError}` - Argument `resourceName` must refer to an already registered resource.
- * - `{UnhandledError}` - Thrown for any uncaught exception.
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to eject.
  */
 function eject(resourceName, id) {
 	if (!services.store[resourceName]) {
-		throw new errors.RuntimeError('DS.eject(resourceName, id): ' + resourceName + ' is not a registered resource!');
+		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
 	} else if (id && !utils.isString(id) && !utils.isNumber(id)) {
-		throw new errors.IllegalArgumentError('DS.eject(resourceName, id): id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 
 	try {

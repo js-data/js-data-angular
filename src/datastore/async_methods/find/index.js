@@ -50,6 +50,8 @@ var utils = require('utils'),
  */
 function find(resourceName, id, options) {
 	var deferred = $q.defer();
+	options = options || {};
+
 	if (!services.store[resourceName]) {
 		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {

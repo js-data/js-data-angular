@@ -74,7 +74,6 @@ module.exports = function (grunt) {
 				options: {
 					alias: [
 						'node_modules/observe-js/src/observe.js:observejs',
-						'src/datastore/store/index.js:store',
 						'src/datastore/services/index.js:services',
 						'src/errors/index.js:errors',
 						'src/utils/index.js:utils'

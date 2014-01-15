@@ -1,27 +1,40 @@
 var utils = require('utils'),
 	errors = require('errors'),
-	services = require('services');
+	services = require('services'),
+	errorPrefix = 'DS.defineResource(definition): ';
 
 /**
  * @doc method
  * @id DS.sync_methods:defineResource
  * @name defineResource
  * @description
- * `defineResource(definition)`
+ * Define a resource and register it with the data store.
  *
- * Register a resource definition with the data store.
+ * ## Signature:
+ * ```js
+ * DS.defineResource(definition)
+ * ```
  *
- * Example:
+ * ## Example:
  *
  * ```js
- * TODO: defineResource(definition)
+ *  DS.defineResource({
+ *      name: 'document',
+ *      idAttribute: '_id',
+ *      endpoint: '/documents
+ *      baseUrl: 'http://myapp.com/api',
+ *      validate: function (attrs, options, cb) {
+ *          console.log('looks good to me');
+ *          cb(null);
+ *      }
+ *  });
  * ```
  *
  * ## Throws
  *
- * - `{IllegalArgumentError}` - Argument `definition` must be a string or an object.
- * - `{RuntimeError}` - Property `name` of argument `definition` must not refer to an already registered resource.
- * - `{UnhandledError}` - Thrown for any uncaught exception.
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
  *
  * @param {string|object} definition Name of resource or resource definition object: Properties:
  *
@@ -38,13 +51,13 @@ function defineResource(definition) {
 		};
 	}
 	if (!utils.isObject(definition)) {
-		throw new errors.IllegalArgumentError('DS.defineResource(definition): definition: Must be an object!', { definition: { actual: typeof definition, expected: 'object' } });
+		throw new errors.IllegalArgumentError(errorPrefix + 'definition: Must be an object!', { definition: { actual: typeof definition, expected: 'object' } });
 	} else if (!utils.isString(definition.name)) {
-		throw new errors.IllegalArgumentError('DS.defineResource(definition): definition.name: Must be a string!', { definition: { name: { actual: typeof definition.name, expected: 'string' } } });
+		throw new errors.IllegalArgumentError(errorPrefix + 'definition.name: Must be a string!', { definition: { name: { actual: typeof definition.name, expected: 'string' } } });
 	} else if (definition.idAttribute && !utils.isString(definition.idAttribute)) {
-		throw new errors.IllegalArgumentError('DS.defineResource(definition): definition.idAttribute: Must be a string!', { definition: { idAttribute: { actual: typeof definition.idAttribute, expected: 'string' } } });
+		throw new errors.IllegalArgumentError(errorPrefix + 'definition.idAttribute: Must be a string!', { definition: { idAttribute: { actual: typeof definition.idAttribute, expected: 'string' } } });
 	} else if (services.store[definition.name]) {
-		throw new errors.RuntimeError('DS.defineResource(definition): ' + definition.name + ' is already registered!');
+		throw new errors.RuntimeError(errorPrefix + definition.name + ' is already registered!');
 	}
 
 	try {
@@ -63,6 +76,7 @@ function defineResource(definition) {
 		resource.collectionModified = 0;
 		resource.idAttribute = resource.idAttribute || services.config.idAttribute || 'id';
 	} catch (err) {
+		delete services.store[definition.name];
 		throw new errors.UnhandledError(err);
 	}
 }

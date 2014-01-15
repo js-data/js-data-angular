@@ -19,14 +19,17 @@ function _$http(deferred, config) {
  * @id DS.async_methods:HTTP
  * @name HTTP
  * @description
- * `DS.HTTP(config)`
- *
  * Wrapper for `$http()`.
  *
- * Example:
+ * ## Signature:
+ * ```js
+ * DS.HTTP(config)
+ * ```
+ *
+ * ## Example:
  *
  * ```js
- * TODO: HTTP(config) example
+ * works the same as $http()
  * ```
  *
  * @param {object} config Configuration for the request.
@@ -55,18 +58,21 @@ function HTTP(config) {
  * @id DS.async_methods:GET
  * @name GET
  * @description
- * `DS.GET(url[, config])`
- *
  * Wrapper for `$http.get()`.
  *
- * Example:
+ * ## Signature:
+ * ```js
+ * DS.GET(url[, config])
+ * ```
+ *
+ * ## Example:
  *
  * ```js
- * TODO: GET(url[, config]) example
+ * Works the same as $http.get()
  * ```
  *
  * @param {string} url The url of the request.
- * @param {object} config Configuration for the request.
+ * @param {object=} config Configuration for the request.
  * @returns {Promise} Promise produced by the `$q` service.
  */
 function GET(url, config) {
@@ -82,19 +88,22 @@ function GET(url, config) {
  * @id DS.async_methods:PUT
  * @name PUT
  * @description
- * `DS.PUT(url[, attrs][, config])`
- *
  * Wrapper for `$http.put()`.
  *
- * Example:
+ * ## Signature:
+ * ```js
+ * DS.PUT(url[, attrs][, config])
+ * ```
+ *
+ * ## Example:
  *
  * ```js
- * TODO: PUT(url[, attrs][, config]) example
+ * Works the same as $http.put()
  * ```
  *
  * @param {string} url The url of the request.
- * @param {object} attrs Request payload.
- * @param {object} config Configuration for the request.
+ * @param {object=} attrs Request payload.
+ * @param {object=} config Configuration for the request.
  * @returns {Promise} Promise produced by the `$q` service.
  */
 function PUT(url, attrs, config) {
@@ -111,19 +120,22 @@ function PUT(url, attrs, config) {
  * @id DS.async_methods:POST
  * @name POST
  * @description
- * `DS.POST(url[, attrs][, config])`
- *
  * Wrapper for `$http.post()`.
  *
- * Example:
+ * ## Signature:
+ * ```js
+ * DS.POST(url[, attrs][, config])
+ * ```
+ *
+ * ## Example:
  *
  * ```js
- * TODO: POST(url[, attrs][, config]) example
+ * Works the same as $http.post()
  * ```
  *
  * @param {string} url The url of the request.
- * @param {object} attrs Request payload.
- * @param {object} config Configuration for the request.
+ * @param {object=} attrs Request payload.
+ * @param {object=} config Configuration for the request.
  * @returns {Promise} Promise produced by the `$q` service.
  */
 function POST(url, attrs, config) {
@@ -140,14 +152,17 @@ function POST(url, attrs, config) {
  * @id DS.async_methods:DEL
  * @name DEL
  * @description
- * `DS.DEL(url[, config])`
- *
  * Wrapper for `$http.delete()`.
  *
- * Example:
+ * ## Signature:
+ * ```js
+ * DS.DEL(url[, config])
+ * ```
+ *
+ * ## Example:
  *
  * ```js
- * TODO: DEL(url[, config]) example
+ * Works the same as $http.delete
  * ```
  *
  * @param {string} url The url of the request.
@@ -169,18 +184,7 @@ module.exports = {
 	 * @name HTTP
 	 * @methodOf DS
 	 * @description
-	 * `DS.HTTP(config)`
-	 *
-	 * Wrapper for `$http()`.
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * TODO: HTTP(config) example
-	 * ```
-	 *
-	 * @param {object} config Configuration for the request.
-	 * @returns {Promise} Promise produced by the `$q` service.
+	 * See [DS.HTTP](/documentation/api/api/DS.async_methods:HTTP).
 	 */
 	HTTP: HTTP,
 
@@ -190,19 +194,7 @@ module.exports = {
 	 * @name GET
 	 * @methodOf DS
 	 * @description
-	 * `DS.GET(url[, config])`
-	 *
-	 * Wrapper for `$http.get()`.
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * TODO: GET(url[, config]) example
-	 * ```
-	 *
-	 * @param {string} url The url of the request.
-	 * @param {object} config Configuration for the request.
-	 * @returns {Promise} Promise produced by the `$q` service.
+	 * See [DS.GET](/documentation/api/api/DS.async_methods:GET).
 	 */
 	GET: GET,
 
@@ -212,20 +204,7 @@ module.exports = {
 	 * @name POST
 	 * @methodOf DS
 	 * @description
-	 * `DS.POST(url[, attrs][, config])`
-	 *
-	 * Wrapper for `$http.post()`.
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * TODO: POST(url[, attrs][, config]) example
-	 * ```
-	 *
-	 * @param {string} url The url of the request.
-	 * @param {object} attrs Request payload.
-	 * @param {object} config Configuration for the request.
-	 * @returns {Promise} Promise produced by the `$q` service.
+	 * See [DS.POST](/documentation/api/api/DS.async_methods:POST).
 	 */
 	POST: POST,
 
@@ -235,20 +214,7 @@ module.exports = {
 	 * @name PUT
 	 * @methodOf DS
 	 * @description
-	 * `DS.PUT(url[, attrs][, config])`
-	 *
-	 * Wrapper for `$http.put()`.
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * TODO: PUT(url[, attrs][, config]) example
-	 * ```
-	 *
-	 * @param {string} url The url of the request.
-	 * @param {object} attrs Request payload.
-	 * @param {object} config Configuration for the request.
-	 * @returns {Promise} Promise produced by the `$q` service.
+	 * See [DS.PUT](/documentation/api/api/DS.async_methods:PUT).
 	 */
 	PUT: PUT,
 
@@ -258,19 +224,7 @@ module.exports = {
 	 * @name DEL
 	 * @methodOf DS
 	 * @description
-	 * `DS.DEL(url[, config])`
-	 *
-	 * Wrapper for `$http.delete()`.
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * TODO: DEL(url[, config]) example
-	 * ```
-	 *
-	 * @param {string} url The url of the request.
-	 * @param {object} config Configuration for the request.
-	 * @returns {Promise} Promise produced by the `$q` service.
+	 * See [DS.DEL](/documentation/api/api/DS.async_methods:DEL).
 	 */
 	DEL: DEL
 };

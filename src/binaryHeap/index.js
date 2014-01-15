@@ -75,12 +75,11 @@ function bubbleDown(heap, weightFunc, n) {
 /**
  * @doc function
  * @id BinaryHeap.class:constructor
- * @name new BinaryHeap([weightFunc])
+ * @name BinaryHeap
  * @description
  * BinaryHeap implementation of a priority queue.
  *
- * Example:
- *
+ * ## Example:
  * ```js
  * angular.module('app').controller(function (BinaryHeap) {
  *      var bHeap = new BinaryHeap(function (x) {
@@ -89,7 +88,7 @@ function bubbleDown(heap, weightFunc, n) {
  * });
  * ```
  *
- * @param {function} weightFunc Function that returns the value that should be used for node value comparison.
+ * @param {function=} weightFunc Function that returns the value that should be used for node value comparison.
  */
 function BinaryHeap(weightFunc) {
 	if (weightFunc && typeof weightFunc !== 'function') {
@@ -116,7 +115,7 @@ BinaryHeap.prototype.push = function (node) {
 /**
  * @doc method
  * @id BinaryHeap.instance_methods:peek
- * @name peek( )
+ * @name peek
  * @description
  * Return, but do not remove, the minimum element in the binary heap.
  * @returns {*} peeked node
@@ -128,7 +127,7 @@ BinaryHeap.prototype.peek = function () {
 /**
  * @doc method
  * @id BinaryHeap.instance_methods:pop
- * @name pop( )
+ * @name pop
  * @description
  * Remove and return the minimum element in the binary heap.
  * @returns {*} popped node
@@ -146,7 +145,7 @@ BinaryHeap.prototype.pop = function () {
 /**
  * @doc method
  * @id BinaryHeap.instance_methods:remove
- * @name remove(node)
+ * @name remove
  * @description
  * Remove the first node in the priority queue that satisfies angular.equals comparison with the given node.
  * @param {*} node The node to remove.
@@ -172,7 +171,7 @@ BinaryHeap.prototype.remove = function (node) {
 /**
  * @doc method
  * @id BinaryHeap.instance_methods:removeAll
- * @name removeAll( )
+ * @name removeAll
  * @description
  * Remove all nodes from this BinaryHeap.
  */
@@ -183,7 +182,7 @@ BinaryHeap.prototype.removeAll = function () {
 /**
  * @doc method
  * @id BinaryHeap.instance_methods:size
- * @name size( )
+ * @name size
  * @description
  * Return the size of the priority queue.
  * @returns {number} The size of the priority queue.

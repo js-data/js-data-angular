@@ -198,7 +198,9 @@ RuntimeError.prototype.constructor = RuntimeError;
  * @id errors
  * @name angular-data error types
  * @description
- * `UnhandledError`, `IllegalArgumentError` and `ValidationError`.
+ * `UnhandledError`, `IllegalArgumentError`, `RuntimeError` and `ValidationError`.
+ *
+ * References to the constructor functions of these errors can be found at `DS.errors`.
  */
 module.exports = {
 	UnhandledError: UnhandledError,

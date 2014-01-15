@@ -1,7 +1,7 @@
 /**
  * @author Jason Dobry <jason.dobry@gmail.com>
- * @file angular-data.min.js
- * @version 0.4.0 - Homepage <http://jmdobry.github.io/angular-data/>
+ * @file angular-data.js
+ * @version 0.4.1 - Homepage <http://jmdobry.github.io/angular-data/>
  * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/angular-data>
  * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
  *
@@ -2005,6 +2005,8 @@ var utils = require('utils'),
  */
 function find(resourceName, id, options) {
 	var deferred = $q.defer();
+	options = options || {};
+
 	if (!services.store[resourceName]) {
 		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
@@ -2331,6 +2333,8 @@ var utils = require('utils'),
  * - `{UnhandledError}`
  */
 function refresh(resourceName, id, options) {
+	options = options || {};
+
 	if (!services.store[resourceName]) {
 		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
@@ -2472,14 +2476,17 @@ function _$http(deferred, config) {
  * @id DS.async_methods:HTTP
  * @name HTTP
  * @description
- * `DS.HTTP(config)`
- *
  * Wrapper for `$http()`.
  *
- * Example:
+ * ## Signature:
+ * ```js
+ * DS.HTTP(config)
+ * ```
+ *
+ * ## Example:
  *
  * ```js
- * TODO: HTTP(config) example
+ * works the same as $http()
  * ```
  *
  * @param {object} config Configuration for the request.
@@ -2508,18 +2515,21 @@ function HTTP(config) {
  * @id DS.async_methods:GET
  * @name GET
  * @description
- * `DS.GET(url[, config])`
- *
  * Wrapper for `$http.get()`.
  *
- * Example:
+ * ## Signature:
+ * ```js
+ * DS.GET(url[, config])
+ * ```
+ *
+ * ## Example:
  *
  * ```js
- * TODO: GET(url[, config]) example
+ * Works the same as $http.get()
  * ```
  *
  * @param {string} url The url of the request.
- * @param {object} config Configuration for the request.
+ * @param {object=} config Configuration for the request.
  * @returns {Promise} Promise produced by the `$q` service.
  */
 function GET(url, config) {
@@ -2535,19 +2545,22 @@ function GET(url, config) {
  * @id DS.async_methods:PUT
  * @name PUT
  * @description
- * `DS.PUT(url[, attrs][, config])`
- *
  * Wrapper for `$http.put()`.
  *
- * Example:
+ * ## Signature:
+ * ```js
+ * DS.PUT(url[, attrs][, config])
+ * ```
+ *
+ * ## Example:
  *
  * ```js
- * TODO: PUT(url[, attrs][, config]) example
+ * Works the same as $http.put()
  * ```
  *
  * @param {string} url The url of the request.
- * @param {object} attrs Request payload.
- * @param {object} config Configuration for the request.
+ * @param {object=} attrs Request payload.
+ * @param {object=} config Configuration for the request.
  * @returns {Promise} Promise produced by the `$q` service.
  */
 function PUT(url, attrs, config) {
@@ -2564,19 +2577,22 @@ function PUT(url, attrs, config) {
  * @id DS.async_methods:POST
  * @name POST
  * @description
- * `DS.POST(url[, attrs][, config])`
- *
  * Wrapper for `$http.post()`.
  *
- * Example:
+ * ## Signature:
+ * ```js
+ * DS.POST(url[, attrs][, config])
+ * ```
+ *
+ * ## Example:
  *
  * ```js
- * TODO: POST(url[, attrs][, config]) example
+ * Works the same as $http.post()
  * ```
  *
  * @param {string} url The url of the request.
- * @param {object} attrs Request payload.
- * @param {object} config Configuration for the request.
+ * @param {object=} attrs Request payload.
+ * @param {object=} config Configuration for the request.
  * @returns {Promise} Promise produced by the `$q` service.
  */
 function POST(url, attrs, config) {
@@ -2593,14 +2609,17 @@ function POST(url, attrs, config) {
  * @id DS.async_methods:DEL
  * @name DEL
  * @description
- * `DS.DEL(url[, config])`
- *
  * Wrapper for `$http.delete()`.
  *
- * Example:
+ * ## Signature:
+ * ```js
+ * DS.DEL(url[, config])
+ * ```
+ *
+ * ## Example:
  *
  * ```js
- * TODO: DEL(url[, config]) example
+ * Works the same as $http.delete
  * ```
  *
  * @param {string} url The url of the request.
@@ -2622,18 +2641,7 @@ module.exports = {
 	 * @name HTTP
 	 * @methodOf DS
 	 * @description
-	 * `DS.HTTP(config)`
-	 *
-	 * Wrapper for `$http()`.
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * TODO: HTTP(config) example
-	 * ```
-	 *
-	 * @param {object} config Configuration for the request.
-	 * @returns {Promise} Promise produced by the `$q` service.
+	 * See [DS.HTTP](/documentation/api/api/DS.async_methods:HTTP).
 	 */
 	HTTP: HTTP,
 
@@ -2643,19 +2651,7 @@ module.exports = {
 	 * @name GET
 	 * @methodOf DS
 	 * @description
-	 * `DS.GET(url[, config])`
-	 *
-	 * Wrapper for `$http.get()`.
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * TODO: GET(url[, config]) example
-	 * ```
-	 *
-	 * @param {string} url The url of the request.
-	 * @param {object} config Configuration for the request.
-	 * @returns {Promise} Promise produced by the `$q` service.
+	 * See [DS.GET](/documentation/api/api/DS.async_methods:GET).
 	 */
 	GET: GET,
 
@@ -2665,20 +2661,7 @@ module.exports = {
 	 * @name POST
 	 * @methodOf DS
 	 * @description
-	 * `DS.POST(url[, attrs][, config])`
-	 *
-	 * Wrapper for `$http.post()`.
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * TODO: POST(url[, attrs][, config]) example
-	 * ```
-	 *
-	 * @param {string} url The url of the request.
-	 * @param {object} attrs Request payload.
-	 * @param {object} config Configuration for the request.
-	 * @returns {Promise} Promise produced by the `$q` service.
+	 * See [DS.POST](/documentation/api/api/DS.async_methods:POST).
 	 */
 	POST: POST,
 
@@ -2688,20 +2671,7 @@ module.exports = {
 	 * @name PUT
 	 * @methodOf DS
 	 * @description
-	 * `DS.PUT(url[, attrs][, config])`
-	 *
-	 * Wrapper for `$http.put()`.
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * TODO: PUT(url[, attrs][, config]) example
-	 * ```
-	 *
-	 * @param {string} url The url of the request.
-	 * @param {object} attrs Request payload.
-	 * @param {object} config Configuration for the request.
-	 * @returns {Promise} Promise produced by the `$q` service.
+	 * See [DS.PUT](/documentation/api/api/DS.async_methods:PUT).
 	 */
 	PUT: PUT,
 
@@ -2711,19 +2681,7 @@ module.exports = {
 	 * @name DEL
 	 * @methodOf DS
 	 * @description
-	 * `DS.DEL(url[, config])`
-	 *
-	 * Wrapper for `$http.delete()`.
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * TODO: DEL(url[, config]) example
-	 * ```
-	 *
-	 * @param {string} url The url of the request.
-	 * @param {object} config Configuration for the request.
-	 * @returns {Promise} Promise produced by the `$q` service.
+	 * See [DS.DEL](/documentation/api/api/DS.async_methods:DEL).
 	 */
 	DEL: DEL
 };
@@ -2741,6 +2699,18 @@ var utils = require('utils'),
  * @name config
  * @description
  * Configure the DS service.
+ *
+ * ## Signature:
+ * ```js
+ * DSProvider.config(options)
+ * ```
+ *
+ * ## Example:
+ * ```js
+ *  DSProvider.config({
+ *      baseUrl: 'http://myapp.com/api'
+ *  });
+ * ```
  *
  * ## Throws:
  *
@@ -2817,9 +2787,7 @@ function DSProvider() {
 
 module.exports = DSProvider;
 
-},{"./async_methods":31,"./http":34,"./sync_methods":47,"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],"services":[function(require,module,exports){
-module.exports=require('cX8q+p');
-},{}],"cX8q+p":[function(require,module,exports){
+},{"./async_methods":31,"./http":34,"./sync_methods":45,"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],"cX8q+p":[function(require,module,exports){
 module.exports = {
 	config: {
 		idAttribute: 'id'
@@ -2827,14 +2795,9 @@ module.exports = {
 	store: {}
 };
 
-},{}],"hT1bCX":[function(require,module,exports){
-module.exports = {
-
-};
-
-},{}],"store":[function(require,module,exports){
-module.exports=require('hT1bCX');
-},{}],40:[function(require,module,exports){
+},{}],"services":[function(require,module,exports){
+module.exports=require('cX8q+p');
+},{}],38:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	services = require('services'),
@@ -2857,7 +2820,11 @@ var utils = require('utils'),
  * ## Example:
  *
  * ```js
- * TODO: changes(resourceName, id) example
+ * var d = DS.get('document', 5); // { author: 'John Anderson', id: 5 }
+ *
+ * d.author = 'Sally';
+ *
+ * DS.changes('document', 5); // {...} Object describing changes
  * ```
  *
  * ## Throws
@@ -2872,7 +2839,7 @@ var utils = require('utils'),
  */
 function changes(resourceName, id) {
 	if (!services.store[resourceName]) {
-		throw new errors.IllegalArgumentError(errorPrefix + resourceName + ' is not a registered resource!');
+		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
 		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
@@ -2886,31 +2853,44 @@ function changes(resourceName, id) {
 
 module.exports = changes;
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],41:[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],39:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
-	services = require('services');
+	services = require('services'),
+	errorPrefix = 'DS.defineResource(definition): ';
 
 /**
  * @doc method
  * @id DS.sync_methods:defineResource
  * @name defineResource
  * @description
- * `defineResource(definition)`
+ * Define a resource and register it with the data store.
  *
- * Register a resource definition with the data store.
+ * ## Signature:
+ * ```js
+ * DS.defineResource(definition)
+ * ```
  *
- * Example:
+ * ## Example:
  *
  * ```js
- * TODO: defineResource(definition)
+ *  DS.defineResource({
+ *      name: 'document',
+ *      idAttribute: '_id',
+ *      endpoint: '/documents
+ *      baseUrl: 'http://myapp.com/api',
+ *      validate: function (attrs, options, cb) {
+ *          console.log('looks good to me');
+ *          cb(null);
+ *      }
+ *  });
  * ```
  *
  * ## Throws
  *
- * - `{IllegalArgumentError}` - Argument `definition` must be a string or an object.
- * - `{RuntimeError}` - Property `name` of argument `definition` must not refer to an already registered resource.
- * - `{UnhandledError}` - Thrown for any uncaught exception.
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
  *
  * @param {string|object} definition Name of resource or resource definition object: Properties:
  *
@@ -2927,13 +2907,13 @@ function defineResource(definition) {
 		};
 	}
 	if (!utils.isObject(definition)) {
-		throw new errors.IllegalArgumentError('DS.defineResource(definition): definition: Must be an object!', { definition: { actual: typeof definition, expected: 'object' } });
+		throw new errors.IllegalArgumentError(errorPrefix + 'definition: Must be an object!', { definition: { actual: typeof definition, expected: 'object' } });
 	} else if (!utils.isString(definition.name)) {
-		throw new errors.IllegalArgumentError('DS.defineResource(definition): definition.name: Must be a string!', { definition: { name: { actual: typeof definition.name, expected: 'string' } } });
+		throw new errors.IllegalArgumentError(errorPrefix + 'definition.name: Must be a string!', { definition: { name: { actual: typeof definition.name, expected: 'string' } } });
 	} else if (definition.idAttribute && !utils.isString(definition.idAttribute)) {
-		throw new errors.IllegalArgumentError('DS.defineResource(definition): definition.idAttribute: Must be a string!', { definition: { idAttribute: { actual: typeof definition.idAttribute, expected: 'string' } } });
+		throw new errors.IllegalArgumentError(errorPrefix + 'definition.idAttribute: Must be a string!', { definition: { idAttribute: { actual: typeof definition.idAttribute, expected: 'string' } } });
 	} else if (services.store[definition.name]) {
-		throw new errors.RuntimeError('DS.defineResource(definition): ' + definition.name + ' is already registered!');
+		throw new errors.RuntimeError(errorPrefix + definition.name + ' is already registered!');
 	}
 
 	try {
@@ -2952,13 +2932,14 @@ function defineResource(definition) {
 		resource.collectionModified = 0;
 		resource.idAttribute = resource.idAttribute || services.config.idAttribute || 'id';
 	} catch (err) {
+		delete services.store[definition.name];
 		throw new errors.UnhandledError(err);
 	}
 }
 
 module.exports = defineResource;
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],42:[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],40:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	services = require('services'),
@@ -2969,20 +2950,23 @@ var utils = require('utils'),
  * @id DS.sync_methods:digest
  * @name digest
  * @description
- * `digest()`
- *
  * Trigger a digest loop that checks for changes and updates the `lastModified` timestamp if an object has changed.
  * Anything $watching `DS.lastModified(...)` will detect the updated timestamp and execute the callback function.
  *
- * Example:
+ * ## Signature:
+ * ```js
+ * DS.digest()
+ * ```
+ *
+ * ## Example:
  *
  * ```js
- * TODO: digest() example
+ * Works like $scope.$apply()
  * ```
  *
  * ## Throws
  *
- * - `{UnhandledError}` - Thrown for any uncaught exception.
+ * - `{UnhandledError}`
  */
 function digest() {
 	try {
@@ -3000,10 +2984,11 @@ function digest() {
 
 module.exports = digest;
 
-},{"errors":"hIh4e1","observejs":"q+M0EE","services":"cX8q+p","utils":"uE/lJt"}],43:[function(require,module,exports){
+},{"errors":"hIh4e1","observejs":"q+M0EE","services":"cX8q+p","utils":"uE/lJt"}],41:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
-	services = require('services');
+	services = require('services'),
+	errorPrefix = 'DS.eject(resourceName, id): ';
 
 function _eject(resource, id) {
 	if (id) {
@@ -3033,13 +3018,16 @@ function _eject(resource, id) {
  * @id DS.sync_methods:eject
  * @name eject
  * @description
- * `eject(resourceName[, id])`
- *
  * Eject the item of the specified type that has the given primary key from the data store. If no primary key is
  * provided, eject all items of the specified type from the data store. Ejection only removes items from the data store
  * and does not attempt to delete items on the server.
  *
- * Example:
+ * ## Signature:
+ * ```js
+ * DS.eject(resourceName[, id])
+ * ```
+ *
+ * ## Examples:
  *
  * ```js
  * DS.get('document', 45); // { title: 'How to Cook', id: 45 }
@@ -3061,18 +3049,18 @@ function _eject(resource, id) {
  *
  * ## Throws
  *
- * - `{IllegalArgumentError}` - If provided, argument `id` must be a string or a number.
- * - `{RuntimeError}` - Argument `resourceName` must refer to an already registered resource.
- * - `{UnhandledError}` - Thrown for any uncaught exception.
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to eject.
  */
 function eject(resourceName, id) {
 	if (!services.store[resourceName]) {
-		throw new errors.RuntimeError('DS.eject(resourceName, id): ' + resourceName + ' is not a registered resource!');
+		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
 	} else if (id && !utils.isString(id) && !utils.isNumber(id)) {
-		throw new errors.IllegalArgumentError('DS.eject(resourceName, id): id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 
 	try {
@@ -3090,7 +3078,7 @@ function eject(resourceName, id) {
 
 module.exports = eject;
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],44:[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],42:[function(require,module,exports){
 /* jshint loopfunc: true */
 var utils = require('utils'),
 	errors = require('errors'),
@@ -3269,11 +3257,11 @@ function filter(resourceName, params, options) {
 
 module.exports = filter;
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],45:[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],43:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	services = require('services'),
-	errorPrefix = 'DS.get(resourceName, id): ';
+	errorPrefix = 'DS.get(resourceName, id[, options]): ';
 
 /**
  * @doc method
@@ -3281,17 +3269,17 @@ var utils = require('utils'),
  * @name get
  * @description
  * Synchronously return the resource with the given id. The data store will forward the request to the server if the
- * item is not in the cache.
+ * item is not in the cache and `loadFromServer` is set to `true` in the options hash.
  *
  * ## Signature:
  * ```js
- * DS.get(resourceName, id)
+ * DS.get(resourceName, id[, options])
  * ```
  *
  * ## Example:
  *
  * ```js
- * TODO: get(resourceName, id) example
+ * DS.get('document', 5'); // { author: 'John Anderson', id: 5 }
  * ```
  *
  * ## Throws
@@ -3302,18 +3290,24 @@ var utils = require('utils'),
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to retrieve.
+ * @param {object=} options Optional configuration. Properties:
+ * - `{boolean=}` - `loadFromServer` - Send the query to server if it has not been sent yet. Default: `false`.
  * @returns {object} The item of the type specified by `resourceName` with the primary key specified by `id`.
  */
-function get(resourceName, id) {
+function get(resourceName, id, options) {
+	options = options || {};
+
 	if (!services.store[resourceName]) {
 		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
 		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+	} else if (!utils.isObject(options)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
 	}
 
 	try {
 		// cache miss, request resource from server
-		if (!(id in services.store[resourceName].index)) {
+		if (!(id in services.store[resourceName].index) && options.loadFromServer) {
 			this.find(resourceName, id);
 		}
 
@@ -3326,10 +3320,11 @@ function get(resourceName, id) {
 
 module.exports = get;
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],46:[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],44:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
-	services = require('services');
+	services = require('services'),
+	errorPrefix = 'DS.hasChanges(resourceName, id): ';
 
 function diffIsEmpty(diff) {
 	return utils.isEmpty(diff.added) &&
@@ -3342,22 +3337,29 @@ function diffIsEmpty(diff) {
  * @id DS.sync_methods:hasChanges
  * @name hasChanges
  * @description
- * `hasChanges(resourceName, id)`
- *
  * Synchronously return whether object of the item of the type specified by `resourceName` that has the primary key
  * specified by `id` has changes.
  *
- * Example:
+ * ## Signature:
+ * ```js
+ * DS.hasChanges(resourceName, id)
+ * ```
+ *
+ * ## Example:
  *
  * ```js
- * TODO: hasChanges(resourceName, id) example
+ * var d = DS.get('document', 5); // { author: 'John Anderson', id: 5 }
+ *
+ * d.author = 'Sally';
+ *
+ * DS.hasChanges('document', 5); // true
  * ```
  *
  * ## Throws
  *
- * - `{IllegalArgumentError}` - Argument `id` must be a string or a number.
- * - `{RuntimeError}` - Argument `resourceName` must refer to an already registered resource.
- * - `{UnhandledError}` - Thrown for any uncaught exception.
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item.
@@ -3365,9 +3367,9 @@ function diffIsEmpty(diff) {
  */
 function hasChanges(resourceName, id) {
 	if (!services.store[resourceName]) {
-		throw new errors.IllegalArgumentError('DS.hasChanges(resourceName, id): ' + resourceName + ' is not a registered resource!');
+		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
-		throw new errors.IllegalArgumentError('DS.hasChanges(resourceName, id): id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 
 	try {
@@ -3380,7 +3382,7 @@ function hasChanges(resourceName, id) {
 
 module.exports = hasChanges;
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],47:[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],45:[function(require,module,exports){
 module.exports = {
 	/**
 	 * @doc method
@@ -3388,29 +3390,7 @@ module.exports = {
 	 * @name defineResource
 	 * @methodOf DS
 	 * @description
-	 * `defineResource(definition)`
-	 *
-	 * Register a resource definition with the data store.
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * TODO: defineResource(definition)
-	 * ```
-	 *
-	 * ## Throws
-	 *
-	 * - `{IllegalArgumentError}` - Argument `definition` must be a string or an object.
-	 * - `{RuntimeError}` - Property `name` of argument `definition` must not refer to an already registered resource.
-	 * - `{UnhandledError}` - Thrown for any uncaught exception.
-	 *
-	 * @param {string|object} definition Name of resource or resource definition object: Properties:
-	 *
-	 * - `{string}` - `name` - The name by which this resource will be identified.
-	 * - `{string="id"}` - `idAttribute` - The attribute that specifies the primary key for this resource.
-	 * - `{string=}` - `endpoint` - The attribute that specifies the primary key for this resource. Default is the value of `name`.
-	 * - `{string="/"}` - `baseUrl` - The url relative to which all AJAX requests will be made.
-	 * - `{function=}` - `validate` - The validation function to be executed before create operations.
+	 * See [DS.defineResource](/documentation/api/api/DS.sync_methods:defineResource).
 	 */
 	defineResource: require('./defineResource'),
 
@@ -3420,40 +3400,7 @@ module.exports = {
 	 * @name eject
 	 * @methodOf DS
 	 * @description
-	 * `eject(resourceName[, id])`
-	 *
-	 * Eject the item of the specified type that has the given primary key from the data store. If no primary key is
-	 * provided, eject all items of the specified type from the data store. Ejection only removes items from the data store
-	 * and does not attempt to delete items on the server.
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * DS.get('document', 45); // { title: 'How to Cook', id: 45 }
-	 *
-	 * DS.eject('document', 45);
-	 *
-	 * DS.get('document', 45); // undefined
-	 * ```
-	 *
-	 * Eject all items of the specified type from the data store.
-	 *
-	 * ```js
-	 * DS.filter('document'); // [ { title: 'How to Cook', id: 45 }, { title: 'How to Eat', id: 46 } ]
-	 *
-	 * DS.eject('document');
-	 *
-	 * DS.filter('document'); // [ ]
-	 * ```
-	 *
-	 * ## Throws
-	 *
-	 * - `{IllegalArgumentError}` - If provided, argument `id` must be a string or a number.
-	 * - `{RuntimeError}` - Argument `resourceName` must refer to an already registered resource.
-	 * - `{UnhandledError}` - Thrown for any uncaught exception.
-	 *
-	 * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
-	 * @param {string|number} id The primary key of the item to eject.
+	 * See [DS.eject](/documentation/api/api/DS.sync_methods:eject).
 	 */
 	eject: require('./eject'),
 
@@ -3463,29 +3410,7 @@ module.exports = {
 	 * @name filter
 	 * @methodOf DS
 	 * @description
-	 * `filter(resourceName[, params][, loadFromServer])`
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * TODO: get(resourceName, id) example
-	 * ```
-	 *
-	 * ## Throws
-	 *
-	 * - `{IllegalArgumentError}` - Argument `params` must be an object.
-	 * - `{RuntimeError}` - Argument `resourceName` must refer to an already registered resource.
-	 * - `{UnhandledError}` - Thrown for any uncaught exception.
-	 *
-	 * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
-	 * @param {object=} params Parameter object that is serialized into the query string. Properties:
-	 *
-	 * - `{object=}` - `query` - The query object by which to filter items of the type specified by `resourceName`. Properties:
-	 *      - `{object=}` - `where` - Where clause.
-	 *      - `{number=}` - `limit` - Limit clause.
-	 *      - `{skip=}` - `skip` - Skip clause.
-	 * @param {boolean=} loadFromServer Whether to load the query from the server if it hasn't been loaded yet.
-	 * @returns {array} The filtered collection of items of the type specified by `resourceName`.
+	 * See [DS.filter](/documentation/api/api/DS.sync_methods:filter).
 	 */
 	filter: require('./filter'),
 
@@ -3495,26 +3420,7 @@ module.exports = {
 	 * @name get
 	 * @methodOf DS
 	 * @description
-	 * `get(resourceName, id)`
-	 *
-	 * Synchronously return the resource with the given id. The data store will forward the request to the server if the
-	 * item is not in the cache.
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * TODO: get(resourceName, id) example
-	 * ```
-	 *
-	 * ## Throws
-	 *
-	 * - `{IllegalArgumentError}` - Argument `id` must be a string or a number.
-	 * - `{RuntimeError}` - Argument `resourceName` must refer to an already registered resource.
-	 * - `{UnhandledError}` - Thrown for any uncaught exception.
-	 *
-	 * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
-	 * @param {string|number} id The primary key of the item to retrieve.
-	 * @returns {object} The item of the type specified by `resourceName` with the primary key specified by `id`.
+	 * See [DS.get](/documentation/api/api/DS.sync_methods:get).
 	 */
 	get: require('./get'),
 
@@ -3523,41 +3429,7 @@ module.exports = {
 	 * @id DS.sync_methods:inject
 	 * @name inject
 	 * @description
-	 * `inject(resourceName, attrs)`
-	 *
-	 * Inject the given item into the data store as the specified type. If `attrs` is an array, inject each item into the
-	 * data store. Injecting an item into the data store does not save it to the server.
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * DS.get('document', 45); // undefined
-	 *
-	 * DS.inject('document', { title: 'How to Cook', id: 45 });
-	 *
-	 * DS.get('document', 45); // { title: 'How to Cook', id: 45 }
-	 * ```
-	 *
-	 * Inject a collection into the data store:
-	 *
-	 * ```js
-	 * DS.filter('document'); // [ ]
-	 *
-	 * DS.inject('document', [ { title: 'How to Cook', id: 45 }, { title: 'How to Eat', id: 46 } ]);
-	 *
-	 * DS.filter('document'); // [ { title: 'How to Cook', id: 45 }, { title: 'How to Eat', id: 46 } ]
-	 * ```
-	 *
-	 * ## Throws
-	 *
-	 * - `{IllegalArgumentError}` - Argument `attrs` must be an object.
-	 * - `{RuntimeError}` - Argument `resourceName` must refer to an already registered resource.
-	 * - `{UnhandledError}` - Thrown for any uncaught exception.
-	 *
-	 * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
-	 * @param {object|array} attrs The item or collection of items to inject into the data store.
-	 * @returns {object|array} A reference to the item that was injected into the data store or an array of references to
-	 * the items that were injected into the data store.
+	 * See [DS.inject](/documentation/api/api/DS.sync_methods:inject).
 	 */
 	inject: require('./inject'),
 
@@ -3567,27 +3439,7 @@ module.exports = {
 	 * @name lastModified
 	 * @methodOf DS
 	 * @description
-	 * `lastModified(resourceName[, id])`
-	 *
-	 * Return the timestamp of the last time either the collection for `resourceName` or the item of type `resourceName`
-	 * with the given primary key was modified.
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * TODO: lastModified(resourceName, id) example
-	 * ```
-	 *
-	 * ## Throws
-	 *
-	 * - `{IllegalArgumentError}` - Argument `id` must be a string or a number.
-	 * - `{RuntimeError}` - Argument `resourceName` must refer to an already registered resource.
-	 * - `{UnhandledError}` - Thrown for any uncaught exception.
-	 *
-	 * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
-	 * @param {string|number=} id The primary key of the item to remove.
-	 * @returns {number} The timestamp of the last time either the collection for `resourceName` or the item of type
-	 * `resourceName` with the given primary key was modified.
+	 * See [DS.lastModified](/documentation/api/api/DS.sync_methods:lastModified).
 	 */
 	lastModified: require('./lastModified'),
 
@@ -3597,27 +3449,7 @@ module.exports = {
 	 * @name lastSaved
 	 * @methodOf DS
 	 * @description
-	 * `lastSaved(resourceName[, id])`
-	 *
-	 * Return the timestamp of the last time either the collection for `resourceName` or the item of type `resourceName`
-	 * with the given primary key was saved via an async adapter.
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * TODO: lastSaved(resourceName, id) example
-	 * ```
-	 *
-	 * ## Throws
-	 *
-	 * - `{IllegalArgumentError}` - Argument `id` must be a string or a number.
-	 * - `{RuntimeError}` - Argument `resourceName` must refer to an already registered resource.
-	 * - `{UnhandledError}` - Thrown for any uncaught exception.
-	 *
-	 * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
-	 * @param {string|number=} id The primary key of the item to remove.
-	 * @returns {number} The timestamp of the last time either the collection for `resourceName` or the item of type
-	 * `resourceName` with the given primary key was modified.
+	 * See [DS.lastSaved](/documentation/api/api/DS.sync_methods:lastSaved).
 	 */
 	lastSaved: require('./lastSaved'),
 
@@ -3627,20 +3459,7 @@ module.exports = {
 	 * @name digest
 	 * @methodOf DS
 	 * @description
-	 * `digest()`
-	 *
-	 * Trigger a digest loop that checks for changes and updates the `lastModified` timestamp if an object has changed.
-	 * Anything $watching `DS.lastModified(...)` will detect the updated timestamp and execute the callback function.
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * TODO: digest() example
-	 * ```
-	 *
-	 * ## Throws
-	 *
-	 * - `{UnhandledError}` - Thrown for any uncaught exception.
+	 * See [DS.digest](/documentation/api/api/DS.sync_methods:digest).
 	 */
 	digest: require('./digest'),
 
@@ -3650,27 +3469,7 @@ module.exports = {
 	 * @name changes
 	 * @methodOf DS
 	 * @description
-	 * `changes(resourceName, id)`
-	 *
-	 * Synchronously return the changes object of the item of the type specified by `resourceName` that has the primary key
-	 * specified by `id`. This object represents the diff between the item in its current state and the state of the item
-	 * the last time it was saved via an async adapter.
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * TODO: changes(resourceName, id) example
-	 * ```
-	 *
-	 * ## Throws
-	 *
-	 * - `{IllegalArgumentError}` - Argument `id` must be a string or a number.
-	 * - `{RuntimeError}` - Argument `resourceName` must refer to an already registered resource.
-	 * - `{UnhandledError}` - Thrown for any uncaught exception.
-	 *
-	 * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
-	 * @param {string|number} id The primary key of the item of the changes to retrieve.
-	 * @returns {object} The changes of the item of the type specified by `resourceName` with the primary key specified by `id`.
+	 * See [DS.changes](/documentation/api/api/DS.sync_methods:changes).
 	 */
 	changes: require('./changes'),
 
@@ -3680,26 +3479,7 @@ module.exports = {
 	 * @name previous
 	 * @methodOf DS
 	 * @description
-	 * `previous(resourceName, id)`
-	 *
-	 * Synchronously return the previous attributes of the item of the type specified by `resourceName` that has the primary key
-	 * specified by `id`. This object represents the state of the item the last time it was saved via an async adapter.
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * TODO: previous(resourceName, id) example
-	 * ```
-	 *
-	 * ## Throws
-	 *
-	 * - `{IllegalArgumentError}` - Argument `id` must be a string or a number.
-	 * - `{RuntimeError}` - Argument `resourceName` must refer to an already registered resource.
-	 * - `{UnhandledError}` - Thrown for any uncaught exception.
-	 *
-	 * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
-	 * @param {string|number} id The primary key of the item whose previous attributes are to be retrieved.
-	 * @returns {object} The previous attributes of the item of the type specified by `resourceName` with the primary key specified by `id`.
+	 * See [DS.previous](/documentation/api/api/DS.sync_methods:previous).
 	 */
 	previous: require('./previous'),
 
@@ -3709,35 +3489,17 @@ module.exports = {
 	 * @name hasChanges
 	 * @methodOf DS
 	 * @description
-	 * `hasChanges(resourceName, id)`
-	 *
-	 * Synchronously return whether object of the item of the type specified by `resourceName` that has the primary key
-	 * specified by `id` has changes.
-	 *
-	 * Example:
-	 *
-	 * ```js
-	 * TODO: hasChanges(resourceName, id) example
-	 * ```
-	 *
-	 * ## Throws
-	 *
-	 * - `{IllegalArgumentError}` - Argument `id` must be a string or a number.
-	 * - `{RuntimeError}` - Argument `resourceName` must refer to an already registered resource.
-	 * - `{UnhandledError}` - Thrown for any uncaught exception.
-	 *
-	 * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
-	 * @param {string|number} id The primary key of the item.
-	 * @returns {boolean} Whether the item of the type specified by `resourceName` with the primary key specified by `id` has changes.
+	 * See [DS.hasChanges](/documentation/api/api/DS.sync_methods:hasChanges).
 	 */
 	hasChanges: require('./hasChanges')
 };
 
-},{"./changes":40,"./defineResource":41,"./digest":42,"./eject":43,"./filter":44,"./get":45,"./hasChanges":46,"./inject":48,"./lastModified":49,"./lastSaved":50,"./previous":51}],48:[function(require,module,exports){
+},{"./changes":38,"./defineResource":39,"./digest":40,"./eject":41,"./filter":42,"./get":43,"./hasChanges":44,"./inject":46,"./lastModified":47,"./lastSaved":48,"./previous":49}],46:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	services = require('services'),
-	observe = require('observejs');
+	observe = require('observejs'),
+	errorPrefix = 'DS.inject(resourceName, attrs[, options]): ';
 
 function _inject(resource, attrs) {
 	var _this = this;
@@ -3793,12 +3555,15 @@ function _inject(resource, attrs) {
  * @id DS.sync_methods:inject
  * @name inject
  * @description
- * `inject(resourceName, attrs)`
- *
  * Inject the given item into the data store as the specified type. If `attrs` is an array, inject each item into the
  * data store. Injecting an item into the data store does not save it to the server.
  *
- * Example:
+ * ## Signature:
+ * ```js
+ * DS.inject(resourceName, attrs[, options])
+ * ```
+ *
+ * ## Examples:
  *
  * ```js
  * DS.get('document', 45); // undefined
@@ -3820,20 +3585,26 @@ function _inject(resource, attrs) {
  *
  * ## Throws
  *
- * - `{IllegalArgumentError}` - Argument `attrs` must be an object.
- * - `{RuntimeError}` - Argument `resourceName` must refer to an already registered resource.
- * - `{UnhandledError}` - Thrown for any uncaught exception.
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {object|array} attrs The item or collection of items to inject into the data store.
+ * @param {object=} options Optional configuration. Properties:
+ * - `{string=}` - `mergeStrategy` - Specify the merge strategy to use if the item is already in the cache. Default: `"mergeWithExisting"`.
  * @returns {object|array} A reference to the item that was injected into the data store or an array of references to
  * the items that were injected into the data store.
  */
-function inject(resourceName, attrs) {
+function inject(resourceName, attrs, options) {
+	options = options || {};
+
 	if (!services.store[resourceName]) {
-		throw new errors.RuntimeError('DS.inject(resourceName, attrs): ' + resourceName + ' is not a registered resource!');
+		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
 	} else if (!utils.isObject(attrs) && !utils.isArray(attrs)) {
-		throw new errors.IllegalArgumentError('DS.inject(resourceName, attrs): attrs: Must be an object or an array!', { attrs: { actual: typeof attrs, expected: 'object|array' } });
+		throw new errors.IllegalArgumentError(errorPrefix + 'attrs: Must be an object or an array!', { attrs: { actual: typeof attrs, expected: 'object|array' } });
+	} else if (!utils.isObject(options)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
 	}
 
 	var resource = services.store[resourceName],
@@ -3841,7 +3612,7 @@ function inject(resourceName, attrs) {
 
 	var idAttribute = resource.idAttribute || 'id';
 	if (!attrs[idAttribute]) {
-		throw new errors.RuntimeError('DS.inject(resourceName, attrs): attrs: Must contain the property specified by `idAttribute` in the resource definition!');
+		throw new errors.RuntimeError(errorPrefix + 'attrs: Must contain the property specified by `idAttribute` in the resource definition!');
 	} else {
 		try {
 			if (!services.$rootScope.$$phase) {
@@ -3860,32 +3631,40 @@ function inject(resourceName, attrs) {
 
 module.exports = inject;
 
-},{"errors":"hIh4e1","observejs":"q+M0EE","services":"cX8q+p","utils":"uE/lJt"}],49:[function(require,module,exports){
+},{"errors":"hIh4e1","observejs":"q+M0EE","services":"cX8q+p","utils":"uE/lJt"}],47:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
-	services = require('services');
+	services = require('services'),
+	errorPrefix = 'DS.lastModified(resourceName[, id]): ';
 
 /**
  * @doc method
  * @id DS.sync_methods:lastModified
  * @name lastModified
  * @description
- * `lastModified(resourceName[, id])`
- *
  * Return the timestamp of the last time either the collection for `resourceName` or the item of type `resourceName`
  * with the given primary key was modified.
  *
- * Example:
+ * ## Signature:
+ * ```js
+ * DS.lastModified(resourceName[, id])
+ * ```
+ *
+ * ## Example:
  *
  * ```js
- * TODO: lastModified(resourceName, id) example
+ *  DS.lastModified('document', 5); // undefined
+ *
+ *  DS.find('document', 5).then(function (document) {
+ *      DS.lastModified('document', 5); // 1234235825494
+ *  });
  * ```
  *
  * ## Throws
  *
- * - `{IllegalArgumentError}` - Argument `id` must be a string or a number.
- * - `{RuntimeError}` - Argument `resourceName` must refer to an already registered resource.
- * - `{UnhandledError}` - Thrown for any uncaught exception.
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number=} id The primary key of the item to remove.
@@ -3894,9 +3673,9 @@ var utils = require('utils'),
  */
 function lastModified(resourceName, id) {
 	if (!services.store[resourceName]) {
-		throw new errors.RuntimeError('DS.lastModified(resourceName[, id]): ' + resourceName + ' is not a registered resource!');
+		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
 	} else if (id && !utils.isString(id) && !utils.isNumber(id)) {
-		throw new errors.IllegalArgumentError('DS.lastModified(resourceName[, id]): id: Must be a string or number!', { id: { actual: typeof id, expected: 'string|number' } });
+		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 	try {
 		if (id) {
@@ -3913,32 +3692,47 @@ function lastModified(resourceName, id) {
 
 module.exports = lastModified;
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],50:[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],48:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
-	services = require('services');
+	services = require('services'),
+	errorPrefix = 'DS.lastSaved(resourceName[, id]): ';
 
 /**
  * @doc method
  * @id DS.sync_methods:lastSaved
  * @name lastSaved
  * @description
- * `lastSaved(resourceName[, id])`
- *
  * Return the timestamp of the last time either the collection for `resourceName` or the item of type `resourceName`
  * with the given primary key was saved via an async adapter.
  *
- * Example:
+ * ## Signature:
+ * ```js
+ * DS.lastSaved(resourceName[, id])
+ * ```
+ *
+ * ## Example:
  *
  * ```js
- * TODO: lastSaved(resourceName, id) example
+ *  DS.lastModified('document', 5); // undefined
+ *  DS.lastSaved('document', 5); // undefined
+ *
+ *  DS.find('document', 5).then(function (document) {
+ *      DS.lastModified('document', 5); // 1234235825494
+ *      DS.lastSaved('document', 5); // 1234235825494
+ *
+ *      document.author = 'Sally';
+ *
+ *      DS.lastModified('document', 5); // 1234304985344 - something different
+ *      DS.lastSaved('document', 5); // 1234235825494 - still the same
+ *  });
  * ```
  *
  * ## Throws
  *
- * - `{IllegalArgumentError}` - Argument `id` must be a string or a number.
- * - `{RuntimeError}` - Argument `resourceName` must refer to an already registered resource.
- * - `{UnhandledError}` - Thrown for any uncaught exception.
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number=} id The primary key of the item to remove.
@@ -3947,9 +3741,9 @@ var utils = require('utils'),
  */
 function lastSaved(resourceName, id) {
 	if (!services.store[resourceName]) {
-		throw new errors.RuntimeError('DS.lastSaved(resourceName[, id]): ' + resourceName + ' is not a registered resource!');
+		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
 	} else if (id && !utils.isString(id) && !utils.isNumber(id)) {
-		throw new errors.IllegalArgumentError('DS.lastSaved(resourceName[, id]): id: Must be a string or number!', { id: { actual: typeof id, expected: 'string|number' } });
+		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 	try {
 		if (id) {
@@ -3966,7 +3760,7 @@ function lastSaved(resourceName, id) {
 
 module.exports = lastSaved;
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],51:[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],49:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	services = require('services'),
@@ -3988,7 +3782,13 @@ var utils = require('utils'),
  * ## Example:
  *
  * ```js
- * TODO: previous(resourceName, id) example
+ * var d = DS.get('document', 5); // { author: 'John Anderson', id: 5 }
+ *
+ * d.author = 'Sally';
+ *
+ * d; // { author: 'Sally', id: 5 }
+ *
+ * DS.previous('document', 5); // { author: 'John Anderson', id: 5 }
  * ```
  *
  * ## Throws
@@ -4003,7 +3803,7 @@ var utils = require('utils'),
  */
 function previous(resourceName, id) {
 	if (!services.store[resourceName]) {
-		throw new errors.IllegalArgumentError(errorPrefix + resourceName + ' is not a registered resource!');
+		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
 		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
@@ -4221,7 +4021,9 @@ RuntimeError.prototype.constructor = RuntimeError;
  * @id errors
  * @name angular-data error types
  * @description
- * `UnhandledError`, `IllegalArgumentError` and `ValidationError`.
+ * `UnhandledError`, `IllegalArgumentError`, `RuntimeError` and `ValidationError`.
+ *
+ * References to the constructor functions of these errors can be found at `DS.errors`.
  */
 module.exports = {
 	UnhandledError: UnhandledError,
@@ -4230,7 +4032,7 @@ module.exports = {
 	RuntimeError: RuntimeError
 };
 
-},{}],54:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 (function (window, angular, undefined) {
 	'use strict';
 
@@ -4278,9 +4080,7 @@ module.exports = {
 
 })(window, window.angular);
 
-},{"./datastore":35}],"utils":[function(require,module,exports){
-module.exports=require('uE/lJt');
-},{}],"uE/lJt":[function(require,module,exports){
+},{"./datastore":35}],"uE/lJt":[function(require,module,exports){
 module.exports = {
 	isString: angular.isString,
 	isArray: angular.isArray,
@@ -4370,4 +4170,6 @@ module.exports = {
 	}
 };
 
-},{"mout/array/contains":1,"mout/array/filter":2,"mout/array/slice":5,"mout/array/sort":6,"mout/array/toLookup":7,"mout/lang/isEmpty":12,"mout/object/deepMixIn":19,"mout/object/forOwn":21,"mout/string/makePath":23,"mout/string/upperCase":24}]},{},[54])
+},{"mout/array/contains":1,"mout/array/filter":2,"mout/array/slice":5,"mout/array/sort":6,"mout/array/toLookup":7,"mout/lang/isEmpty":12,"mout/object/deepMixIn":19,"mout/object/forOwn":21,"mout/string/makePath":23,"mout/string/upperCase":24}],"utils":[function(require,module,exports){
+module.exports=require('uE/lJt');
+},{}]},{},[52])

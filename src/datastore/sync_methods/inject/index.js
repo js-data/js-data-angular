@@ -1,7 +1,8 @@
 var utils = require('utils'),
 	errors = require('errors'),
 	services = require('services'),
-	observe = require('observejs');
+	observe = require('observejs'),
+	errorPrefix = 'DS.inject(resourceName, attrs[, options]): ';
 
 function _inject(resource, attrs) {
 	var _this = this;
@@ -57,12 +58,15 @@ function _inject(resource, attrs) {
  * @id DS.sync_methods:inject
  * @name inject
  * @description
- * `inject(resourceName, attrs)`
- *
  * Inject the given item into the data store as the specified type. If `attrs` is an array, inject each item into the
  * data store. Injecting an item into the data store does not save it to the server.
  *
- * Example:
+ * ## Signature:
+ * ```js
+ * DS.inject(resourceName, attrs[, options])
+ * ```
+ *
+ * ## Examples:
  *
  * ```js
  * DS.get('document', 45); // undefined
@@ -84,20 +88,26 @@ function _inject(resource, attrs) {
  *
  * ## Throws
  *
- * - `{IllegalArgumentError}` - Argument `attrs` must be an object.
- * - `{RuntimeError}` - Argument `resourceName` must refer to an already registered resource.
- * - `{UnhandledError}` - Thrown for any uncaught exception.
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {object|array} attrs The item or collection of items to inject into the data store.
+ * @param {object=} options Optional configuration. Properties:
+ * - `{string=}` - `mergeStrategy` - Specify the merge strategy to use if the item is already in the cache. Default: `"mergeWithExisting"`.
  * @returns {object|array} A reference to the item that was injected into the data store or an array of references to
  * the items that were injected into the data store.
  */
-function inject(resourceName, attrs) {
+function inject(resourceName, attrs, options) {
+	options = options || {};
+
 	if (!services.store[resourceName]) {
-		throw new errors.RuntimeError('DS.inject(resourceName, attrs): ' + resourceName + ' is not a registered resource!');
+		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
 	} else if (!utils.isObject(attrs) && !utils.isArray(attrs)) {
-		throw new errors.IllegalArgumentError('DS.inject(resourceName, attrs): attrs: Must be an object or an array!', { attrs: { actual: typeof attrs, expected: 'object|array' } });
+		throw new errors.IllegalArgumentError(errorPrefix + 'attrs: Must be an object or an array!', { attrs: { actual: typeof attrs, expected: 'object|array' } });
+	} else if (!utils.isObject(options)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
 	}
 
 	var resource = services.store[resourceName],
@@ -105,7 +115,7 @@ function inject(resourceName, attrs) {
 
 	var idAttribute = resource.idAttribute || 'id';
 	if (!attrs[idAttribute]) {
-		throw new errors.RuntimeError('DS.inject(resourceName, attrs): attrs: Must contain the property specified by `idAttribute` in the resource definition!');
+		throw new errors.RuntimeError(errorPrefix + 'attrs: Must contain the property specified by `idAttribute` in the resource definition!');
 	} else {
 		try {
 			if (!services.$rootScope.$$phase) {

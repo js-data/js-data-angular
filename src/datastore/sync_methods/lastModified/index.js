@@ -1,28 +1,36 @@
 var utils = require('utils'),
 	errors = require('errors'),
-	services = require('services');
+	services = require('services'),
+	errorPrefix = 'DS.lastModified(resourceName[, id]): ';
 
 /**
  * @doc method
  * @id DS.sync_methods:lastModified
  * @name lastModified
  * @description
- * `lastModified(resourceName[, id])`
- *
  * Return the timestamp of the last time either the collection for `resourceName` or the item of type `resourceName`
  * with the given primary key was modified.
  *
- * Example:
+ * ## Signature:
+ * ```js
+ * DS.lastModified(resourceName[, id])
+ * ```
+ *
+ * ## Example:
  *
  * ```js
- * TODO: lastModified(resourceName, id) example
+ *  DS.lastModified('document', 5); // undefined
+ *
+ *  DS.find('document', 5).then(function (document) {
+ *      DS.lastModified('document', 5); // 1234235825494
+ *  });
  * ```
  *
  * ## Throws
  *
- * - `{IllegalArgumentError}` - Argument `id` must be a string or a number.
- * - `{RuntimeError}` - Argument `resourceName` must refer to an already registered resource.
- * - `{UnhandledError}` - Thrown for any uncaught exception.
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number=} id The primary key of the item to remove.
@@ -31,9 +39,9 @@ var utils = require('utils'),
  */
 function lastModified(resourceName, id) {
 	if (!services.store[resourceName]) {
-		throw new errors.RuntimeError('DS.lastModified(resourceName[, id]): ' + resourceName + ' is not a registered resource!');
+		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
 	} else if (id && !utils.isString(id) && !utils.isNumber(id)) {
-		throw new errors.IllegalArgumentError('DS.lastModified(resourceName[, id]): id: Must be a string or number!', { id: { actual: typeof id, expected: 'string|number' } });
+		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 	try {
 		if (id) {

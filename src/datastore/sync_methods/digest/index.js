@@ -8,20 +8,23 @@ var utils = require('utils'),
  * @id DS.sync_methods:digest
  * @name digest
  * @description
- * `digest()`
- *
  * Trigger a digest loop that checks for changes and updates the `lastModified` timestamp if an object has changed.
  * Anything $watching `DS.lastModified(...)` will detect the updated timestamp and execute the callback function.
  *
- * Example:
+ * ## Signature:
+ * ```js
+ * DS.digest()
+ * ```
+ *
+ * ## Example:
  *
  * ```js
- * TODO: digest() example
+ * Works like $scope.$apply()
  * ```
  *
  * ## Throws
  *
- * - `{UnhandledError}` - Thrown for any uncaught exception.
+ * - `{UnhandledError}`
  */
 function digest() {
 	try {

@@ -19,7 +19,13 @@ var utils = require('utils'),
  * ## Example:
  *
  * ```js
- * TODO: previous(resourceName, id) example
+ * var d = DS.get('document', 5); // { author: 'John Anderson', id: 5 }
+ *
+ * d.author = 'Sally';
+ *
+ * d; // { author: 'Sally', id: 5 }
+ *
+ * DS.previous('document', 5); // { author: 'John Anderson', id: 5 }
  * ```
  *
  * ## Throws
@@ -34,7 +40,7 @@ var utils = require('utils'),
  */
 function previous(resourceName, id) {
 	if (!services.store[resourceName]) {
-		throw new errors.IllegalArgumentError(errorPrefix + resourceName + ' is not a registered resource!');
+		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
 		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}

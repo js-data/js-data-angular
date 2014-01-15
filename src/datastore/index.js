@@ -11,6 +11,18 @@ var utils = require('utils'),
  * @description
  * Configure the DS service.
  *
+ * ## Signature:
+ * ```js
+ * DSProvider.config(options)
+ * ```
+ *
+ * ## Example:
+ * ```js
+ *  DSProvider.config({
+ *      baseUrl: 'http://myapp.com/api'
+ *  });
+ * ```
+ *
  * ## Throws:
  *
  * - `{IllegalArgumentError}`
