@@ -2,9 +2,29 @@
 
 __Data store for Angular.js.__
 
-__Current version:__ 0.0.1-SNAPSHOT
+__Current version:__ 0.4.0
 
-This is a pre-alpha. Not much to see yet, but stay tuned!
+Angular-data is in a pre-1.0.0 development stage; the API is fluctuating, not a lot of tests yet, etc.
+
+Not for production use (yet).
+
+## Resources
+
+#### Community
+[Issues](https://github.com/jmdobry/angular-data/issues) - Found a bug? Feature request? Submit an issue!
+
+[GitHub](https://github.com/jmdobry/angular-data) - View the source code for angular-data.
+
+## Project Status
+
+| Branch | Master |
+| ------ | ------ |
+| Bower | [![Bower version](https://badge.fury.io/bo/angular-data.png)](http://badge.fury.io/bo/angular-data) |
+| NPM | [![NPM version](https://badge.fury.io/js/angular-data.png)](http://badge.fury.io/js/angular-data) |
+| Build Status | [![Build Status](https://travis-ci.org/jmdobry/angular-data.png?branch=master)](https://travis-ci.org/jmdobry/angular-data) |
+| Code Climate | [![Code Climate](https://codeclimate.com/github/jmdobry/angular-data.png)](https://codeclimate.com/github/jmdobry/angular-data) |
+| Dependency Status | [![Dependency Status](https://gemnasium.com/jmdobry/angular-data.png)](https://gemnasium.com/jmdobry/angular-data) |
+| Coverage | [![Coverage Status](https://coveralls.io/repos/jmdobry/angular-data/badge.png?branch=master)](https://coveralls.io/r/jmdobry/angular-data?branch=master) |
 
 Copyright (C) 2014 Jason Dobry
 
