@@ -1,7 +1,7 @@
 var utils = require('utils'),
 	errors = require('errors'),
 	services = require('services'),
-	GET = require('../../HTTP').GET,
+	GET = require('../../http').GET,
 	errorPrefix = 'DS.findAll(resourceName, params[, options]): ';
 
 function processResults(data, resourceName, queryHash) {

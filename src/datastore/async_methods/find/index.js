@@ -1,7 +1,7 @@
 var utils = require('utils'),
 	errors = require('errors'),
 	services = require('services'),
-	GET = require('../../HTTP').GET,
+	GET = require('../../http').GET,
 	errorPrefix = 'DS.find(resourceName, id[, options]): ';
 
 /**

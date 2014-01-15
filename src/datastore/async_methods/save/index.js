@@ -1,7 +1,7 @@
 var utils = require('utils'),
 	errors = require('errors'),
 	services = require('services'),
-	PUT = require('../../HTTP').PUT,
+	PUT = require('../../http').PUT,
 	errorPrefix = 'DS.save(resourceName, id[, options]): ';
 
 function _save(deferred, resource, id, options) {
