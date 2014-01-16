@@ -91,6 +91,8 @@ function defineResource(definition) {
 		throw new errors.IllegalArgumentError(errorPrefix + 'definition.name: Must be a string!', { definition: { name: { actual: typeof definition.name, expected: 'string' } } });
 	} else if (definition.idAttribute && !utils.isString(definition.idAttribute)) {
 		throw new errors.IllegalArgumentError(errorPrefix + 'definition.idAttribute: Must be a string!', { definition: { idAttribute: { actual: typeof definition.idAttribute, expected: 'string' } } });
+	} else if (definition.endpoint && !utils.isString(definition.endpoint)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'definition.endpoint: Must be a string!', { definition: { endpoint: { actual: typeof definition.endpoint, expected: 'string' } } });
 	} else if (services.store[definition.name]) {
 		throw new errors.RuntimeError(errorPrefix + definition.name + ' is already registered!');
 	}

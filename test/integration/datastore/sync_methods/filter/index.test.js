@@ -2,18 +2,18 @@ describe('DS.filter(resourceName, params[, options])', function () {
 	var errorPrefix = 'DS.filter(resourceName, params[, options]): ';
 
 	it('should throw an error when method pre-conditions are not met', function (done) {
-		assert.throw(function () {
+		assert.throws(function () {
 			DS.filter('does not exist', {});
 		}, DS.errors.RuntimeError, errorPrefix + 'does not exist is not a registered resource!');
 
 		angular.forEach(TYPES_EXCEPT_OBJECT, function (key) {
-			assert.throw(function () {
+			assert.throws(function () {
 				DS.filter('post', key);
 			}, DS.errors.IllegalArgumentError, errorPrefix + 'params: Must be an object!');
 		});
 
 		angular.forEach(TYPES_EXCEPT_OBJECT, function (key) {
-			assert.throw(function () {
+			assert.throws(function () {
 				DS.filter('post', key);
 			}, DS.errors.IllegalArgumentError, errorPrefix + 'params: Must be an object!');
 		});
@@ -22,7 +22,7 @@ describe('DS.filter(resourceName, params[, options])', function () {
 
 		angular.forEach(TYPES_EXCEPT_OBJECT, function (key) {
 			if (key) {
-				assert.throw(function () {
+				assert.throws(function () {
 					DS.filter('post', {
 						query: {
 							where: key
@@ -34,7 +34,7 @@ describe('DS.filter(resourceName, params[, options])', function () {
 
 		angular.forEach(TYPES_EXCEPT_STRING_OR_ARRAY, function (key) {
 			if (key) {
-				assert.throw(function () {
+				assert.throws(function () {
 					DS.filter('post', {
 						query: {
 							orderBy: key
@@ -46,7 +46,7 @@ describe('DS.filter(resourceName, params[, options])', function () {
 
 		angular.forEach(TYPES_EXCEPT_STRING_OR_ARRAY, function (key) {
 			if (key) {
-				assert.throw(function () {
+				assert.throws(function () {
 					DS.filter('post', {
 						query: {
 							orderBy: [key]
@@ -58,7 +58,7 @@ describe('DS.filter(resourceName, params[, options])', function () {
 
 		angular.forEach(TYPES_EXCEPT_OBJECT, function (key) {
 			if (key) {
-				assert.throw(function () {
+				assert.throws(function () {
 					DS.filter('post', {}, key);
 				}, DS.errors.IllegalArgumentError, errorPrefix + 'options: Must be an object!');
 			}

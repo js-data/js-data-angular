@@ -11,6 +11,8 @@ var fail = function (msg) {
 	}],
 	TYPES_EXCEPT_STRING_OR_ARRAY = [123, 123.123, null, undefined, {}, true, false, function () {
 	}],
+	TYPES_EXCEPT_STRING_OR_OBJECT = [123, 123.123, null, undefined, [], true, false, function () {
+	}],
 	TYPES_EXCEPT_ARRAY = ['string', 123, 123.123, null, undefined, {}, true, false, function () {
 	}],
 	TYPES_EXCEPT_STRING_OR_NUMBER = [null, undefined, {}, [], true, false, function () {
@@ -80,7 +82,7 @@ beforeEach(function (done) {
 			afterDestroy: lifecycle.afterDestroy
 		});
 	});
-	inject(function (_$rootScope_, _$q_, _$httpBackend_, _DS_) {
+	inject(function (_$rootScope_, _$q_, _$httpBackend_, _DS_, _$log_) {
 		// Setup global mocks
 		$q = _$q_;
 		$rootScope = _$rootScope_;
@@ -90,25 +92,7 @@ beforeEach(function (done) {
 			name: 'post',
 			endpoint: '/posts'
 		});
-		$log = {
-			warn: function () {
-			},
-			log: function () {
-			},
-			info: function () {
-			},
-			error: function () {
-			},
-			debug: function () {
-			}
-		};
-
-		// Setup global spies
-		sinon.spy($log, 'warn');
-		sinon.spy($log, 'log');
-		sinon.spy($log, 'info');
-		sinon.spy($log, 'error');
-		sinon.spy($log, 'debug');
+		$log = _$log_;
 
 		lifecycle.beforeValidate.callCount = 0;
 		lifecycle.validate.callCount = 0;
@@ -131,13 +115,7 @@ beforeEach(function (done) {
 
 // Clean up after each test
 afterEach(function () {
-	// Tear down global spies
-	$log.warn.restore();
-	$log.log.restore();
-	$log.info.restore();
-	$log.error.restore();
-	$log.debug.restore();
-
 	$httpBackend.verifyNoOutstandingExpectation();
 	$httpBackend.verifyNoOutstandingRequest();
+	$log.reset();
 });

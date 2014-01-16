@@ -4,9 +4,9 @@ var utils = require('utils'),
 	errorPrefix = 'DS.hasChanges(resourceName, id): ';
 
 function diffIsEmpty(diff) {
-	return utils.isEmpty(diff.added) &&
+	return !(utils.isEmpty(diff.added) &&
 		utils.isEmpty(diff.removed) &&
-		utils.isEmpty(diff.changed);
+		utils.isEmpty(diff.changed));
 }
 
 /**
@@ -51,7 +51,11 @@ function hasChanges(resourceName, id) {
 
 	try {
 		// return resource from cache
-		return diffIsEmpty(services.store[resourceName].changes[id]);
+		if (id in services.store[resourceName].changes) {
+			return diffIsEmpty(services.store[resourceName].changes[id]);
+		} else {
+			return false;
+		}
 	} catch (err) {
 		throw new errors.UnhandledError(err);
 	}
