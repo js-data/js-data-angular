@@ -67,7 +67,7 @@ describe('DS.find(resourceName, id[, options]): ', function () {
 
 		$httpBackend.expectGET('http://test.angular-cache.com/posts/5').respond(200, p1);
 
-		// Should make a request because loadFromServer is set to true
+		// Should make a request because bypassCache is set to true
 		DS.find('post', 5, { bypassCache: true }).then(function (post) {
 			assert.deepEqual(post, p1);
 		}, function (err) {

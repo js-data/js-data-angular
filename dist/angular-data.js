@@ -1,3 +1,12 @@
+/**
+ * @author Jason Dobry <jason.dobry@gmail.com>
+ * @file angular-data.js
+ * @version 0.5.0 - Homepage <http://jmdobry.github.io/angular-data/>
+ * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/angular-data>
+ * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
+ *
+ * @overview Data store for Angular.js.
+ */
 require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var indexOf = require('./indexOf');
 
@@ -1953,7 +1962,6 @@ module.exports = destroy;
 var utils = require('utils'),
 	errors = require('errors'),
 	services = require('services'),
-	GET = require('../../http').GET,
 	errorPrefix = 'DS.find(resourceName, id[, options]): ';
 
 /**
@@ -2023,7 +2031,7 @@ function find(resourceName, id, options) {
 
 			if (!(id in resource.completedQueries)) {
 				if (!(id in resource.pendingQueries)) {
-					promise = resource.pendingQueries[id] = GET(utils.makePath(resource.baseUrl, resource.endpoint, id), null)
+					promise = resource.pendingQueries[id] = _this.GET(utils.makePath(resource.baseUrl, resource.endpoint, id), null)
 						.then(function (data) {
 							// Query is no longer pending
 							delete resource.pendingQueries[id];
@@ -2046,11 +2054,10 @@ function find(resourceName, id, options) {
 
 module.exports = find;
 
-},{"../../http":34,"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],30:[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],30:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	services = require('services'),
-	GET = require('../../http').GET,
 	errorPrefix = 'DS.findAll(resourceName, params[, options]): ';
 
 function processResults(data, resourceName, queryHash) {
@@ -2068,7 +2075,7 @@ function processResults(data, resourceName, queryHash) {
 	}
 
 	// Update the data store's index for this resource
-	resource.index = utils.toLookup(resource.collection, resource.idAttribute || services.config.idAttribute || 'id');
+	resource.index = utils.toLookup(resource.collection, resource.idAttribute);
 
 	// Update modified timestamp of collection
 	resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
@@ -2090,7 +2097,7 @@ function _findAll(resourceName, params, options) {
 		if (!(queryHash in resource.pendingQueries)) {
 
 			// This particular query has never even been made
-			resource.pendingQueries[queryHash] = GET(utils.makePath(resource.baseUrl, resource.endpoint), { params: params })
+			resource.pendingQueries[queryHash] = _this.GET(utils.makePath(resource.baseUrl, resource.endpoint), { params: params })
 				.then(function (data) {
 					try {
 						return processResults.apply(_this, [data, resourceName, queryHash]);
@@ -2202,7 +2209,7 @@ function findAll(resourceName, params, options) {
 
 module.exports = findAll;
 
-},{"../../http":34,"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],31:[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],31:[function(require,module,exports){
 module.exports = {
 	/**
 	 * @doc method
@@ -2269,8 +2276,7 @@ module.exports = {
 var utils = require('utils'),
 	errors = require('errors'),
 	services = require('services'),
-	PUT = require('../../http').PUT,
-	errorPrefix = 'DS.refresh(resourceName, id): ';
+	errorPrefix = 'DS.refresh(resourceName, id[, options]): ';
 
 /**
  * @doc method
@@ -2329,21 +2335,23 @@ function refresh(resourceName, id, options) {
 	if (!services.store[resourceName]) {
 		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
-		throw new errors.IllegalArgumentError('DS.refresh(resourceName, id): id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
 	} else if (!utils.isObject(options)) {
 		throw new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
-	}
-
-	if (id in services.store[resourceName].index) {
-		return this.find(resourceName, id, true);
 	} else {
-		return false;
+		options.bypassCache = true;
+
+		if (id in services.store[resourceName].index) {
+			return this.find(resourceName, id, options);
+		} else {
+			return false;
+		}
 	}
 }
 
 module.exports = refresh;
 
-},{"../../http":34,"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],33:[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],33:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	services = require('services'),
@@ -2995,9 +3003,9 @@ Resource.prototype = services.config;
  *      idAttribute: '_id',
  *      endpoint: '/documents
  *      baseUrl: 'http://myapp.com/api',
- *      validate: function (attrs, options, cb) {
+ *      beforeDestroy: function (resourceName attrs, cb) {
  *          console.log('looks good to me');
- *          cb(null);
+ *          cb(null, attrs);
  *      }
  *  });
  * ```
@@ -3926,7 +3934,9 @@ function previous(resourceName, id) {
 
 module.exports = previous;
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],"hIh4e1":[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],"errors":[function(require,module,exports){
+module.exports=require('hIh4e1');
+},{}],"hIh4e1":[function(require,module,exports){
 /**
  * @doc function
  * @id errors.types:UnhandledError
@@ -4138,8 +4148,6 @@ module.exports = {
 	RuntimeError: RuntimeError
 };
 
-},{}],"errors":[function(require,module,exports){
-module.exports=require('hIh4e1');
 },{}],52:[function(require,module,exports){
 (function (window, angular, undefined) {
 	'use strict';

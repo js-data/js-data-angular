@@ -18,7 +18,7 @@ function processResults(data, resourceName, queryHash) {
 	}
 
 	// Update the data store's index for this resource
-	resource.index = utils.toLookup(resource.collection, resource.idAttribute || services.config.idAttribute || 'id');
+	resource.index = utils.toLookup(resource.collection, resource.idAttribute);
 
 	// Update modified timestamp of collection
 	resource.collectionModified = utils.updateTimestamp(resource.collectionModified);

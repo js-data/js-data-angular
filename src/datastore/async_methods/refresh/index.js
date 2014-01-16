@@ -1,7 +1,7 @@
 var utils = require('utils'),
 	errors = require('errors'),
 	services = require('services'),
-	errorPrefix = 'DS.refresh(resourceName, id): ';
+	errorPrefix = 'DS.refresh(resourceName, id[, options]): ';
 
 /**
  * @doc method
@@ -63,12 +63,14 @@ function refresh(resourceName, id, options) {
 		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
 	} else if (!utils.isObject(options)) {
 		throw new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
-	}
-
-	if (id in services.store[resourceName].index) {
-		return this.find(resourceName, id, { bypassCache: true });
 	} else {
-		return false;
+		options.bypassCache = true;
+
+		if (id in services.store[resourceName].index) {
+			return this.find(resourceName, id, options);
+		} else {
+			return false;
+		}
 	}
 }
 
