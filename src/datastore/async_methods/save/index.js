@@ -85,6 +85,7 @@ function save(resourceName, id, options) {
 			})
 			.then(function (data) {
 				var saved = _this.inject(resource.name, data, options);
+				resource.previous_attributes[id] = utils.deepMixIn({}, data);
 				resource.saved[id] = utils.updateTimestamp(resource.saved[id]);
 				return saved;
 			});

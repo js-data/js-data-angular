@@ -45,7 +45,7 @@ function changes(resourceName, id) {
 	}
 
 	try {
-		return utils.deepMixIn({}, services.store[resourceName].changes[id]);
+		return angular.copy(services.store[resourceName].changes[id]);
 	} catch (err) {
 		throw new errors.UnhandledError(err);
 	}

@@ -5,23 +5,30 @@ var utils = require('utils'),
 
 function _eject(resource, id) {
 	if (id) {
+		var found = false;
 		for (var i = 0; i < resource.collection.length; i++) {
-			if (resource.collection[i][resource.idAttribute || 'id'] == id) {
+			if (resource.collection[i][resource.idAttribute] == id) {
+				found = true;
 				break;
 			}
 		}
-		resource.collection.splice(i, 1);
-		resource.observers[id].close();
-		delete resource.observers[id];
-		delete resource.index[id];
-		delete resource.changes[id];
-		delete resource.previous_attributes[id];
-		delete resource.modified[id];
-		delete resource.saved[id];
+		if (found) {
+			resource.collection.splice(i, 1);
+			resource.observers[id].close();
+			delete resource.observers[id];
+			delete resource.index[id];
+			delete resource.changes[id];
+			delete resource.previous_attributes[id];
+			delete resource.modified[id];
+			delete resource.saved[id];
+		}
 	} else {
 		resource.collection = [];
 		resource.index = {};
 		resource.modified = {};
+		resource.saved = {};
+		resource.changes = {};
+		resource.previous_attributes = {};
 	}
 	resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
 }
@@ -67,7 +74,7 @@ function _eject(resource, id) {
  * - `{UnhandledError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
- * @param {string|number} id The primary key of the item to eject.
+ * @param {string|number=} id The primary key of the item to eject.
  */
 function eject(resourceName, id) {
 	if (!services.store[resourceName]) {
