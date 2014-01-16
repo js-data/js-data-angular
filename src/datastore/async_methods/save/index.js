@@ -1,18 +1,7 @@
 var utils = require('utils'),
 	errors = require('errors'),
 	services = require('services'),
-	PUT = require('../../http').PUT,
 	errorPrefix = 'DS.save(resourceName, id[, options]): ';
-
-function _save(deferred, resource, id, options) {
-	var _this = this;
-	var url = utils.makePath(resource.baseUrl || services.config.baseUrl, resource.endpoint || resource.name, id);
-	PUT(url, resource.index[id], null).then(function (data) {
-		var saved = _this.inject(resource.name, data, options);
-		resource.saved[id] = utils.updateTimestamp(resource.saved[id]);
-		deferred.resolve(saved);
-	}, deferred.reject);
-}
 
 /**
  * @doc method
@@ -58,7 +47,8 @@ function _save(deferred, resource, id, options) {
  * - `{UnhandledError}`
  */
 function save(resourceName, id, options) {
-	var deferred = $q.defer();
+	var deferred = services.$q.defer(),
+		promise = deferred.promise;
 
 	options = options || {};
 
@@ -68,33 +58,41 @@ function save(resourceName, id, options) {
 		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
 	} else if (!utils.isObject(options)) {
 		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'id: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
+	} else if (!(id in services.store[resourceName].index)) {
+		deferred.reject(new errors.RuntimeError(errorPrefix + 'id: "' + id + '" not found!'));
 	} else {
-		var _this = this;
+		var resource = services.store[resourceName],
+			_this = this;
 
-		try {
-			var resource = services.store[resourceName];
+		promise = promise
+			.then(function (attrs) {
+				return services.$q.promisify(resource.beforeValidate)(resourceName, attrs);
+			})
+			.then(function (attrs) {
+				return services.$q.promisify(resource.validate)(resourceName, attrs);
+			})
+			.then(function (attrs) {
+				return services.$q.promisify(resource.afterValidate)(resourceName, attrs);
+			})
+			.then(function (attrs) {
+				return services.$q.promisify(resource.beforeUpdate)(resourceName, attrs);
+			})
+			.then(function (attrs) {
+				return _this.PUT(utils.makePath(resource.baseUrl, resource.endpoint, id), attrs, null);
+			})
+			.then(function (data) {
+				return services.$q.promisify(resource.afterUpdate)(resourceName, data);
+			})
+			.then(function (data) {
+				var saved = _this.inject(resource.name, data, options);
+				resource.saved[id] = utils.updateTimestamp(resource.saved[id]);
+				return saved;
+			});
 
-			if (resource.schema) {
-				resource.schema.validate(resource.index[id], function (err) {
-					if (err) {
-						deferred.reject(err);
-					} else {
-						_save.call(_this, deferred, resource, id, options);
-					}
-				});
-			} else {
-				_save.call(_this, deferred, resource, id, options);
-			}
-		} catch (err) {
-			if (!(err instanceof errors.UnhandledError)) {
-				deferred.reject(new errors.UnhandledError(err));
-			} else {
-				deferred.reject(err);
-			}
-		}
+		deferred.resolve(resource.index[id]);
 	}
 
-	return deferred.promise;
+	return promise;
 }
 
 module.exports = save;

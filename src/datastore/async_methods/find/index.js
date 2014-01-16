@@ -49,7 +49,7 @@ var utils = require('utils'),
  * - `{UnhandledError}`
  */
 function find(resourceName, id, options) {
-	var deferred = $q.defer();
+	var deferred = services.$q.defer();
 	options = options || {};
 
 	if (!services.store[resourceName]) {

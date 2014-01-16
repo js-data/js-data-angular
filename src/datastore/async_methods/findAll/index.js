@@ -26,7 +26,7 @@ function processResults(data, resourceName, queryHash) {
 	return data;
 }
 
-function _findAll(deferred, resourceName, params, options) {
+function _findAll(resourceName, params, options) {
 	var resource = services.store[resourceName],
 		_this = this;
 
@@ -41,18 +41,19 @@ function _findAll(deferred, resourceName, params, options) {
 
 		if (!resource.pendingQueries[queryHash]) {
 
-			// This particular query has never even been started
-			var url = utils.makePath(resource.baseUrl || services.config.baseUrl, resource.endpoint || resource.name);
-			resource.pendingQueries[queryHash] = GET(url, { params: params }).then(function (data) {
-				try {
-					deferred.resolve(processResults.apply(_this, [data, resourceName, queryHash]));
-				} catch (err) {
-					deferred.reject(new errors.UnhandledError(err));
-				}
-			}, deferred.reject);
+			// This particular query has never even been made
+			resource.pendingQueries[queryHash] = GET(utils.makePath(resource.baseUrl, resource.endpoint), { params: params })
+				.then(function (data) {
+					try {
+						return processResults.apply(_this, [data, resourceName, queryHash]);
+					} catch (err) {
+						throw new errors.UnhandledError(err);
+					}
+				});
 		}
+		return resource.pendingQueries[queryHash];
 	} else {
-		deferred.resolve(this.filter(resourceName, params, options));
+		return this.filter(resourceName, params, options);
 	}
 }
 
@@ -124,7 +125,9 @@ function _findAll(deferred, resourceName, params, options) {
  * - `{UnhandledError}`
  */
 function findAll(resourceName, params, options) {
-	var deferred = services.$q.defer();
+	var deferred = services.$q.defer(),
+		promise = deferred.promise,
+		_this = this;
 
 	options = options || {};
 
@@ -136,13 +139,16 @@ function findAll(resourceName, params, options) {
 		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
 	} else {
 		try {
-			_findAll.apply(this, [deferred, resourceName, params, options]);
+			promise = promise.then(function () {
+				return _findAll.apply(_this, [resourceName, params, options]);
+			});
+			deferred.resolve();
 		} catch (err) {
 			deferred.reject(new errors.UnhandledError(err));
 		}
 	}
 
-	return deferred.promise;
+	return promise;
 }
 
 module.exports = findAll;

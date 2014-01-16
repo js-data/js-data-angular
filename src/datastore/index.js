@@ -1,6 +1,5 @@
 var utils = require('utils'),
 	errors = require('errors'),
-	IllegalArgumentError = errors.IllegalArgumentError,
 	services = require('services'),
 	errorPrefix = 'DSProvider.config(options): ';
 
@@ -19,7 +18,8 @@ var utils = require('utils'),
  * ## Example:
  * ```js
  *  DSProvider.config({
- *      baseUrl: 'http://myapp.com/api'
+ *      baseUrl: 'http://myapp.com/api',
+ *      idAttribute: '_id'
  *  });
  * ```
  *
@@ -33,12 +33,34 @@ function config(options) {
 	options = options || {};
 
 	if (!utils.isObject(options)) {
-		throw new IllegalArgumentError(errorPrefix + 'options: Must be an object!', { actual: typeof options, expected: 'object' });
-	} else if (!utils.isString(options.baseUrl)) {
-		throw new IllegalArgumentError(errorPrefix + 'options: Must be an object!', { baseUrl: { actual: typeof options, expected: 'object' } });
+		throw new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { actual: typeof options, expected: 'object' });
+	} else if ('baseUrl' in options && !utils.isString(options.baseUrl)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'options.baseUrl: Must be a string!', { baseUrl: { actual: typeof options.baseUrl, expected: 'string' } });
+	} else if ('idAttribute' in options && !utils.isString(options.idAttribute)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'options.idAttribute: Must be a string!', { idAttribute: { actual: typeof options.idAttribute, expected: 'string' } });
+	} else if ('mergeStrategy' in options && !utils.isString(options.mergeStrategy)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'options.mergeStrategy: Must be a string!', { mergeStrategy: { actual: typeof options.mergeStrategy, expected: 'string' } });
+	} else if ('beforeValidate' in options && !utils.isFunction(options.beforeValidate)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'options.beforeValidate: Must be a function!', { beforeValidate: { actual: typeof options.beforeValidate, expected: 'function' } });
+	} else if ('validate' in options && !utils.isFunction(options.validate)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'options.validate: Must be a function!', { validate: { actual: typeof options.validate, expected: 'function' } });
+	} else if ('afterValidate' in options && !utils.isFunction(options.afterValidate)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'options.afterValidate: Must be a function!', { afterValidate: { actual: typeof options.afterValidate, expected: 'function' } });
+	} else if ('beforeCreate' in options && !utils.isFunction(options.beforeCreate)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'options.beforeCreate: Must be a function!', { beforeCreate: { actual: typeof options.beforeCreate, expected: 'function' } });
+	} else if ('afterCreate' in options && !utils.isFunction(options.afterCreate)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'options.afterCreate: Must be a function!', { afterCreate: { actual: typeof options.afterCreate, expected: 'function' } });
+	} else if ('beforeUpdate' in options && !utils.isFunction(options.beforeUpdate)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'options.beforeUpdate: Must be a function!', { beforeUpdate: { actual: typeof options.beforeUpdate, expected: 'function' } });
+	} else if ('afterUpdate' in options && !utils.isFunction(options.afterUpdate)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'options.afterUpdate: Must be a function!', { afterUpdate: { actual: typeof options.afterUpdate, expected: 'function' } });
+	} else if ('beforeDestroy' in options && !utils.isFunction(options.beforeDestroy)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'options.beforeDestroy: Must be a function!', { beforeDestroy: { actual: typeof options.beforeDestroy, expected: 'function' } });
+	} else if ('afterDestroy' in options && !utils.isFunction(options.afterDestroy)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'options.afterDestroy: Must be a function!', { afterDestroy: { actual: typeof options.afterDestroy, expected: 'function' } });
 	}
 
-	utils.deepMixIn(services.config, options);
+	services.config = new services.BaseConfig(options);
 }
 
 /**

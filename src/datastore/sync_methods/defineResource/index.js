@@ -3,6 +3,31 @@ var utils = require('utils'),
 	services = require('services'),
 	errorPrefix = 'DS.defineResource(definition): ';
 
+function Resource(options) {
+	services.BaseConfig.apply(this, [options]);
+
+	if ('name' in options) {
+		this.name = options.name;
+	}
+
+	if ('endpoint' in options) {
+		this.endpoint = options.endpoint;
+	} else {
+		this.endpoint = this.name;
+	}
+
+	this.collection = [];
+	this.completedQueries = {};
+	this.pendingQueries = {};
+	this.index = {};
+	this.modified = {};
+	this.changes = {};
+	this.previous_attributes = {};
+	this.saved = {};
+	this.observers = {};
+	this.collectionModified = 0;
+}
+
 /**
  * @doc method
  * @id DS.sync_methods:defineResource
@@ -61,20 +86,8 @@ function defineResource(definition) {
 	}
 
 	try {
-		services.store[definition.name] = definition;
-
-		var resource = services.store[definition.name];
-		resource.collection = [];
-		resource.completedQueries = {};
-		resource.pendingQueries = {};
-		resource.index = {};
-		resource.modified = {};
-		resource.changes = {};
-		resource.previous_attributes = {};
-		resource.saved = {};
-		resource.observers = {};
-		resource.collectionModified = 0;
-		resource.idAttribute = resource.idAttribute || services.config.idAttribute || 'id';
+		Resource.prototype = services.config;
+		services.store[definition.name] = new Resource(definition);
 	} catch (err) {
 		delete services.store[definition.name];
 		throw new errors.UnhandledError(err);

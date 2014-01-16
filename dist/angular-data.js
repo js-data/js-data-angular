@@ -1830,47 +1830,48 @@ var utils = require('utils'),
  * - `{UnhandledError}`
  */
 function create(resourceName, attrs) {
-	var deferred = $q.defer();
+	var deferred = services.$q.defer(),
+		promise = deferred.promise;
+
 	if (!services.store[resourceName]) {
 		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
 	} else if (!utils.isObject(attrs)) {
 		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'attrs: Must be an object!', { attrs: { actual: typeof attrs, expected: 'object' } }));
-	}
+	} else {
+		try {
+			var resource = services.store[resourceName],
+				_this = this;
 
-	try {
-		var resource = services.store[resourceName],
-			_this = this,
-			url = utils.makePath(resource.baseUrl || services.config.baseUrl, resource.endpoint || resource.name);
+			promise = promise
+				.then(function (attrs) {
+					return services.$q.promisify(resource.beforeValidate)(resourceName, attrs);
+				})
+				.then(function (attrs) {
+					return services.$q.promisify(resource.validate)(resourceName, attrs);
+				})
+				.then(function (attrs) {
+					return services.$q.promisify(resource.afterValidate)(resourceName, attrs);
+				})
+				.then(function (attrs) {
+					return services.$q.promisify(resource.beforeCreate)(resourceName, attrs);
+				})
+				.then(function (attrs) {
+					return _this.POST(utils.makePath(resource.baseUrl, resource.endpoint), attrs, null);
+				})
+				.then(function (data) {
+					return services.$q.promisify(resource.afterCreate)(resourceName, data);
+				})
+				.then(function (data) {
+					return _this.inject(resource.name, data);
+				});
 
-		if (resource.validate) {
-			resource.validate(attrs, null, function (err) {
-				if (err) {
-					deferred.reject(err);
-				} else {
-
-					_this.POST(url, attrs, null).then(function (data) {
-						try {
-							deferred.resolve(_this.inject(resource.name, data));
-						} catch (err) {
-							deferred.reject(err);
-						}
-					}, deferred.reject);
-				}
-			});
-		} else {
-			_this.POST(url, attrs, null).then(function (data) {
-				try {
-					deferred.resolve(_this.inject(resource.name, data));
-				} catch (err) {
-					deferred.reject(err);
-				}
-			}, deferred.reject);
+			deferred.resolve(attrs);
+		} catch (err) {
+			deferred.reject(new errors.UnhandledError(err));
 		}
-	} catch (err) {
-		deferred.reject(new errors.UnhandledError(err));
 	}
 
-	return deferred.promise;
+	return promise;
 }
 
 module.exports = create;
@@ -1923,7 +1924,7 @@ var utils = require('utils'),
  * - `{UnhandledError}`
  */
 function destroy(resourceName, id) {
-	var deferred = $q.defer();
+	var deferred = service.$q.defer();
 	if (!services.store[resourceName]) {
 		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
@@ -2004,7 +2005,7 @@ var utils = require('utils'),
  * - `{UnhandledError}`
  */
 function find(resourceName, id, options) {
-	var deferred = $q.defer();
+	var deferred = services.$q.defer();
 	options = options || {};
 
 	if (!services.store[resourceName]) {
@@ -2084,7 +2085,7 @@ function processResults(data, resourceName, queryHash) {
 	return data;
 }
 
-function _findAll(deferred, resourceName, params, options) {
+function _findAll(resourceName, params, options) {
 	var resource = services.store[resourceName],
 		_this = this;
 
@@ -2099,18 +2100,19 @@ function _findAll(deferred, resourceName, params, options) {
 
 		if (!resource.pendingQueries[queryHash]) {
 
-			// This particular query has never even been started
-			var url = utils.makePath(resource.baseUrl || services.config.baseUrl, resource.endpoint || resource.name);
-			resource.pendingQueries[queryHash] = GET(url, { params: params }).then(function (data) {
-				try {
-					deferred.resolve(processResults.apply(_this, [data, resourceName, queryHash]));
-				} catch (err) {
-					deferred.reject(new errors.UnhandledError(err));
-				}
-			}, deferred.reject);
+			// This particular query has never even been made
+			resource.pendingQueries[queryHash] = GET(utils.makePath(resource.baseUrl, resource.endpoint), { params: params })
+				.then(function (data) {
+					try {
+						return processResults.apply(_this, [data, resourceName, queryHash]);
+					} catch (err) {
+						throw new errors.UnhandledError(err);
+					}
+				});
 		}
+		return resource.pendingQueries[queryHash];
 	} else {
-		deferred.resolve(this.filter(resourceName, params, options));
+		return this.filter(resourceName, params, options);
 	}
 }
 
@@ -2182,7 +2184,9 @@ function _findAll(deferred, resourceName, params, options) {
  * - `{UnhandledError}`
  */
 function findAll(resourceName, params, options) {
-	var deferred = services.$q.defer();
+	var deferred = services.$q.defer(),
+		promise = deferred.promise,
+		_this = this;
 
 	options = options || {};
 
@@ -2194,13 +2198,16 @@ function findAll(resourceName, params, options) {
 		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
 	} else {
 		try {
-			_findAll.apply(this, [deferred, resourceName, params, options]);
+			promise = promise.then(function () {
+				return _findAll.apply(_this, [resourceName, params, options]);
+			});
+			deferred.resolve();
 		} catch (err) {
 			deferred.reject(new errors.UnhandledError(err));
 		}
 	}
 
-	return deferred.promise;
+	return promise;
 }
 
 module.exports = findAll;
@@ -2350,18 +2357,7 @@ module.exports = refresh;
 var utils = require('utils'),
 	errors = require('errors'),
 	services = require('services'),
-	PUT = require('../../http').PUT,
 	errorPrefix = 'DS.save(resourceName, id[, options]): ';
-
-function _save(deferred, resource, id, options) {
-	var _this = this;
-	var url = utils.makePath(resource.baseUrl || services.config.baseUrl, resource.endpoint || resource.name, id);
-	PUT(url, resource.index[id], null).then(function (data) {
-		var saved = _this.inject(resource.name, data, options);
-		resource.saved[id] = utils.updateTimestamp(resource.saved[id]);
-		deferred.resolve(saved);
-	}, deferred.reject);
-}
 
 /**
  * @doc method
@@ -2407,7 +2403,8 @@ function _save(deferred, resource, id, options) {
  * - `{UnhandledError}`
  */
 function save(resourceName, id, options) {
-	var deferred = $q.defer();
+	var deferred = services.$q.defer(),
+		promise = deferred.promise;
 
 	options = options || {};
 
@@ -2417,38 +2414,46 @@ function save(resourceName, id, options) {
 		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
 	} else if (!utils.isObject(options)) {
 		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'id: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
+	} else if (!(id in services.store[resourceName].index)) {
+		deferred.reject(new errors.RuntimeError(errorPrefix + 'id: "' + id + '" not found!'));
 	} else {
-		var _this = this;
+		var resource = services.store[resourceName],
+			_this = this;
 
-		try {
-			var resource = services.store[resourceName];
+		promise = promise
+			.then(function (attrs) {
+				return services.$q.promisify(resource.beforeValidate)(resourceName, attrs);
+			})
+			.then(function (attrs) {
+				return services.$q.promisify(resource.validate)(resourceName, attrs);
+			})
+			.then(function (attrs) {
+				return services.$q.promisify(resource.afterValidate)(resourceName, attrs);
+			})
+			.then(function (attrs) {
+				return services.$q.promisify(resource.beforeUpdate)(resourceName, attrs);
+			})
+			.then(function (attrs) {
+				return _this.PUT(utils.makePath(resource.baseUrl, resource.endpoint, id), attrs, null);
+			})
+			.then(function (data) {
+				return services.$q.promisify(resource.afterUpdate)(resourceName, data);
+			})
+			.then(function (data) {
+				var saved = _this.inject(resource.name, data, options);
+				resource.saved[id] = utils.updateTimestamp(resource.saved[id]);
+				return saved;
+			});
 
-			if (resource.schema) {
-				resource.schema.validate(resource.index[id], function (err) {
-					if (err) {
-						deferred.reject(err);
-					} else {
-						_save.call(_this, deferred, resource, id, options);
-					}
-				});
-			} else {
-				_save.call(_this, deferred, resource, id, options);
-			}
-		} catch (err) {
-			if (!(err instanceof errors.UnhandledError)) {
-				deferred.reject(new errors.UnhandledError(err));
-			} else {
-				deferred.reject(err);
-			}
-		}
+		deferred.resolve(resource.index[id]);
 	}
 
-	return deferred.promise;
+	return promise;
 }
 
 module.exports = save;
 
-},{"../../http":34,"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],34:[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],34:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	services = require('services');
@@ -2683,7 +2688,6 @@ module.exports = {
 },{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],35:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
-	IllegalArgumentError = errors.IllegalArgumentError,
 	services = require('services'),
 	errorPrefix = 'DSProvider.config(options): ';
 
@@ -2702,7 +2706,8 @@ var utils = require('utils'),
  * ## Example:
  * ```js
  *  DSProvider.config({
- *      baseUrl: 'http://myapp.com/api'
+ *      baseUrl: 'http://myapp.com/api',
+ *      idAttribute: '_id'
  *  });
  * ```
  *
@@ -2716,12 +2721,34 @@ function config(options) {
 	options = options || {};
 
 	if (!utils.isObject(options)) {
-		throw new IllegalArgumentError(errorPrefix + 'options: Must be an object!', { actual: typeof options, expected: 'object' });
-	} else if (!utils.isString(options.baseUrl)) {
-		throw new IllegalArgumentError(errorPrefix + 'options: Must be an object!', { baseUrl: { actual: typeof options, expected: 'object' } });
+		throw new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { actual: typeof options, expected: 'object' });
+	} else if ('baseUrl' in options && !utils.isString(options.baseUrl)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'options.baseUrl: Must be a string!', { baseUrl: { actual: typeof options.baseUrl, expected: 'string' } });
+	} else if ('idAttribute' in options && !utils.isString(options.idAttribute)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'options.idAttribute: Must be a string!', { idAttribute: { actual: typeof options.idAttribute, expected: 'string' } });
+	} else if ('mergeStrategy' in options && !utils.isString(options.mergeStrategy)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'options.mergeStrategy: Must be a string!', { mergeStrategy: { actual: typeof options.mergeStrategy, expected: 'string' } });
+	} else if ('beforeValidate' in options && !utils.isFunction(options.beforeValidate)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'options.beforeValidate: Must be a function!', { beforeValidate: { actual: typeof options.beforeValidate, expected: 'function' } });
+	} else if ('validate' in options && !utils.isFunction(options.validate)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'options.validate: Must be a function!', { validate: { actual: typeof options.validate, expected: 'function' } });
+	} else if ('afterValidate' in options && !utils.isFunction(options.afterValidate)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'options.afterValidate: Must be a function!', { afterValidate: { actual: typeof options.afterValidate, expected: 'function' } });
+	} else if ('beforeCreate' in options && !utils.isFunction(options.beforeCreate)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'options.beforeCreate: Must be a function!', { beforeCreate: { actual: typeof options.beforeCreate, expected: 'function' } });
+	} else if ('afterCreate' in options && !utils.isFunction(options.afterCreate)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'options.afterCreate: Must be a function!', { afterCreate: { actual: typeof options.afterCreate, expected: 'function' } });
+	} else if ('beforeUpdate' in options && !utils.isFunction(options.beforeUpdate)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'options.beforeUpdate: Must be a function!', { beforeUpdate: { actual: typeof options.beforeUpdate, expected: 'function' } });
+	} else if ('afterUpdate' in options && !utils.isFunction(options.afterUpdate)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'options.afterUpdate: Must be a function!', { afterUpdate: { actual: typeof options.afterUpdate, expected: 'function' } });
+	} else if ('beforeDestroy' in options && !utils.isFunction(options.beforeDestroy)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'options.beforeDestroy: Must be a function!', { beforeDestroy: { actual: typeof options.beforeDestroy, expected: 'function' } });
+	} else if ('afterDestroy' in options && !utils.isFunction(options.afterDestroy)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'options.afterDestroy: Must be a function!', { afterDestroy: { actual: typeof options.afterDestroy, expected: 'function' } });
 	}
 
-	utils.deepMixIn(services.config, options);
+	services.config = new services.BaseConfig(options);
 }
 
 /**
@@ -2782,12 +2809,75 @@ function DSProvider() {
 module.exports = DSProvider;
 
 },{"./async_methods":31,"./http":34,"./sync_methods":45,"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],"cX8q+p":[function(require,module,exports){
-module.exports = {
+function lifecycleNoop(resourceName, attrs, cb) {
+	cb(null, attrs);
+}
+
+var services = module.exports = {
 	config: {
 		idAttribute: 'id'
 	},
-	store: {}
+	store: {},
+	BaseConfig: function (options) {
+		if ('idAttribute' in options) {
+			this.idAttribute = options.idAttribute;
+		}
+
+		if ('baseUrl' in options) {
+			this.baseUrl = options.baseUrl;
+		}
+
+		if ('beforeValidate' in options) {
+			this.beforeValidate = options.beforeValidate;
+		}
+
+		if ('validate' in options) {
+			this.validate = options.validate;
+		}
+
+		if ('afterValidate' in options) {
+			this.afterValidate = options.afterValidate;
+		}
+
+		if ('beforeCreate' in options) {
+			this.beforeCreate = options.beforeCreate;
+		}
+
+		if ('afterCreate' in options) {
+			this.afterCreate = options.afterCreate;
+		}
+
+		if ('beforeUpdate' in options) {
+			this.beforeUpdate = options.beforeUpdate;
+		}
+
+		if ('afterUpdate' in options) {
+			this.afterUpdate = options.afterUpdate;
+		}
+
+		if ('beforeDestroy' in options) {
+			this.beforeDestroy = options.beforeDestroy;
+		}
+
+		if ('afterDestroy' in options) {
+			this.afterDestroy = options.afterDestroy;
+		}
+	}
 };
+
+
+services.BaseConfig.prototype.idAttribute = 'id';
+services.BaseConfig.prototype.baseUrl = '';
+services.BaseConfig.prototype.endpoint = '';
+services.BaseConfig.prototype.beforeValidate = lifecycleNoop;
+services.BaseConfig.prototype.validate = lifecycleNoop;
+services.BaseConfig.prototype.afterValidate = lifecycleNoop;
+services.BaseConfig.prototype.beforeCreate = lifecycleNoop;
+services.BaseConfig.prototype.afterCreate = lifecycleNoop;
+services.BaseConfig.prototype.beforeUpdate = lifecycleNoop;
+services.BaseConfig.prototype.afterUpdate = lifecycleNoop;
+services.BaseConfig.prototype.beforeDestroy = lifecycleNoop;
+services.BaseConfig.prototype.afterDestroy = lifecycleNoop;
 
 },{}],"services":[function(require,module,exports){
 module.exports=require('cX8q+p');
@@ -2853,6 +2943,31 @@ var utils = require('utils'),
 	services = require('services'),
 	errorPrefix = 'DS.defineResource(definition): ';
 
+function Resource(options) {
+	services.BaseConfig.apply(this, [options]);
+
+	if ('name' in options) {
+		this.name = options.name;
+	}
+
+	if ('endpoint' in options) {
+		this.endpoint = options.endpoint;
+	} else {
+		this.endpoint = this.name;
+	}
+
+	this.collection = [];
+	this.completedQueries = {};
+	this.pendingQueries = {};
+	this.index = {};
+	this.modified = {};
+	this.changes = {};
+	this.previous_attributes = {};
+	this.saved = {};
+	this.observers = {};
+	this.collectionModified = 0;
+}
+
 /**
  * @doc method
  * @id DS.sync_methods:defineResource
@@ -2911,20 +3026,8 @@ function defineResource(definition) {
 	}
 
 	try {
-		services.store[definition.name] = definition;
-
-		var resource = services.store[definition.name];
-		resource.collection = [];
-		resource.completedQueries = {};
-		resource.pendingQueries = {};
-		resource.index = {};
-		resource.modified = {};
-		resource.changes = {};
-		resource.previous_attributes = {};
-		resource.saved = {};
-		resource.observers = {};
-		resource.collectionModified = 0;
-		resource.idAttribute = resource.idAttribute || services.config.idAttribute || 'id';
+		Resource.prototype = services.config;
+		services.store[definition.name] = new Resource(definition);
 	} catch (err) {
 		delete services.store[definition.name];
 		throw new errors.UnhandledError(err);
@@ -4064,7 +4167,35 @@ module.exports = {
 //	}
 //	angular.module('jmdobry.binary-heap').provider('BinaryHeap', BinaryHeapProvider);
 
-	angular.module('jmdobry.angular-data', ['ng'/*, 'jmdobry.binary-heap'*/]);
+	angular.module('jmdobry.angular-data', ['ng'/*, 'jmdobry.binary-heap'*/]).config(['$provide', function ($provide) {
+		$provide.decorator('$q', function ($delegate) {
+			// do whatever you you want
+			$delegate.promisify = function (fn, target) {
+				var _this = this;
+				return function () {
+					var deferred = _this.defer(),
+						args = Array.prototype.slice.apply(arguments);
+
+					args.push(function (err, result) {
+						if (err) {
+							deferred.reject(err);
+						} else {
+							deferred.resolve(result);
+						}
+					});
+
+					try {
+						fn.apply(target || this, args);
+					} catch (err) {
+						deferred.reject(err);
+					}
+
+					return deferred.promise;
+				};
+			};
+			return $delegate;
+		});
+	}]);
 	angular.module('jmdobry.angular-data').provider('DS', require('./datastore'));
 
 })(window, window.angular);

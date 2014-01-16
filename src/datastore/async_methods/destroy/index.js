@@ -45,7 +45,7 @@ var utils = require('utils'),
  * - `{UnhandledError}`
  */
 function destroy(resourceName, id) {
-	var deferred = $q.defer();
+	var deferred = service.$q.defer();
 	if (!services.store[resourceName]) {
 		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
