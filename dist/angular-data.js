@@ -1,7 +1,7 @@
 /**
  * @author Jason Dobry <jason.dobry@gmail.com>
  * @file angular-data.js
- * @version 0.4.1 - Homepage <http://jmdobry.github.io/angular-data/>
+ * @version 0.4.2 - Homepage <http://jmdobry.github.io/angular-data/>
  * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/angular-data>
  * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
  *
@@ -2071,28 +2071,22 @@ function processResults(data, resourceName, queryHash) {
 	delete resource.pendingQueries[queryHash];
 	resource.completedQueries[queryHash] = new Date().getTime();
 
-	var temp = [];
-	for (var i = 0; i < data.length; i++) {
-		temp.push(data[i]);
-	}
 	// Merge the new values into the cache
-	resource.collection = utils.mergeArrays(resource.collection, data, resource.idAttribute || 'id');
+	for (var i = 0; i < data.length; i++) {
+		this.inject(resourceName, data[i]);
+	}
 
 	// Update the data store's index for this resource
-	resource.index = utils.toLookup(resource.collection, resource.idAttribute || 'id');
-
-	// Update modified timestamp for values that were return by the server
-	for (var j = 0; j < temp.length; j++) {
-		resource.modified[temp[j][resource.idAttribute || 'id']] = utils.updateTimestamp(resource.modified[temp[j][resource.idAttribute || 'id']]);
-	}
+	resource.index = utils.toLookup(resource.collection, resource.idAttribute || services.config.idAttribute || 'id');
 
 	// Update modified timestamp of collection
 	resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
-	return temp;
+	return data;
 }
 
 function _findAll(deferred, resourceName, params, options) {
-	var resource = services.store[resourceName];
+	var resource = services.store[resourceName],
+		_this = this;
 
 	var queryHash = utils.toJson(params);
 
@@ -2109,7 +2103,7 @@ function _findAll(deferred, resourceName, params, options) {
 			var url = utils.makePath(resource.baseUrl || services.config.baseUrl, resource.endpoint || resource.name);
 			resource.pendingQueries[queryHash] = GET(url, { params: params }).then(function (data) {
 				try {
-					deferred.resolve(processResults(data, resourceName, queryHash));
+					deferred.resolve(processResults.apply(_this, [data, resourceName, queryHash]));
 				} catch (err) {
 					deferred.reject(new errors.UnhandledError(err));
 				}
@@ -2787,7 +2781,9 @@ function DSProvider() {
 
 module.exports = DSProvider;
 
-},{"./async_methods":31,"./http":34,"./sync_methods":45,"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],"cX8q+p":[function(require,module,exports){
+},{"./async_methods":31,"./http":34,"./sync_methods":45,"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],"services":[function(require,module,exports){
+module.exports=require('cX8q+p');
+},{}],"cX8q+p":[function(require,module,exports){
 module.exports = {
 	config: {
 		idAttribute: 'id'
@@ -2795,8 +2791,6 @@ module.exports = {
 	store: {}
 };
 
-},{}],"services":[function(require,module,exports){
-module.exports=require('cX8q+p');
 },{}],38:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
@@ -3532,12 +3526,7 @@ function _inject(resource, attrs) {
 					resource.changes[innerId] = utils.diffObjectFromOldObject(resource.index[innerId], resource.previous_attributes[innerId]);
 					resource.modified[innerId] = utils.updateTimestamp(resource.modified[innerId]);
 					resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
-
-					services.$log.debug('old value:', JSON.stringify(resource.previous_attributes[innerId], null, 2));
-					services.$log.debug('changes:', resource.changes[innerId]);
-					services.$log.debug('new value:', JSON.stringify(resource.index[innerId], null, 2));
 				} catch (err) {
-					services.$log.error(err.stack);
 					throw new errors.UnhandledError(err);
 				}
 			});
@@ -4104,19 +4093,6 @@ module.exports = {
 		} else {
 			return newTimestamp;
 		}
-	},
-	mergeArrays: function (a, b, mergeKey) {
-		mergeKey = mergeKey || 'id';
-		for (var i = 0; i < a.length; i++) {
-			for (var j = 0; j < b.length; j++) {
-				if (a[i][mergeKey] == b[j][mergeKey]) {
-					angular.extend(a[i], b[j]);
-					b.splice(j, 1);
-					break;
-				}
-			}
-		}
-		return a.concat(b);
 	},
 	deepFreeze: function deepFreeze(o) {
 		if (typeof Object.freeze === 'function') {

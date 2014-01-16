@@ -22,19 +22,6 @@ module.exports = {
 			return newTimestamp;
 		}
 	},
-	mergeArrays: function (a, b, mergeKey) {
-		mergeKey = mergeKey || 'id';
-		for (var i = 0; i < a.length; i++) {
-			for (var j = 0; j < b.length; j++) {
-				if (a[i][mergeKey] == b[j][mergeKey]) {
-					angular.extend(a[i], b[j]);
-					b.splice(j, 1);
-					break;
-				}
-			}
-		}
-		return a.concat(b);
-	},
 	deepFreeze: function deepFreeze(o) {
 		if (typeof Object.freeze === 'function') {
 			var prop, propKey;

@@ -69,7 +69,7 @@ describe('DS.filter(resourceName, params[, options])', function () {
 		done();
 	});
 	it('should return an empty array if the query has never been made before', function (done) {
-		$httpBackend.expectGET(new RegExp('\\' + app.baseUrl + '/posts' + '\\?query=.*')).respond(200, p1);
+		$httpBackend.expectGET(new RegExp('\\' + app.baseUrl + '/posts' + '\\?query=.*')).respond(200, [p1]);
 
 		assert.deepEqual(DS.filter('post', {
 			query: {

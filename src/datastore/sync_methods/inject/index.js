@@ -35,12 +35,7 @@ function _inject(resource, attrs) {
 					resource.changes[innerId] = utils.diffObjectFromOldObject(resource.index[innerId], resource.previous_attributes[innerId]);
 					resource.modified[innerId] = utils.updateTimestamp(resource.modified[innerId]);
 					resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
-
-					services.$log.debug('old value:', JSON.stringify(resource.previous_attributes[innerId], null, 2));
-					services.$log.debug('changes:', resource.changes[innerId]);
-					services.$log.debug('new value:', JSON.stringify(resource.index[innerId], null, 2));
 				} catch (err) {
-					services.$log.error(err.stack);
 					throw new errors.UnhandledError(err);
 				}
 			});

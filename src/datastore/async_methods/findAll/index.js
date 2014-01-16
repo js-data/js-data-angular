@@ -13,28 +13,22 @@ function processResults(data, resourceName, queryHash) {
 	delete resource.pendingQueries[queryHash];
 	resource.completedQueries[queryHash] = new Date().getTime();
 
-	var temp = [];
-	for (var i = 0; i < data.length; i++) {
-		temp.push(data[i]);
-	}
 	// Merge the new values into the cache
-	resource.collection = utils.mergeArrays(resource.collection, data, resource.idAttribute || 'id');
+	for (var i = 0; i < data.length; i++) {
+		this.inject(resourceName, data[i]);
+	}
 
 	// Update the data store's index for this resource
-	resource.index = utils.toLookup(resource.collection, resource.idAttribute || 'id');
-
-	// Update modified timestamp for values that were return by the server
-	for (var j = 0; j < temp.length; j++) {
-		resource.modified[temp[j][resource.idAttribute || 'id']] = utils.updateTimestamp(resource.modified[temp[j][resource.idAttribute || 'id']]);
-	}
+	resource.index = utils.toLookup(resource.collection, resource.idAttribute || services.config.idAttribute || 'id');
 
 	// Update modified timestamp of collection
 	resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
-	return temp;
+	return data;
 }
 
 function _findAll(deferred, resourceName, params, options) {
-	var resource = services.store[resourceName];
+	var resource = services.store[resourceName],
+		_this = this;
 
 	var queryHash = utils.toJson(params);
 
@@ -51,7 +45,7 @@ function _findAll(deferred, resourceName, params, options) {
 			var url = utils.makePath(resource.baseUrl || services.config.baseUrl, resource.endpoint || resource.name);
 			resource.pendingQueries[queryHash] = GET(url, { params: params }).then(function (data) {
 				try {
-					deferred.resolve(processResults(data, resourceName, queryHash));
+					deferred.resolve(processResults.apply(_this, [data, resourceName, queryHash]));
 				} catch (err) {
 					deferred.reject(new errors.UnhandledError(err));
 				}
