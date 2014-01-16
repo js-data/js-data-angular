@@ -1,7 +1,7 @@
 /**
  * @author Jason Dobry <jason.dobry@gmail.com>
  * @file angular-data.js
- * @version 0.4.2 - Homepage <http://jmdobry.github.io/angular-data/>
+ * @version 0.5.0 - Homepage <http://jmdobry.github.io/angular-data/>
  * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/angular-data>
  * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
  *
@@ -2781,9 +2781,7 @@ function DSProvider() {
 
 module.exports = DSProvider;
 
-},{"./async_methods":31,"./http":34,"./sync_methods":45,"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],"services":[function(require,module,exports){
-module.exports=require('cX8q+p');
-},{}],"cX8q+p":[function(require,module,exports){
+},{"./async_methods":31,"./http":34,"./sync_methods":45,"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],"cX8q+p":[function(require,module,exports){
 module.exports = {
 	config: {
 		idAttribute: 'id'
@@ -2791,6 +2789,8 @@ module.exports = {
 	store: {}
 };
 
+},{}],"services":[function(require,module,exports){
+module.exports=require('cX8q+p');
 },{}],38:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
