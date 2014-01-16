@@ -28,6 +28,8 @@ function Resource(options) {
 	this.collectionModified = 0;
 }
 
+Resource.prototype = services.config;
+
 /**
  * @doc method
  * @id DS.sync_methods:defineResource
@@ -48,9 +50,9 @@ function Resource(options) {
  *      idAttribute: '_id',
  *      endpoint: '/documents
  *      baseUrl: 'http://myapp.com/api',
- *      validate: function (attrs, options, cb) {
+ *      beforeDestroy: function (resourceName attrs, cb) {
  *          console.log('looks good to me');
- *          cb(null);
+ *          cb(null, attrs);
  *      }
  *  });
  * ```
@@ -66,8 +68,16 @@ function Resource(options) {
  * - `{string}` - `name` - The name by which this resource will be identified.
  * - `{string="id"}` - `idAttribute` - The attribute that specifies the primary key for this resource.
  * - `{string=}` - `endpoint` - The attribute that specifies the primary key for this resource. Default is the value of `name`.
- * - `{string="/"}` - `baseUrl` - The url relative to which all AJAX requests will be made.
- * - `{function=}` - `validate` - The validation function to be executed before create operations.
+ * - `{string=}` - `baseUrl` - The url relative to which all AJAX requests will be made.
+ * - `{function=}` - `beforeValidate` - Lifecycle hook. Overrides global. Signature: `beforeValidate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `validate` - Lifecycle hook. Overrides global. Signature: `validate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `afterValidate` - Lifecycle hook. Overrides global. Signature: `afterValidate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `beforeCreate` - Lifecycle hook. Overrides global. Signature: `beforeCreate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `afterCreate` - Lifecycle hook. Overrides global. Signature: `afterCreate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `beforeUpdate` - Lifecycle hook. Overrides global. Signature: `beforeUpdate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `afterUpdate` - Lifecycle hook. Overrides global. Signature: `afterUpdate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `beforeDestroy` - Lifecycle hook. Overrides global. Signature: `beforeDestroy(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `afterDestroy` - Lifecycle hook. Overrides global. Signature: `afterDestroy(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
  */
 function defineResource(definition) {
 	if (utils.isString(definition)) {
@@ -86,7 +96,6 @@ function defineResource(definition) {
 	}
 
 	try {
-		Resource.prototype = services.config;
 		services.store[definition.name] = new Resource(definition);
 	} catch (err) {
 		delete services.store[definition.name];

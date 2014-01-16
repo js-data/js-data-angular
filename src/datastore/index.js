@@ -19,7 +19,11 @@ var utils = require('utils'),
  * ```js
  *  DSProvider.config({
  *      baseUrl: 'http://myapp.com/api',
- *      idAttribute: '_id'
+ *      idAttribute: '_id',
+ *      validate: function (resourceName, attrs, cb) {
+ *          console.log('looks good to me');
+ *          cb(null, attrs);
+ *      }
  *  });
  * ```
  *
@@ -27,7 +31,18 @@ var utils = require('utils'),
  *
  * - `{IllegalArgumentError}`
  *
- * @param {object} options Configuration for the data store.
+ * @param {object} options Global configuration for the data store. Properties:
+ * - `{string=}` - `baseUrl` - The default base url to be used by the data store. Can be overridden via `DS.defineResource`.
+ * - `{string=}` - `idAttribute` - The default property that specifies the primary key of an object. Default: `"id"`.
+ * - `{function=}` - `beforeValidate` - Global lifecycle hook. Signature: `beforeValidate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `validate` - Global lifecycle hook. Signature: `validate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `afterValidate` - Global lifecycle hook. Signature: `afterValidate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `beforeCreate` - Global lifecycle hook. Signature: `beforeCreate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `afterCreate` - Global lifecycle hook. Signature: `afterCreate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `beforeUpdate` - Global lifecycle hook. Signature: `beforeUpdate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `afterUpdate` - Global lifecycle hook. Signature: `afterUpdate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `beforeDestroy` - Global lifecycle hook. Signature: `beforeDestroy(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `afterDestroy` - Global lifecycle hook. Signature: `afterDestroy(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
  */
 function config(options) {
 	options = options || {};

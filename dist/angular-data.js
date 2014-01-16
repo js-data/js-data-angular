@@ -1,12 +1,3 @@
-/**
- * @author Jason Dobry <jason.dobry@gmail.com>
- * @file angular-data.js
- * @version 0.5.0 - Homepage <http://jmdobry.github.io/angular-data/>
- * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/angular-data>
- * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
- *
- * @overview Data store for Angular.js.
- */
 require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var indexOf = require('./indexOf');
 
@@ -1924,31 +1915,36 @@ var utils = require('utils'),
  * - `{UnhandledError}`
  */
 function destroy(resourceName, id) {
-	var deferred = service.$q.defer();
+	var deferred = services.$q.defer(),
+		promise = deferred.promise;
+
 	if (!services.store[resourceName]) {
 		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
 		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
-	}
-
-	try {
+	} else {
 		var resource = services.store[resourceName],
-			_this = this,
-			url = utils.makePath(resource.baseUrl || services.config.baseUrl, resource.endpoint || resource.name, id);
+			_this = this;
 
-		_this.DEL(url, null).then(function () {
-			try {
+		promise = promise
+			.then(function (attrs) {
+				return services.$q.promisify(resource.beforeDestroy)(resourceName, attrs);
+			})
+			.then(function () {
+				return _this.DEL(utils.makePath(resource.baseUrl, resource.endpoint, id), null);
+			})
+			.then(function () {
+				return services.$q.promisify(resource.afterDestroy)(resourceName, resource.index[id]);
+			})
+			.then(function () {
 				_this.eject(resourceName, id);
-				deferred.resolve(id);
-			} catch (err) {
-				deferred.reject(err);
-			}
-		}, deferred.reject);
-	} catch (err) {
-		deferred.reject(new errors.UnhandledError(err));
+				return id;
+			});
+
+		deferred.resolve(resource.index[id]);
 	}
 
-	return deferred.promise;
+	return promise;
 }
 
 module.exports = destroy;
@@ -2005,7 +2001,9 @@ var utils = require('utils'),
  * - `{UnhandledError}`
  */
 function find(resourceName, id, options) {
-	var deferred = services.$q.defer();
+	var deferred = services.$q.defer(),
+		promise = deferred.promise;
+
 	options = options || {};
 
 	if (!services.store[resourceName]) {
@@ -2015,43 +2013,35 @@ function find(resourceName, id, options) {
 	} else if (!utils.isObject(options)) {
 		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
 	} else {
-		var _this = this;
-
 		try {
-			var resource = services.store[resourceName];
+			var resource = services.store[resourceName],
+				_this = this;
 
-			if (id in resource.index && !options.bypassCache) {
-				deferred.resolve(_this.get(resourceName, id));
-			} else {
-				var url = utils.makePath(resource.baseUrl || services.config.baseUrl, resource.endpoint || resource.name, id),
-					config = null;
+			if (options.bypassCache) {
+				delete resource.completedQueries[id];
+			}
 
-				if (options.bypassCache) {
-					config = {
-						headers: {
-							'Last-Modified': new Date(resource.modified[id])
-						}
-					};
+			if (!(id in resource.completedQueries)) {
+				if (!(id in resource.pendingQueries)) {
+					promise = resource.pendingQueries[id] = GET(utils.makePath(resource.baseUrl, resource.endpoint, id), null)
+						.then(function (data) {
+							// Query is no longer pending
+							delete resource.pendingQueries[id];
+							resource.completedQueries[id] = new Date().getTime();
+							return _this.inject(resourceName, data);
+						});
 				}
-				GET(url, config).then(function (data) {
-					try {
-						_this.inject(resourceName, data);
-						deferred.resolve(_this.get(resourceName, id));
-					} catch (err) {
-						deferred.reject(err);
-					}
-				}, deferred.reject);
+
+				return resource.pendingQueries[id];
+			} else {
+				deferred.resolve(_this.get(resourceName, id));
 			}
 		} catch (err) {
-			if (!(err instanceof errors.UnhandledError)) {
-				deferred.reject(new errors.UnhandledError(err));
-			} else {
-				deferred.reject(err);
-			}
+			deferred.reject(err);
 		}
 	}
 
-	return deferred.promise;
+	return promise;
 }
 
 module.exports = find;
@@ -2087,9 +2077,8 @@ function processResults(data, resourceName, queryHash) {
 
 function _findAll(resourceName, params, options) {
 	var resource = services.store[resourceName],
-		_this = this;
-
-	var queryHash = utils.toJson(params);
+		_this = this,
+		queryHash = utils.toJson(params);
 
 	if (options.bypassCache) {
 		delete resource.completedQueries[queryHash];
@@ -2098,7 +2087,7 @@ function _findAll(resourceName, params, options) {
 	if (!(queryHash in resource.completedQueries)) {
 		// This particular query has never been completed
 
-		if (!resource.pendingQueries[queryHash]) {
+		if (!(queryHash in resource.pendingQueries)) {
 
 			// This particular query has never even been made
 			resource.pendingQueries[queryHash] = GET(utils.makePath(resource.baseUrl, resource.endpoint), { params: params })
@@ -2110,6 +2099,7 @@ function _findAll(resourceName, params, options) {
 					}
 				});
 		}
+
 		return resource.pendingQueries[queryHash];
 	} else {
 		return this.filter(resourceName, params, options);
@@ -2413,7 +2403,7 @@ function save(resourceName, id, options) {
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
 		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
 	} else if (!utils.isObject(options)) {
-		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'id: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
+		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
 	} else if (!(id in services.store[resourceName].index)) {
 		deferred.reject(new errors.RuntimeError(errorPrefix + 'id: "' + id + '" not found!'));
 	} else {
@@ -2707,7 +2697,11 @@ var utils = require('utils'),
  * ```js
  *  DSProvider.config({
  *      baseUrl: 'http://myapp.com/api',
- *      idAttribute: '_id'
+ *      idAttribute: '_id',
+ *      validate: function (resourceName, attrs, cb) {
+ *          console.log('looks good to me');
+ *          cb(null, attrs);
+ *      }
  *  });
  * ```
  *
@@ -2715,7 +2709,18 @@ var utils = require('utils'),
  *
  * - `{IllegalArgumentError}`
  *
- * @param {object} options Configuration for the data store.
+ * @param {object} options Global configuration for the data store. Properties:
+ * - `{string=}` - `baseUrl` - The default base url to be used by the data store. Can be overridden via `DS.defineResource`.
+ * - `{string=}` - `idAttribute` - The default property that specifies the primary key of an object. Default: `"id"`.
+ * - `{function=}` - `beforeValidate` - Global lifecycle hook. Signature: `beforeValidate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `validate` - Global lifecycle hook. Signature: `validate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `afterValidate` - Global lifecycle hook. Signature: `afterValidate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `beforeCreate` - Global lifecycle hook. Signature: `beforeCreate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `afterCreate` - Global lifecycle hook. Signature: `afterCreate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `beforeUpdate` - Global lifecycle hook. Signature: `beforeUpdate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `afterUpdate` - Global lifecycle hook. Signature: `afterUpdate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `beforeDestroy` - Global lifecycle hook. Signature: `beforeDestroy(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `afterDestroy` - Global lifecycle hook. Signature: `afterDestroy(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
  */
 function config(options) {
 	options = options || {};
@@ -2968,6 +2973,8 @@ function Resource(options) {
 	this.collectionModified = 0;
 }
 
+Resource.prototype = services.config;
+
 /**
  * @doc method
  * @id DS.sync_methods:defineResource
@@ -3006,8 +3013,16 @@ function Resource(options) {
  * - `{string}` - `name` - The name by which this resource will be identified.
  * - `{string="id"}` - `idAttribute` - The attribute that specifies the primary key for this resource.
  * - `{string=}` - `endpoint` - The attribute that specifies the primary key for this resource. Default is the value of `name`.
- * - `{string="/"}` - `baseUrl` - The url relative to which all AJAX requests will be made.
- * - `{function=}` - `validate` - The validation function to be executed before create operations.
+ * - `{string=}` - `baseUrl` - The url relative to which all AJAX requests will be made.
+ * - `{function=}` - `beforeValidate` - Lifecycle hook. Overrides global. Signature: `beforeValidate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `validate` - Lifecycle hook. Overrides global. Signature: `validate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `afterValidate` - Lifecycle hook. Overrides global. Signature: `afterValidate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `beforeCreate` - Lifecycle hook. Overrides global. Signature: `beforeCreate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `afterCreate` - Lifecycle hook. Overrides global. Signature: `afterCreate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `beforeUpdate` - Lifecycle hook. Overrides global. Signature: `beforeUpdate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `afterUpdate` - Lifecycle hook. Overrides global. Signature: `afterUpdate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `beforeDestroy` - Lifecycle hook. Overrides global. Signature: `beforeDestroy(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `afterDestroy` - Lifecycle hook. Overrides global. Signature: `afterDestroy(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
  */
 function defineResource(definition) {
 	if (utils.isString(definition)) {
@@ -3026,7 +3041,6 @@ function defineResource(definition) {
 	}
 
 	try {
-		Resource.prototype = services.config;
 		services.store[definition.name] = new Resource(definition);
 	} catch (err) {
 		delete services.store[definition.name];
@@ -3405,7 +3419,9 @@ function get(resourceName, id, options) {
 	try {
 		// cache miss, request resource from server
 		if (!(id in services.store[resourceName].index) && options.loadFromServer) {
-			this.find(resourceName, id);
+			this.find(resourceName, id).then(null, function (err) {
+				throw err;
+			});
 		}
 
 		// return resource from cache
@@ -3910,9 +3926,7 @@ function previous(resourceName, id) {
 
 module.exports = previous;
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],"errors":[function(require,module,exports){
-module.exports=require('hIh4e1');
-},{}],"hIh4e1":[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],"hIh4e1":[function(require,module,exports){
 /**
  * @doc function
  * @id errors.types:UnhandledError
@@ -4124,6 +4138,8 @@ module.exports = {
 	RuntimeError: RuntimeError
 };
 
+},{}],"errors":[function(require,module,exports){
+module.exports=require('hIh4e1');
 },{}],52:[function(require,module,exports){
 (function (window, angular, undefined) {
 	'use strict';
@@ -4206,6 +4222,7 @@ module.exports = {
 	isArray: angular.isArray,
 	isObject: angular.isObject,
 	isNumber: angular.isNumber,
+	isFunction: angular.isFunction,
 	isEmpty: require('mout/lang/isEmpty'),
 	toJson: angular.toJson,
 	makePath: require('mout/string/makePath'),

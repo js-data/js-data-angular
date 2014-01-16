@@ -1,7 +1,6 @@
 var utils = require('utils'),
 	errors = require('errors'),
 	services = require('services'),
-	GET = require('../../http').GET,
 	errorPrefix = 'DS.findAll(resourceName, params[, options]): ';
 
 function processResults(data, resourceName, queryHash) {
@@ -28,9 +27,8 @@ function processResults(data, resourceName, queryHash) {
 
 function _findAll(resourceName, params, options) {
 	var resource = services.store[resourceName],
-		_this = this;
-
-	var queryHash = utils.toJson(params);
+		_this = this,
+		queryHash = utils.toJson(params);
 
 	if (options.bypassCache) {
 		delete resource.completedQueries[queryHash];
@@ -39,10 +37,10 @@ function _findAll(resourceName, params, options) {
 	if (!(queryHash in resource.completedQueries)) {
 		// This particular query has never been completed
 
-		if (!resource.pendingQueries[queryHash]) {
+		if (!(queryHash in resource.pendingQueries)) {
 
 			// This particular query has never even been made
-			resource.pendingQueries[queryHash] = GET(utils.makePath(resource.baseUrl, resource.endpoint), { params: params })
+			resource.pendingQueries[queryHash] = _this.GET(utils.makePath(resource.baseUrl, resource.endpoint), { params: params })
 				.then(function (data) {
 					try {
 						return processResults.apply(_this, [data, resourceName, queryHash]);
@@ -51,6 +49,7 @@ function _findAll(resourceName, params, options) {
 					}
 				});
 		}
+
 		return resource.pendingQueries[queryHash];
 	} else {
 		return this.filter(resourceName, params, options);
