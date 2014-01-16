@@ -48,7 +48,9 @@ function get(resourceName, id, options) {
 	try {
 		// cache miss, request resource from server
 		if (!(id in services.store[resourceName].index) && options.loadFromServer) {
-			this.find(resourceName, id);
+			this.find(resourceName, id).then(null, function (err) {
+				throw err;
+			});
 		}
 
 		// return resource from cache

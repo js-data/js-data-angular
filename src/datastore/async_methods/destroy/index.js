@@ -45,31 +45,36 @@ var utils = require('utils'),
  * - `{UnhandledError}`
  */
 function destroy(resourceName, id) {
-	var deferred = $q.defer();
+	var deferred = services.$q.defer(),
+		promise = deferred.promise;
+
 	if (!services.store[resourceName]) {
 		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
 	} else if (!utils.isString(id) && !utils.isNumber(id)) {
 		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
-	}
-
-	try {
+	} else {
 		var resource = services.store[resourceName],
-			_this = this,
-			url = utils.makePath(resource.baseUrl || services.config.baseUrl, resource.endpoint || resource.name, id);
+			_this = this;
 
-		_this.DEL(url, null).then(function () {
-			try {
+		promise = promise
+			.then(function (attrs) {
+				return services.$q.promisify(resource.beforeDestroy)(resourceName, attrs);
+			})
+			.then(function () {
+				return _this.DEL(utils.makePath(resource.baseUrl, resource.endpoint, id), null);
+			})
+			.then(function () {
+				return services.$q.promisify(resource.afterDestroy)(resourceName, resource.index[id]);
+			})
+			.then(function () {
 				_this.eject(resourceName, id);
-				deferred.resolve(id);
-			} catch (err) {
-				deferred.reject(err);
-			}
-		}, deferred.reject);
-	} catch (err) {
-		deferred.reject(new errors.UnhandledError(err));
+				return id;
+			});
+
+		deferred.resolve(resource.index[id]);
 	}
 
-	return deferred.promise;
+	return promise;
 }
 
 module.exports = destroy;

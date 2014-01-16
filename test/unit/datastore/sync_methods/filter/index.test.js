@@ -69,7 +69,7 @@ describe('DS.filter(resourceName, params[, options])', function () {
 		done();
 	});
 	it('should return an empty array if the query has never been made before', function (done) {
-		$httpBackend.expectGET(new RegExp('\\' + app.baseUrl + '/posts' + '\\?query=.*')).respond(200, [p1]);
+		$httpBackend.expectGET('http://test.angular-cache.com/posts?query=%7B%22where%22:%7B%22author%22:%7B%22%3D%3D%22:%22John%22%7D%7D%7D').respond(200, [p1]);
 
 		assert.deepEqual(DS.filter('post', {
 			query: {
