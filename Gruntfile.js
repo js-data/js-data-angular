@@ -73,7 +73,8 @@ module.exports = function (grunt) {
 				// TODO: There's got to be a better way to consume observe-js without it polluting the global space
 				options: {
 					alias: [
-						'node_modules/observe-js/src/observe.js:observejs',
+						'lib/observe-js.js:observejs',
+						'src/datastore/adapters/http/index.js:HttpAdapter',
 						'src/datastore/services/index.js:services',
 						'src/errors/index.js:errors',
 						'src/utils/index.js:utils'

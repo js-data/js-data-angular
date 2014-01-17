@@ -7,43 +7,52 @@ var utils = require('utils'),
 function _inject(resource, attrs) {
 	var _this = this;
 
+	function _react(added, removed, changed, getOldValueFn) {
+		try {
+			var innerId = getOldValueFn(resource.idAttribute);
+
+			resource.changes[innerId] = utils.diffObjectFromOldObject(resource.index[innerId], resource.previous_attributes[innerId]);
+			resource.modified[innerId] = utils.updateTimestamp(resource.modified[innerId]);
+			resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
+
+			if (resource.idAttribute in changed) {
+				services.$log.error('Doh! You just changed the primary key of an object! ' +
+					'I don\'t know how to handle this yet, so your data for the "' + resource.name +
+					'" resource is now in an undefined (probably broken) state.');
+			}
+		} catch (err) {
+			throw new errors.UnhandledError(err);
+		}
+	}
+
 	if (utils.isArray(attrs)) {
 		for (var i = 0; i < attrs.length; i++) {
 			_inject.call(_this, resource, attrs[i]);
 		}
 	} else {
-		var id = attrs[resource.idAttribute || 'id'];
-
-		if (!(id in resource.index)) {
-			resource.index[id] = {};
-			resource.previous_attributes[id] = {};
-
-			utils.deepMixIn(resource.index[id], attrs);
-			utils.deepMixIn(resource.previous_attributes[id], attrs);
-
-			resource.collection.push(resource.index[id]);
-
-			resource.observers[id] = new observe.ObjectObserver(resource.index[id], function (added, removed, changed, getOldValueFn) {
-				try {
-					var innerId = getOldValueFn(resource.idAttribute || 'id');
-
-					if (resource.index[innerId][resource.idAttribute || 'id'] != innerId) {
-						resource.index[innerId][resource.idAttribute || 'id'] = innerId;
-						services.$log.error('You cannot change the primary key of an object! Reverting change to primary key.');
-					}
-
-					resource.changes[innerId] = utils.diffObjectFromOldObject(resource.index[innerId], resource.previous_attributes[innerId]);
-					resource.modified[innerId] = utils.updateTimestamp(resource.modified[innerId]);
-					resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
-				} catch (err) {
-					throw new errors.UnhandledError(err);
-				}
-			});
-
-			resource.observers[id].deliver();
+		if (!(resource.idAttribute in attrs)) {
+			throw new errors.RuntimeError(errorPrefix + 'attrs: Must contain the property specified by `idAttribute`!');
 		} else {
-			utils.deepMixIn(resource.index[id], attrs);
-			resource.observers[id].deliver();
+			var id = attrs[resource.idAttribute];
+
+			if (!(id in resource.index)) {
+				resource.index[id] = {};
+				resource.previous_attributes[id] = {};
+
+				utils.deepMixIn(resource.index[id], attrs);
+				utils.deepMixIn(resource.previous_attributes[id], attrs);
+
+				resource.collection.push(resource.index[id]);
+
+				resource.observers[id] = new observe.ObjectObserver(resource.index[id], _react);
+
+				_react({}, {}, {}, function () {
+					return id;
+				});
+			} else {
+				utils.deepMixIn(resource.index[id], attrs);
+				resource.observers[id].deliver();
+			}
 		}
 	}
 }
@@ -108,22 +117,21 @@ function inject(resourceName, attrs, options) {
 	var resource = services.store[resourceName],
 		_this = this;
 
-	var idAttribute = resource.idAttribute || 'id';
-	if (!attrs[idAttribute]) {
-		throw new errors.RuntimeError(errorPrefix + 'attrs: Must contain the property specified by `idAttribute` in the resource definition!');
-	} else {
-		try {
-			if (!services.$rootScope.$$phase) {
-				services.$rootScope.$apply(function () {
-					_inject.apply(_this, [services.store[resourceName], attrs]);
-				});
-			} else {
+	try {
+		if (!services.$rootScope.$$phase) {
+			services.$rootScope.$apply(function () {
 				_inject.apply(_this, [services.store[resourceName], attrs]);
-			}
-		} catch (err) {
-			throw new errors.UnhandledError(err);
+			});
+		} else {
+			_inject.apply(_this, [services.store[resourceName], attrs]);
 		}
-		return resource.index[attrs[idAttribute]];
+		return attrs;
+	} catch (err) {
+		if (!(err instanceof errors.RuntimeError)) {
+			throw new errors.UnhandledError(err);
+		} else {
+			throw err;
+		}
 	}
 }
 

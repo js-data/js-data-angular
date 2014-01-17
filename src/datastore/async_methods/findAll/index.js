@@ -1,7 +1,6 @@
 var utils = require('utils'),
 	errors = require('errors'),
 	services = require('services'),
-	GET = require('../../http').GET,
 	errorPrefix = 'DS.findAll(resourceName, params[, options]): ';
 
 function processResults(data, resourceName, queryHash) {
@@ -19,18 +18,17 @@ function processResults(data, resourceName, queryHash) {
 	}
 
 	// Update the data store's index for this resource
-	resource.index = utils.toLookup(resource.collection, resource.idAttribute || services.config.idAttribute || 'id');
+	resource.index = utils.toLookup(resource.collection, resource.idAttribute);
 
 	// Update modified timestamp of collection
 	resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
 	return data;
 }
 
-function _findAll(deferred, resourceName, params, options) {
+function _findAll(resourceName, params, options) {
 	var resource = services.store[resourceName],
-		_this = this;
-
-	var queryHash = utils.toJson(params);
+		_this = this,
+		queryHash = utils.toJson(params);
 
 	if (options.bypassCache) {
 		delete resource.completedQueries[queryHash];
@@ -39,20 +37,22 @@ function _findAll(deferred, resourceName, params, options) {
 	if (!(queryHash in resource.completedQueries)) {
 		// This particular query has never been completed
 
-		if (!resource.pendingQueries[queryHash]) {
+		if (!(queryHash in resource.pendingQueries)) {
 
-			// This particular query has never even been started
-			var url = utils.makePath(resource.baseUrl || services.config.baseUrl, resource.endpoint || resource.name);
-			resource.pendingQueries[queryHash] = GET(url, { params: params }).then(function (data) {
-				try {
-					deferred.resolve(processResults.apply(_this, [data, resourceName, queryHash]));
-				} catch (err) {
-					deferred.reject(new errors.UnhandledError(err));
-				}
-			}, deferred.reject);
+			// This particular query has never even been made
+			resource.pendingQueries[queryHash] = services.adapters[resource.defaultAdapter].GET(utils.makePath(resource.baseUrl, resource.endpoint), { params: params })
+				.then(function (data) {
+					try {
+						return processResults.apply(_this, [data, resourceName, queryHash]);
+					} catch (err) {
+						throw new errors.UnhandledError(err);
+					}
+				});
 		}
+
+		return resource.pendingQueries[queryHash];
 	} else {
-		deferred.resolve(this.filter(resourceName, params, options));
+		return this.filter(resourceName, params, options);
 	}
 }
 
@@ -124,7 +124,9 @@ function _findAll(deferred, resourceName, params, options) {
  * - `{UnhandledError}`
  */
 function findAll(resourceName, params, options) {
-	var deferred = services.$q.defer();
+	var deferred = services.$q.defer(),
+		promise = deferred.promise,
+		_this = this;
 
 	options = options || {};
 
@@ -136,13 +138,16 @@ function findAll(resourceName, params, options) {
 		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
 	} else {
 		try {
-			_findAll.apply(this, [deferred, resourceName, params, options]);
+			promise = promise.then(function () {
+				return _findAll.apply(_this, [resourceName, params, options]);
+			});
+			deferred.resolve();
 		} catch (err) {
 			deferred.reject(new errors.UnhandledError(err));
 		}
 	}
 
-	return deferred.promise;
+	return promise;
 }
 
 module.exports = findAll;

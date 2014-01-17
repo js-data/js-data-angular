@@ -1,13 +1,485 @@
 /**
  * @author Jason Dobry <jason.dobry@gmail.com>
  * @file angular-data.js
- * @version 0.4.2 - Homepage <http://jmdobry.github.io/angular-data/>
+ * @version 0.5.0 - Homepage <http://jmdobry.github.io/angular-data/>
  * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/angular-data>
  * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
  *
  * @overview Data store for Angular.js.
  */
-require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"u+GZEJ":[function(require,module,exports){
+var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};// Copyright 2012 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+(function(global) {
+	'use strict';
+
+	function detectObjectObserve() {
+		if (typeof Object.observe !== 'function' ||
+			typeof Array.observe !== 'function') {
+			return false;
+		}
+
+		var gotSplice = false;
+		function callback(records) {
+			if (records[0].type === 'splice' && records[1].type === 'splice')
+				gotSplice = true;
+		}
+
+		var test = [0];
+		Array.observe(test, callback);
+		test[1] = 1;
+		test.length = 0;
+		Object.deliverChangeRecords(callback);
+		return gotSplice;
+	}
+
+	var hasObserve = detectObjectObserve();
+
+	var hasEval = false;
+	try {
+		var f = new Function('', 'return true;');
+		hasEval = f();
+	} catch (ex) {
+	}
+
+	function isObject(obj) {
+		return obj === Object(obj);
+	}
+
+	var numberIsNaN = global.Number.isNaN || function isNaN(value) {
+		return typeof value === 'number' && global.isNaN(value);
+	}
+
+	var createObject = ('__proto__' in {}) ?
+		function(obj) { return obj; } :
+		function(obj) {
+			var proto = obj.__proto__;
+			if (!proto)
+				return obj;
+			var newObject = Object.create(proto);
+			Object.getOwnPropertyNames(obj).forEach(function(name) {
+				Object.defineProperty(newObject, name,
+					Object.getOwnPropertyDescriptor(obj, name));
+			});
+			return newObject;
+		};
+
+	var MAX_DIRTY_CHECK_CYCLES = 1000;
+
+	function dirtyCheck(observer) {
+		var cycles = 0;
+		while (cycles < MAX_DIRTY_CHECK_CYCLES && observer.check()) {
+			observer.report();
+			cycles++;
+		}
+	}
+
+	function objectIsEmpty(object) {
+		for (var prop in object)
+			return false;
+		return true;
+	}
+
+	function diffIsEmpty(diff) {
+		return objectIsEmpty(diff.added) &&
+			objectIsEmpty(diff.removed) &&
+			objectIsEmpty(diff.changed);
+	}
+
+	function diffObjectFromOldObject(object, oldObject) {
+		var added = {};
+		var removed = {};
+		var changed = {};
+		var oldObjectHas = {};
+
+		for (var prop in oldObject) {
+			var newValue = object[prop];
+
+			if (newValue !== undefined && newValue === oldObject[prop])
+				continue;
+
+			if (!(prop in object)) {
+				removed[prop] = undefined;
+				continue;
+			}
+
+			if (newValue !== oldObject[prop])
+				changed[prop] = newValue;
+		}
+
+		for (var prop in object) {
+			if (prop in oldObject)
+				continue;
+
+			added[prop] = object[prop];
+		}
+
+		if (Array.isArray(object) && object.length !== oldObject.length)
+			changed.length = object.length;
+
+		return {
+			added: added,
+			removed: removed,
+			changed: changed
+		};
+	}
+
+	function copyObject(object, opt_copy) {
+		var copy = opt_copy || (Array.isArray(object) ? [] : {});
+		for (var prop in object) {
+			copy[prop] = object[prop];
+		};
+		if (Array.isArray(object))
+			copy.length = object.length;
+		return copy;
+	}
+
+	function Observer(object, callback, target, token) {
+		this.closed = false;
+		this.object = object;
+		this.callback = callback;
+		// TODO(rafaelw): Hold this.target weakly when WeakRef is available.
+		this.target = target;
+		this.token = token;
+		this.reporting = true;
+		if (hasObserve) {
+			var self = this;
+			this.boundInternalCallback = function(records) {
+				self.internalCallback(records);
+			};
+		}
+
+		addToAll(this);
+		this.connect();
+		this.sync(true);
+	}
+
+	Observer.prototype = {
+		internalCallback: function(records) {
+			if (this.closed)
+				return;
+			if (this.reporting && this.check(records)) {
+				this.report();
+				if (this.testingResults)
+					this.testingResults.anyChanged = true;
+			}
+		},
+
+		close: function() {
+			if (this.closed)
+				return;
+			if (this.object && typeof this.object.unobserved === 'function')
+				this.object.unobserved();
+
+			this.disconnect();
+			this.object = undefined;
+			this.closed = true;
+		},
+
+		deliver: function(testingResults) {
+			if (this.closed)
+				return;
+			if (hasObserve) {
+				this.testingResults = testingResults;
+				Object.deliverChangeRecords(this.boundInternalCallback);
+				this.testingResults = undefined;
+			} else {
+				dirtyCheck(this);
+			}
+		},
+
+		report: function() {
+			if (!this.reporting)
+				return;
+
+			this.sync(false);
+			this.reportArgs.push(this.token);
+			this.invokeCallback(this.reportArgs);
+			this.reportArgs = undefined;
+		},
+
+		invokeCallback: function(args) {
+			try {
+				this.callback.apply(this.target, args);
+			} catch (ex) {
+				Observer._errorThrownDuringCallback = true;
+				console.error('Exception caught during observer callback: ' + ex);
+			}
+		},
+
+		reset: function() {
+			if (this.closed)
+				return;
+
+			if (hasObserve) {
+				this.reporting = false;
+				Object.deliverChangeRecords(this.boundInternalCallback);
+				this.reporting = true;
+			}
+
+			this.sync(true);
+		}
+	}
+
+	var collectObservers = !hasObserve || global.forceCollectObservers;
+	var allObservers;
+	Observer._allObserversCount = 0;
+
+	if (collectObservers) {
+		allObservers = [];
+	}
+
+	function addToAll(observer) {
+		if (!collectObservers)
+			return;
+
+		allObservers.push(observer);
+		Observer._allObserversCount++;
+	}
+
+	var runningMicrotaskCheckpoint = false;
+
+	var hasDebugForceFullDelivery = typeof Object.deliverAllChangeRecords == 'function';
+
+	global.Platform = global.Platform || {};
+
+	global.Platform.performMicrotaskCheckpoint = function() {
+		if (runningMicrotaskCheckpoint)
+			return;
+
+		if (hasDebugForceFullDelivery) {
+			Object.deliverAllChangeRecords();
+			return;
+		}
+
+		if (!collectObservers)
+			return;
+
+		runningMicrotaskCheckpoint = true;
+
+		var cycles = 0;
+		var results = {};
+
+		do {
+			cycles++;
+			var toCheck = allObservers;
+			allObservers = [];
+			results.anyChanged = false;
+
+			for (var i = 0; i < toCheck.length; i++) {
+				var observer = toCheck[i];
+				if (observer.closed)
+					continue;
+
+				if (hasObserve) {
+					observer.deliver(results);
+				} else if (observer.check()) {
+					results.anyChanged = true;
+					observer.report();
+				}
+
+				allObservers.push(observer);
+			}
+		} while (cycles < MAX_DIRTY_CHECK_CYCLES && results.anyChanged);
+
+		Observer._allObserversCount = allObservers.length;
+		runningMicrotaskCheckpoint = false;
+	};
+
+	if (collectObservers) {
+		global.Platform.clearObservers = function() {
+			allObservers = [];
+		};
+	}
+
+	function ObjectObserver(object, callback, target, token) {
+		Observer.call(this, object, callback, target, token);
+	}
+
+	ObjectObserver.prototype = createObject({
+		__proto__: Observer.prototype,
+
+		connect: function() {
+			if (hasObserve)
+				Object.observe(this.object, this.boundInternalCallback);
+		},
+
+		sync: function(hard) {
+			if (!hasObserve)
+				this.oldObject = copyObject(this.object);
+		},
+
+		check: function(changeRecords) {
+			var diff;
+			var oldValues;
+			if (hasObserve) {
+				if (!changeRecords)
+					return false;
+
+				oldValues = {};
+				diff = diffObjectFromChangeRecords(this.object, changeRecords,
+					oldValues);
+			} else {
+				oldValues = this.oldObject;
+				diff = diffObjectFromOldObject(this.object, this.oldObject);
+			}
+
+			if (diffIsEmpty(diff))
+				return false;
+
+			this.reportArgs =
+				[diff.added || {}, diff.removed || {}, diff.changed || {}];
+			this.reportArgs.push(function(property) {
+				return oldValues[property];
+			});
+
+			return true;
+		},
+
+		disconnect: function() {
+			if (!hasObserve)
+				this.oldObject = undefined;
+			else if (this.object)
+				Object.unobserve(this.object, this.boundInternalCallback);
+		}
+	});
+
+	function ObservedSet(callback) {
+		this.arr = [];
+		this.callback = callback;
+		this.isObserved = true;
+	}
+
+	var objProto = Object.getPrototypeOf({});
+	var arrayProto = Object.getPrototypeOf([]);
+	ObservedSet.prototype = {
+		reset: function() {
+			this.isObserved = !this.isObserved;
+		},
+
+		observe: function(obj) {
+			if (!isObject(obj) || obj === objProto || obj === arrayProto)
+				return;
+			var i = this.arr.indexOf(obj);
+			if (i >= 0 && this.arr[i+1] === this.isObserved)
+				return;
+
+			if (i < 0) {
+				i = this.arr.length;
+				this.arr[i] = obj;
+				Object.observe(obj, this.callback);
+			}
+
+			this.arr[i+1] = this.isObserved;
+			this.observe(Object.getPrototypeOf(obj));
+		},
+
+		cleanup: function() {
+			var i = 0, j = 0;
+			var isObserved = this.isObserved;
+			while(j < this.arr.length) {
+				var obj = this.arr[j];
+				if (this.arr[j + 1] == isObserved) {
+					if (i < j) {
+						this.arr[i] = obj;
+						this.arr[i + 1] = isObserved;
+					}
+					i += 2;
+				} else {
+					Object.unobserve(obj, this.callback);
+				}
+				j += 2;
+			}
+
+			this.arr.length = i;
+		}
+	};
+
+	var knownRecordTypes = {
+		'new': true,
+		'updated': true,
+		'deleted': true
+	};
+
+	function diffObjectFromChangeRecords(object, changeRecords, oldValues) {
+		var added = {};
+		var removed = {};
+
+		for (var i = 0; i < changeRecords.length; i++) {
+			var record = changeRecords[i];
+			if (!knownRecordTypes[record.type]) {
+				console.error('Unknown changeRecord type: ' + record.type);
+				console.error(record);
+				continue;
+			}
+
+			if (!(record.name in oldValues))
+				oldValues[record.name] = record.oldValue;
+
+			if (record.type == 'updated')
+				continue;
+
+			if (record.type == 'new') {
+				if (record.name in removed)
+					delete removed[record.name];
+				else
+					added[record.name] = true;
+
+				continue;
+			}
+
+			// type = 'deleted'
+			if (record.name in added) {
+				delete added[record.name];
+				delete oldValues[record.name];
+			} else {
+				removed[record.name] = true;
+			}
+		}
+
+		for (var prop in added)
+			added[prop] = object[prop];
+
+		for (var prop in removed)
+			removed[prop] = undefined;
+
+		var changed = {};
+		for (var prop in oldValues) {
+			if (prop in added || prop in removed)
+				continue;
+
+			var newValue = object[prop];
+			if (oldValues[prop] !== newValue)
+				changed[prop] = newValue;
+		}
+
+		return {
+			added: added,
+			removed: removed,
+			changed: changed
+		};
+	}
+
+	global.Observer = Observer;
+	global.Observer.hasObjectObserve = hasObserve;
+	global.ObjectObserver = ObjectObserver;
+})((exports.Number = { isNaN: window.isNaN }) ? exports : exports);
+
+},{}],"observejs":[function(require,module,exports){
+module.exports=require('u+GZEJ');
+},{}],3:[function(require,module,exports){
 var indexOf = require('./indexOf');
 
     /**
@@ -19,7 +491,7 @@ var indexOf = require('./indexOf');
     module.exports = contains;
 
 
-},{"./indexOf":3}],2:[function(require,module,exports){
+},{"./indexOf":5}],4:[function(require,module,exports){
 var makeIterator = require('../function/makeIterator_');
 
     /**
@@ -47,7 +519,7 @@ var makeIterator = require('../function/makeIterator_');
 
 
 
-},{"../function/makeIterator_":9}],3:[function(require,module,exports){
+},{"../function/makeIterator_":11}],5:[function(require,module,exports){
 
 
     /**
@@ -77,7 +549,7 @@ var makeIterator = require('../function/makeIterator_');
     module.exports = indexOf;
 
 
-},{}],4:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 var filter = require('./filter');
 
     function isValidString(val) {
@@ -96,7 +568,7 @@ var filter = require('./filter');
     module.exports = join;
 
 
-},{"./filter":2}],5:[function(require,module,exports){
+},{"./filter":4}],7:[function(require,module,exports){
 
 
     var arrSlice = Array.prototype.slice;
@@ -112,7 +584,7 @@ var filter = require('./filter');
 
 
 
-},{}],6:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 
 
     /**
@@ -169,7 +641,7 @@ var filter = require('./filter');
 
 
 
-},{}],7:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 var isFunction = require('../lang/isFunction');
 
     /**
@@ -199,7 +671,7 @@ var isFunction = require('../lang/isFunction');
     module.exports = toLookup;
 
 
-},{"../lang/isFunction":13}],8:[function(require,module,exports){
+},{"../lang/isFunction":15}],10:[function(require,module,exports){
 
 
     /**
@@ -213,7 +685,7 @@ var isFunction = require('../lang/isFunction');
 
 
 
-},{}],9:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 var identity = require('./identity');
 var prop = require('./prop');
 var deepMatches = require('../object/deepMatches');
@@ -249,7 +721,7 @@ var deepMatches = require('../object/deepMatches');
 
 
 
-},{"../object/deepMatches":18,"./identity":8,"./prop":10}],10:[function(require,module,exports){
+},{"../object/deepMatches":20,"./identity":10,"./prop":12}],12:[function(require,module,exports){
 
 
     /**
@@ -265,7 +737,7 @@ var deepMatches = require('../object/deepMatches');
 
 
 
-},{}],11:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 var isKind = require('./isKind');
     /**
      */
@@ -275,7 +747,7 @@ var isKind = require('./isKind');
     module.exports = isArray;
 
 
-},{"./isKind":14}],12:[function(require,module,exports){
+},{"./isKind":16}],14:[function(require,module,exports){
 var forOwn = require('../object/forOwn');
 var isArray = require('./isArray');
 
@@ -301,7 +773,7 @@ var isArray = require('./isArray');
 
 
 
-},{"../object/forOwn":21,"./isArray":11}],13:[function(require,module,exports){
+},{"../object/forOwn":23,"./isArray":13}],15:[function(require,module,exports){
 var isKind = require('./isKind');
     /**
      */
@@ -311,7 +783,7 @@ var isKind = require('./isKind');
     module.exports = isFunction;
 
 
-},{"./isKind":14}],14:[function(require,module,exports){
+},{"./isKind":16}],16:[function(require,module,exports){
 var kindOf = require('./kindOf');
     /**
      * Check if value is from a specific "kind".
@@ -322,7 +794,7 @@ var kindOf = require('./kindOf');
     module.exports = isKind;
 
 
-},{"./kindOf":16}],15:[function(require,module,exports){
+},{"./kindOf":18}],17:[function(require,module,exports){
 
 
     /**
@@ -337,7 +809,7 @@ var kindOf = require('./kindOf');
 
 
 
-},{}],16:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 
 
     var _rKind = /^\[object (.*)\]$/,
@@ -359,7 +831,7 @@ var kindOf = require('./kindOf');
     module.exports = kindOf;
 
 
-},{}],17:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 
 
     /**
@@ -374,7 +846,7 @@ var kindOf = require('./kindOf');
 
 
 
-},{}],18:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 var forOwn = require('./forOwn');
 var isArray = require('../lang/isArray');
 
@@ -431,7 +903,7 @@ var isArray = require('../lang/isArray');
 
 
 
-},{"../lang/isArray":11,"./forOwn":21}],19:[function(require,module,exports){
+},{"../lang/isArray":13,"./forOwn":23}],21:[function(require,module,exports){
 var forOwn = require('./forOwn');
 var isPlainObject = require('../lang/isPlainObject');
 
@@ -467,7 +939,7 @@ var isPlainObject = require('../lang/isPlainObject');
 
 
 
-},{"../lang/isPlainObject":15,"./forOwn":21}],20:[function(require,module,exports){
+},{"../lang/isPlainObject":17,"./forOwn":23}],22:[function(require,module,exports){
 
 
     var _hasDontEnumBug,
@@ -531,7 +1003,7 @@ var isPlainObject = require('../lang/isPlainObject');
 
 
 
-},{}],21:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 var hasOwn = require('./hasOwn');
 var forIn = require('./forIn');
 
@@ -552,7 +1024,7 @@ var forIn = require('./forIn');
 
 
 
-},{"./forIn":20,"./hasOwn":22}],22:[function(require,module,exports){
+},{"./forIn":22,"./hasOwn":24}],24:[function(require,module,exports){
 
 
     /**
@@ -566,7 +1038,7 @@ var forIn = require('./forIn');
 
 
 
-},{}],23:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 var join = require('../array/join');
 var slice = require('../array/slice');
 
@@ -583,7 +1055,7 @@ var slice = require('../array/slice');
     module.exports = makePath;
 
 
-},{"../array/join":4,"../array/slice":5}],24:[function(require,module,exports){
+},{"../array/join":6,"../array/slice":7}],26:[function(require,module,exports){
 var toString = require('../lang/toString');
     /**
      * "Safer" String.toUpperCase()
@@ -595,1860 +1067,7 @@ var toString = require('../lang/toString');
     module.exports = upperCase;
 
 
-},{"../lang/toString":17}],"observejs":[function(require,module,exports){
-module.exports=require('q+M0EE');
-},{}],"q+M0EE":[function(require,module,exports){
-var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};// Copyright 2012 Google Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-(function(global) {
-  'use strict';
-
-  function detectObjectObserve() {
-    if (typeof Object.observe !== 'function' ||
-        typeof Array.observe !== 'function') {
-      return false;
-    }
-
-    var gotSplice = false;
-    function callback(records) {
-      if (records[0].type === 'splice' && records[1].type === 'splice')
-        gotSplice = true;
-    }
-
-    var test = [0];
-    Array.observe(test, callback);
-    test[1] = 1;
-    test.length = 0;
-    Object.deliverChangeRecords(callback);
-    return gotSplice;
-  }
-
-  var hasObserve = detectObjectObserve();
-
-  var hasEval = false;
-  try {
-    var f = new Function('', 'return true;');
-    hasEval = f();
-  } catch (ex) {
-  }
-
-  function isIndex(s) {
-    return +s === s >>> 0;
-  }
-
-  function toNumber(s) {
-    return +s;
-  }
-
-  function isObject(obj) {
-    return obj === Object(obj);
-  }
-
-  var numberIsNaN = global.Number.isNaN || function isNaN(value) {
-    return typeof value === 'number' && global.isNaN(value);
-  }
-
-  function areSameValue(left, right) {
-    if (left === right)
-      return left !== 0 || 1 / left === 1 / right;
-    if (numberIsNaN(left) && numberIsNaN(right))
-      return true;
-
-    return left !== left && right !== right;
-  }
-
-  var createObject = ('__proto__' in {}) ?
-    function(obj) { return obj; } :
-    function(obj) {
-      var proto = obj.__proto__;
-      if (!proto)
-        return obj;
-      var newObject = Object.create(proto);
-      Object.getOwnPropertyNames(obj).forEach(function(name) {
-        Object.defineProperty(newObject, name,
-                             Object.getOwnPropertyDescriptor(obj, name));
-      });
-      return newObject;
-    };
-
-  var identStart = '[\$_a-zA-Z]';
-  var identPart = '[\$_a-zA-Z0-9]';
-  var ident = identStart + '+' + identPart + '*';
-  var elementIndex = '(?:[0-9]|[1-9]+[0-9]+)';
-  var identOrElementIndex = '(?:' + ident + '|' + elementIndex + ')';
-  var path = '(?:' + identOrElementIndex + ')(?:\\.' + identOrElementIndex + ')*';
-  var pathRegExp = new RegExp('^' + path + '$');
-
-  function isPathValid(s) {
-    if (typeof s != 'string')
-      return false;
-    s = s.replace(/\s/g, '');
-
-    if (s == '')
-      return true;
-
-    if (s[0] == '.')
-      return false;
-
-    return pathRegExp.test(s);
-  }
-
-  // TODO(rafaelw): Make simple LRU cache
-  var pathCache = {};
-
-  function getPath(str) {
-    var path = pathCache[str];
-    if (path)
-      return path;
-    if (!isPathValid(str))
-      return;
-    var path = new Path(str);
-    pathCache[str] = path;
-    return path;
-  }
-
-  function Path(s) {
-    if (s.trim() == '')
-      return this;
-
-    if (isIndex(s)) {
-      this.push(String(s));
-      return this;
-    }
-
-    s.split(/\./).filter(function(part) {
-      return part;
-    }).forEach(function(part) {
-      this.push(part);
-    }, this);
-
-    if (hasEval && this.length) {
-      this.getValueFrom = this.compiledGetValueFromFn();
-    }
-  }
-
-  Path.prototype = createObject({
-    __proto__: [],
-
-    toString: function() {
-      return this.join('.');
-    },
-
-    getValueFrom: function(obj, allValues) {
-      for (var i = 0; i < this.length; i++) {
-        if (obj === undefined || obj === null)
-          return;
-        obj = obj[this[i]];
-      }
-
-      return obj;
-    },
-
-    getValueFromObserved: function(obj, observedSet) {
-      observedSet.reset();
-      for (var i = 0; i < this.length; i++) {
-        if (obj === undefined || obj === null) {
-          observedSet.cleanup();
-          return;
-        }
-        observedSet.observe(obj);
-        obj = obj[this[i]];
-      }
-
-      return obj;
-    },
-
-    compiledGetValueFromFn: function() {
-      var accessors = this.map(function(ident) {
-        return isIndex(ident) ? '["' + ident + '"]' : '.' + ident;
-      });
-
-      var str = '';
-      var pathString = 'obj';
-      str += 'if (obj !== null && obj !== undefined';
-      var i = 0;
-      for (; i < (this.length - 1); i++) {
-        var ident = this[i];
-        pathString += accessors[i];
-        str += ' &&\n     ' + pathString + ' !== null && ' +
-               pathString + ' !== undefined';
-      }
-      str += ')\n';
-
-      pathString += accessors[i];
-
-      str += '  return ' + pathString + ';\nelse\n  return undefined;';
-      return new Function('obj', str);
-    },
-
-    setValueFrom: function(obj, value) {
-      if (!this.length)
-        return false;
-
-      for (var i = 0; i < this.length - 1; i++) {
-        if (obj === undefined || obj === null)
-          return false;
-        obj = obj[this[i]];
-      }
-
-      if (obj === undefined || obj === null)
-        return false;
-
-      obj[this[this.length - 1]] = value;
-      return true;
-    }
-  });
-
-  var MAX_DIRTY_CHECK_CYCLES = 1000;
-
-  function dirtyCheck(observer) {
-    var cycles = 0;
-    while (cycles < MAX_DIRTY_CHECK_CYCLES && observer.check()) {
-      observer.report();
-      cycles++;
-    }
-  }
-
-  function objectIsEmpty(object) {
-    for (var prop in object)
-      return false;
-    return true;
-  }
-
-  function diffIsEmpty(diff) {
-    return objectIsEmpty(diff.added) &&
-           objectIsEmpty(diff.removed) &&
-           objectIsEmpty(diff.changed);
-  }
-
-  function diffObjectFromOldObject(object, oldObject) {
-    var added = {};
-    var removed = {};
-    var changed = {};
-    var oldObjectHas = {};
-
-    for (var prop in oldObject) {
-      var newValue = object[prop];
-
-      if (newValue !== undefined && newValue === oldObject[prop])
-        continue;
-
-      if (!(prop in object)) {
-        removed[prop] = undefined;
-        continue;
-      }
-
-      if (newValue !== oldObject[prop])
-        changed[prop] = newValue;
-    }
-
-    for (var prop in object) {
-      if (prop in oldObject)
-        continue;
-
-      added[prop] = object[prop];
-    }
-
-    if (Array.isArray(object) && object.length !== oldObject.length)
-      changed.length = object.length;
-
-    return {
-      added: added,
-      removed: removed,
-      changed: changed
-    };
-  }
-
-  function copyObject(object, opt_copy) {
-    var copy = opt_copy || (Array.isArray(object) ? [] : {});
-    for (var prop in object) {
-      copy[prop] = object[prop];
-    };
-    if (Array.isArray(object))
-      copy.length = object.length;
-    return copy;
-  }
-
-  function Observer(object, callback, target, token) {
-    this.closed = false;
-    this.object = object;
-    this.callback = callback;
-    // TODO(rafaelw): Hold this.target weakly when WeakRef is available.
-    this.target = target;
-    this.token = token;
-    this.reporting = true;
-    if (hasObserve) {
-      var self = this;
-      this.boundInternalCallback = function(records) {
-        self.internalCallback(records);
-      };
-    }
-
-    addToAll(this);
-    this.connect();
-    this.sync(true);
-  }
-
-  Observer.prototype = {
-    internalCallback: function(records) {
-      if (this.closed)
-        return;
-      if (this.reporting && this.check(records)) {
-        this.report();
-        if (this.testingResults)
-          this.testingResults.anyChanged = true;
-      }
-    },
-
-    close: function() {
-      if (this.closed)
-        return;
-      if (this.object && typeof this.object.unobserved === 'function')
-        this.object.unobserved();
-
-      this.disconnect();
-      this.object = undefined;
-      this.closed = true;
-    },
-
-    deliver: function(testingResults) {
-      if (this.closed)
-        return;
-      if (hasObserve) {
-        this.testingResults = testingResults;
-        Object.deliverChangeRecords(this.boundInternalCallback);
-        this.testingResults = undefined;
-      } else {
-        dirtyCheck(this);
-      }
-    },
-
-    report: function() {
-      if (!this.reporting)
-        return;
-
-      this.sync(false);
-      this.reportArgs.push(this.token);
-      this.invokeCallback(this.reportArgs);
-      this.reportArgs = undefined;
-    },
-
-    invokeCallback: function(args) {
-      try {
-        this.callback.apply(this.target, args);
-      } catch (ex) {
-        Observer._errorThrownDuringCallback = true;
-        console.error('Exception caught during observer callback: ' + ex);
-      }
-    },
-
-    reset: function() {
-      if (this.closed)
-        return;
-
-      if (hasObserve) {
-        this.reporting = false;
-        Object.deliverChangeRecords(this.boundInternalCallback);
-        this.reporting = true;
-      }
-
-      this.sync(true);
-    }
-  }
-
-  var collectObservers = !hasObserve || global.forceCollectObservers;
-  var allObservers;
-  Observer._allObserversCount = 0;
-
-  if (collectObservers) {
-    allObservers = [];
-  }
-
-  function addToAll(observer) {
-    if (!collectObservers)
-      return;
-
-    allObservers.push(observer);
-    Observer._allObserversCount++;
-  }
-
-  var runningMicrotaskCheckpoint = false;
-
-  var hasDebugForceFullDelivery = typeof Object.deliverAllChangeRecords == 'function';
-
-  global.Platform = global.Platform || {};
-
-  global.Platform.performMicrotaskCheckpoint = function() {
-    if (runningMicrotaskCheckpoint)
-      return;
-
-    if (hasDebugForceFullDelivery) {
-      Object.deliverAllChangeRecords();
-      return;
-    }
-
-    if (!collectObservers)
-      return;
-
-    runningMicrotaskCheckpoint = true;
-
-    var cycles = 0;
-    var results = {};
-
-    do {
-      cycles++;
-      var toCheck = allObservers;
-      allObservers = [];
-      results.anyChanged = false;
-
-      for (var i = 0; i < toCheck.length; i++) {
-        var observer = toCheck[i];
-        if (observer.closed)
-          continue;
-
-        if (hasObserve) {
-          observer.deliver(results);
-        } else if (observer.check()) {
-          results.anyChanged = true;
-          observer.report();
-        }
-
-        allObservers.push(observer);
-      }
-    } while (cycles < MAX_DIRTY_CHECK_CYCLES && results.anyChanged);
-
-    Observer._allObserversCount = allObservers.length;
-    runningMicrotaskCheckpoint = false;
-  };
-
-  if (collectObservers) {
-    global.Platform.clearObservers = function() {
-      allObservers = [];
-    };
-  }
-
-  function ObjectObserver(object, callback, target, token) {
-    Observer.call(this, object, callback, target, token);
-  }
-
-  ObjectObserver.prototype = createObject({
-    __proto__: Observer.prototype,
-
-    connect: function() {
-      if (hasObserve)
-        Object.observe(this.object, this.boundInternalCallback);
-    },
-
-    sync: function(hard) {
-      if (!hasObserve)
-        this.oldObject = copyObject(this.object);
-    },
-
-    check: function(changeRecords) {
-      var diff;
-      var oldValues;
-      if (hasObserve) {
-        if (!changeRecords)
-          return false;
-
-        oldValues = {};
-        diff = diffObjectFromChangeRecords(this.object, changeRecords,
-                                           oldValues);
-      } else {
-        oldValues = this.oldObject;
-        diff = diffObjectFromOldObject(this.object, this.oldObject);
-      }
-
-      if (diffIsEmpty(diff))
-        return false;
-
-      this.reportArgs =
-          [diff.added || {}, diff.removed || {}, diff.changed || {}];
-      this.reportArgs.push(function(property) {
-        return oldValues[property];
-      });
-
-      return true;
-    },
-
-    disconnect: function() {
-      if (!hasObserve)
-        this.oldObject = undefined;
-      else if (this.object)
-        Object.unobserve(this.object, this.boundInternalCallback);
-    }
-  });
-
-  function ArrayObserver(array, callback, target, token) {
-    if (!Array.isArray(array))
-      throw Error('Provided object is not an Array');
-    Observer.call(this, array, callback, target, token);
-  }
-
-  ArrayObserver.prototype = createObject({
-    __proto__: ObjectObserver.prototype,
-
-    connect: function() {
-      if (hasObserve)
-        Array.observe(this.object, this.boundInternalCallback);
-    },
-
-    sync: function() {
-      if (!hasObserve)
-        this.oldObject = this.object.slice();
-    },
-
-    check: function(changeRecords) {
-      var splices;
-      if (hasObserve) {
-        if (!changeRecords)
-          return false;
-        splices = projectArraySplices(this.object, changeRecords);
-      } else {
-        splices = calcSplices(this.object, 0, this.object.length,
-                              this.oldObject, 0, this.oldObject.length);
-      }
-
-      if (!splices || !splices.length)
-        return false;
-
-      this.reportArgs = [splices];
-      return true;
-    }
-  });
-
-  ArrayObserver.applySplices = function(previous, current, splices) {
-    splices.forEach(function(splice) {
-      var spliceArgs = [splice.index, splice.removed.length];
-      var addIndex = splice.index;
-      while (addIndex < splice.index + splice.addedCount) {
-        spliceArgs.push(current[addIndex]);
-        addIndex++;
-      }
-
-      Array.prototype.splice.apply(previous, spliceArgs);
-    });
-  };
-
-  function getPathValue(object, path) {
-    return path.getValueFrom(object);
-  }
-
-  function ObservedSet(callback) {
-    this.arr = [];
-    this.callback = callback;
-    this.isObserved = true;
-  }
-
-  var objProto = Object.getPrototypeOf({});
-  var arrayProto = Object.getPrototypeOf([]);
-  ObservedSet.prototype = {
-    reset: function() {
-      this.isObserved = !this.isObserved;
-    },
-
-    observe: function(obj) {
-      if (!isObject(obj) || obj === objProto || obj === arrayProto)
-        return;
-      var i = this.arr.indexOf(obj);
-      if (i >= 0 && this.arr[i+1] === this.isObserved)
-        return;
-
-      if (i < 0) {
-        i = this.arr.length;
-        this.arr[i] = obj;
-        Object.observe(obj, this.callback);
-      }
-
-      this.arr[i+1] = this.isObserved;
-      this.observe(Object.getPrototypeOf(obj));
-    },
-
-    cleanup: function() {
-      var i = 0, j = 0;
-      var isObserved = this.isObserved;
-      while(j < this.arr.length) {
-        var obj = this.arr[j];
-        if (this.arr[j + 1] == isObserved) {
-          if (i < j) {
-            this.arr[i] = obj;
-            this.arr[i + 1] = isObserved;
-          }
-          i += 2;
-        } else {
-          Object.unobserve(obj, this.callback);
-        }
-        j += 2;
-      }
-
-      this.arr.length = i;
-    }
-  };
-
-  function PathObserver(object, pathString, callback, target, token) {
-    this.value = undefined;
-
-    var path = getPath(pathString);
-    if (!path) {
-      this.closed = true;
-      this.value = undefined;
-      return;
-    }
-
-    if (!path.length) {
-      this.closed = true;
-      this.value = object;
-      return;
-    }
-
-    if (!isObject(object)) {
-      this.closed = true;
-      this.value = undefined;
-      return;
-    }
-
-    this.path = path;
-    Observer.call(this, object, callback, target, token);
-  }
-
-  PathObserver.prototype = createObject({
-    __proto__: Observer.prototype,
-
-    connect: function() {
-      if (hasObserve)
-        this.observedSet = new ObservedSet(this.boundInternalCallback);
-    },
-
-    disconnect: function() {
-      this.value = undefined;
-      if (hasObserve) {
-        this.observedSet.reset();
-        this.observedSet.cleanup();
-        this.observedSet = undefined;
-      }
-    },
-
-    check: function() {
-      this.value = !hasObserve ? this.path.getValueFrom(this.object) :
-          this.path.getValueFromObserved(this.object, this.observedSet);
-      if (areSameValue(this.value, this.oldValue))
-        return false;
-
-      this.reportArgs = [this.value, this.oldValue];
-      return true;
-    },
-
-    sync: function(hard) {
-      if (hard) {
-        this.value = !hasObserve ? this.path.getValueFrom(this.object) :
-            this.path.getValueFromObserved(this.object, this.observedSet);
-      }
-      this.oldValue = this.value;
-    }
-  });
-
-  PathObserver.getValueAtPath = function(obj, pathString) {
-    var path = getPath(pathString);
-    if (!path)
-      return;
-    return path.getValueFrom(obj);
-  }
-
-  PathObserver.setValueAtPath = function(obj, pathString, value) {
-    var path = getPath(pathString);
-    if (!path)
-      return;
-
-    path.setValueFrom(obj, value);
-  };
-
-  var knownRecordTypes = {
-    'new': true,
-    'updated': true,
-    'deleted': true
-  };
-
-  function notifyFunction(object, name) {
-    if (typeof Object.observe !== 'function')
-      return;
-
-    var notifier = Object.getNotifier(object);
-    return function(type, oldValue) {
-      var changeRecord = {
-        object: object,
-        type: type,
-        name: name
-      };
-      if (arguments.length === 2)
-        changeRecord.oldValue = oldValue;
-      notifier.notify(changeRecord);
-    }
-  }
-
-  // TODO(rafaelw): It should be possible for the Object.observe case to have
-  // every PathObserver used by defineProperty share a single Object.observe
-  // callback, and thus get() can simply call observer.deliver() and any changes
-  // to any dependent value will be observed.
-  PathObserver.defineProperty = function(object, name, descriptor) {
-    // TODO(rafaelw): Validate errors
-    var obj = descriptor.object;
-    var path = getPath(descriptor.path);
-    var notify = notifyFunction(object, name);
-
-    var observer = new PathObserver(obj, descriptor.path,
-        function(newValue, oldValue) {
-          if (notify)
-            notify('updated', oldValue);
-        }
-    );
-
-    Object.defineProperty(object, name, {
-      get: function() {
-        return path.getValueFrom(obj);
-      },
-      set: function(newValue) {
-        path.setValueFrom(obj, newValue);
-      },
-      configurable: true
-    });
-
-    return {
-      close: function() {
-        var oldValue = path.getValueFrom(obj);
-        if (notify)
-          observer.deliver();
-        observer.close();
-        Object.defineProperty(object, name, {
-          value: oldValue,
-          writable: true,
-          configurable: true
-        });
-      }
-    };
-  }
-
-  function diffObjectFromChangeRecords(object, changeRecords, oldValues) {
-    var added = {};
-    var removed = {};
-
-    for (var i = 0; i < changeRecords.length; i++) {
-      var record = changeRecords[i];
-      if (!knownRecordTypes[record.type]) {
-        console.error('Unknown changeRecord type: ' + record.type);
-        console.error(record);
-        continue;
-      }
-
-      if (!(record.name in oldValues))
-        oldValues[record.name] = record.oldValue;
-
-      if (record.type == 'updated')
-        continue;
-
-      if (record.type == 'new') {
-        if (record.name in removed)
-          delete removed[record.name];
-        else
-          added[record.name] = true;
-
-        continue;
-      }
-
-      // type = 'deleted'
-      if (record.name in added) {
-        delete added[record.name];
-        delete oldValues[record.name];
-      } else {
-        removed[record.name] = true;
-      }
-    }
-
-    for (var prop in added)
-      added[prop] = object[prop];
-
-    for (var prop in removed)
-      removed[prop] = undefined;
-
-    var changed = {};
-    for (var prop in oldValues) {
-      if (prop in added || prop in removed)
-        continue;
-
-      var newValue = object[prop];
-      if (oldValues[prop] !== newValue)
-        changed[prop] = newValue;
-    }
-
-    return {
-      added: added,
-      removed: removed,
-      changed: changed
-    };
-  }
-
-  // Note: This function is *based* on the computation of the Levenshtein
-  // "edit" distance. The one change is that "updates" are treated as two
-  // edits - not one. With Array splices, an update is really a delete
-  // followed by an add. By retaining this, we optimize for "keeping" the
-  // maximum array items in the original array. For example:
-  //
-  //   'xxxx123' -> '123yyyy'
-  //
-  // With 1-edit updates, the shortest path would be just to update all seven
-  // characters. With 2-edit updates, we delete 4, leave 3, and add 4. This
-  // leaves the substring '123' intact.
-  function calcEditDistances(current, currentStart, currentEnd,
-                             old, oldStart, oldEnd) {
-    // "Deletion" columns
-    var rowCount = oldEnd - oldStart + 1;
-    var columnCount = currentEnd - currentStart + 1;
-    var distances = new Array(rowCount);
-
-    // "Addition" rows. Initialize null column.
-    for (var i = 0; i < rowCount; i++) {
-      distances[i] = new Array(columnCount);
-      distances[i][0] = i;
-    }
-
-    // Initialize null row
-    for (var j = 0; j < columnCount; j++)
-      distances[0][j] = j;
-
-    for (var i = 1; i < rowCount; i++) {
-      for (var j = 1; j < columnCount; j++) {
-        if (old[oldStart + i - 1] === current[currentStart + j - 1])
-          distances[i][j] = distances[i - 1][j - 1];
-        else {
-          var north = distances[i - 1][j] + 1;
-          var west = distances[i][j - 1] + 1;
-          distances[i][j] = north < west ? north : west;
-        }
-      }
-    }
-
-    return distances;
-  }
-
-  var EDIT_LEAVE = 0;
-  var EDIT_UPDATE = 1;
-  var EDIT_ADD = 2;
-  var EDIT_DELETE = 3;
-
-  // This starts at the final weight, and walks "backward" by finding
-  // the minimum previous weight recursively until the origin of the weight
-  // matrix.
-  function spliceOperationsFromEditDistances(distances) {
-    var i = distances.length - 1;
-    var j = distances[0].length - 1;
-    var current = distances[i][j];
-    var edits = [];
-    while (i > 0 || j > 0) {
-      if (i == 0) {
-        edits.push(EDIT_ADD);
-        j--;
-        continue;
-      }
-      if (j == 0) {
-        edits.push(EDIT_DELETE);
-        i--;
-        continue;
-      }
-      var northWest = distances[i - 1][j - 1];
-      var west = distances[i - 1][j];
-      var north = distances[i][j - 1];
-
-      var min;
-      if (west < north)
-        min = west < northWest ? west : northWest;
-      else
-        min = north < northWest ? north : northWest;
-
-      if (min == northWest) {
-        if (northWest == current) {
-          edits.push(EDIT_LEAVE);
-        } else {
-          edits.push(EDIT_UPDATE);
-          current = northWest;
-        }
-        i--;
-        j--;
-      } else if (min == west) {
-        edits.push(EDIT_DELETE);
-        i--;
-        current = west;
-      } else {
-        edits.push(EDIT_ADD);
-        j--;
-        current = north;
-      }
-    }
-
-    edits.reverse();
-    return edits;
-  }
-
-  function sharedPrefix(arr1, arr2, searchLength) {
-    for (var i = 0; i < searchLength; i++)
-      if (arr1[i] !== arr2[i])
-        return i;
-    return searchLength;
-  }
-
-  function sharedSuffix(arr1, arr2, searchLength) {
-    var index1 = arr1.length;
-    var index2 = arr2.length;
-    var count = 0;
-    while (count < searchLength && arr1[--index1] === arr2[--index2])
-      count++;
-
-    return count;
-  }
-
-  function newSplice(index, removed, addedCount) {
-    return {
-      index: index,
-      removed: removed,
-      addedCount: addedCount
-    };
-  }
-
-  /**
-   * Splice Projection functions:
-   *
-   * A splice map is a representation of how a previous array of items
-   * was transformed into a new array of items. Conceptually it is a list of
-   * tuples of
-   *
-   *   <index, removed, addedCount>
-   *
-   * which are kept in ascending index order of. The tuple represents that at
-   * the |index|, |removed| sequence of items were removed, and counting forward
-   * from |index|, |addedCount| items were added.
-   */
-
-  /**
-   * Lacking individual splice mutation information, the minimal set of
-   * splices can be synthesized given the previous state and final state of an
-   * array. The basic approach is to calculate the edit distance matrix and
-   * choose the shortest path through it.
-   *
-   * Complexity: O(l * p)
-   *   l: The length of the current array
-   *   p: The length of the old array
-   */
-  function calcSplices(current, currentStart, currentEnd,
-                       old, oldStart, oldEnd) {
-    var prefixCount = 0;
-    var suffixCount = 0;
-
-    var minLength = Math.min(currentEnd - currentStart, oldEnd - oldStart);
-    if (currentStart == 0 && oldStart == 0)
-      prefixCount = sharedPrefix(current, old, minLength);
-
-    if (currentEnd == current.length && oldEnd == old.length)
-      suffixCount = sharedSuffix(current, old, minLength - prefixCount);
-
-    currentStart += prefixCount;
-    oldStart += prefixCount;
-    currentEnd -= suffixCount;
-    oldEnd -= suffixCount;
-
-    if (currentEnd - currentStart == 0 && oldEnd - oldStart == 0)
-      return [];
-
-    if (currentStart == currentEnd) {
-      var splice = newSplice(currentStart, [], 0);
-      while (oldStart < oldEnd)
-        splice.removed.push(old[oldStart++]);
-
-      return [ splice ];
-    } else if (oldStart == oldEnd)
-      return [ newSplice(currentStart, [], currentEnd - currentStart) ];
-
-    var ops = spliceOperationsFromEditDistances(calcEditDistances(current, currentStart, currentEnd,
-                                           old, oldStart, oldEnd));
-
-    var splice = undefined;
-    var splices = [];
-    var index = currentStart;
-    var oldIndex = oldStart;
-    for (var i = 0; i < ops.length; i++) {
-      switch(ops[i]) {
-        case EDIT_LEAVE:
-          if (splice) {
-            splices.push(splice);
-            splice = undefined;
-          }
-
-          index++;
-          oldIndex++;
-          break;
-        case EDIT_UPDATE:
-          if (!splice)
-            splice = newSplice(index, [], 0);
-
-          splice.addedCount++;
-          index++;
-
-          splice.removed.push(old[oldIndex]);
-          oldIndex++;
-          break;
-        case EDIT_ADD:
-          if (!splice)
-            splice = newSplice(index, [], 0);
-
-          splice.addedCount++;
-          index++;
-          break;
-        case EDIT_DELETE:
-          if (!splice)
-            splice = newSplice(index, [], 0);
-
-          splice.removed.push(old[oldIndex]);
-          oldIndex++;
-          break;
-      }
-    }
-
-    if (splice) {
-      splices.push(splice);
-    }
-    return splices;
-  }
-
-  function intersect(start1, end1, start2, end2) {
-    // Disjoint
-    if (end1 < start2 || end2 < start1)
-      return -1;
-
-    // Adjacent
-    if (end1 == start2 || end2 == start1)
-      return 0;
-
-    // Non-zero intersect, span1 first
-    if (start1 < start2) {
-      if (end1 < end2)
-        return end1 - start2; // Overlap
-      else
-        return end2 - start2; // Contained
-    } else {
-      // Non-zero intersect, span2 first
-      if (end2 < end1)
-        return end2 - start1; // Overlap
-      else
-        return end1 - start1; // Contained
-    }
-  }
-
-  function mergeSplice(splices, index, removed, addedCount) {
-
-    var splice = newSplice(index, removed, addedCount);
-
-    var inserted = false;
-    var insertionOffset = 0;
-
-    for (var i = 0; i < splices.length; i++) {
-      var current = splices[i];
-      current.index += insertionOffset;
-
-      if (inserted)
-        continue;
-
-      var intersectCount = intersect(splice.index,
-                                     splice.index + splice.removed.length,
-                                     current.index,
-                                     current.index + current.addedCount);
-
-      if (intersectCount >= 0) {
-        // Merge the two splices
-
-        splices.splice(i, 1);
-        i--;
-
-        insertionOffset -= current.addedCount - current.removed.length;
-
-        splice.addedCount += current.addedCount - intersectCount;
-        var deleteCount = splice.removed.length +
-                          current.removed.length - intersectCount;
-
-        if (!splice.addedCount && !deleteCount) {
-          // merged splice is a noop. discard.
-          inserted = true;
-        } else {
-          var removed = current.removed;
-
-          if (splice.index < current.index) {
-            // some prefix of splice.removed is prepended to current.removed.
-            var prepend = splice.removed.slice(0, current.index - splice.index);
-            Array.prototype.push.apply(prepend, removed);
-            removed = prepend;
-          }
-
-          if (splice.index + splice.removed.length > current.index + current.addedCount) {
-            // some suffix of splice.removed is appended to current.removed.
-            var append = splice.removed.slice(current.index + current.addedCount - splice.index);
-            Array.prototype.push.apply(removed, append);
-          }
-
-          splice.removed = removed;
-          if (current.index < splice.index) {
-            splice.index = current.index;
-          }
-        }
-      } else if (splice.index < current.index) {
-        // Insert splice here.
-
-        inserted = true;
-
-        splices.splice(i, 0, splice);
-        i++;
-
-        var offset = splice.addedCount - splice.removed.length
-        current.index += offset;
-        insertionOffset += offset;
-      }
-    }
-
-    if (!inserted)
-      splices.push(splice);
-  }
-
-  function createInitialSplices(array, changeRecords) {
-    var splices = [];
-
-    for (var i = 0; i < changeRecords.length; i++) {
-      var record = changeRecords[i];
-      switch(record.type) {
-        case 'splice':
-          mergeSplice(splices, record.index, record.removed.slice(), record.addedCount);
-          break;
-        case 'new':
-        case 'updated':
-        case 'deleted':
-          if (!isIndex(record.name))
-            continue;
-          var index = toNumber(record.name);
-          if (index < 0)
-            continue;
-          mergeSplice(splices, index, [record.oldValue], 1);
-          break;
-        default:
-          console.error('Unexpected record type: ' + JSON.stringify(record));
-          break;
-      }
-    }
-
-    return splices;
-  }
-
-  function projectArraySplices(array, changeRecords) {
-    var splices = [];
-
-    createInitialSplices(array, changeRecords).forEach(function(splice) {
-      if (splice.addedCount == 1 && splice.removed.length == 1) {
-        if (splice.removed[0] !== array[splice.index])
-          splices.push(splice);
-
-        return
-      };
-
-      splices = splices.concat(calcSplices(array, splice.index, splice.index + splice.addedCount,
-                                           splice.removed, 0, splice.removed.length));
-    });
-
-    return splices;
-  }
-
-  global.Observer = Observer;
-  global.Observer.hasObjectObserve = hasObserve;
-  global.ArrayObserver = ArrayObserver;
-  global.ArrayObserver.calculateSplices = function(current, previous) {
-    return calcSplices(current, 0, current.length, previous, 0, previous.length);
-  };
-  global.ObjectObserver = ObjectObserver;
-  global.PathObserver = PathObserver;
-  global.Path = Path;
-})((exports.Number = { isNaN: window.isNaN }) ? exports : exports);
-
-},{}],27:[function(require,module,exports){
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	errorPrefix = 'DS.create(resourceName, attrs): ';
-
-/**
- * @doc method
- * @id DS.async_methods:create
- * @name create
- * @description
- * Create a new resource and save it to the server.
- *
- * ## Signature:
- * ```js
- * DS.create(resourceName, attrs)
- * ```
- *
- * ## Example:
- *
- * ```js
- * DS.create('document', { author: 'John Anderson' })
- *  .then(function (document) {
- *      document; // { id: 'aab7ff66-e21e-46e2-8be8-264d82aee535', author: 'John Anderson' }
- *
- *      // The new document is already in the data store
- *      DS.get('document', document.id); // { id: 'aab7ff66-e21e-46e2-8be8-264d82aee535', author: 'John Anderson' }
- *  }, function (err) {
- *      // handle error
- *  });
- * ```
- *
- * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
- * @param {object} attrs The attributes with which to update the item of the type specified by `resourceName` that has
- * the primary key specified by `id`.
- * @returns {Promise} Promise produced by the `$q` service.
- *
- * ## Resolves with:
- *
- * - `{object}` - `item` - A reference to the newly created item.
- *
- * ## Rejects with:
- *
- * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
- */
-function create(resourceName, attrs) {
-	var deferred = $q.defer();
-	if (!services.store[resourceName]) {
-		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
-	} else if (!utils.isObject(attrs)) {
-		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'attrs: Must be an object!', { attrs: { actual: typeof attrs, expected: 'object' } }));
-	}
-
-	try {
-		var resource = services.store[resourceName],
-			_this = this,
-			url = utils.makePath(resource.baseUrl || services.config.baseUrl, resource.endpoint || resource.name);
-
-		if (resource.validate) {
-			resource.validate(attrs, null, function (err) {
-				if (err) {
-					deferred.reject(err);
-				} else {
-
-					_this.POST(url, attrs, null).then(function (data) {
-						try {
-							deferred.resolve(_this.inject(resource.name, data));
-						} catch (err) {
-							deferred.reject(err);
-						}
-					}, deferred.reject);
-				}
-			});
-		} else {
-			_this.POST(url, attrs, null).then(function (data) {
-				try {
-					deferred.resolve(_this.inject(resource.name, data));
-				} catch (err) {
-					deferred.reject(err);
-				}
-			}, deferred.reject);
-		}
-	} catch (err) {
-		deferred.reject(new errors.UnhandledError(err));
-	}
-
-	return deferred.promise;
-}
-
-module.exports = create;
-
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],28:[function(require,module,exports){
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	errorPrefix = 'DS.destroy(resourceName, id): ';
-
-/**
- * @doc method
- * @id DS.async_methods:destroy
- * @name destroy
- * @description
- * Delete the item of the type specified by `resourceName` with the primary key specified by `id` from the data store
- * and the server.
- *
- * ## Signature:
- * ```js
- * DS.destroy(resourceName, id);
- * ```
- *
- * ## Example:
- *
- * ```js
- * DS.destroy('document', 'aab7ff66-e21e-46e2-8be8-264d82aee535')
- *  .then(function (id) {
- *      id; // 'aab7ff66-e21e-46e2-8be8-264d82aee535'
- *
- *      // The document is gone
- *      DS.get('document', 'aab7ff66-e21e-46e2-8be8-264d82aee535'); // undefined
- *  }, function (err) {
- *      // Handle error
- *  });
- * ```
- *
- * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
- * @param {string|number} id The primary key of the item to remove.
- * @returns {Promise} Promise produced by the `$q` service.
- *
- * ## Resolves with:
- *
- * - `{string|number}` - `id` - The primary key of the destroyed item.
- *
- * ## Rejects with:
- *
- * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
- */
-function destroy(resourceName, id) {
-	var deferred = $q.defer();
-	if (!services.store[resourceName]) {
-		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
-	} else if (!utils.isString(id) && !utils.isNumber(id)) {
-		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
-	}
-
-	try {
-		var resource = services.store[resourceName],
-			_this = this,
-			url = utils.makePath(resource.baseUrl || services.config.baseUrl, resource.endpoint || resource.name, id);
-
-		_this.DEL(url, null).then(function () {
-			try {
-				_this.eject(resourceName, id);
-				deferred.resolve(id);
-			} catch (err) {
-				deferred.reject(err);
-			}
-		}, deferred.reject);
-	} catch (err) {
-		deferred.reject(new errors.UnhandledError(err));
-	}
-
-	return deferred.promise;
-}
-
-module.exports = destroy;
-
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],29:[function(require,module,exports){
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	GET = require('../../http').GET,
-	errorPrefix = 'DS.find(resourceName, id[, options]): ';
-
-/**
- * @doc method
- * @id DS.async_methods:find
- * @name find
- * @description
- * Asynchronously return the resource with the given id from the server. The result will be added to the data
- * store when it returns from the server.
- *
- * ## Signature:
- * ```js
- * DS.find(resourceName, id[, options])
- * ```
- *
- * ## Example:
- *
- * ```js
- *  DS.get('document', 5); // undefined
- *  DS.find('document', 5).then(function (document) {
- *      document; // { id: 5, author: 'John Anderson' }
- *
- *      DS.get('document', 5); // { id: 5, author: 'John Anderson' }
- *  }, function (err) {
- *      // Handled errors
- *  });
- * ```
- *
- * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
- * @param {string|number} id The primary key of the item to retrieve.
- * @param {object=} options Optional configuration. Properties:
- * - `{boolean=}` - `bypassCache` - Bypass the cache. Default: `false`.
- * - `{string=}` - `mergeStrategy` - If `findAll` is called, specify the merge strategy that should be used when the new
- * items are injected into the data store. Default: `"mergeWithExisting"`.
- * @returns {Promise} Promise produced by the `$q` service.
- *
- * ## Resolves with:
- *
- * - `{object}` - `item` - The item with the primary key specified by `id`.
- *
- * ## Rejects with:
- *
- * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
- */
-function find(resourceName, id, options) {
-	var deferred = $q.defer();
-	options = options || {};
-
-	if (!services.store[resourceName]) {
-		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
-	} else if (!utils.isString(id) && !utils.isNumber(id)) {
-		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
-	} else if (!utils.isObject(options)) {
-		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
-	} else {
-		var _this = this;
-
-		try {
-			var resource = services.store[resourceName];
-
-			if (id in resource.index && !options.bypassCache) {
-				deferred.resolve(_this.get(resourceName, id));
-			} else {
-				var url = utils.makePath(resource.baseUrl || services.config.baseUrl, resource.endpoint || resource.name, id),
-					config = null;
-
-				if (options.bypassCache) {
-					config = {
-						headers: {
-							'Last-Modified': new Date(resource.modified[id])
-						}
-					};
-				}
-				GET(url, config).then(function (data) {
-					try {
-						_this.inject(resourceName, data);
-						deferred.resolve(_this.get(resourceName, id));
-					} catch (err) {
-						deferred.reject(err);
-					}
-				}, deferred.reject);
-			}
-		} catch (err) {
-			if (!(err instanceof errors.UnhandledError)) {
-				deferred.reject(new errors.UnhandledError(err));
-			} else {
-				deferred.reject(err);
-			}
-		}
-	}
-
-	return deferred.promise;
-}
-
-module.exports = find;
-
-},{"../../http":34,"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],30:[function(require,module,exports){
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	GET = require('../../http').GET,
-	errorPrefix = 'DS.findAll(resourceName, params[, options]): ';
-
-function processResults(data, resourceName, queryHash) {
-	var resource = services.store[resourceName];
-
-	data = data || [];
-
-	// Query is no longer pending
-	delete resource.pendingQueries[queryHash];
-	resource.completedQueries[queryHash] = new Date().getTime();
-
-	// Merge the new values into the cache
-	for (var i = 0; i < data.length; i++) {
-		this.inject(resourceName, data[i]);
-	}
-
-	// Update the data store's index for this resource
-	resource.index = utils.toLookup(resource.collection, resource.idAttribute || services.config.idAttribute || 'id');
-
-	// Update modified timestamp of collection
-	resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
-	return data;
-}
-
-function _findAll(deferred, resourceName, params, options) {
-	var resource = services.store[resourceName],
-		_this = this;
-
-	var queryHash = utils.toJson(params);
-
-	if (options.bypassCache) {
-		delete resource.completedQueries[queryHash];
-	}
-
-	if (!(queryHash in resource.completedQueries)) {
-		// This particular query has never been completed
-
-		if (!resource.pendingQueries[queryHash]) {
-
-			// This particular query has never even been started
-			var url = utils.makePath(resource.baseUrl || services.config.baseUrl, resource.endpoint || resource.name);
-			resource.pendingQueries[queryHash] = GET(url, { params: params }).then(function (data) {
-				try {
-					deferred.resolve(processResults.apply(_this, [data, resourceName, queryHash]));
-				} catch (err) {
-					deferred.reject(new errors.UnhandledError(err));
-				}
-			}, deferred.reject);
-		}
-	} else {
-		deferred.resolve(this.filter(resourceName, params, options));
-	}
-}
-
-/**
- * @doc method
- * @id DS.async_methods:findAll
- * @name findAll
- * @description
- * Asynchronously return the resource from the server filtered by the query. The results will be added to the data
- * store when it returns from the server.
- *
- * ## Signature:
- * ```js
- * DS.findAll(resourceName, params[, options])
- * ```
- *
- * ## Example:
- *
- * ```js
- *  var query = {
- *      where: {
- *          author: {
- *              '==': 'John Anderson'
- *          }
- *      }
- *  };
- *
- *  DS.findAll('document', {
- *      query: query
- *  }).then(function (documents) {
- *      documents;  // [{ id: 'aab7ff66-e21e-46e2-8be8-264d82aee535', author: 'John Anderson', title: 'How to cook' },
- *                  //  { id: 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f', author: 'John Anderson', title: 'How NOT to cook' }]
- *
- *      // The documents are now in the data store
- *      DS.filter('document', {
- *          query: query
- *      }); // [{ id: 'aab7ff66-e21e-46e2-8be8-264d82aee535', author: 'John Anderson', title: 'How to cook' },
- *          //  { id: 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f', author: 'John Anderson', title: 'How NOT to cook' }]
- *
- *  }, function (err) {
- *      // handle error
- *  });
- * ```
- *
- * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
- * @param {object} params Parameter object that is serialized into the query string. Properties:
- *
- * - `{object=}` - `query` - The query object by which to filter items of the type specified by `resourceName`. Properties:
- *      - `{object=}` - `where` - Where clause.
- *      - `{number=}` - `limit` - Limit clause.
- *      - `{skip=}` - `skip` - Skip clause.
- *      - `{orderBy=}` - `orderBy` - OrderBy clause.
- *
- * @param {object=} options Optional configuration. Properties:
- * - `{boolean=}` - `bypassCache` - Bypass the cache. Default: `false`.
- * - `{string=}` - `mergeStrategy` - If `findAll` is called, specify the merge strategy that should be used when the new
- * items are injected into the data store. Default `"mergeWithExisting"`.
- *
- * @returns {Promise} Promise produced by the `$q` service.
- *
- * ## Resolves with:
- *
- * - `{array}` - `items` - The collection of items returned by the server.
- *
- * ## Rejects with:
- *
- * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
- */
-function findAll(resourceName, params, options) {
-	var deferred = services.$q.defer();
-
-	options = options || {};
-
-	if (!services.store[resourceName]) {
-		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
-	} else if (!utils.isObject(params)) {
-		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!', { params: { actual: typeof params, expected: 'object' } }));
-	} else if (!utils.isObject(options)) {
-		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
-	} else {
-		try {
-			_findAll.apply(this, [deferred, resourceName, params, options]);
-		} catch (err) {
-			deferred.reject(new errors.UnhandledError(err));
-		}
-	}
-
-	return deferred.promise;
-}
-
-module.exports = findAll;
-
-},{"../../http":34,"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],31:[function(require,module,exports){
-module.exports = {
-	/**
-	 * @doc method
-	 * @id DS.async_methods:create
-	 * @name create
-	 * @methodOf DS
-	 * @description
-	 * See [DS.create](/documentation/api/api/DS.async_methods:create).
-	 */
-	create: require('./create'),
-
-	/**
-	 * @doc method
-	 * @id DS.async_methods:destroy
-	 * @name destroy
-	 * @methodOf DS
-	 * @description
-	 * See [DS.destroy](/documentation/api/api/DS.async_methods:destroy).
-	 */
-	destroy: require('./destroy'),
-
-	/**
-	 * @doc method
-	 * @id DS.async_methods:find
-	 * @name find
-	 * @methodOf DS
-	 * @description
-	 * See [DS.find](/documentation/api/api/DS.async_methods:find).
-	 */
-	find: require('./find'),
-
-	/**
-	 * @doc method
-	 * @id DS.async_methods:findAll
-	 * @name findAll
-	 * @methodOf DS
-	 * @description
-	 * See [DS.findAll](/documentation/api/api/DS.async_methods:findAll).
-	 */
-	findAll: require('./findAll'),
-
-	/**
-	 * @doc method
-	 * @id DS.async_methods:refresh
-	 * @name refresh
-	 * @methodOf DS
-	 * @description
-	 * See [DS.refresh](/documentation/api/api/DS.async_methods:refresh).
-	 */
-	refresh: require('./refresh'),
-
-	/**
-	 * @doc method
-	 * @id DS.async_methods:save
-	 * @name save
-	 * @methodOf DS
-	 * @description
-	 * See [DS.save](/documentation/api/api/DS.async_methods:save).
-	 */
-	save: require('./save')
-};
-
-},{"./create":27,"./destroy":28,"./find":29,"./findAll":30,"./refresh":32,"./save":33}],32:[function(require,module,exports){
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	PUT = require('../../http').PUT,
-	errorPrefix = 'DS.refresh(resourceName, id): ';
-
-/**
- * @doc method
- * @id DS.async_methods:refresh
- * @name refresh
- * @description
- * Like find(), except the resource is only refreshed from the server if it already exists in the data store.
- *
- * ## Signature:
- * ```js
- * DS.refresh(resourceName, id)
- * ```
- * ## Example:
- *
- * ```js
- *  // Exists in the data store, but we want a fresh copy
- *  DS.get('document', 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f');
- *
- *  DS.refresh('document', 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f')
- *  .then(function (document) {
- *      document; // The fresh copy
- *  });
- *
- *  // Does not exist in the data store
- *  DS.get('document', 'aab7ff66-e21e-46e2-8be8-264d82aee535');
- *
- *  DS.refresh('document', 'aab7ff66-e21e-46e2-8be8-264d82aee535'); // false
- * ```
- *
- * ## Throws
- *
- * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- *
- * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
- * @param {string|number} id The primary key of the item to refresh from the server.
- * @param {object=} options Optional configuration. Properties:
- * - `{string=}` - `mergeStrategy` - Specify what merge strategy is to be used when the fresh item returns from the
- * server and needs to be inserted into the data store. Default `"mergeWithExisting"`.
- * @returns {false|Promise} `false` if the item doesn't already exist in the data store. A `Promise` if the item does
- * exist in the data store and is being refreshed.
- *
- * ## Resolves with:
- *
- * - `{object}` - `item` - A reference to the refreshed item.
- *
- * ## Rejects with:
- *
- * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
- */
-function refresh(resourceName, id, options) {
-	options = options || {};
-
-	if (!services.store[resourceName]) {
-		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (!utils.isString(id) && !utils.isNumber(id)) {
-		throw new errors.IllegalArgumentError('DS.refresh(resourceName, id): id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
-	} else if (!utils.isObject(options)) {
-		throw new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
-	}
-
-	if (id in services.store[resourceName].index) {
-		return this.find(resourceName, id, true);
-	} else {
-		return false;
-	}
-}
-
-module.exports = refresh;
-
-},{"../../http":34,"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],33:[function(require,module,exports){
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	PUT = require('../../http').PUT,
-	errorPrefix = 'DS.save(resourceName, id[, options]): ';
-
-function _save(deferred, resource, id, options) {
-	var _this = this;
-	var url = utils.makePath(resource.baseUrl || services.config.baseUrl, resource.endpoint || resource.name, id);
-	PUT(url, resource.index[id], null).then(function (data) {
-		var saved = _this.inject(resource.name, data, options);
-		resource.saved[id] = utils.updateTimestamp(resource.saved[id]);
-		deferred.resolve(saved);
-	}, deferred.reject);
-}
-
-/**
- * @doc method
- * @id DS.async_methods:save
- * @name save
- * @description
- * Save the item of the type specified by `resourceName` that has the primary key specified by `id`.
- *
- * ## Signature:
- * ```js
- * DS.save(resourceName, id[, options])
- * ```
- *
- * ## Example:
- *
- * ```js
- *  var document = DS.get('document', 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f');
- *
- *  document.title = 'How to cook in style';
- *
- *  DS.save('document', 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f')
- *  .then(function (document) {
- *      document; // A reference to the document that's been saved to the server
- *  });
- * ```
- *
- * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
- * @param {string|number} id The primary key of the item to retrieve.
- * @param {object=} options Optional configuration. Properties:
- * - `{string=}` - `mergeStrategy` - When the updated item returns from the server, specify the merge strategy that
- * should be used when the updated item is injected into the data store. Default: `"mergeWithExisting"`.
- *
- * @returns {Promise} Promise produced by the `$q` service.
- *
- * ## Resolves with:
- *
- * - `{object}` - `item` - A reference to the newly saved item.
- *
- * ## Rejects with:
- *
- * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
- */
-function save(resourceName, id, options) {
-	var deferred = $q.defer();
-
-	options = options || {};
-
-	if (!services.store[resourceName]) {
-		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
-	} else if (!utils.isString(id) && !utils.isNumber(id)) {
-		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
-	} else if (!utils.isObject(options)) {
-		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'id: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
-	} else {
-		var _this = this;
-
-		try {
-			var resource = services.store[resourceName];
-
-			if (resource.schema) {
-				resource.schema.validate(resource.index[id], function (err) {
-					if (err) {
-						deferred.reject(err);
-					} else {
-						_save.call(_this, deferred, resource, id, options);
-					}
-				});
-			} else {
-				_save.call(_this, deferred, resource, id, options);
-			}
-		} catch (err) {
-			if (!(err instanceof errors.UnhandledError)) {
-				deferred.reject(new errors.UnhandledError(err));
-			} else {
-				deferred.reject(err);
-			}
-		}
-	}
-
-	return deferred.promise;
-}
-
-module.exports = save;
-
-},{"../../http":34,"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],34:[function(require,module,exports){
+},{"../lang/toString":19}],"clHM+W":[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	services = require('services');
@@ -2680,12 +1299,685 @@ module.exports = {
 	DEL: DEL
 };
 
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],"HttpAdapter":[function(require,module,exports){
+module.exports=require('clHM+W');
+},{}],29:[function(require,module,exports){
+var utils = require('utils'),
+	errors = require('errors'),
+	services = require('services'),
+	errorPrefix = 'DS.create(resourceName, attrs): ';
+
+/**
+ * @doc method
+ * @id DS.async_methods:create
+ * @name create
+ * @description
+ * Create a new resource and save it to the server.
+ *
+ * ## Signature:
+ * ```js
+ * DS.create(resourceName, attrs)
+ * ```
+ *
+ * ## Example:
+ *
+ * ```js
+ * DS.create('document', { author: 'John Anderson' })
+ *  .then(function (document) {
+ *      document; // { id: 'aab7ff66-e21e-46e2-8be8-264d82aee535', author: 'John Anderson' }
+ *
+ *      // The new document is already in the data store
+ *      DS.get('document', document.id); // { id: 'aab7ff66-e21e-46e2-8be8-264d82aee535', author: 'John Anderson' }
+ *  }, function (err) {
+ *      // handle error
+ *  });
+ * ```
+ *
+ * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
+ * @param {object} attrs The attributes with which to update the item of the type specified by `resourceName` that has
+ * the primary key specified by `id`.
+ * @returns {Promise} Promise produced by the `$q` service.
+ *
+ * ## Resolves with:
+ *
+ * - `{object}` - `item` - A reference to the newly created item.
+ *
+ * ## Rejects with:
+ *
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
+ */
+function create(resourceName, attrs) {
+	var deferred = services.$q.defer(),
+		promise = deferred.promise;
+
+	if (!services.store[resourceName]) {
+		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
+	} else if (!utils.isObject(attrs)) {
+		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'attrs: Must be an object!', { attrs: { actual: typeof attrs, expected: 'object' } }));
+	} else {
+		try {
+			var resource = services.store[resourceName],
+				_this = this;
+
+			promise = promise
+				.then(function (attrs) {
+					return services.$q.promisify(resource.beforeValidate)(resourceName, attrs);
+				})
+				.then(function (attrs) {
+					return services.$q.promisify(resource.validate)(resourceName, attrs);
+				})
+				.then(function (attrs) {
+					return services.$q.promisify(resource.afterValidate)(resourceName, attrs);
+				})
+				.then(function (attrs) {
+					return services.$q.promisify(resource.beforeCreate)(resourceName, attrs);
+				})
+				.then(function (attrs) {
+					return services.adapters[resource.defaultAdapter].POST.apply(_this, [utils.makePath(resource.baseUrl, resource.endpoint), attrs, null]);
+				})
+				.then(function (data) {
+					return services.$q.promisify(resource.afterCreate)(resourceName, data);
+				})
+				.then(function (data) {
+					return _this.inject(resource.name, data);
+				});
+
+			deferred.resolve(attrs);
+		} catch (err) {
+			deferred.reject(new errors.UnhandledError(err));
+		}
+	}
+
+	return promise;
+}
+
+module.exports = create;
+
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],30:[function(require,module,exports){
+var utils = require('utils'),
+	errors = require('errors'),
+	services = require('services'),
+	errorPrefix = 'DS.destroy(resourceName, id): ';
+
+/**
+ * @doc method
+ * @id DS.async_methods:destroy
+ * @name destroy
+ * @description
+ * Delete the item of the type specified by `resourceName` with the primary key specified by `id` from the data store
+ * and the server.
+ *
+ * ## Signature:
+ * ```js
+ * DS.destroy(resourceName, id);
+ * ```
+ *
+ * ## Example:
+ *
+ * ```js
+ * DS.destroy('document', 'aab7ff66-e21e-46e2-8be8-264d82aee535')
+ *  .then(function (id) {
+ *      id; // 'aab7ff66-e21e-46e2-8be8-264d82aee535'
+ *
+ *      // The document is gone
+ *      DS.get('document', 'aab7ff66-e21e-46e2-8be8-264d82aee535'); // undefined
+ *  }, function (err) {
+ *      // Handle error
+ *  });
+ * ```
+ *
+ * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
+ * @param {string|number} id The primary key of the item to remove.
+ * @returns {Promise} Promise produced by the `$q` service.
+ *
+ * ## Resolves with:
+ *
+ * - `{string|number}` - `id` - The primary key of the destroyed item.
+ *
+ * ## Rejects with:
+ *
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
+ */
+function destroy(resourceName, id) {
+	var deferred = services.$q.defer(),
+		promise = deferred.promise;
+
+	if (!services.store[resourceName]) {
+		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
+	} else if (!utils.isString(id) && !utils.isNumber(id)) {
+		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
+	} else {
+		var resource = services.store[resourceName],
+			_this = this;
+
+		promise = promise
+			.then(function (attrs) {
+				return services.$q.promisify(resource.beforeDestroy)(resourceName, attrs);
+			})
+			.then(function () {
+				return services.adapters[resource.defaultAdapter].DEL(utils.makePath(resource.baseUrl, resource.endpoint, id), null);
+			})
+			.then(function () {
+				return services.$q.promisify(resource.afterDestroy)(resourceName, resource.index[id]);
+			})
+			.then(function () {
+				_this.eject(resourceName, id);
+				return id;
+			});
+
+		deferred.resolve(resource.index[id]);
+	}
+
+	return promise;
+}
+
+module.exports = destroy;
+
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],31:[function(require,module,exports){
+var utils = require('utils'),
+	errors = require('errors'),
+	services = require('services'),
+	errorPrefix = 'DS.find(resourceName, id[, options]): ';
+
+/**
+ * @doc method
+ * @id DS.async_methods:find
+ * @name find
+ * @description
+ * Asynchronously return the resource with the given id from the server. The result will be added to the data
+ * store when it returns from the server.
+ *
+ * ## Signature:
+ * ```js
+ * DS.find(resourceName, id[, options])
+ * ```
+ *
+ * ## Example:
+ *
+ * ```js
+ *  DS.get('document', 5); // undefined
+ *  DS.find('document', 5).then(function (document) {
+ *      document; // { id: 5, author: 'John Anderson' }
+ *
+ *      DS.get('document', 5); // { id: 5, author: 'John Anderson' }
+ *  }, function (err) {
+ *      // Handled errors
+ *  });
+ * ```
+ *
+ * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
+ * @param {string|number} id The primary key of the item to retrieve.
+ * @param {object=} options Optional configuration. Properties:
+ * - `{boolean=}` - `bypassCache` - Bypass the cache. Default: `false`.
+ * - `{string=}` - `mergeStrategy` - If `findAll` is called, specify the merge strategy that should be used when the new
+ * items are injected into the data store. Default: `"mergeWithExisting"`.
+ * @returns {Promise} Promise produced by the `$q` service.
+ *
+ * ## Resolves with:
+ *
+ * - `{object}` - `item` - The item with the primary key specified by `id`.
+ *
+ * ## Rejects with:
+ *
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
+ */
+function find(resourceName, id, options) {
+	var deferred = services.$q.defer(),
+		promise = deferred.promise;
+
+	options = options || {};
+
+	if (!services.store[resourceName]) {
+		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
+	} else if (!utils.isString(id) && !utils.isNumber(id)) {
+		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
+	} else if (!utils.isObject(options)) {
+		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
+	} else {
+		try {
+			var resource = services.store[resourceName],
+				_this = this;
+
+			if (options.bypassCache) {
+				delete resource.completedQueries[id];
+			}
+
+			if (!(id in resource.completedQueries)) {
+				if (!(id in resource.pendingQueries)) {
+					promise = resource.pendingQueries[id] = services.adapters[resource.defaultAdapter].GET(utils.makePath(resource.baseUrl, resource.endpoint, id), null)
+						.then(function (data) {
+							// Query is no longer pending
+							delete resource.pendingQueries[id];
+							resource.completedQueries[id] = new Date().getTime();
+							return _this.inject(resourceName, data);
+						});
+				}
+
+				return resource.pendingQueries[id];
+			} else {
+				deferred.resolve(_this.get(resourceName, id));
+			}
+		} catch (err) {
+			deferred.reject(err);
+		}
+	}
+
+	return promise;
+}
+
+module.exports = find;
+
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],32:[function(require,module,exports){
+var utils = require('utils'),
+	errors = require('errors'),
+	services = require('services'),
+	errorPrefix = 'DS.findAll(resourceName, params[, options]): ';
+
+function processResults(data, resourceName, queryHash) {
+	var resource = services.store[resourceName];
+
+	data = data || [];
+
+	// Query is no longer pending
+	delete resource.pendingQueries[queryHash];
+	resource.completedQueries[queryHash] = new Date().getTime();
+
+	// Merge the new values into the cache
+	for (var i = 0; i < data.length; i++) {
+		this.inject(resourceName, data[i]);
+	}
+
+	// Update the data store's index for this resource
+	resource.index = utils.toLookup(resource.collection, resource.idAttribute);
+
+	// Update modified timestamp of collection
+	resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
+	return data;
+}
+
+function _findAll(resourceName, params, options) {
+	var resource = services.store[resourceName],
+		_this = this,
+		queryHash = utils.toJson(params);
+
+	if (options.bypassCache) {
+		delete resource.completedQueries[queryHash];
+	}
+
+	if (!(queryHash in resource.completedQueries)) {
+		// This particular query has never been completed
+
+		if (!(queryHash in resource.pendingQueries)) {
+
+			// This particular query has never even been made
+			resource.pendingQueries[queryHash] = services.adapters[resource.defaultAdapter].GET(utils.makePath(resource.baseUrl, resource.endpoint), { params: params })
+				.then(function (data) {
+					try {
+						return processResults.apply(_this, [data, resourceName, queryHash]);
+					} catch (err) {
+						throw new errors.UnhandledError(err);
+					}
+				});
+		}
+
+		return resource.pendingQueries[queryHash];
+	} else {
+		return this.filter(resourceName, params, options);
+	}
+}
+
+/**
+ * @doc method
+ * @id DS.async_methods:findAll
+ * @name findAll
+ * @description
+ * Asynchronously return the resource from the server filtered by the query. The results will be added to the data
+ * store when it returns from the server.
+ *
+ * ## Signature:
+ * ```js
+ * DS.findAll(resourceName, params[, options])
+ * ```
+ *
+ * ## Example:
+ *
+ * ```js
+ *  var query = {
+ *      where: {
+ *          author: {
+ *              '==': 'John Anderson'
+ *          }
+ *      }
+ *  };
+ *
+ *  DS.findAll('document', {
+ *      query: query
+ *  }).then(function (documents) {
+ *      documents;  // [{ id: 'aab7ff66-e21e-46e2-8be8-264d82aee535', author: 'John Anderson', title: 'How to cook' },
+ *                  //  { id: 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f', author: 'John Anderson', title: 'How NOT to cook' }]
+ *
+ *      // The documents are now in the data store
+ *      DS.filter('document', {
+ *          query: query
+ *      }); // [{ id: 'aab7ff66-e21e-46e2-8be8-264d82aee535', author: 'John Anderson', title: 'How to cook' },
+ *          //  { id: 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f', author: 'John Anderson', title: 'How NOT to cook' }]
+ *
+ *  }, function (err) {
+ *      // handle error
+ *  });
+ * ```
+ *
+ * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
+ * @param {object} params Parameter object that is serialized into the query string. Properties:
+ *
+ * - `{object=}` - `query` - The query object by which to filter items of the type specified by `resourceName`. Properties:
+ *      - `{object=}` - `where` - Where clause.
+ *      - `{number=}` - `limit` - Limit clause.
+ *      - `{skip=}` - `skip` - Skip clause.
+ *      - `{orderBy=}` - `orderBy` - OrderBy clause.
+ *
+ * @param {object=} options Optional configuration. Properties:
+ * - `{boolean=}` - `bypassCache` - Bypass the cache. Default: `false`.
+ * - `{string=}` - `mergeStrategy` - If `findAll` is called, specify the merge strategy that should be used when the new
+ * items are injected into the data store. Default `"mergeWithExisting"`.
+ *
+ * @returns {Promise} Promise produced by the `$q` service.
+ *
+ * ## Resolves with:
+ *
+ * - `{array}` - `items` - The collection of items returned by the server.
+ *
+ * ## Rejects with:
+ *
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
+ */
+function findAll(resourceName, params, options) {
+	var deferred = services.$q.defer(),
+		promise = deferred.promise,
+		_this = this;
+
+	options = options || {};
+
+	if (!services.store[resourceName]) {
+		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
+	} else if (!utils.isObject(params)) {
+		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!', { params: { actual: typeof params, expected: 'object' } }));
+	} else if (!utils.isObject(options)) {
+		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
+	} else {
+		try {
+			promise = promise.then(function () {
+				return _findAll.apply(_this, [resourceName, params, options]);
+			});
+			deferred.resolve();
+		} catch (err) {
+			deferred.reject(new errors.UnhandledError(err));
+		}
+	}
+
+	return promise;
+}
+
+module.exports = findAll;
+
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],33:[function(require,module,exports){
+module.exports = {
+	/**
+	 * @doc method
+	 * @id DS.async_methods:create
+	 * @name create
+	 * @methodOf DS
+	 * @description
+	 * See [DS.create](/documentation/api/api/DS.async_methods:create).
+	 */
+	create: require('./create'),
+
+	/**
+	 * @doc method
+	 * @id DS.async_methods:destroy
+	 * @name destroy
+	 * @methodOf DS
+	 * @description
+	 * See [DS.destroy](/documentation/api/api/DS.async_methods:destroy).
+	 */
+	destroy: require('./destroy'),
+
+	/**
+	 * @doc method
+	 * @id DS.async_methods:find
+	 * @name find
+	 * @methodOf DS
+	 * @description
+	 * See [DS.find](/documentation/api/api/DS.async_methods:find).
+	 */
+	find: require('./find'),
+
+	/**
+	 * @doc method
+	 * @id DS.async_methods:findAll
+	 * @name findAll
+	 * @methodOf DS
+	 * @description
+	 * See [DS.findAll](/documentation/api/api/DS.async_methods:findAll).
+	 */
+	findAll: require('./findAll'),
+
+	/**
+	 * @doc method
+	 * @id DS.async_methods:refresh
+	 * @name refresh
+	 * @methodOf DS
+	 * @description
+	 * See [DS.refresh](/documentation/api/api/DS.async_methods:refresh).
+	 */
+	refresh: require('./refresh'),
+
+	/**
+	 * @doc method
+	 * @id DS.async_methods:save
+	 * @name save
+	 * @methodOf DS
+	 * @description
+	 * See [DS.save](/documentation/api/api/DS.async_methods:save).
+	 */
+	save: require('./save')
+};
+
+},{"./create":29,"./destroy":30,"./find":31,"./findAll":32,"./refresh":34,"./save":35}],34:[function(require,module,exports){
+var utils = require('utils'),
+	errors = require('errors'),
+	services = require('services'),
+	errorPrefix = 'DS.refresh(resourceName, id[, options]): ';
+
+/**
+ * @doc method
+ * @id DS.async_methods:refresh
+ * @name refresh
+ * @description
+ * Like find(), except the resource is only refreshed from the server if it already exists in the data store.
+ *
+ * ## Signature:
+ * ```js
+ * DS.refresh(resourceName, id)
+ * ```
+ * ## Example:
+ *
+ * ```js
+ *  // Exists in the data store, but we want a fresh copy
+ *  DS.get('document', 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f');
+ *
+ *  DS.refresh('document', 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f')
+ *  .then(function (document) {
+ *      document; // The fresh copy
+ *  });
+ *
+ *  // Does not exist in the data store
+ *  DS.get('document', 'aab7ff66-e21e-46e2-8be8-264d82aee535');
+ *
+ *  DS.refresh('document', 'aab7ff66-e21e-46e2-8be8-264d82aee535'); // false
+ * ```
+ *
+ * ## Throws
+ *
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ *
+ * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
+ * @param {string|number} id The primary key of the item to refresh from the server.
+ * @param {object=} options Optional configuration. Properties:
+ * - `{string=}` - `mergeStrategy` - Specify what merge strategy is to be used when the fresh item returns from the
+ * server and needs to be inserted into the data store. Default `"mergeWithExisting"`.
+ * @returns {false|Promise} `false` if the item doesn't already exist in the data store. A `Promise` if the item does
+ * exist in the data store and is being refreshed.
+ *
+ * ## Resolves with:
+ *
+ * - `{object}` - `item` - A reference to the refreshed item.
+ *
+ * ## Rejects with:
+ *
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
+ */
+function refresh(resourceName, id, options) {
+	options = options || {};
+
+	if (!services.store[resourceName]) {
+		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+	} else if (!utils.isString(id) && !utils.isNumber(id)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+	} else if (!utils.isObject(options)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
+	} else {
+		options.bypassCache = true;
+
+		if (id in services.store[resourceName].index) {
+			return this.find(resourceName, id, options);
+		} else {
+			return false;
+		}
+	}
+}
+
+module.exports = refresh;
+
 },{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],35:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
-	IllegalArgumentError = errors.IllegalArgumentError,
 	services = require('services'),
-	errorPrefix = 'DSProvider.config(options): ';
+	errorPrefix = 'DS.save(resourceName, id[, options]): ';
+
+/**
+ * @doc method
+ * @id DS.async_methods:save
+ * @name save
+ * @description
+ * Save the item of the type specified by `resourceName` that has the primary key specified by `id`.
+ *
+ * ## Signature:
+ * ```js
+ * DS.save(resourceName, id[, options])
+ * ```
+ *
+ * ## Example:
+ *
+ * ```js
+ *  var document = DS.get('document', 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f');
+ *
+ *  document.title = 'How to cook in style';
+ *
+ *  DS.save('document', 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f')
+ *  .then(function (document) {
+ *      document; // A reference to the document that's been saved to the server
+ *  });
+ * ```
+ *
+ * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
+ * @param {string|number} id The primary key of the item to retrieve.
+ * @param {object=} options Optional configuration. Properties:
+ * - `{string=}` - `mergeStrategy` - When the updated item returns from the server, specify the merge strategy that
+ * should be used when the updated item is injected into the data store. Default: `"mergeWithExisting"`.
+ *
+ * @returns {Promise} Promise produced by the `$q` service.
+ *
+ * ## Resolves with:
+ *
+ * - `{object}` - `item` - A reference to the newly saved item.
+ *
+ * ## Rejects with:
+ *
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
+ */
+function save(resourceName, id, options) {
+	var deferred = services.$q.defer(),
+		promise = deferred.promise;
+
+	options = options || {};
+
+	if (!services.store[resourceName]) {
+		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
+	} else if (!utils.isString(id) && !utils.isNumber(id)) {
+		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
+	} else if (!utils.isObject(options)) {
+		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
+	} else if (!(id in services.store[resourceName].index)) {
+		deferred.reject(new errors.RuntimeError(errorPrefix + 'id: "' + id + '" not found!'));
+	} else {
+		var resource = services.store[resourceName],
+			_this = this;
+
+		promise = promise
+			.then(function (attrs) {
+				return services.$q.promisify(resource.beforeValidate)(resourceName, attrs);
+			})
+			.then(function (attrs) {
+				return services.$q.promisify(resource.validate)(resourceName, attrs);
+			})
+			.then(function (attrs) {
+				return services.$q.promisify(resource.afterValidate)(resourceName, attrs);
+			})
+			.then(function (attrs) {
+				return services.$q.promisify(resource.beforeUpdate)(resourceName, attrs);
+			})
+			.then(function (attrs) {
+				return services.adapters[resource.defaultAdapter].PUT(utils.makePath(resource.baseUrl, resource.endpoint, id), attrs, null);
+			})
+			.then(function (data) {
+				return services.$q.promisify(resource.afterUpdate)(resourceName, data);
+			})
+			.then(function (data) {
+				var saved = _this.inject(resource.name, data, options);
+				resource.previous_attributes[id] = utils.deepMixIn({}, data);
+				resource.saved[id] = utils.updateTimestamp(resource.saved[id]);
+				return saved;
+			});
+
+		deferred.resolve(resource.index[id]);
+	}
+
+	return promise;
+}
+
+module.exports = save;
+
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],36:[function(require,module,exports){
+var utils = require('utils'),
+	errors = require('errors'),
+	services = require('services'),
+	HttpAdapter = require('HttpAdapter'),
+	configErrorPrefix = 'DSProvider.config(options): ',
+	registerAdapterErrorPrefix = 'DSProvider.registerAdapter(name, adapter): ';
 
 /**
  * @doc method
@@ -2702,7 +1994,12 @@ var utils = require('utils'),
  * ## Example:
  * ```js
  *  DSProvider.config({
- *      baseUrl: 'http://myapp.com/api'
+ *      baseUrl: 'http://myapp.com/api',
+ *      idAttribute: '_id',
+ *      validate: function (resourceName, attrs, cb) {
+ *          console.log('looks good to me');
+ *          cb(null, attrs);
+ *      }
  *  });
  * ```
  *
@@ -2710,18 +2007,91 @@ var utils = require('utils'),
  *
  * - `{IllegalArgumentError}`
  *
- * @param {object} options Configuration for the data store.
+ * @param {object} options Global configuration for the data store. Properties:
+ * - `{string=}` - `baseUrl` - The default base url to be used by the data store. Can be overridden via `DS.defineResource`.
+ * - `{string=}` - `idAttribute` - The default property that specifies the primary key of an object. Default: `"id"`.
+ * - `{function=}` - `beforeValidate` - Global lifecycle hook. Signature: `beforeValidate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `validate` - Global lifecycle hook. Signature: `validate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `afterValidate` - Global lifecycle hook. Signature: `afterValidate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `beforeCreate` - Global lifecycle hook. Signature: `beforeCreate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `afterCreate` - Global lifecycle hook. Signature: `afterCreate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `beforeUpdate` - Global lifecycle hook. Signature: `beforeUpdate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `afterUpdate` - Global lifecycle hook. Signature: `afterUpdate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `beforeDestroy` - Global lifecycle hook. Signature: `beforeDestroy(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `afterDestroy` - Global lifecycle hook. Signature: `afterDestroy(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
  */
 function config(options) {
 	options = options || {};
 
 	if (!utils.isObject(options)) {
-		throw new IllegalArgumentError(errorPrefix + 'options: Must be an object!', { actual: typeof options, expected: 'object' });
-	} else if (!utils.isString(options.baseUrl)) {
-		throw new IllegalArgumentError(errorPrefix + 'options: Must be an object!', { baseUrl: { actual: typeof options, expected: 'object' } });
+		throw new errors.IllegalArgumentError(configErrorPrefix + 'options: Must be an object!', { actual: typeof options, expected: 'object' });
+	} else if ('baseUrl' in options && !utils.isString(options.baseUrl)) {
+		throw new errors.IllegalArgumentError(configErrorPrefix + 'options.baseUrl: Must be a string!', { baseUrl: { actual: typeof options.baseUrl, expected: 'string' } });
+	} else if ('idAttribute' in options && !utils.isString(options.idAttribute)) {
+		throw new errors.IllegalArgumentError(configErrorPrefix + 'options.idAttribute: Must be a string!', { idAttribute: { actual: typeof options.idAttribute, expected: 'string' } });
+	} else if ('mergeStrategy' in options && !utils.isString(options.mergeStrategy)) {
+		throw new errors.IllegalArgumentError(configErrorPrefix + 'options.mergeStrategy: Must be a string!', { mergeStrategy: { actual: typeof options.mergeStrategy, expected: 'string' } });
+	} else if ('beforeValidate' in options && !utils.isFunction(options.beforeValidate)) {
+		throw new errors.IllegalArgumentError(configErrorPrefix + 'options.beforeValidate: Must be a function!', { beforeValidate: { actual: typeof options.beforeValidate, expected: 'function' } });
+	} else if ('validate' in options && !utils.isFunction(options.validate)) {
+		throw new errors.IllegalArgumentError(configErrorPrefix + 'options.validate: Must be a function!', { validate: { actual: typeof options.validate, expected: 'function' } });
+	} else if ('afterValidate' in options && !utils.isFunction(options.afterValidate)) {
+		throw new errors.IllegalArgumentError(configErrorPrefix + 'options.afterValidate: Must be a function!', { afterValidate: { actual: typeof options.afterValidate, expected: 'function' } });
+	} else if ('beforeCreate' in options && !utils.isFunction(options.beforeCreate)) {
+		throw new errors.IllegalArgumentError(configErrorPrefix + 'options.beforeCreate: Must be a function!', { beforeCreate: { actual: typeof options.beforeCreate, expected: 'function' } });
+	} else if ('afterCreate' in options && !utils.isFunction(options.afterCreate)) {
+		throw new errors.IllegalArgumentError(configErrorPrefix + 'options.afterCreate: Must be a function!', { afterCreate: { actual: typeof options.afterCreate, expected: 'function' } });
+	} else if ('beforeUpdate' in options && !utils.isFunction(options.beforeUpdate)) {
+		throw new errors.IllegalArgumentError(configErrorPrefix + 'options.beforeUpdate: Must be a function!', { beforeUpdate: { actual: typeof options.beforeUpdate, expected: 'function' } });
+	} else if ('afterUpdate' in options && !utils.isFunction(options.afterUpdate)) {
+		throw new errors.IllegalArgumentError(configErrorPrefix + 'options.afterUpdate: Must be a function!', { afterUpdate: { actual: typeof options.afterUpdate, expected: 'function' } });
+	} else if ('beforeDestroy' in options && !utils.isFunction(options.beforeDestroy)) {
+		throw new errors.IllegalArgumentError(configErrorPrefix + 'options.beforeDestroy: Must be a function!', { beforeDestroy: { actual: typeof options.beforeDestroy, expected: 'function' } });
+	} else if ('afterDestroy' in options && !utils.isFunction(options.afterDestroy)) {
+		throw new errors.IllegalArgumentError(configErrorPrefix + 'options.afterDestroy: Must be a function!', { afterDestroy: { actual: typeof options.afterDestroy, expected: 'function' } });
+	} else if ('defaultAdapter' in options && !utils.isString(options.defaultAdapter)) {
+		throw new errors.IllegalArgumentError(configErrorPrefix + 'options.defaultAdapter: Must be a function!', { defaultAdapter: { actual: typeof options.defaultAdapter, expected: 'string' } });
 	}
 
-	utils.deepMixIn(services.config, options);
+	services.config = new services.BaseConfig(options);
+}
+
+/**
+ * @doc method
+ * @id DSProvider.methods:registerAdapter
+ * @name registerAdapter
+ * @description
+ * Register a new adapter.
+ *
+ * ## Signature:
+ * ```js
+ * DSProvider.registerAdapter(name, adapter);
+ * ```
+ *
+ * ## Example:
+ * ```js
+ *  DSProvider.registerAdapter('IndexedDBAdapter', {...});
+ * ```
+ *
+ * ## Throws:
+ *
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ *
+ * @param {string} name The name of the new adapter.
+ * @param {object} adapter New adapter.
+ */
+function registerAdapter(name, adapter) {
+
+	if (!utils.isString(name)) {
+		throw new errors.IllegalArgumentError(registerAdapterErrorPrefix + 'name: Must be a string!', { actual: typeof name, expected: 'string' });
+	} else if (!utils.isObject(adapter)) {
+		throw new errors.IllegalArgumentError(registerAdapterErrorPrefix + 'adapter: Must be an object!', { actual: typeof adapter, expected: 'object' });
+	} else if (services.adapters[name]) {
+		throw new errors.RuntimeError(registerAdapterErrorPrefix + name + ' is already registered!');
+	}
+
+	services.adapters[name] = adapter;
 }
 
 /**
@@ -2741,6 +2111,18 @@ function DSProvider() {
 	 */
 	this.config = config;
 
+	config({});
+
+	/**
+	 * @doc method
+	 * @id DSProvider.methods:registerAdapter
+	 * @name config
+	 * @methodOf DSProvider
+	 * @description
+	 * See [DSProvider.registerAdapter](/documentation/api/api/DSProvider.methods:registerAdapter).
+	 */
+	this.registerAdapter = registerAdapter;
+
 	this.$get = ['$rootScope', '$log', '$http', '$q', function ($rootScope, $log, $http, $q) {
 
 		services.$rootScope = $rootScope;
@@ -2748,6 +2130,9 @@ function DSProvider() {
 		services.$http = $http;
 		services.$q = $q;
 		services.store = {};
+		services.adapters = {};
+
+		registerAdapter('HttpAdapter', HttpAdapter);
 
 		/**
 		 * @doc interface
@@ -2756,13 +2141,13 @@ function DSProvider() {
 		 * @description
 		 * Data store
 		 */
-		var DS = {};
+		var DS = {
+			HttpAdapter: HttpAdapter,
+			errors: errors
+		};
 
-		utils.deepMixIn(DS, require('./http'));
 		utils.deepMixIn(DS, require('./sync_methods'));
 		utils.deepMixIn(DS, require('./async_methods'));
-
-		DS.errors = errors;
 
 		utils.deepFreeze(DS);
 
@@ -2781,17 +2166,81 @@ function DSProvider() {
 
 module.exports = DSProvider;
 
-},{"./async_methods":31,"./http":34,"./sync_methods":45,"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],"services":[function(require,module,exports){
-module.exports=require('cX8q+p');
-},{}],"cX8q+p":[function(require,module,exports){
-module.exports = {
-	config: {
-		idAttribute: 'id'
-	},
-	store: {}
+},{"./async_methods":33,"./sync_methods":46,"HttpAdapter":"clHM+W","errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],"cX8q+p":[function(require,module,exports){
+function lifecycleNoop(resourceName, attrs, cb) {
+	cb(null, attrs);
+}
+
+var services = module.exports = {
+	store: {},
+	BaseConfig: function (options) {
+		if ('idAttribute' in options) {
+			this.idAttribute = options.idAttribute;
+		}
+
+		if ('baseUrl' in options) {
+			this.baseUrl = options.baseUrl;
+		}
+
+		if ('beforeValidate' in options) {
+			this.beforeValidate = options.beforeValidate;
+		}
+
+		if ('validate' in options) {
+			this.validate = options.validate;
+		}
+
+		if ('afterValidate' in options) {
+			this.afterValidate = options.afterValidate;
+		}
+
+		if ('beforeCreate' in options) {
+			this.beforeCreate = options.beforeCreate;
+		}
+
+		if ('afterCreate' in options) {
+			this.afterCreate = options.afterCreate;
+		}
+
+		if ('beforeUpdate' in options) {
+			this.beforeUpdate = options.beforeUpdate;
+		}
+
+		if ('afterUpdate' in options) {
+			this.afterUpdate = options.afterUpdate;
+		}
+
+		if ('beforeDestroy' in options) {
+			this.beforeDestroy = options.beforeDestroy;
+		}
+
+		if ('afterDestroy' in options) {
+			this.afterDestroy = options.afterDestroy;
+		}
+
+		if ('defaultAdapter' in options) {
+			this.defaultAdapter = options.defaultAdapter;
+		}
+	}
 };
 
-},{}],38:[function(require,module,exports){
+services.BaseConfig.prototype.idAttribute = 'id';
+services.BaseConfig.prototype.defaultAdapter = 'HttpAdapter';
+services.BaseConfig.prototype.baseUrl = '';
+services.BaseConfig.prototype.endpoint = '';
+services.BaseConfig.prototype.beforeValidate = lifecycleNoop;
+services.BaseConfig.prototype.validate = lifecycleNoop;
+services.BaseConfig.prototype.afterValidate = lifecycleNoop;
+services.BaseConfig.prototype.beforeCreate = lifecycleNoop;
+services.BaseConfig.prototype.afterCreate = lifecycleNoop;
+services.BaseConfig.prototype.beforeUpdate = lifecycleNoop;
+services.BaseConfig.prototype.afterUpdate = lifecycleNoop;
+services.BaseConfig.prototype.beforeDestroy = lifecycleNoop;
+services.BaseConfig.prototype.afterDestroy = lifecycleNoop;
+
+},{}],"services":[function(require,module,exports){
+module.exports=require('cX8q+p');
+},{}],39:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	services = require('services'),
@@ -2839,7 +2288,7 @@ function changes(resourceName, id) {
 	}
 
 	try {
-		return utils.deepMixIn({}, services.store[resourceName].changes[id]);
+		return angular.copy(services.store[resourceName].changes[id]);
 	} catch (err) {
 		throw new errors.UnhandledError(err);
 	}
@@ -2847,11 +2296,38 @@ function changes(resourceName, id) {
 
 module.exports = changes;
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],39:[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],40:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	services = require('services'),
 	errorPrefix = 'DS.defineResource(definition): ';
+
+function Resource(options) {
+	services.BaseConfig.apply(this, [options]);
+
+	if ('name' in options) {
+		this.name = options.name;
+	}
+
+	if ('endpoint' in options) {
+		this.endpoint = options.endpoint;
+	} else {
+		this.endpoint = this.name;
+	}
+
+	this.collection = [];
+	this.completedQueries = {};
+	this.pendingQueries = {};
+	this.index = {};
+	this.modified = {};
+	this.changes = {};
+	this.previous_attributes = {};
+	this.saved = {};
+	this.observers = {};
+	this.collectionModified = 0;
+}
+
+Resource.prototype = services.config;
 
 /**
  * @doc method
@@ -2873,9 +2349,9 @@ var utils = require('utils'),
  *      idAttribute: '_id',
  *      endpoint: '/documents
  *      baseUrl: 'http://myapp.com/api',
- *      validate: function (attrs, options, cb) {
+ *      beforeDestroy: function (resourceName attrs, cb) {
  *          console.log('looks good to me');
- *          cb(null);
+ *          cb(null, attrs);
  *      }
  *  });
  * ```
@@ -2891,8 +2367,16 @@ var utils = require('utils'),
  * - `{string}` - `name` - The name by which this resource will be identified.
  * - `{string="id"}` - `idAttribute` - The attribute that specifies the primary key for this resource.
  * - `{string=}` - `endpoint` - The attribute that specifies the primary key for this resource. Default is the value of `name`.
- * - `{string="/"}` - `baseUrl` - The url relative to which all AJAX requests will be made.
- * - `{function=}` - `validate` - The validation function to be executed before create operations.
+ * - `{string=}` - `baseUrl` - The url relative to which all AJAX requests will be made.
+ * - `{function=}` - `beforeValidate` - Lifecycle hook. Overrides global. Signature: `beforeValidate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `validate` - Lifecycle hook. Overrides global. Signature: `validate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `afterValidate` - Lifecycle hook. Overrides global. Signature: `afterValidate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `beforeCreate` - Lifecycle hook. Overrides global. Signature: `beforeCreate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `afterCreate` - Lifecycle hook. Overrides global. Signature: `afterCreate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `beforeUpdate` - Lifecycle hook. Overrides global. Signature: `beforeUpdate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `afterUpdate` - Lifecycle hook. Overrides global. Signature: `afterUpdate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `beforeDestroy` - Lifecycle hook. Overrides global. Signature: `beforeDestroy(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `afterDestroy` - Lifecycle hook. Overrides global. Signature: `afterDestroy(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
  */
 function defineResource(definition) {
 	if (utils.isString(definition)) {
@@ -2906,25 +2390,14 @@ function defineResource(definition) {
 		throw new errors.IllegalArgumentError(errorPrefix + 'definition.name: Must be a string!', { definition: { name: { actual: typeof definition.name, expected: 'string' } } });
 	} else if (definition.idAttribute && !utils.isString(definition.idAttribute)) {
 		throw new errors.IllegalArgumentError(errorPrefix + 'definition.idAttribute: Must be a string!', { definition: { idAttribute: { actual: typeof definition.idAttribute, expected: 'string' } } });
+	} else if (definition.endpoint && !utils.isString(definition.endpoint)) {
+		throw new errors.IllegalArgumentError(errorPrefix + 'definition.endpoint: Must be a string!', { definition: { endpoint: { actual: typeof definition.endpoint, expected: 'string' } } });
 	} else if (services.store[definition.name]) {
 		throw new errors.RuntimeError(errorPrefix + definition.name + ' is already registered!');
 	}
 
 	try {
-		services.store[definition.name] = definition;
-
-		var resource = services.store[definition.name];
-		resource.collection = [];
-		resource.completedQueries = {};
-		resource.pendingQueries = {};
-		resource.index = {};
-		resource.modified = {};
-		resource.changes = {};
-		resource.previous_attributes = {};
-		resource.saved = {};
-		resource.observers = {};
-		resource.collectionModified = 0;
-		resource.idAttribute = resource.idAttribute || services.config.idAttribute || 'id';
+		services.store[definition.name] = new Resource(definition);
 	} catch (err) {
 		delete services.store[definition.name];
 		throw new errors.UnhandledError(err);
@@ -2933,7 +2406,7 @@ function defineResource(definition) {
 
 module.exports = defineResource;
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],40:[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],41:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	services = require('services'),
@@ -2978,7 +2451,7 @@ function digest() {
 
 module.exports = digest;
 
-},{"errors":"hIh4e1","observejs":"q+M0EE","services":"cX8q+p","utils":"uE/lJt"}],41:[function(require,module,exports){
+},{"errors":"hIh4e1","observejs":"u+GZEJ","services":"cX8q+p","utils":"uE/lJt"}],42:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	services = require('services'),
@@ -2986,23 +2459,30 @@ var utils = require('utils'),
 
 function _eject(resource, id) {
 	if (id) {
+		var found = false;
 		for (var i = 0; i < resource.collection.length; i++) {
-			if (resource.collection[i][resource.idAttribute || 'id'] == id) {
+			if (resource.collection[i][resource.idAttribute] == id) {
+				found = true;
 				break;
 			}
 		}
-		resource.collection.splice(i, 1);
-		resource.observers[id].close();
-		delete resource.observers[id];
-		delete resource.index[id];
-		delete resource.changes[id];
-		delete resource.previous_attributes[id];
-		delete resource.modified[id];
-		delete resource.saved[id];
+		if (found) {
+			resource.collection.splice(i, 1);
+			resource.observers[id].close();
+			delete resource.observers[id];
+			delete resource.index[id];
+			delete resource.changes[id];
+			delete resource.previous_attributes[id];
+			delete resource.modified[id];
+			delete resource.saved[id];
+		}
 	} else {
 		resource.collection = [];
 		resource.index = {};
 		resource.modified = {};
+		resource.saved = {};
+		resource.changes = {};
+		resource.previous_attributes = {};
 	}
 	resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
 }
@@ -3048,7 +2528,7 @@ function _eject(resource, id) {
  * - `{UnhandledError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
- * @param {string|number} id The primary key of the item to eject.
+ * @param {string|number=} id The primary key of the item to eject.
  */
 function eject(resourceName, id) {
 	if (!services.store[resourceName]) {
@@ -3072,7 +2552,7 @@ function eject(resourceName, id) {
 
 module.exports = eject;
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],42:[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],43:[function(require,module,exports){
 /* jshint loopfunc: true */
 var utils = require('utils'),
 	errors = require('errors'),
@@ -3251,7 +2731,7 @@ function filter(resourceName, params, options) {
 
 module.exports = filter;
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],43:[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],44:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	services = require('services'),
@@ -3302,7 +2782,9 @@ function get(resourceName, id, options) {
 	try {
 		// cache miss, request resource from server
 		if (!(id in services.store[resourceName].index) && options.loadFromServer) {
-			this.find(resourceName, id);
+			this.find(resourceName, id).then(null, function (err) {
+				throw err;
+			});
 		}
 
 		// return resource from cache
@@ -3314,16 +2796,16 @@ function get(resourceName, id, options) {
 
 module.exports = get;
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],44:[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],45:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	services = require('services'),
 	errorPrefix = 'DS.hasChanges(resourceName, id): ';
 
 function diffIsEmpty(diff) {
-	return utils.isEmpty(diff.added) &&
+	return !(utils.isEmpty(diff.added) &&
 		utils.isEmpty(diff.removed) &&
-		utils.isEmpty(diff.changed);
+		utils.isEmpty(diff.changed));
 }
 
 /**
@@ -3368,7 +2850,11 @@ function hasChanges(resourceName, id) {
 
 	try {
 		// return resource from cache
-		return diffIsEmpty(services.store[resourceName].changes[id]);
+		if (id in services.store[resourceName].changes) {
+			return diffIsEmpty(services.store[resourceName].changes[id]);
+		} else {
+			return false;
+		}
 	} catch (err) {
 		throw new errors.UnhandledError(err);
 	}
@@ -3376,7 +2862,7 @@ function hasChanges(resourceName, id) {
 
 module.exports = hasChanges;
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],45:[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],46:[function(require,module,exports){
 module.exports = {
 	/**
 	 * @doc method
@@ -3488,7 +2974,7 @@ module.exports = {
 	hasChanges: require('./hasChanges')
 };
 
-},{"./changes":38,"./defineResource":39,"./digest":40,"./eject":41,"./filter":42,"./get":43,"./hasChanges":44,"./inject":46,"./lastModified":47,"./lastSaved":48,"./previous":49}],46:[function(require,module,exports){
+},{"./changes":39,"./defineResource":40,"./digest":41,"./eject":42,"./filter":43,"./get":44,"./hasChanges":45,"./inject":47,"./lastModified":48,"./lastSaved":49,"./previous":50}],47:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	services = require('services'),
@@ -3498,43 +2984,52 @@ var utils = require('utils'),
 function _inject(resource, attrs) {
 	var _this = this;
 
+	function _react(added, removed, changed, getOldValueFn) {
+		try {
+			var innerId = getOldValueFn(resource.idAttribute);
+
+			resource.changes[innerId] = utils.diffObjectFromOldObject(resource.index[innerId], resource.previous_attributes[innerId]);
+			resource.modified[innerId] = utils.updateTimestamp(resource.modified[innerId]);
+			resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
+
+			if (resource.idAttribute in changed) {
+				services.$log.error('Doh! You just changed the primary key of an object! ' +
+					'I don\'t know how to handle this yet, so your data for the "' + resource.name +
+					'" resource is now in an undefined (probably broken) state.');
+			}
+		} catch (err) {
+			throw new errors.UnhandledError(err);
+		}
+	}
+
 	if (utils.isArray(attrs)) {
 		for (var i = 0; i < attrs.length; i++) {
 			_inject.call(_this, resource, attrs[i]);
 		}
 	} else {
-		var id = attrs[resource.idAttribute || 'id'];
-
-		if (!(id in resource.index)) {
-			resource.index[id] = {};
-			resource.previous_attributes[id] = {};
-
-			utils.deepMixIn(resource.index[id], attrs);
-			utils.deepMixIn(resource.previous_attributes[id], attrs);
-
-			resource.collection.push(resource.index[id]);
-
-			resource.observers[id] = new observe.ObjectObserver(resource.index[id], function (added, removed, changed, getOldValueFn) {
-				try {
-					var innerId = getOldValueFn(resource.idAttribute || 'id');
-
-					if (resource.index[innerId][resource.idAttribute || 'id'] != innerId) {
-						resource.index[innerId][resource.idAttribute || 'id'] = innerId;
-						services.$log.error('You cannot change the primary key of an object! Reverting change to primary key.');
-					}
-
-					resource.changes[innerId] = utils.diffObjectFromOldObject(resource.index[innerId], resource.previous_attributes[innerId]);
-					resource.modified[innerId] = utils.updateTimestamp(resource.modified[innerId]);
-					resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
-				} catch (err) {
-					throw new errors.UnhandledError(err);
-				}
-			});
-
-			resource.observers[id].deliver();
+		if (!(resource.idAttribute in attrs)) {
+			throw new errors.RuntimeError(errorPrefix + 'attrs: Must contain the property specified by `idAttribute`!');
 		} else {
-			utils.deepMixIn(resource.index[id], attrs);
-			resource.observers[id].deliver();
+			var id = attrs[resource.idAttribute];
+
+			if (!(id in resource.index)) {
+				resource.index[id] = {};
+				resource.previous_attributes[id] = {};
+
+				utils.deepMixIn(resource.index[id], attrs);
+				utils.deepMixIn(resource.previous_attributes[id], attrs);
+
+				resource.collection.push(resource.index[id]);
+
+				resource.observers[id] = new observe.ObjectObserver(resource.index[id], _react);
+
+				_react({}, {}, {}, function () {
+					return id;
+				});
+			} else {
+				utils.deepMixIn(resource.index[id], attrs);
+				resource.observers[id].deliver();
+			}
 		}
 	}
 }
@@ -3599,28 +3094,27 @@ function inject(resourceName, attrs, options) {
 	var resource = services.store[resourceName],
 		_this = this;
 
-	var idAttribute = resource.idAttribute || 'id';
-	if (!attrs[idAttribute]) {
-		throw new errors.RuntimeError(errorPrefix + 'attrs: Must contain the property specified by `idAttribute` in the resource definition!');
-	} else {
-		try {
-			if (!services.$rootScope.$$phase) {
-				services.$rootScope.$apply(function () {
-					_inject.apply(_this, [services.store[resourceName], attrs]);
-				});
-			} else {
+	try {
+		if (!services.$rootScope.$$phase) {
+			services.$rootScope.$apply(function () {
 				_inject.apply(_this, [services.store[resourceName], attrs]);
-			}
-		} catch (err) {
-			throw new errors.UnhandledError(err);
+			});
+		} else {
+			_inject.apply(_this, [services.store[resourceName], attrs]);
 		}
-		return resource.index[attrs[idAttribute]];
+		return attrs;
+	} catch (err) {
+		if (!(err instanceof errors.RuntimeError)) {
+			throw new errors.UnhandledError(err);
+		} else {
+			throw err;
+		}
 	}
 }
 
 module.exports = inject;
 
-},{"errors":"hIh4e1","observejs":"q+M0EE","services":"cX8q+p","utils":"uE/lJt"}],47:[function(require,module,exports){
+},{"errors":"hIh4e1","observejs":"u+GZEJ","services":"cX8q+p","utils":"uE/lJt"}],48:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	services = require('services'),
@@ -3664,7 +3158,7 @@ function lastModified(resourceName, id) {
 	if (!services.store[resourceName]) {
 		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
 	} else if (id && !utils.isString(id) && !utils.isNumber(id)) {
-		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or number!', { id: { actual: typeof id, expected: 'string|number' } });
+		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 	try {
 		if (id) {
@@ -3681,7 +3175,7 @@ function lastModified(resourceName, id) {
 
 module.exports = lastModified;
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],48:[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],49:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	services = require('services'),
@@ -3732,7 +3226,7 @@ function lastSaved(resourceName, id) {
 	if (!services.store[resourceName]) {
 		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
 	} else if (id && !utils.isString(id) && !utils.isNumber(id)) {
-		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or number!', { id: { actual: typeof id, expected: 'string|number' } });
+		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 	try {
 		if (id) {
@@ -3749,7 +3243,7 @@ function lastSaved(resourceName, id) {
 
 module.exports = lastSaved;
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],49:[function(require,module,exports){
+},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],50:[function(require,module,exports){
 var utils = require('utils'),
 	errors = require('errors'),
 	services = require('services'),
@@ -4021,7 +3515,7 @@ module.exports = {
 	RuntimeError: RuntimeError
 };
 
-},{}],52:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 (function (window, angular, undefined) {
 	'use strict';
 
@@ -4064,17 +3558,46 @@ module.exports = {
 //	}
 //	angular.module('jmdobry.binary-heap').provider('BinaryHeap', BinaryHeapProvider);
 
-	angular.module('jmdobry.angular-data', ['ng'/*, 'jmdobry.binary-heap'*/]);
+	angular.module('jmdobry.angular-data', ['ng'/*, 'jmdobry.binary-heap'*/]).config(['$provide', function ($provide) {
+		$provide.decorator('$q', function ($delegate) {
+			// do whatever you you want
+			$delegate.promisify = function (fn, target) {
+				var _this = this;
+				return function () {
+					var deferred = _this.defer(),
+						args = Array.prototype.slice.apply(arguments);
+
+					args.push(function (err, result) {
+						if (err) {
+							deferred.reject(err);
+						} else {
+							deferred.resolve(result);
+						}
+					});
+
+					try {
+						fn.apply(target || this, args);
+					} catch (err) {
+						deferred.reject(err);
+					}
+
+					return deferred.promise;
+				};
+			};
+			return $delegate;
+		});
+	}]);
 	angular.module('jmdobry.angular-data').provider('DS', require('./datastore'));
 
 })(window, window.angular);
 
-},{"./datastore":35}],"uE/lJt":[function(require,module,exports){
+},{"./datastore":36}],"uE/lJt":[function(require,module,exports){
 module.exports = {
 	isString: angular.isString,
 	isArray: angular.isArray,
 	isObject: angular.isObject,
 	isNumber: angular.isNumber,
+	isFunction: angular.isFunction,
 	isEmpty: require('mout/lang/isEmpty'),
 	toJson: angular.toJson,
 	makePath: require('mout/string/makePath'),
@@ -4146,6 +3669,6 @@ module.exports = {
 	}
 };
 
-},{"mout/array/contains":1,"mout/array/filter":2,"mout/array/slice":5,"mout/array/sort":6,"mout/array/toLookup":7,"mout/lang/isEmpty":12,"mout/object/deepMixIn":19,"mout/object/forOwn":21,"mout/string/makePath":23,"mout/string/upperCase":24}],"utils":[function(require,module,exports){
+},{"mout/array/contains":3,"mout/array/filter":4,"mout/array/slice":7,"mout/array/sort":8,"mout/array/toLookup":9,"mout/lang/isEmpty":14,"mout/object/deepMixIn":21,"mout/object/forOwn":23,"mout/string/makePath":25,"mout/string/upperCase":26}],"utils":[function(require,module,exports){
 module.exports=require('uE/lJt');
-},{}]},{},[52])
+},{}]},{},[53])

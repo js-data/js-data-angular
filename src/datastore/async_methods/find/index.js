@@ -1,7 +1,6 @@
 var utils = require('utils'),
 	errors = require('errors'),
 	services = require('services'),
-	GET = require('../../http').GET,
 	errorPrefix = 'DS.find(resourceName, id[, options]): ';
 
 /**
@@ -49,7 +48,9 @@ var utils = require('utils'),
  * - `{UnhandledError}`
  */
 function find(resourceName, id, options) {
-	var deferred = $q.defer();
+	var deferred = services.$q.defer(),
+		promise = deferred.promise;
+
 	options = options || {};
 
 	if (!services.store[resourceName]) {
@@ -59,43 +60,35 @@ function find(resourceName, id, options) {
 	} else if (!utils.isObject(options)) {
 		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
 	} else {
-		var _this = this;
-
 		try {
-			var resource = services.store[resourceName];
+			var resource = services.store[resourceName],
+				_this = this;
 
-			if (id in resource.index && !options.bypassCache) {
-				deferred.resolve(_this.get(resourceName, id));
-			} else {
-				var url = utils.makePath(resource.baseUrl || services.config.baseUrl, resource.endpoint || resource.name, id),
-					config = null;
+			if (options.bypassCache) {
+				delete resource.completedQueries[id];
+			}
 
-				if (options.bypassCache) {
-					config = {
-						headers: {
-							'Last-Modified': new Date(resource.modified[id])
-						}
-					};
+			if (!(id in resource.completedQueries)) {
+				if (!(id in resource.pendingQueries)) {
+					promise = resource.pendingQueries[id] = services.adapters[resource.defaultAdapter].GET(utils.makePath(resource.baseUrl, resource.endpoint, id), null)
+						.then(function (data) {
+							// Query is no longer pending
+							delete resource.pendingQueries[id];
+							resource.completedQueries[id] = new Date().getTime();
+							return _this.inject(resourceName, data);
+						});
 				}
-				GET(url, config).then(function (data) {
-					try {
-						_this.inject(resourceName, data);
-						deferred.resolve(_this.get(resourceName, id));
-					} catch (err) {
-						deferred.reject(err);
-					}
-				}, deferred.reject);
+
+				return resource.pendingQueries[id];
+			} else {
+				deferred.resolve(_this.get(resourceName, id));
 			}
 		} catch (err) {
-			if (!(err instanceof errors.UnhandledError)) {
-				deferred.reject(new errors.UnhandledError(err));
-			} else {
-				deferred.reject(err);
-			}
+			deferred.reject(err);
 		}
 	}
 
-	return deferred.promise;
+	return promise;
 }
 
 module.exports = find;

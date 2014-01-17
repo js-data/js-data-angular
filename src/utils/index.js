@@ -3,6 +3,7 @@ module.exports = {
 	isArray: angular.isArray,
 	isObject: angular.isObject,
 	isNumber: angular.isNumber,
+	isFunction: angular.isFunction,
 	isEmpty: require('mout/lang/isEmpty'),
 	toJson: angular.toJson,
 	makePath: require('mout/string/makePath'),

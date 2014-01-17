@@ -45,47 +45,48 @@ var utils = require('utils'),
  * - `{UnhandledError}`
  */
 function create(resourceName, attrs) {
-	var deferred = $q.defer();
+	var deferred = services.$q.defer(),
+		promise = deferred.promise;
+
 	if (!services.store[resourceName]) {
 		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
 	} else if (!utils.isObject(attrs)) {
 		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'attrs: Must be an object!', { attrs: { actual: typeof attrs, expected: 'object' } }));
-	}
+	} else {
+		try {
+			var resource = services.store[resourceName],
+				_this = this;
 
-	try {
-		var resource = services.store[resourceName],
-			_this = this,
-			url = utils.makePath(resource.baseUrl || services.config.baseUrl, resource.endpoint || resource.name);
+			promise = promise
+				.then(function (attrs) {
+					return services.$q.promisify(resource.beforeValidate)(resourceName, attrs);
+				})
+				.then(function (attrs) {
+					return services.$q.promisify(resource.validate)(resourceName, attrs);
+				})
+				.then(function (attrs) {
+					return services.$q.promisify(resource.afterValidate)(resourceName, attrs);
+				})
+				.then(function (attrs) {
+					return services.$q.promisify(resource.beforeCreate)(resourceName, attrs);
+				})
+				.then(function (attrs) {
+					return services.adapters[resource.defaultAdapter].POST.apply(_this, [utils.makePath(resource.baseUrl, resource.endpoint), attrs, null]);
+				})
+				.then(function (data) {
+					return services.$q.promisify(resource.afterCreate)(resourceName, data);
+				})
+				.then(function (data) {
+					return _this.inject(resource.name, data);
+				});
 
-		if (resource.validate) {
-			resource.validate(attrs, null, function (err) {
-				if (err) {
-					deferred.reject(err);
-				} else {
-
-					_this.POST(url, attrs, null).then(function (data) {
-						try {
-							deferred.resolve(_this.inject(resource.name, data));
-						} catch (err) {
-							deferred.reject(err);
-						}
-					}, deferred.reject);
-				}
-			});
-		} else {
-			_this.POST(url, attrs, null).then(function (data) {
-				try {
-					deferred.resolve(_this.inject(resource.name, data));
-				} catch (err) {
-					deferred.reject(err);
-				}
-			}, deferred.reject);
+			deferred.resolve(attrs);
+		} catch (err) {
+			deferred.reject(new errors.UnhandledError(err));
 		}
-	} catch (err) {
-		deferred.reject(new errors.UnhandledError(err));
 	}
 
-	return deferred.promise;
+	return promise;
 }
 
 module.exports = create;
