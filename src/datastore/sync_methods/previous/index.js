@@ -1,7 +1,4 @@
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	errorPrefix = 'DS.previous(resourceName, id): ';
+var errorPrefix = 'DS.previous(resourceName, id): ';
 
 /**
  * @doc method
@@ -39,17 +36,17 @@ var utils = require('utils'),
  * @returns {object} The previous attributes of the item of the type specified by `resourceName` with the primary key specified by `id`.
  */
 function previous(resourceName, id) {
-	if (!services.store[resourceName]) {
-		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (!utils.isString(id) && !utils.isNumber(id)) {
-		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+	if (!this.definitions[resourceName]) {
+		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 
 	try {
 		// return resource from cache
-		return angular.copy(services.store[resourceName].previous_attributes[id]);
+		return angular.copy(this.store[resourceName].previousAttributes[id]);
 	} catch (err) {
-		throw new errors.UnhandledError(err);
+		throw new this.errors.UnhandledError(err);
 	}
 }
 

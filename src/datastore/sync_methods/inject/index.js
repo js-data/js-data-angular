@@ -1,46 +1,43 @@
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	observe = require('observejs'),
+var observe = require('observejs'),
 	errorPrefix = 'DS.inject(resourceName, attrs[, options]): ';
 
-function _inject(resource, attrs) {
+function _inject(definition, resource, attrs) {
 	var _this = this;
 
 	function _react(added, removed, changed, getOldValueFn) {
 		try {
-			var innerId = getOldValueFn(resource.idAttribute);
+			var innerId = getOldValueFn(definition.idAttribute);
 
-			resource.changes[innerId] = utils.diffObjectFromOldObject(resource.index[innerId], resource.previous_attributes[innerId]);
-			resource.modified[innerId] = utils.updateTimestamp(resource.modified[innerId]);
-			resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
+			resource.changes[innerId] = _this.utils.diffObjectFromOldObject(resource.index[innerId], resource.previousAttributes[innerId]);
+			resource.modified[innerId] = _this.utils.updateTimestamp(resource.modified[innerId]);
+			resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
 
-			if (resource.idAttribute in changed) {
-				services.$log.error('Doh! You just changed the primary key of an object! ' +
-					'I don\'t know how to handle this yet, so your data for the "' + resource.name +
+			if (definition.idAttribute in changed) {
+				$log.error('Doh! You just changed the primary key of an object! ' +
+					'I don\'t know how to handle this yet, so your data for the "' + definition.name +
 					'" resource is now in an undefined (probably broken) state.');
 			}
 		} catch (err) {
-			throw new errors.UnhandledError(err);
+			throw new _this.errors.UnhandledError(err);
 		}
 	}
 
-	if (utils.isArray(attrs)) {
+	if (_this.utils.isArray(attrs)) {
 		for (var i = 0; i < attrs.length; i++) {
-			_inject.call(_this, resource, attrs[i]);
+			_inject.call(_this, definition, resource, attrs[i]);
 		}
 	} else {
-		if (!(resource.idAttribute in attrs)) {
-			throw new errors.RuntimeError(errorPrefix + 'attrs: Must contain the property specified by `idAttribute`!');
+		if (!(definition.idAttribute in attrs)) {
+			throw new _this.errors.RuntimeError(errorPrefix + 'attrs: Must contain the property specified by `idAttribute`!');
 		} else {
-			var id = attrs[resource.idAttribute];
+			var id = attrs[definition.idAttribute];
 
 			if (!(id in resource.index)) {
 				resource.index[id] = {};
-				resource.previous_attributes[id] = {};
+				resource.previousAttributes[id] = {};
 
-				utils.deepMixIn(resource.index[id], attrs);
-				utils.deepMixIn(resource.previous_attributes[id], attrs);
+				_this.utils.deepMixIn(resource.index[id], attrs);
+				_this.utils.deepMixIn(resource.previousAttributes[id], attrs);
 
 				resource.collection.push(resource.index[id]);
 
@@ -50,7 +47,7 @@ function _inject(resource, attrs) {
 					return id;
 				});
 			} else {
-				utils.deepMixIn(resource.index[id], attrs);
+				_this.utils.deepMixIn(resource.index[id], attrs);
 				resource.observers[id].deliver();
 			}
 		}
@@ -106,29 +103,30 @@ function _inject(resource, attrs) {
 function inject(resourceName, attrs, options) {
 	options = options || {};
 
-	if (!services.store[resourceName]) {
-		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (!utils.isObject(attrs) && !utils.isArray(attrs)) {
-		throw new errors.IllegalArgumentError(errorPrefix + 'attrs: Must be an object or an array!', { attrs: { actual: typeof attrs, expected: 'object|array' } });
-	} else if (!utils.isObject(options)) {
-		throw new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
+	if (!this.definitions[resourceName]) {
+		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+	} else if (!this.utils.isObject(attrs) && !this.utils.isArray(attrs)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'attrs: Must be an object or an array!', { attrs: { actual: typeof attrs, expected: 'object|array' } });
+	} else if (!this.utils.isObject(options)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
 	}
 
-	var resource = services.store[resourceName],
+	var definition = this.definitions[resourceName],
+		resource = this.store[resourceName],
 		_this = this;
 
 	try {
-		if (!services.$rootScope.$$phase) {
-			services.$rootScope.$apply(function () {
-				_inject.apply(_this, [services.store[resourceName], attrs]);
+		if (!this.$rootScope.$$phase) {
+			this.$rootScope.$apply(function () {
+				_inject.apply(_this, [definition, resource, attrs]);
 			});
 		} else {
-			_inject.apply(_this, [services.store[resourceName], attrs]);
+			_inject.apply(_this, [definition, resource, attrs]);
 		}
 		return attrs;
 	} catch (err) {
-		if (!(err instanceof errors.RuntimeError)) {
-			throw new errors.UnhandledError(err);
+		if (!(err instanceof this.errors.RuntimeError)) {
+			throw new this.errors.UnhandledError(err);
 		} else {
 			throw err;
 		}

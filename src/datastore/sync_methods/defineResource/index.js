@@ -1,34 +1,15 @@
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	errorPrefix = 'DS.defineResource(definition): ';
+var errorPrefix = 'DS.defineResource(definition): ';
 
-function Resource(options) {
-	services.BaseConfig.apply(this, [options]);
+function Resource(utils, options) {
 
-	if ('name' in options) {
-		this.name = options.name;
-	}
+	utils.deepMixIn(this, options);
 
 	if ('endpoint' in options) {
 		this.endpoint = options.endpoint;
 	} else {
 		this.endpoint = this.name;
 	}
-
-	this.collection = [];
-	this.completedQueries = {};
-	this.pendingQueries = {};
-	this.index = {};
-	this.modified = {};
-	this.changes = {};
-	this.previous_attributes = {};
-	this.saved = {};
-	this.observers = {};
-	this.collectionModified = 0;
 }
-
-Resource.prototype = services.config;
 
 /**
  * @doc method
@@ -80,28 +61,43 @@ Resource.prototype = services.config;
  * - `{function=}` - `afterDestroy` - Lifecycle hook. Overrides global. Signature: `afterDestroy(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
  */
 function defineResource(definition) {
-	if (utils.isString(definition)) {
+	if (this.utils.isString(definition)) {
 		definition = {
 			name: definition
 		};
 	}
-	if (!utils.isObject(definition)) {
-		throw new errors.IllegalArgumentError(errorPrefix + 'definition: Must be an object!', { definition: { actual: typeof definition, expected: 'object' } });
-	} else if (!utils.isString(definition.name)) {
-		throw new errors.IllegalArgumentError(errorPrefix + 'definition.name: Must be a string!', { definition: { name: { actual: typeof definition.name, expected: 'string' } } });
-	} else if (definition.idAttribute && !utils.isString(definition.idAttribute)) {
-		throw new errors.IllegalArgumentError(errorPrefix + 'definition.idAttribute: Must be a string!', { definition: { idAttribute: { actual: typeof definition.idAttribute, expected: 'string' } } });
-	} else if (definition.endpoint && !utils.isString(definition.endpoint)) {
-		throw new errors.IllegalArgumentError(errorPrefix + 'definition.endpoint: Must be a string!', { definition: { endpoint: { actual: typeof definition.endpoint, expected: 'string' } } });
-	} else if (services.store[definition.name]) {
-		throw new errors.RuntimeError(errorPrefix + definition.name + ' is already registered!');
+	if (!this.utils.isObject(definition)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'definition: Must be an object!', { definition: { actual: typeof definition, expected: 'object' } });
+	} else if (!this.utils.isString(definition.name)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'definition.name: Must be a string!', { definition: { name: { actual: typeof definition.name, expected: 'string' } } });
+	} else if (definition.idAttribute && !this.utils.isString(definition.idAttribute)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'definition.idAttribute: Must be a string!', { definition: { idAttribute: { actual: typeof definition.idAttribute, expected: 'string' } } });
+	} else if (definition.endpoint && !this.utils.isString(definition.endpoint)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'definition.endpoint: Must be a string!', { definition: { endpoint: { actual: typeof definition.endpoint, expected: 'string' } } });
+	} else if (this.store[definition.name]) {
+		throw new this.errors.RuntimeError(errorPrefix + definition.name + ' is already registered!');
 	}
 
 	try {
-		services.store[definition.name] = new Resource(definition);
+		Resource.prototype = this.defaults;
+		this.definitions[definition.name] = new Resource(this.utils, definition);
+
+		this.store[definition.name] = {
+			collection: [],
+			completedQueries: {},
+			pendingQueries: {},
+			index: {},
+			changes: {},
+			modified: {},
+			saved: {},
+			previousAttributes: {},
+			observers: {},
+			collectionModified: 0
+		};
 	} catch (err) {
-		delete services.store[definition.name];
-		throw new errors.UnhandledError(err);
+		delete this.definitions[definition.name];
+		delete this.store[definition.name];
+		throw new this.errors.UnhandledError(err);
 	}
 }
 

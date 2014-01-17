@@ -1,9 +1,6 @@
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	errorPrefix = 'DS.hasChanges(resourceName, id): ';
+var errorPrefix = 'DS.hasChanges(resourceName, id): ';
 
-function diffIsEmpty(diff) {
+function diffIsEmpty(utils, diff) {
 	return !(utils.isEmpty(diff.added) &&
 		utils.isEmpty(diff.removed) &&
 		utils.isEmpty(diff.changed));
@@ -43,21 +40,21 @@ function diffIsEmpty(diff) {
  * @returns {boolean} Whether the item of the type specified by `resourceName` with the primary key specified by `id` has changes.
  */
 function hasChanges(resourceName, id) {
-	if (!services.store[resourceName]) {
-		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (!utils.isString(id) && !utils.isNumber(id)) {
-		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+	if (!this.definitions[resourceName]) {
+		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 
 	try {
 		// return resource from cache
-		if (id in services.store[resourceName].changes) {
-			return diffIsEmpty(services.store[resourceName].changes[id]);
+		if (id in this.store[resourceName].changes) {
+			return diffIsEmpty(this.utils, this.store[resourceName].changes[id]);
 		} else {
 			return false;
 		}
 	} catch (err) {
-		throw new errors.UnhandledError(err);
+		throw new this.errors.UnhandledError(err);
 	}
 }
 

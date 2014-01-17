@@ -1,7 +1,4 @@
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	errorPrefix = 'DS.save(resourceName, id[, options]): ';
+var errorPrefix = 'DS.save(resourceName, id[, options]): ';
 
 /**
  * @doc method
@@ -47,46 +44,47 @@ var utils = require('utils'),
  * - `{UnhandledError}`
  */
 function save(resourceName, id, options) {
-	var deferred = services.$q.defer(),
+	var deferred = this.$q.defer(),
 		promise = deferred.promise;
 
 	options = options || {};
 
-	if (!services.store[resourceName]) {
-		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
-	} else if (!utils.isString(id) && !utils.isNumber(id)) {
-		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
-	} else if (!utils.isObject(options)) {
-		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
-	} else if (!(id in services.store[resourceName].index)) {
-		deferred.reject(new errors.RuntimeError(errorPrefix + 'id: "' + id + '" not found!'));
+	if (!this.definitions[resourceName]) {
+		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
+	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
+	} else if (!this.utils.isObject(options)) {
+		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
+	} else if (!(id in this.store[resourceName].index)) {
+		deferred.reject(new this.errors.RuntimeError(errorPrefix + 'id: "' + id + '" not found!'));
 	} else {
-		var resource = services.store[resourceName],
+		var definition = this.definitions[resourceName],
+			resource = this.store[resourceName],
 			_this = this;
 
 		promise = promise
 			.then(function (attrs) {
-				return services.$q.promisify(resource.beforeValidate)(resourceName, attrs);
+				return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
 			})
 			.then(function (attrs) {
-				return services.$q.promisify(resource.validate)(resourceName, attrs);
+				return _this.$q.promisify(definition.validate)(resourceName, attrs);
 			})
 			.then(function (attrs) {
-				return services.$q.promisify(resource.afterValidate)(resourceName, attrs);
+				return _this.$q.promisify(definition.afterValidate)(resourceName, attrs);
 			})
 			.then(function (attrs) {
-				return services.$q.promisify(resource.beforeUpdate)(resourceName, attrs);
+				return _this.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
 			})
 			.then(function (attrs) {
-				return services.adapters[resource.defaultAdapter].PUT(utils.makePath(resource.baseUrl, resource.endpoint, id), attrs, null);
+				return _this.adapters[options.adapter || definition.defaultAdapter].update(definition, attrs, options);
 			})
 			.then(function (data) {
-				return services.$q.promisify(resource.afterUpdate)(resourceName, data);
+				return _this.$q.promisify(definition.afterUpdate)(resourceName, data);
 			})
 			.then(function (data) {
-				var saved = _this.inject(resource.name, data, options);
-				resource.previous_attributes[id] = utils.deepMixIn({}, data);
-				resource.saved[id] = utils.updateTimestamp(resource.saved[id]);
+				var saved = _this.inject(definition.name, data, options);
+				resource.previousAttributes[id] = _this.utils.deepMixIn({}, data);
+				resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
 				return saved;
 			});
 

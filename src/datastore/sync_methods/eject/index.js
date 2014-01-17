@@ -1,13 +1,10 @@
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	errorPrefix = 'DS.eject(resourceName, id): ';
+var errorPrefix = 'DS.eject(resourceName, id): ';
 
-function _eject(resource, id) {
+function _eject(definition, resource, id) {
 	if (id) {
 		var found = false;
 		for (var i = 0; i < resource.collection.length; i++) {
-			if (resource.collection[i][resource.idAttribute] == id) {
+			if (resource.collection[i][definition.idAttribute] == id) {
 				found = true;
 				break;
 			}
@@ -18,7 +15,7 @@ function _eject(resource, id) {
 			delete resource.observers[id];
 			delete resource.index[id];
 			delete resource.changes[id];
-			delete resource.previous_attributes[id];
+			delete resource.previousAttributes[id];
 			delete resource.modified[id];
 			delete resource.saved[id];
 		}
@@ -28,9 +25,8 @@ function _eject(resource, id) {
 		resource.modified = {};
 		resource.saved = {};
 		resource.changes = {};
-		resource.previous_attributes = {};
+		resource.previousAttributes = {};
 	}
-	resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
 }
 
 /**
@@ -77,22 +73,27 @@ function _eject(resource, id) {
  * @param {string|number=} id The primary key of the item to eject.
  */
 function eject(resourceName, id) {
-	if (!services.store[resourceName]) {
-		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (id && !utils.isString(id) && !utils.isNumber(id)) {
-		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+	if (!this.definitions[resourceName]) {
+		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+	} else if (id && !this.utils.isString(id) && !this.utils.isNumber(id)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 
+	var resource = this.store[resourceName],
+		_this = this;
+
 	try {
-		if (!services.$rootScope.$$phase) {
-			services.$rootScope.$apply(function () {
-				_eject(services.store[resourceName], id);
+		if (!this.$rootScope.$$phase) {
+			this.$rootScope.$apply(function () {
+				_eject(_this.definitions[resourceName], resource, id);
+				resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
 			});
 		} else {
-			_eject(services.store[resourceName], id);
+			_eject(_this.definitions[resourceName], resource, id);
+			resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
 		}
 	} catch (err) {
-		throw new errors.UnhandledError(err);
+		throw new this.errors.UnhandledError(err);
 	}
 }
 

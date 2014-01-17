@@ -1,7 +1,4 @@
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	observe = require('observejs');
+var observe = require('observejs');
 
 /**
  * @doc method
@@ -28,15 +25,15 @@ var utils = require('utils'),
  */
 function digest() {
 	try {
-		if (!services.$rootScope.$$phase) {
-			services.$rootScope.$apply(function () {
+		if (!this.$rootScope.$$phase) {
+			this.$rootScope.$apply(function () {
 				observe.Platform.performMicrotaskCheckpoint();
 			});
 		} else {
 			observe.Platform.performMicrotaskCheckpoint();
 		}
 	} catch (err) {
-		throw new errors.UnhandledError(err);
+		throw new this.errors.UnhandledError(err);
 	}
 }
 

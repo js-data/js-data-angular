@@ -1,7 +1,4 @@
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	errorPrefix = 'DS.destroy(resourceName, id): ';
+var errorPrefix = 'DS.destroy(resourceName, id): ';
 
 /**
  * @doc method
@@ -32,6 +29,7 @@ var utils = require('utils'),
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to remove.
+ * @param {object=} options Configuration options.
  * @returns {Promise} Promise produced by the `$q` service.
  *
  * ## Resolves with:
@@ -44,34 +42,40 @@ var utils = require('utils'),
  * - `{RuntimeError}`
  * - `{UnhandledError}`
  */
-function destroy(resourceName, id) {
-	var deferred = services.$q.defer(),
+function destroy(resourceName, id, options) {
+	var deferred = this.$q.defer(),
 		promise = deferred.promise;
 
-	if (!services.store[resourceName]) {
-		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
-	} else if (!utils.isString(id) && !utils.isNumber(id)) {
-		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
+	options = options || {};
+
+	if (!this.definitions[resourceName]) {
+		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
+	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
 	} else {
-		var resource = services.store[resourceName],
+		var definition = this.definitions[resourceName],
+			resource = this.store[resourceName],
 			_this = this;
 
-		promise = promise
-			.then(function (attrs) {
-				return services.$q.promisify(resource.beforeDestroy)(resourceName, attrs);
-			})
-			.then(function () {
-				return services.adapters[resource.defaultAdapter].DEL(utils.makePath(resource.baseUrl, resource.endpoint, id), null);
-			})
-			.then(function () {
-				return services.$q.promisify(resource.afterDestroy)(resourceName, resource.index[id]);
-			})
-			.then(function () {
-				_this.eject(resourceName, id);
-				return id;
-			});
-
-		deferred.resolve(resource.index[id]);
+		if (id in resource.index) {
+			promise = promise
+				.then(function (attrs) {
+					return _this.$q.promisify(definition.beforeDestroy)(resourceName, attrs);
+				})
+				.then(function () {
+					return _this.adapters[options.adapter || definition.defaultAdapter].destroy(definition, id, options);
+				})
+				.then(function () {
+					return _this.$q.promisify(definition.afterDestroy)(resourceName, resource.index[id]);
+				})
+				.then(function () {
+					_this.eject(resourceName, id);
+					return id;
+				});
+			deferred.resolve(resource.index[id]);
+		} else {
+			deferred.resolve();
+		}
 	}
 
 	return promise;
