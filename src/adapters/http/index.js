@@ -8,6 +8,9 @@ function DSHttpAdapterProvider() {
 			},
 			deserialize: function (data) {
 				return data.data;
+			},
+			queryTransform: function (query) {
+				return query;
 			}
 		};
 
@@ -222,6 +225,9 @@ function DSHttpAdapterProvider() {
 		function findAll(resourceConfig, params, options) {
 			options = options || {};
 			options.params = options.params || {};
+			if (options.params.query) {
+				options.params.query = defaults.queryTransform(options.params.query);
+			}
 			DSUtils.deepMixIn(options, params);
 			return this.GET(
 				DSUtils.makePath(resourceConfig.baseUrl, resourceConfig.endpoint),

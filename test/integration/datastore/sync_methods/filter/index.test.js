@@ -211,11 +211,15 @@ describe('DS.filter(resourceName, params[, options])', function () {
 
 		assert.deepEqual(DS.filter('post', params), [p4, p1, p3, p2], 'should accept a single string and sort in ascending for strings');
 
-		params.query.orderBy = [['age', 'DESC']];
+		params.query.orderBy = [
+			['age', 'DESC']
+		];
 
 		assert.deepEqual(DS.filter('post', params), [p4, p3, p2, p1], 'should accept an array of an array and sort in descending for numbers');
 
-		params.query.orderBy = [['author', 'DESC']];
+		params.query.orderBy = [
+			['author', 'DESC']
+		];
 
 		assert.deepEqual(DS.filter('post', params), [p2, p3, p1, p4], 'should accept an array of an array and sort in descending for strings');
 
@@ -309,6 +313,37 @@ describe('DS.filter(resourceName, params[, options])', function () {
 		params.query.limit = 1;
 		params.query.skip = 3;
 		assert.deepEqual(DS.filter('post', params), [p4], 'should limit to 1 and skip 3');
+
+		done();
+	});
+	it('should allow custom "where" filter function', function (done) {
+		DS.defineResource({
+			name: 'comment',
+			filter: function (resourceName, where, attrs) {
+				return attrs.author === where.author.EQUALS || attrs.age % where.age.MOD === 1;
+			}
+		});
+		assert.doesNotThrow(function () {
+			DS.inject('comment', p1);
+			DS.inject('comment', p2);
+			DS.inject('comment', p3);
+			DS.inject('comment', p4);
+		}, Error, 'should not throw an error');
+
+		var params = {
+			query: {
+				where: {
+					author: {
+						'EQUALS': 'John'
+					},
+					age: {
+						'MOD': 30
+					}
+				}
+			}
+		};
+
+		assert.deepEqual(DS.filter('comment', params), [p1, p2], 'should keep p1 and p2');
 
 		done();
 	});

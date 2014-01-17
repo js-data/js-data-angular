@@ -1,3 +1,16 @@
+##### 0.6.0 - 17 January 2014
+
+Added pluggable filters for the "where" clause of a query. Angular-data's "query language" will remain small and simple.
+Developers can provide their own more robust filters for more powerful queries.
+
+###### Breaking API changes
+- #3 - Pluggable async adapters
+
+###### Backwards API changes
+- #2 - angular-data query language
+- #4 - Query caching
+- #17 - Where predicates should be able to handle OR, not just AND
+
 ##### 0.5.0 - 16 January 2014
 
 ###### Backwards API changes

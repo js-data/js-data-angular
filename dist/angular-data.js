@@ -1078,6 +1078,9 @@ function DSHttpAdapterProvider() {
 			},
 			deserialize: function (data) {
 				return data.data;
+			},
+			queryTransform: function (query) {
+				return query;
 			}
 		};
 
@@ -1292,6 +1295,9 @@ function DSHttpAdapterProvider() {
 		function findAll(resourceConfig, params, options) {
 			options = options || {};
 			options.params = options.params || {};
+			if (options.params.query) {
+				options.params.query = defaults.queryTransform(options.params.query);
+			}
 			DSUtils.deepMixIn(options, params);
 			return this.GET(
 				DSUtils.makePath(resourceConfig.baseUrl, resourceConfig.endpoint),
@@ -2227,7 +2233,8 @@ function save(resourceName, id, options) {
 module.exports = save;
 
 },{}],36:[function(require,module,exports){
-var errorPrefix = 'DSProvider.registerAdapter(name, adapter): ';
+var errorPrefix = 'DSProvider.registerAdapter(name, adapter): ',
+	utils = require('../utils')[0]();
 
 function lifecycleNoop(resourceName, attrs, cb) {
 	cb(null, attrs);
@@ -2238,6 +2245,34 @@ function BaseConfig() {
 
 BaseConfig.prototype.idAttribute = 'id';
 BaseConfig.prototype.defaultAdapter = 'DSHttpAdapter';
+BaseConfig.prototype.filter = function (resourceName, where, attrs) {
+	var keep = true;
+	utils.forOwn(where, function (clause, field) {
+		if (utils.isString(clause)) {
+			clause = {
+				'===': clause
+			};
+		}
+		if ('==' in clause) {
+			keep = keep && (attrs[field] == clause['==']);
+		} else if ('===' in clause) {
+			keep = keep && (attrs[field] === clause['===']);
+		} else if ('!=' in clause) {
+			keep = keep && (attrs[field] != clause['!=']);
+		} else if ('>' in clause) {
+			keep = keep && (attrs[field] > clause['>']);
+		} else if ('>=' in clause) {
+			keep = keep && (attrs[field] >= clause['>=']);
+		} else if ('<' in clause) {
+			keep = keep && (attrs[field] < clause['<']);
+		} else if ('<=' in clause) {
+			keep = keep && (attrs[field] <= clause['<=']);
+		} else if ('in' in clause) {
+			keep = keep && utils.contains(clause['in'], attrs[field]);
+		}
+	});
+	return keep;
+};
 BaseConfig.prototype.baseUrl = '';
 BaseConfig.prototype.endpoint = '';
 BaseConfig.prototype.beforeValidate = lifecycleNoop;
@@ -2314,7 +2349,7 @@ function DSProvider() {
 
 module.exports = DSProvider;
 
-},{"./async_methods":33,"./sync_methods":44}],37:[function(require,module,exports){
+},{"../utils":"uE/lJt","./async_methods":33,"./sync_methods":44}],37:[function(require,module,exports){
 var errorPrefix = 'DS.changes(resourceName, id): ';
 
 /**
@@ -2673,7 +2708,8 @@ function filter(resourceName, params, options) {
 	}
 
 	try {
-		var resource = this.store[resourceName],
+		var definition = this.definitions[resourceName],
+			resource = this.store[resourceName],
 			_this = this;
 
 		// Protect against null
@@ -2691,38 +2727,16 @@ function filter(resourceName, params, options) {
 		}
 
 		// The query has been completed, so hit the cache with the query
-		var filtered = this.utils.filter(resource.collection, function (value) {
-			var keep = true;
+		var filtered = this.utils.filter(resource.collection, function (attrs) {
+			var keep = true,
+				where = params.query.where;
 
 			// Apply 'where' clauses
-			if (params.query.where) {
-				if (!_this.utils.isObject(params.query.where)) {
+			if (where) {
+				if (!_this.utils.isObject(where)) {
 					throw new _this.errors.IllegalArgumentError(errorPrefix + 'params.query.where: Must be an object!', { params: { query: { where: { actual: typeof params.query.where, expected: 'object' } } } });
 				}
-				_this.utils.forOwn(params.query.where, function (value2, key2) {
-					if (_this.utils.isString(value2)) {
-						value2 = {
-							'===': value2
-						};
-					}
-					if ('==' in value2) {
-						keep = keep && (value[key2] == value2['==']);
-					} else if ('===' in value2) {
-						keep = keep && (value[key2] === value2['===']);
-					} else if ('!=' in value2) {
-						keep = keep && (value[key2] != value2['!=']);
-					} else if ('>' in value2) {
-						keep = keep && (value[key2] > value2['>']);
-					} else if ('>=' in value2) {
-						keep = keep && (value[key2] >= value2['>=']);
-					} else if ('<' in value2) {
-						keep = keep && (value[key2] < value2['<']);
-					} else if ('<=' in value2) {
-						keep = keep && (value[key2] <= value2['<=']);
-					} else if ('in' in value2) {
-						keep = keep && _this.utils.contains(value2['in'], value[key2]);
-					}
-				});
+				keep = definition.filter(resourceName, where, attrs);
 			}
 			return keep;
 		});

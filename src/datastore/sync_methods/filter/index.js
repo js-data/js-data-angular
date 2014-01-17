@@ -53,7 +53,8 @@ function filter(resourceName, params, options) {
 	}
 
 	try {
-		var resource = this.store[resourceName],
+		var definition = this.definitions[resourceName],
+			resource = this.store[resourceName],
 			_this = this;
 
 		// Protect against null
@@ -71,38 +72,16 @@ function filter(resourceName, params, options) {
 		}
 
 		// The query has been completed, so hit the cache with the query
-		var filtered = this.utils.filter(resource.collection, function (value) {
-			var keep = true;
+		var filtered = this.utils.filter(resource.collection, function (attrs) {
+			var keep = true,
+				where = params.query.where;
 
 			// Apply 'where' clauses
-			if (params.query.where) {
-				if (!_this.utils.isObject(params.query.where)) {
+			if (where) {
+				if (!_this.utils.isObject(where)) {
 					throw new _this.errors.IllegalArgumentError(errorPrefix + 'params.query.where: Must be an object!', { params: { query: { where: { actual: typeof params.query.where, expected: 'object' } } } });
 				}
-				_this.utils.forOwn(params.query.where, function (value2, key2) {
-					if (_this.utils.isString(value2)) {
-						value2 = {
-							'===': value2
-						};
-					}
-					if ('==' in value2) {
-						keep = keep && (value[key2] == value2['==']);
-					} else if ('===' in value2) {
-						keep = keep && (value[key2] === value2['===']);
-					} else if ('!=' in value2) {
-						keep = keep && (value[key2] != value2['!=']);
-					} else if ('>' in value2) {
-						keep = keep && (value[key2] > value2['>']);
-					} else if ('>=' in value2) {
-						keep = keep && (value[key2] >= value2['>=']);
-					} else if ('<' in value2) {
-						keep = keep && (value[key2] < value2['<']);
-					} else if ('<=' in value2) {
-						keep = keep && (value[key2] <= value2['<=']);
-					} else if ('in' in value2) {
-						keep = keep && _this.utils.contains(value2['in'], value[key2]);
-					}
-				});
+				keep = definition.filter(resourceName, where, attrs);
 			}
 			return keep;
 		});

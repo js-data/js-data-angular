@@ -1,4 +1,5 @@
-var errorPrefix = 'DSProvider.registerAdapter(name, adapter): ';
+var errorPrefix = 'DSProvider.registerAdapter(name, adapter): ',
+	utils = require('../utils')[0]();
 
 function lifecycleNoop(resourceName, attrs, cb) {
 	cb(null, attrs);
@@ -9,6 +10,34 @@ function BaseConfig() {
 
 BaseConfig.prototype.idAttribute = 'id';
 BaseConfig.prototype.defaultAdapter = 'DSHttpAdapter';
+BaseConfig.prototype.filter = function (resourceName, where, attrs) {
+	var keep = true;
+	utils.forOwn(where, function (clause, field) {
+		if (utils.isString(clause)) {
+			clause = {
+				'===': clause
+			};
+		}
+		if ('==' in clause) {
+			keep = keep && (attrs[field] == clause['==']);
+		} else if ('===' in clause) {
+			keep = keep && (attrs[field] === clause['===']);
+		} else if ('!=' in clause) {
+			keep = keep && (attrs[field] != clause['!=']);
+		} else if ('>' in clause) {
+			keep = keep && (attrs[field] > clause['>']);
+		} else if ('>=' in clause) {
+			keep = keep && (attrs[field] >= clause['>=']);
+		} else if ('<' in clause) {
+			keep = keep && (attrs[field] < clause['<']);
+		} else if ('<=' in clause) {
+			keep = keep && (attrs[field] <= clause['<=']);
+		} else if ('in' in clause) {
+			keep = keep && utils.contains(clause['in'], attrs[field]);
+		}
+	});
+	return keep;
+};
 BaseConfig.prototype.baseUrl = '';
 BaseConfig.prototype.endpoint = '';
 BaseConfig.prototype.beforeValidate = lifecycleNoop;
