@@ -3,9 +3,6 @@ function lifecycleNoop(resourceName, attrs, cb) {
 }
 
 var services = module.exports = {
-	config: {
-		idAttribute: 'id'
-	},
 	store: {},
 	BaseConfig: function (options) {
 		if ('idAttribute' in options) {
@@ -51,11 +48,15 @@ var services = module.exports = {
 		if ('afterDestroy' in options) {
 			this.afterDestroy = options.afterDestroy;
 		}
+
+		if ('defaultAdapter' in options) {
+			this.defaultAdapter = options.defaultAdapter;
+		}
 	}
 };
 
-
 services.BaseConfig.prototype.idAttribute = 'id';
+services.BaseConfig.prototype.defaultAdapter = 'HttpAdapter';
 services.BaseConfig.prototype.baseUrl = '';
 services.BaseConfig.prototype.endpoint = '';
 services.BaseConfig.prototype.beforeValidate = lifecycleNoop;

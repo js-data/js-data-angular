@@ -71,7 +71,7 @@ function create(resourceName, attrs) {
 					return services.$q.promisify(resource.beforeCreate)(resourceName, attrs);
 				})
 				.then(function (attrs) {
-					return _this.POST(utils.makePath(resource.baseUrl, resource.endpoint), attrs, null);
+					return services.adapters[resource.defaultAdapter].POST.apply(_this, [utils.makePath(resource.baseUrl, resource.endpoint), attrs, null]);
 				})
 				.then(function (data) {
 					return services.$q.promisify(resource.afterCreate)(resourceName, data);

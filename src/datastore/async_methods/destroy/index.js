@@ -61,7 +61,7 @@ function destroy(resourceName, id) {
 				return services.$q.promisify(resource.beforeDestroy)(resourceName, attrs);
 			})
 			.then(function () {
-				return _this.DEL(utils.makePath(resource.baseUrl, resource.endpoint, id), null);
+				return services.adapters[resource.defaultAdapter].DEL(utils.makePath(resource.baseUrl, resource.endpoint, id), null);
 			})
 			.then(function () {
 				return services.$q.promisify(resource.afterDestroy)(resourceName, resource.index[id]);

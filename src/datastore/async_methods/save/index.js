@@ -78,7 +78,7 @@ function save(resourceName, id, options) {
 				return services.$q.promisify(resource.beforeUpdate)(resourceName, attrs);
 			})
 			.then(function (attrs) {
-				return _this.PUT(utils.makePath(resource.baseUrl, resource.endpoint, id), attrs, null);
+				return services.adapters[resource.defaultAdapter].PUT(utils.makePath(resource.baseUrl, resource.endpoint, id), attrs, null);
 			})
 			.then(function (data) {
 				return services.$q.promisify(resource.afterUpdate)(resourceName, data);

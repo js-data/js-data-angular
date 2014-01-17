@@ -40,7 +40,7 @@ function _findAll(resourceName, params, options) {
 		if (!(queryHash in resource.pendingQueries)) {
 
 			// This particular query has never even been made
-			resource.pendingQueries[queryHash] = _this.GET(utils.makePath(resource.baseUrl, resource.endpoint), { params: params })
+			resource.pendingQueries[queryHash] = services.adapters[resource.defaultAdapter].GET(utils.makePath(resource.baseUrl, resource.endpoint), { params: params })
 				.then(function (data) {
 					try {
 						return processResults.apply(_this, [data, resourceName, queryHash]);

@@ -70,7 +70,7 @@ function find(resourceName, id, options) {
 
 			if (!(id in resource.completedQueries)) {
 				if (!(id in resource.pendingQueries)) {
-					promise = resource.pendingQueries[id] = _this.GET(utils.makePath(resource.baseUrl, resource.endpoint, id), null)
+					promise = resource.pendingQueries[id] = services.adapters[resource.defaultAdapter].GET(utils.makePath(resource.baseUrl, resource.endpoint, id), null)
 						.then(function (data) {
 							// Query is no longer pending
 							delete resource.pendingQueries[id];
