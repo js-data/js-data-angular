@@ -10,6 +10,7 @@ Developers can provide their own more robust filters for more powerful queries.
 - #2 - angular-data query language
 - #4 - Query caching
 - #17 - Where predicates should be able to handle OR, not just AND
+- #22 - Reorganize infrastructure to utilize angular's DI
 
 ##### 0.5.0 - 16 January 2014
 
