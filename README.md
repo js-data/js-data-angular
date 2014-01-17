@@ -2,7 +2,7 @@
 
 __Data store for Angular.js.__
 
-__Current version:__ 0.4.2
+__Current version:__ 0.5.0
 
 Angular-data is in a pre-1.0.0 development stage; the API is fluctuating, not a lot of tests yet, etc.
 
@@ -12,7 +12,7 @@ Pending:
 - Roadmap
 - Website / documentation
 - 100% tested (whatever _that_ means)
-- See [issues](https://github.com/jmdobry/angular-data/issues?milestone=8&page=1&state=open) for what's in development
+- See [issues](https://github.com/jmdobry/angular-data/issues?milestone=7&page=1&state=open) for what's in development
 
 ## Changelog
 [CHANGELOG.md](https://github.com/jmdobry/angular-data/blob/master/CHANGELOG.md)
