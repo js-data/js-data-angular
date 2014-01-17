@@ -1,7 +1,7 @@
 /**
  * @author Jason Dobry <jason.dobry@gmail.com>
  * @file angular-data.js
- * @version 0.5.0 - Homepage <http://jmdobry.github.io/angular-data/>
+ * @version 0.6.0 - Homepage <http://jmdobry.github.io/angular-data/>
  * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/angular-data>
  * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
  *
@@ -1067,245 +1067,508 @@ var toString = require('../lang/toString');
     module.exports = upperCase;
 
 
-},{"../lang/toString":19}],"clHM+W":[function(require,module,exports){
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services');
+},{"../lang/toString":19}],27:[function(require,module,exports){
+function DSHttpAdapterProvider() {
 
-function _$http(deferred, config) {
-	var start = new Date().getTime();
+	this.$get = ['$http', '$log', 'DSUtils', function ($http, $log, DSUtils) {
 
-	services.$http(config).success(function (data, status, headers, config) {
-		services.$log.debug(config.method + ' request:' + config.url + ' Time taken: ' + (new Date().getTime() - start) + 'ms', arguments);
-		deferred.resolve(data);
-	}).error(function (data, status, headers, config) {
-			services.$log.error(arguments);
-			deferred.reject(data);
-		});
-}
+		var defaults = this.defaults = {
+			serialize: function (data) {
+				return data;
+			},
+			deserialize: function (data) {
+				return data.data;
+			},
+			queryTransform: function (query) {
+				return query;
+			}
+		};
 
-/**
- * @doc method
- * @id DS.async_methods:HTTP
- * @name HTTP
- * @description
- * Wrapper for `$http()`.
- *
- * ## Signature:
- * ```js
- * DS.HTTP(config)
- * ```
- *
- * ## Example:
- *
- * ```js
- * works the same as $http()
- * ```
- *
- * @param {object} config Configuration for the request.
- * @returns {Promise} Promise produced by the `$q` service.
- */
-function HTTP(config) {
-	var deferred = services.$q.defer();
+		return {
+			defaults: defaults,
 
-	try {
-		if (!services.$rootScope.$$phase) {
-			services.$rootScope.$apply(function () {
-				_$http(deferred, config);
+			/**
+			 * @doc method
+			 * @id DSHttpAdapter.methods:HTTP
+			 * @name HTTP
+			 * @description
+			 * Wrapper for `$http()`.
+			 *
+			 * ## Signature:
+			 * ```js
+			 * DS.HTTP(config)
+			 * ```
+			 *
+			 * ## Example:
+			 *
+			 * ```js
+			 * works the same as $http()
+			 * ```
+			 *
+			 * @param {object} config Configuration for the request.
+			 * @returns {Promise} Promise produced by the `$q` service.
+			 */
+			HTTP: HTTP,
+
+			/**
+			 * @doc method
+			 * @id DSHttpAdapter.methods:GET
+			 * @name GET
+			 * @description
+			 * Wrapper for `$http.get()`.
+			 *
+			 * ## Signature:
+			 * ```js
+			 * DS.GET(url[, config])
+			 * ```
+			 *
+			 * ## Example:
+			 *
+			 * ```js
+			 * Works the same as $http.get()
+			 * ```
+			 *
+			 * @param {string} url The url of the request.
+			 * @param {object=} config Configuration for the request.
+			 * @returns {Promise} Promise produced by the `$q` service.
+			 */
+			GET: GET,
+
+			/**
+			 * @doc method
+			 * @id DSHttpAdapter.methods:POST
+			 * @name POST
+			 * @description
+			 * Wrapper for `$http.post()`.
+			 *
+			 * ## Signature:
+			 * ```js
+			 * DS.POST(url[, attrs][, config])
+			 * ```
+			 *
+			 * ## Example:
+			 *
+			 * ```js
+			 * Works the same as $http.post()
+			 * ```
+			 *
+			 * @param {string} url The url of the request.
+			 * @param {object=} attrs Request payload.
+			 * @param {object=} config Configuration for the request.
+			 * @returns {Promise} Promise produced by the `$q` service.
+			 */
+			POST: POST,
+
+			/**
+			 * @doc method
+			 * @id DSHttpAdapter.methods:PUT
+			 * @name PUT
+			 * @description
+			 * Wrapper for `$http.put()`.
+			 *
+			 * ## Signature:
+			 * ```js
+			 * DS.PUT(url[, attrs][, config])
+			 * ```
+			 *
+			 * ## Example:
+			 *
+			 * ```js
+			 * Works the same as $http.put()
+			 * ```
+			 *
+			 * @param {string} url The url of the request.
+			 * @param {object=} attrs Request payload.
+			 * @param {object=} config Configuration for the request.
+			 * @returns {Promise} Promise produced by the `$q` service.
+			 */
+			PUT: PUT,
+
+			/**
+			 * @doc method
+			 * @id DSHttpAdapter.methods:DEL
+			 * @name DEL
+			 * @description
+			 * Wrapper for `$http.delete()`.
+			 *
+			 * ## Signature:
+			 * ```js
+			 * DS.DEL(url[, config])
+			 * ```
+			 *
+			 * ## Example:
+			 *
+			 * ```js
+			 * Works the same as $http.delete
+			 * ```
+			 *
+			 * @param {string} url The url of the request.
+			 * @param {object} config Configuration for the request.
+			 * @returns {Promise} Promise produced by the `$q` service.
+			 */
+			DEL: DEL,
+
+			find: find,
+
+			findAll: findAll,
+
+			create: create,
+
+			createMany: function () {
+				throw new Error('Not yet implemented!');
+			},
+
+			update: update,
+
+			updateMany: function () {
+				throw new Error('Not yet implemented!');
+			},
+
+			destroy: destroy,
+
+			destroyMany: function () {
+				throw new Error('Not yet implemented!');
+			}
+		};
+
+		function HTTP(config) {
+			var start = new Date().getTime();
+
+			return $http(config).then(function (data) {
+				$log.debug(data.config.method + ' request:' + data.config.url + ' Time taken: ' + (new Date().getTime() - start) + 'ms', arguments);
+				return defaults.deserialize(data);
 			});
-		} else {
-			_$http(deferred, config);
 		}
-	} catch (err) {
-		deferred.reject(new errors.UnhandledError(err));
+
+		function GET(url, config) {
+			config = config || {};
+			return HTTP(DSUtils.deepMixIn(config, {
+				url: url,
+				method: 'GET'
+			}));
+		}
+
+		function POST(url, attrs, config) {
+			config = config || {};
+			return HTTP(DSUtils.deepMixIn(config, {
+				url: url,
+				data: attrs,
+				method: 'POST'
+			}));
+		}
+
+		function PUT(url, attrs, config) {
+			config = config || {};
+			return HTTP(DSUtils.deepMixIn(config, {
+				url: url,
+				data: attrs,
+				method: 'PUT'
+			}));
+		}
+
+		function DEL(url, config) {
+			config = config || {};
+			return this.HTTP(DSUtils.deepMixIn(config, {
+				url: url,
+				method: 'DELETE'
+			}));
+		}
+
+		/**
+		 * @doc method
+		 * @id DSHttpAdapter.methods:find
+		 * @name find
+		 * @param {object} resourceConfig Properties:
+		 * - `{string}` - `baseUrl` - Base url.
+		 * - `{string=}` - `endpoint` - Endpoint path for the resource.
+		 * @param {string|number} id
+		 * @param {object=} options
+		 * @returns {Promise} Promise.
+		 */
+		function find(resourceConfig, id, options) {
+			return this.GET(
+				DSUtils.makePath(resourceConfig.baseUrl, resourceConfig.endpoint, id),
+				options
+			);
+		}
+
+		function findAll(resourceConfig, params, options) {
+			options = options || {};
+			options.params = options.params || {};
+			if (options.params.query) {
+				options.params.query = defaults.queryTransform(options.params.query);
+			}
+			DSUtils.deepMixIn(options, params);
+			return this.GET(
+				DSUtils.makePath(resourceConfig.baseUrl, resourceConfig.endpoint),
+				options
+			);
+		}
+
+		function create(resourceConfig, attrs, options) {
+			return this.POST(
+				DSUtils.makePath(resourceConfig.baseUrl, resourceConfig.endpoint),
+				defaults.serialize(attrs),
+				options
+			);
+		}
+
+		function update(resourceConfig, attrs, options) {
+			return this.PUT(
+				DSUtils.makePath(resourceConfig.baseUrl, resourceConfig.endpoint, attrs[resourceConfig.idAttribute]),
+				defaults.serialize(attrs),
+				options
+			);
+		}
+
+		function destroy(resourceConfig, id, options) {
+			return this.DEL(
+				DSUtils.makePath(resourceConfig.baseUrl, resourceConfig.endpoint, id),
+				options
+			);
+		}
+	}];
+}
+
+module.exports = DSHttpAdapterProvider;
+
+},{}],28:[function(require,module,exports){
+/*!
+ * @doc method
+ * @id BinaryHeap.private_functions:bubbleUp
+ * @name bubbleUp
+ * @param {array} heap The heap.
+ * @param {function} weightFunc The weight function.
+ * @param {number} n The index of the element to bubble up.
+ */
+function bubbleUp(heap, weightFunc, n) {
+	var element = heap[n],
+		weight = weightFunc(element);
+	// When at 0, an element can not go up any further.
+	while (n > 0) {
+		// Compute the parent element's index, and fetch it.
+		var parentN = Math.floor((n + 1) / 2) - 1,
+			parent = heap[parentN];
+		// If the parent has a lesser weight, things are in order and we
+		// are done.
+		if (weight >= weightFunc(parent)) {
+			break;
+		} else {
+			heap[parentN] = element;
+			heap[n] = parent;
+			n = parentN;
+		}
 	}
+}
 
-	return deferred.promise;
+/*!
+ * @doc method
+ * @id BinaryHeap.private_functions:bubbleDown
+ * @name bubbleDown
+ * @param {array} heap The heap.
+ * @param {function} weightFunc The weight function.
+ * @param {number} n The index of the element to sink down.
+ */
+function bubbleDown(heap, weightFunc, n) {
+	var length = heap.length,
+		node = heap[n],
+		nodeWeight = weightFunc(node);
+
+	while (true) {
+		var child2N = (n + 1) * 2,
+			child1N = child2N - 1;
+		var swap = null;
+		if (child1N < length) {
+			var child1 = heap[child1N],
+				child1Weight = weightFunc(child1);
+			// If the score is less than our node's, we need to swap.
+			if (child1Weight < nodeWeight) {
+				swap = child1N;
+			}
+		}
+		// Do the same checks for the other child.
+		if (child2N < length) {
+			var child2 = heap[child2N],
+				child2Weight = weightFunc(child2);
+			if (child2Weight < (swap === null ? nodeWeight : weightFunc(heap[child1N]))) {
+				swap = child2N;
+			}
+		}
+
+		if (swap === null) {
+			break;
+		} else {
+			heap[n] = heap[swap];
+			heap[swap] = node;
+			n = swap;
+		}
+	}
+}
+
+/**
+ * @doc function
+ * @id BinaryHeap.class:constructor
+ * @name BinaryHeap
+ * @description
+ * BinaryHeap implementation of a priority queue.
+ *
+ * ## Example:
+ * ```js
+ * angular.module('app').controller(function (BinaryHeap) {
+ *      var bHeap = new BinaryHeap(function (x) {
+ *          return x.value;
+ *      });
+ * });
+ * ```
+ *
+ * @param {function=} weightFunc Function that returns the value that should be used for node value comparison.
+ */
+function BinaryHeap(weightFunc) {
+	if (weightFunc && typeof weightFunc !== 'function') {
+		throw new Error('BinaryHeap(weightFunc): weightFunc: must be a function!');
+	}
+	weightFunc = defaults.userProvidedDefaultWeightFunc || defaults.defaultWeightFunc;
+	this.weightFunc = weightFunc;
+	this.heap = [];
 }
 
 /**
  * @doc method
- * @id DS.async_methods:GET
- * @name GET
+ * @id BinaryHeap.instance_methods:push
+ * @name push(node)
  * @description
- * Wrapper for `$http.get()`.
- *
- * ## Signature:
- * ```js
- * DS.GET(url[, config])
- * ```
- *
- * ## Example:
- *
- * ```js
- * Works the same as $http.get()
- * ```
- *
- * @param {string} url The url of the request.
- * @param {object=} config Configuration for the request.
- * @returns {Promise} Promise produced by the `$q` service.
+ * Push an element into the binary heap.
+ * @param {*} node The element to push into the binary heap.
  */
-function GET(url, config) {
-	config = config || {};
-	return HTTP(utils.deepMixIn(config, {
-		url: url,
-		method: 'GET'
-	}));
-}
-
-/**
- * @doc method
- * @id DS.async_methods:PUT
- * @name PUT
- * @description
- * Wrapper for `$http.put()`.
- *
- * ## Signature:
- * ```js
- * DS.PUT(url[, attrs][, config])
- * ```
- *
- * ## Example:
- *
- * ```js
- * Works the same as $http.put()
- * ```
- *
- * @param {string} url The url of the request.
- * @param {object=} attrs Request payload.
- * @param {object=} config Configuration for the request.
- * @returns {Promise} Promise produced by the `$q` service.
- */
-function PUT(url, attrs, config) {
-	config = config || {};
-	return HTTP(utils.deepMixIn(config, {
-		url: url,
-		data: attrs,
-		method: 'PUT'
-	}));
-}
-
-/**
- * @doc method
- * @id DS.async_methods:POST
- * @name POST
- * @description
- * Wrapper for `$http.post()`.
- *
- * ## Signature:
- * ```js
- * DS.POST(url[, attrs][, config])
- * ```
- *
- * ## Example:
- *
- * ```js
- * Works the same as $http.post()
- * ```
- *
- * @param {string} url The url of the request.
- * @param {object=} attrs Request payload.
- * @param {object=} config Configuration for the request.
- * @returns {Promise} Promise produced by the `$q` service.
- */
-function POST(url, attrs, config) {
-	config = config || {};
-	return HTTP(utils.deepMixIn(config, {
-		url: url,
-		data: attrs,
-		method: 'POST'
-	}));
-}
-
-/**
- * @doc method
- * @id DS.async_methods:DEL
- * @name DEL
- * @description
- * Wrapper for `$http.delete()`.
- *
- * ## Signature:
- * ```js
- * DS.DEL(url[, config])
- * ```
- *
- * ## Example:
- *
- * ```js
- * Works the same as $http.delete
- * ```
- *
- * @param {string} url The url of the request.
- * @param {object} config Configuration for the request.
- * @returns {Promise} Promise produced by the `$q` service.
- */
-function DEL(url, config) {
-	config = config || {};
-	return HTTP(utils.deepMixIn(config, {
-		url: url,
-		method: 'DELETE'
-	}));
-}
-
-module.exports = {
-	/**
-	 * @doc method
-	 * @id DS.async_methods:HTTP
-	 * @name HTTP
-	 * @methodOf DS
-	 * @description
-	 * See [DS.HTTP](/documentation/api/api/DS.async_methods:HTTP).
-	 */
-	HTTP: HTTP,
-
-	/**
-	 * @doc method
-	 * @id DS.async_methods:GET
-	 * @name GET
-	 * @methodOf DS
-	 * @description
-	 * See [DS.GET](/documentation/api/api/DS.async_methods:GET).
-	 */
-	GET: GET,
-
-	/**
-	 * @doc method
-	 * @id DS.async_methods:POST
-	 * @name POST
-	 * @methodOf DS
-	 * @description
-	 * See [DS.POST](/documentation/api/api/DS.async_methods:POST).
-	 */
-	POST: POST,
-
-	/**
-	 * @doc method
-	 * @id DS.async_methods:PUT
-	 * @name PUT
-	 * @methodOf DS
-	 * @description
-	 * See [DS.PUT](/documentation/api/api/DS.async_methods:PUT).
-	 */
-	PUT: PUT,
-
-	/**
-	 * @doc method
-	 * @id DS.async_methods:DEL
-	 * @name DEL
-	 * @methodOf DS
-	 * @description
-	 * See [DS.DEL](/documentation/api/api/DS.async_methods:DEL).
-	 */
-	DEL: DEL
+BinaryHeap.prototype.push = function (node) {
+	this.heap.push(node);
+	bubbleUp(this.heap, this.weightFunc, this.heap.length - 1);
 };
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],"HttpAdapter":[function(require,module,exports){
-module.exports=require('clHM+W');
+/**
+ * @doc method
+ * @id BinaryHeap.instance_methods:peek
+ * @name peek
+ * @description
+ * Return, but do not remove, the minimum element in the binary heap.
+ * @returns {*} peeked node
+ */
+BinaryHeap.prototype.peek = function () {
+	return this.heap[0];
+};
+
+/**
+ * @doc method
+ * @id BinaryHeap.instance_methods:pop
+ * @name pop
+ * @description
+ * Remove and return the minimum element in the binary heap.
+ * @returns {*} popped node
+ */
+BinaryHeap.prototype.pop = function () {
+	var front = this.heap[0],
+		end = this.heap.pop();
+	if (this.heap.length > 0) {
+		this.heap[0] = end;
+		bubbleDown(this.heap, this.weightFunc, 0);
+	}
+	return front;
+};
+
+/**
+ * @doc method
+ * @id BinaryHeap.instance_methods:remove
+ * @name remove
+ * @description
+ * Remove the first node in the priority queue that satisfies angular.equals comparison with the given node.
+ * @param {*} node The node to remove.
+ * @returns {*} The removed node.
+ */
+BinaryHeap.prototype.remove = function (node) {
+	var length = this.heap.length;
+	for (var i = 0; i < length; i++) {
+		if (angular.equals(this.heap[i], node)) {
+			var removed = this.heap[i],
+				end = this.heap.pop();
+			if (i !== length - 1) {
+				this.heap[i] = end;
+				bubbleUp(this.heap, this.weightFunc, i);
+				bubbleDown(this.heap, this.weightFunc, i);
+			}
+			return removed;
+		}
+	}
+	return null;
+};
+
+/**
+ * @doc method
+ * @id BinaryHeap.instance_methods:removeAll
+ * @name removeAll
+ * @description
+ * Remove all nodes from this BinaryHeap.
+ */
+BinaryHeap.prototype.removeAll = function () {
+	this.heap = [];
+};
+
+/**
+ * @doc method
+ * @id BinaryHeap.instance_methods:size
+ * @name size
+ * @description
+ * Return the size of the priority queue.
+ * @returns {number} The size of the priority queue.
+ */
+BinaryHeap.prototype.size = function () {
+	return this.heap.length;
+};
+
+/**
+ * @doc interface
+ * @id BinaryHeapProvider
+ * @name BinaryHeapProvider
+ */
+function BinaryHeapProvider() {
+
+	var defaults = {
+		defaultWeightFunc: function (x) {
+			return x;
+		},
+		userProvidedDefaultWeightFunc: null
+	};
+
+	/**
+	 * @doc method
+	 * @id BinaryHeapProvider.methods:setDefaultWeightFunction
+	 * @name setDefaultWeightFunction
+	 * @param {function} weightFunc New default weight function.
+	 */
+	function setDefaultWeightFunction(weightFunc) {
+		if (!angular.isFunction(weightFunc)) {
+			throw new Error('BinaryHeapProvider.setDefaultWeightFunction(weightFunc): weightFunc: Must be a function!');
+		}
+		defaults.userProvidedDefaultWeightFunc = weightFunc;
+	}
+
+	/**
+	 * @doc method
+	 * @id BinaryHeapProvider.methods:setDefaultWeightFunction
+	 * @name setDefaultWeightFunction
+	 * @methodOf BinaryHeapProvider
+	 * @param {function} weightFunc New default weight function.
+	 */
+	this.setDefaultWeightFunction = setDefaultWeightFunction;
+
+	this.$get = function () {
+		return BinaryHeap;
+	};
+}
+
+module.exports = BinaryHeapProvider;
+
 },{}],29:[function(require,module,exports){
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	errorPrefix = 'DS.create(resourceName, attrs): ';
+var errorPrefix = 'DS.create(resourceName, attrs): ';
 
 /**
  * @doc method
@@ -1336,6 +1599,7 @@ var utils = require('utils'),
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {object} attrs The attributes with which to update the item of the type specified by `resourceName` that has
  * the primary key specified by `id`.
+ * @param {object=} options Configuration options.
  * @returns {Promise} Promise produced by the `$q` service.
  *
  * ## Resolves with:
@@ -1348,45 +1612,47 @@ var utils = require('utils'),
  * - `{RuntimeError}`
  * - `{UnhandledError}`
  */
-function create(resourceName, attrs) {
-	var deferred = services.$q.defer(),
+function create(resourceName, attrs, options) {
+	var deferred = this.$q.defer(),
 		promise = deferred.promise;
 
-	if (!services.store[resourceName]) {
-		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
-	} else if (!utils.isObject(attrs)) {
-		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'attrs: Must be an object!', { attrs: { actual: typeof attrs, expected: 'object' } }));
+	options = options || {};
+
+	if (!this.definitions[resourceName]) {
+		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
+	} else if (!this.utils.isObject(attrs)) {
+		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'attrs: Must be an object!', { attrs: { actual: typeof attrs, expected: 'object' } }));
 	} else {
 		try {
-			var resource = services.store[resourceName],
+			var definition = this.definitions[resourceName],
 				_this = this;
 
 			promise = promise
 				.then(function (attrs) {
-					return services.$q.promisify(resource.beforeValidate)(resourceName, attrs);
+					return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
 				})
 				.then(function (attrs) {
-					return services.$q.promisify(resource.validate)(resourceName, attrs);
+					return _this.$q.promisify(definition.validate)(resourceName, attrs);
 				})
 				.then(function (attrs) {
-					return services.$q.promisify(resource.afterValidate)(resourceName, attrs);
+					return _this.$q.promisify(definition.afterValidate)(resourceName, attrs);
 				})
 				.then(function (attrs) {
-					return services.$q.promisify(resource.beforeCreate)(resourceName, attrs);
+					return _this.$q.promisify(definition.beforeCreate)(resourceName, attrs);
 				})
 				.then(function (attrs) {
-					return services.adapters[resource.defaultAdapter].POST.apply(_this, [utils.makePath(resource.baseUrl, resource.endpoint), attrs, null]);
+					return _this.adapters[options.adapter || definition.defaultAdapter].create(definition, attrs, options);
 				})
 				.then(function (data) {
-					return services.$q.promisify(resource.afterCreate)(resourceName, data);
+					return _this.$q.promisify(definition.afterCreate)(resourceName, data);
 				})
 				.then(function (data) {
-					return _this.inject(resource.name, data);
+					return _this.inject(definition.name, data);
 				});
 
 			deferred.resolve(attrs);
 		} catch (err) {
-			deferred.reject(new errors.UnhandledError(err));
+			deferred.reject(new this.errors.UnhandledError(err));
 		}
 	}
 
@@ -1395,11 +1661,8 @@ function create(resourceName, attrs) {
 
 module.exports = create;
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],30:[function(require,module,exports){
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	errorPrefix = 'DS.destroy(resourceName, id): ';
+},{}],30:[function(require,module,exports){
+var errorPrefix = 'DS.destroy(resourceName, id): ';
 
 /**
  * @doc method
@@ -1430,6 +1693,7 @@ var utils = require('utils'),
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to remove.
+ * @param {object=} options Configuration options.
  * @returns {Promise} Promise produced by the `$q` service.
  *
  * ## Resolves with:
@@ -1442,34 +1706,40 @@ var utils = require('utils'),
  * - `{RuntimeError}`
  * - `{UnhandledError}`
  */
-function destroy(resourceName, id) {
-	var deferred = services.$q.defer(),
+function destroy(resourceName, id, options) {
+	var deferred = this.$q.defer(),
 		promise = deferred.promise;
 
-	if (!services.store[resourceName]) {
-		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
-	} else if (!utils.isString(id) && !utils.isNumber(id)) {
-		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
+	options = options || {};
+
+	if (!this.definitions[resourceName]) {
+		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
+	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
 	} else {
-		var resource = services.store[resourceName],
+		var definition = this.definitions[resourceName],
+			resource = this.store[resourceName],
 			_this = this;
 
-		promise = promise
-			.then(function (attrs) {
-				return services.$q.promisify(resource.beforeDestroy)(resourceName, attrs);
-			})
-			.then(function () {
-				return services.adapters[resource.defaultAdapter].DEL(utils.makePath(resource.baseUrl, resource.endpoint, id), null);
-			})
-			.then(function () {
-				return services.$q.promisify(resource.afterDestroy)(resourceName, resource.index[id]);
-			})
-			.then(function () {
-				_this.eject(resourceName, id);
-				return id;
-			});
-
-		deferred.resolve(resource.index[id]);
+		if (id in resource.index) {
+			promise = promise
+				.then(function (attrs) {
+					return _this.$q.promisify(definition.beforeDestroy)(resourceName, attrs);
+				})
+				.then(function () {
+					return _this.adapters[options.adapter || definition.defaultAdapter].destroy(definition, id, options);
+				})
+				.then(function () {
+					return _this.$q.promisify(definition.afterDestroy)(resourceName, resource.index[id]);
+				})
+				.then(function () {
+					_this.eject(resourceName, id);
+					return id;
+				});
+			deferred.resolve(resource.index[id]);
+		} else {
+			deferred.resolve();
+		}
 	}
 
 	return promise;
@@ -1477,11 +1747,8 @@ function destroy(resourceName, id) {
 
 module.exports = destroy;
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],31:[function(require,module,exports){
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	errorPrefix = 'DS.find(resourceName, id[, options]): ';
+},{}],31:[function(require,module,exports){
+var errorPrefix = 'DS.find(resourceName, id[, options]): ';
 
 /**
  * @doc method
@@ -1528,20 +1795,21 @@ var utils = require('utils'),
  * - `{UnhandledError}`
  */
 function find(resourceName, id, options) {
-	var deferred = services.$q.defer(),
+	var deferred = this.$q.defer(),
 		promise = deferred.promise;
 
 	options = options || {};
 
-	if (!services.store[resourceName]) {
-		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
-	} else if (!utils.isString(id) && !utils.isNumber(id)) {
-		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
-	} else if (!utils.isObject(options)) {
-		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
+	if (!this.definitions[resourceName]) {
+		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
+	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
+	} else if (!this.utils.isObject(options)) {
+		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
 	} else {
 		try {
-			var resource = services.store[resourceName],
+			var definition = this.definitions[resourceName],
+				resource = this.store[resourceName],
 				_this = this;
 
 			if (options.bypassCache) {
@@ -1550,7 +1818,7 @@ function find(resourceName, id, options) {
 
 			if (!(id in resource.completedQueries)) {
 				if (!(id in resource.pendingQueries)) {
-					promise = resource.pendingQueries[id] = services.adapters[resource.defaultAdapter].GET(utils.makePath(resource.baseUrl, resource.endpoint, id), null)
+					promise = resource.pendingQueries[id] = _this.adapters[options.adapter || definition.defaultAdapter].find(definition, id, options)
 						.then(function (data) {
 							// Query is no longer pending
 							delete resource.pendingQueries[id];
@@ -1573,14 +1841,11 @@ function find(resourceName, id, options) {
 
 module.exports = find;
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],32:[function(require,module,exports){
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	errorPrefix = 'DS.findAll(resourceName, params[, options]): ';
+},{}],32:[function(require,module,exports){
+var errorPrefix = 'DS.findAll(resourceName, params[, options]): ';
 
-function processResults(data, resourceName, queryHash) {
-	var resource = services.store[resourceName];
+function processResults(utils, data, resourceName, queryHash) {
+	var resource = this.store[resourceName];
 
 	data = data || [];
 
@@ -1594,15 +1859,16 @@ function processResults(data, resourceName, queryHash) {
 	}
 
 	// Update the data store's index for this resource
-	resource.index = utils.toLookup(resource.collection, resource.idAttribute);
+	resource.index = utils.toLookup(resource.collection, this.definitions[resourceName].idAttribute);
 
 	// Update modified timestamp of collection
 	resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
 	return data;
 }
 
-function _findAll(resourceName, params, options) {
-	var resource = services.store[resourceName],
+function _findAll(utils, resourceName, params, options) {
+	var definition = this.definitions[resourceName],
+		resource = this.store[resourceName],
 		_this = this,
 		queryHash = utils.toJson(params);
 
@@ -1616,12 +1882,12 @@ function _findAll(resourceName, params, options) {
 		if (!(queryHash in resource.pendingQueries)) {
 
 			// This particular query has never even been made
-			resource.pendingQueries[queryHash] = services.adapters[resource.defaultAdapter].GET(utils.makePath(resource.baseUrl, resource.endpoint), { params: params })
+			resource.pendingQueries[queryHash] = _this.adapters[options.adapter || definition.defaultAdapter].findAll(definition, { params: params }, options)
 				.then(function (data) {
 					try {
-						return processResults.apply(_this, [data, resourceName, queryHash]);
+						return processResults.apply(_this, [utils, data, resourceName, queryHash]);
 					} catch (err) {
-						throw new errors.UnhandledError(err);
+						throw new _this.errors.UnhandledError(err);
 					}
 				});
 		}
@@ -1700,26 +1966,26 @@ function _findAll(resourceName, params, options) {
  * - `{UnhandledError}`
  */
 function findAll(resourceName, params, options) {
-	var deferred = services.$q.defer(),
+	var deferred = this.$q.defer(),
 		promise = deferred.promise,
 		_this = this;
 
 	options = options || {};
 
-	if (!services.store[resourceName]) {
-		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
-	} else if (!utils.isObject(params)) {
-		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!', { params: { actual: typeof params, expected: 'object' } }));
-	} else if (!utils.isObject(options)) {
-		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
+	if (!this.definitions[resourceName]) {
+		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
+	} else if (!this.utils.isObject(params)) {
+		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!', { params: { actual: typeof params, expected: 'object' } }));
+	} else if (!this.utils.isObject(options)) {
+		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
 	} else {
 		try {
 			promise = promise.then(function () {
-				return _findAll.apply(_this, [resourceName, params, options]);
+				return _findAll.apply(_this, [_this.utils, resourceName, params, options]);
 			});
 			deferred.resolve();
 		} catch (err) {
-			deferred.reject(new errors.UnhandledError(err));
+			deferred.reject(new this.errors.UnhandledError(err));
 		}
 	}
 
@@ -1728,7 +1994,7 @@ function findAll(resourceName, params, options) {
 
 module.exports = findAll;
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],33:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 module.exports = {
 	/**
 	 * @doc method
@@ -1792,10 +2058,7 @@ module.exports = {
 };
 
 },{"./create":29,"./destroy":30,"./find":31,"./findAll":32,"./refresh":34,"./save":35}],34:[function(require,module,exports){
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	errorPrefix = 'DS.refresh(resourceName, id[, options]): ';
+var errorPrefix = 'DS.refresh(resourceName, id[, options]): ';
 
 /**
  * @doc method
@@ -1851,16 +2114,16 @@ var utils = require('utils'),
 function refresh(resourceName, id, options) {
 	options = options || {};
 
-	if (!services.store[resourceName]) {
-		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (!utils.isString(id) && !utils.isNumber(id)) {
-		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
-	} else if (!utils.isObject(options)) {
-		throw new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
+	if (!this.definitions[resourceName]) {
+		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+	} else if (!this.utils.isObject(options)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
 	} else {
 		options.bypassCache = true;
 
-		if (id in services.store[resourceName].index) {
+		if (id in this.store[resourceName].index) {
 			return this.find(resourceName, id, options);
 		} else {
 			return false;
@@ -1870,11 +2133,8 @@ function refresh(resourceName, id, options) {
 
 module.exports = refresh;
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],35:[function(require,module,exports){
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	errorPrefix = 'DS.save(resourceName, id[, options]): ';
+},{}],35:[function(require,module,exports){
+var errorPrefix = 'DS.save(resourceName, id[, options]): ';
 
 /**
  * @doc method
@@ -1920,46 +2180,47 @@ var utils = require('utils'),
  * - `{UnhandledError}`
  */
 function save(resourceName, id, options) {
-	var deferred = services.$q.defer(),
+	var deferred = this.$q.defer(),
 		promise = deferred.promise;
 
 	options = options || {};
 
-	if (!services.store[resourceName]) {
-		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
-	} else if (!utils.isString(id) && !utils.isNumber(id)) {
-		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
-	} else if (!utils.isObject(options)) {
-		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
-	} else if (!(id in services.store[resourceName].index)) {
-		deferred.reject(new errors.RuntimeError(errorPrefix + 'id: "' + id + '" not found!'));
+	if (!this.definitions[resourceName]) {
+		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
+	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
+	} else if (!this.utils.isObject(options)) {
+		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
+	} else if (!(id in this.store[resourceName].index)) {
+		deferred.reject(new this.errors.RuntimeError(errorPrefix + 'id: "' + id + '" not found!'));
 	} else {
-		var resource = services.store[resourceName],
+		var definition = this.definitions[resourceName],
+			resource = this.store[resourceName],
 			_this = this;
 
 		promise = promise
 			.then(function (attrs) {
-				return services.$q.promisify(resource.beforeValidate)(resourceName, attrs);
+				return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
 			})
 			.then(function (attrs) {
-				return services.$q.promisify(resource.validate)(resourceName, attrs);
+				return _this.$q.promisify(definition.validate)(resourceName, attrs);
 			})
 			.then(function (attrs) {
-				return services.$q.promisify(resource.afterValidate)(resourceName, attrs);
+				return _this.$q.promisify(definition.afterValidate)(resourceName, attrs);
 			})
 			.then(function (attrs) {
-				return services.$q.promisify(resource.beforeUpdate)(resourceName, attrs);
+				return _this.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
 			})
 			.then(function (attrs) {
-				return services.adapters[resource.defaultAdapter].PUT(utils.makePath(resource.baseUrl, resource.endpoint, id), attrs, null);
+				return _this.adapters[options.adapter || definition.defaultAdapter].update(definition, attrs, options);
 			})
 			.then(function (data) {
-				return services.$q.promisify(resource.afterUpdate)(resourceName, data);
+				return _this.$q.promisify(definition.afterUpdate)(resourceName, data);
 			})
 			.then(function (data) {
-				var saved = _this.inject(resource.name, data, options);
-				resource.previous_attributes[id] = utils.deepMixIn({}, data);
-				resource.saved[id] = utils.updateTimestamp(resource.saved[id]);
+				var saved = _this.inject(definition.name, data, options);
+				resource.previousAttributes[id] = _this.utils.deepMixIn({}, data);
+				resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
 				return saved;
 			});
 
@@ -1971,128 +2232,58 @@ function save(resourceName, id, options) {
 
 module.exports = save;
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],36:[function(require,module,exports){
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	HttpAdapter = require('HttpAdapter'),
-	configErrorPrefix = 'DSProvider.config(options): ',
-	registerAdapterErrorPrefix = 'DSProvider.registerAdapter(name, adapter): ';
+},{}],36:[function(require,module,exports){
+var errorPrefix = 'DSProvider.registerAdapter(name, adapter): ',
+	utils = require('../utils')[0]();
 
-/**
- * @doc method
- * @id DSProvider.methods:config
- * @name config
- * @description
- * Configure the DS service.
- *
- * ## Signature:
- * ```js
- * DSProvider.config(options)
- * ```
- *
- * ## Example:
- * ```js
- *  DSProvider.config({
- *      baseUrl: 'http://myapp.com/api',
- *      idAttribute: '_id',
- *      validate: function (resourceName, attrs, cb) {
- *          console.log('looks good to me');
- *          cb(null, attrs);
- *      }
- *  });
- * ```
- *
- * ## Throws:
- *
- * - `{IllegalArgumentError}`
- *
- * @param {object} options Global configuration for the data store. Properties:
- * - `{string=}` - `baseUrl` - The default base url to be used by the data store. Can be overridden via `DS.defineResource`.
- * - `{string=}` - `idAttribute` - The default property that specifies the primary key of an object. Default: `"id"`.
- * - `{function=}` - `beforeValidate` - Global lifecycle hook. Signature: `beforeValidate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
- * - `{function=}` - `validate` - Global lifecycle hook. Signature: `validate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
- * - `{function=}` - `afterValidate` - Global lifecycle hook. Signature: `afterValidate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
- * - `{function=}` - `beforeCreate` - Global lifecycle hook. Signature: `beforeCreate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
- * - `{function=}` - `afterCreate` - Global lifecycle hook. Signature: `afterCreate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
- * - `{function=}` - `beforeUpdate` - Global lifecycle hook. Signature: `beforeUpdate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
- * - `{function=}` - `afterUpdate` - Global lifecycle hook. Signature: `afterUpdate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
- * - `{function=}` - `beforeDestroy` - Global lifecycle hook. Signature: `beforeDestroy(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
- * - `{function=}` - `afterDestroy` - Global lifecycle hook. Signature: `afterDestroy(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
- */
-function config(options) {
-	options = options || {};
-
-	if (!utils.isObject(options)) {
-		throw new errors.IllegalArgumentError(configErrorPrefix + 'options: Must be an object!', { actual: typeof options, expected: 'object' });
-	} else if ('baseUrl' in options && !utils.isString(options.baseUrl)) {
-		throw new errors.IllegalArgumentError(configErrorPrefix + 'options.baseUrl: Must be a string!', { baseUrl: { actual: typeof options.baseUrl, expected: 'string' } });
-	} else if ('idAttribute' in options && !utils.isString(options.idAttribute)) {
-		throw new errors.IllegalArgumentError(configErrorPrefix + 'options.idAttribute: Must be a string!', { idAttribute: { actual: typeof options.idAttribute, expected: 'string' } });
-	} else if ('mergeStrategy' in options && !utils.isString(options.mergeStrategy)) {
-		throw new errors.IllegalArgumentError(configErrorPrefix + 'options.mergeStrategy: Must be a string!', { mergeStrategy: { actual: typeof options.mergeStrategy, expected: 'string' } });
-	} else if ('beforeValidate' in options && !utils.isFunction(options.beforeValidate)) {
-		throw new errors.IllegalArgumentError(configErrorPrefix + 'options.beforeValidate: Must be a function!', { beforeValidate: { actual: typeof options.beforeValidate, expected: 'function' } });
-	} else if ('validate' in options && !utils.isFunction(options.validate)) {
-		throw new errors.IllegalArgumentError(configErrorPrefix + 'options.validate: Must be a function!', { validate: { actual: typeof options.validate, expected: 'function' } });
-	} else if ('afterValidate' in options && !utils.isFunction(options.afterValidate)) {
-		throw new errors.IllegalArgumentError(configErrorPrefix + 'options.afterValidate: Must be a function!', { afterValidate: { actual: typeof options.afterValidate, expected: 'function' } });
-	} else if ('beforeCreate' in options && !utils.isFunction(options.beforeCreate)) {
-		throw new errors.IllegalArgumentError(configErrorPrefix + 'options.beforeCreate: Must be a function!', { beforeCreate: { actual: typeof options.beforeCreate, expected: 'function' } });
-	} else if ('afterCreate' in options && !utils.isFunction(options.afterCreate)) {
-		throw new errors.IllegalArgumentError(configErrorPrefix + 'options.afterCreate: Must be a function!', { afterCreate: { actual: typeof options.afterCreate, expected: 'function' } });
-	} else if ('beforeUpdate' in options && !utils.isFunction(options.beforeUpdate)) {
-		throw new errors.IllegalArgumentError(configErrorPrefix + 'options.beforeUpdate: Must be a function!', { beforeUpdate: { actual: typeof options.beforeUpdate, expected: 'function' } });
-	} else if ('afterUpdate' in options && !utils.isFunction(options.afterUpdate)) {
-		throw new errors.IllegalArgumentError(configErrorPrefix + 'options.afterUpdate: Must be a function!', { afterUpdate: { actual: typeof options.afterUpdate, expected: 'function' } });
-	} else if ('beforeDestroy' in options && !utils.isFunction(options.beforeDestroy)) {
-		throw new errors.IllegalArgumentError(configErrorPrefix + 'options.beforeDestroy: Must be a function!', { beforeDestroy: { actual: typeof options.beforeDestroy, expected: 'function' } });
-	} else if ('afterDestroy' in options && !utils.isFunction(options.afterDestroy)) {
-		throw new errors.IllegalArgumentError(configErrorPrefix + 'options.afterDestroy: Must be a function!', { afterDestroy: { actual: typeof options.afterDestroy, expected: 'function' } });
-	} else if ('defaultAdapter' in options && !utils.isString(options.defaultAdapter)) {
-		throw new errors.IllegalArgumentError(configErrorPrefix + 'options.defaultAdapter: Must be a function!', { defaultAdapter: { actual: typeof options.defaultAdapter, expected: 'string' } });
-	}
-
-	services.config = new services.BaseConfig(options);
+function lifecycleNoop(resourceName, attrs, cb) {
+	cb(null, attrs);
 }
 
-/**
- * @doc method
- * @id DSProvider.methods:registerAdapter
- * @name registerAdapter
- * @description
- * Register a new adapter.
- *
- * ## Signature:
- * ```js
- * DSProvider.registerAdapter(name, adapter);
- * ```
- *
- * ## Example:
- * ```js
- *  DSProvider.registerAdapter('IndexedDBAdapter', {...});
- * ```
- *
- * ## Throws:
- *
- * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- *
- * @param {string} name The name of the new adapter.
- * @param {object} adapter New adapter.
- */
-function registerAdapter(name, adapter) {
-
-	if (!utils.isString(name)) {
-		throw new errors.IllegalArgumentError(registerAdapterErrorPrefix + 'name: Must be a string!', { actual: typeof name, expected: 'string' });
-	} else if (!utils.isObject(adapter)) {
-		throw new errors.IllegalArgumentError(registerAdapterErrorPrefix + 'adapter: Must be an object!', { actual: typeof adapter, expected: 'object' });
-	} else if (services.adapters[name]) {
-		throw new errors.RuntimeError(registerAdapterErrorPrefix + name + ' is already registered!');
-	}
-
-	services.adapters[name] = adapter;
+function BaseConfig() {
 }
+
+BaseConfig.prototype.idAttribute = 'id';
+BaseConfig.prototype.defaultAdapter = 'DSHttpAdapter';
+BaseConfig.prototype.filter = function (resourceName, where, attrs) {
+	var keep = true;
+	utils.forOwn(where, function (clause, field) {
+		if (utils.isString(clause)) {
+			clause = {
+				'===': clause
+			};
+		}
+		if ('==' in clause) {
+			keep = keep && (attrs[field] == clause['==']);
+		} else if ('===' in clause) {
+			keep = keep && (attrs[field] === clause['===']);
+		} else if ('!=' in clause) {
+			keep = keep && (attrs[field] != clause['!=']);
+		} else if ('>' in clause) {
+			keep = keep && (attrs[field] > clause['>']);
+		} else if ('>=' in clause) {
+			keep = keep && (attrs[field] >= clause['>=']);
+		} else if ('<' in clause) {
+			keep = keep && (attrs[field] < clause['<']);
+		} else if ('<=' in clause) {
+			keep = keep && (attrs[field] <= clause['<=']);
+		} else if ('in' in clause) {
+			keep = keep && utils.contains(clause['in'], attrs[field]);
+		}
+	});
+	return keep;
+};
+BaseConfig.prototype.baseUrl = '';
+BaseConfig.prototype.endpoint = '';
+BaseConfig.prototype.beforeValidate = lifecycleNoop;
+BaseConfig.prototype.validate = lifecycleNoop;
+BaseConfig.prototype.afterValidate = lifecycleNoop;
+BaseConfig.prototype.beforeCreate = lifecycleNoop;
+BaseConfig.prototype.afterCreate = lifecycleNoop;
+BaseConfig.prototype.beforeUpdate = lifecycleNoop;
+BaseConfig.prototype.afterUpdate = lifecycleNoop;
+BaseConfig.prototype.beforeDestroy = lifecycleNoop;
+BaseConfig.prototype.afterDestroy = lifecycleNoop;
 
 /**
  * @doc interface
@@ -2101,150 +2292,65 @@ function registerAdapter(name, adapter) {
  */
 function DSProvider() {
 
-	/**
-	 * @doc method
-	 * @id DSProvider.methods:config
-	 * @name config
-	 * @methodOf DSProvider
-	 * @description
-	 * See [DSProvider.config](/documentation/api/api/DSProvider.methods:config).
-	 */
-	this.config = config;
 
-	config({});
+	var defaults = this.defaults = new BaseConfig(),
+		adapters = this.adapters = {};
 
-	/**
-	 * @doc method
-	 * @id DSProvider.methods:registerAdapter
-	 * @name config
-	 * @methodOf DSProvider
-	 * @description
-	 * See [DSProvider.registerAdapter](/documentation/api/api/DSProvider.methods:registerAdapter).
-	 */
-	this.registerAdapter = registerAdapter;
+	this.$get = [
+		'$rootScope', '$log', '$q', 'DSHttpAdapter', 'DSUtils', 'DSErrors',
+		function ($rootScope, $log, $q, DSHttpAdapter, DSUtils, DSErrors) {
 
-	this.$get = ['$rootScope', '$log', '$http', '$q', function ($rootScope, $log, $http, $q) {
+			var syncMethods = require('./sync_methods'),
+				asyncMethods = require('./async_methods');
 
-		services.$rootScope = $rootScope;
-		services.$log = $log;
-		services.$http = $http;
-		services.$q = $q;
-		services.store = {};
-		services.adapters = {};
+			adapters.DSHttpAdapter = DSHttpAdapter;
 
-		registerAdapter('HttpAdapter', HttpAdapter);
+			/**
+			 * @doc interface
+			 * @id DS
+			 * @name DS
+			 * @description
+			 * Data store
+			 */
+			var DS = {
+				$rootScope: $rootScope,
+				$log: $log,
+				$q: $q,
+				defaults: defaults,
+				store: {},
+				definitions: {},
+				adapters: adapters,
+				errors: DSErrors,
+				utils: DSUtils
+			};
 
-		/**
-		 * @doc interface
-		 * @id DS
-		 * @name DS
-		 * @description
-		 * Data store
-		 */
-		var DS = {
-			HttpAdapter: HttpAdapter,
-			errors: errors
-		};
 
-		utils.deepMixIn(DS, require('./sync_methods'));
-		utils.deepMixIn(DS, require('./async_methods'));
+			DSUtils.deepFreeze(syncMethods);
+			DSUtils.deepFreeze(asyncMethods);
 
-		utils.deepFreeze(DS);
+			DSUtils.deepMixIn(DS, syncMethods);
+			DSUtils.deepMixIn(DS, asyncMethods);
 
-		var $dirtyCheckScope = $rootScope.$new();
+			DSUtils.deepFreeze(DS.errors);
+			DSUtils.deepFreeze(DS.utils);
 
-		$dirtyCheckScope.$watch(function () {
-			// Throttle angular-data's digest loop to tenths of a second
-			return new Date().getTime() / 100 | 0;
-		}, function () {
-			DS.digest();
-		});
+			var $dirtyCheckScope = $rootScope.$new();
 
-		return DS;
-	}];
+			$dirtyCheckScope.$watch(function () {
+				// Throttle angular-data's digest loop to tenths of a second
+				return new Date().getTime() / 100 | 0;
+			}, function () {
+				DS.digest();
+			});
+
+			return DS;
+		}];
 }
 
 module.exports = DSProvider;
 
-},{"./async_methods":33,"./sync_methods":46,"HttpAdapter":"clHM+W","errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],"cX8q+p":[function(require,module,exports){
-function lifecycleNoop(resourceName, attrs, cb) {
-	cb(null, attrs);
-}
-
-var services = module.exports = {
-	store: {},
-	BaseConfig: function (options) {
-		if ('idAttribute' in options) {
-			this.idAttribute = options.idAttribute;
-		}
-
-		if ('baseUrl' in options) {
-			this.baseUrl = options.baseUrl;
-		}
-
-		if ('beforeValidate' in options) {
-			this.beforeValidate = options.beforeValidate;
-		}
-
-		if ('validate' in options) {
-			this.validate = options.validate;
-		}
-
-		if ('afterValidate' in options) {
-			this.afterValidate = options.afterValidate;
-		}
-
-		if ('beforeCreate' in options) {
-			this.beforeCreate = options.beforeCreate;
-		}
-
-		if ('afterCreate' in options) {
-			this.afterCreate = options.afterCreate;
-		}
-
-		if ('beforeUpdate' in options) {
-			this.beforeUpdate = options.beforeUpdate;
-		}
-
-		if ('afterUpdate' in options) {
-			this.afterUpdate = options.afterUpdate;
-		}
-
-		if ('beforeDestroy' in options) {
-			this.beforeDestroy = options.beforeDestroy;
-		}
-
-		if ('afterDestroy' in options) {
-			this.afterDestroy = options.afterDestroy;
-		}
-
-		if ('defaultAdapter' in options) {
-			this.defaultAdapter = options.defaultAdapter;
-		}
-	}
-};
-
-services.BaseConfig.prototype.idAttribute = 'id';
-services.BaseConfig.prototype.defaultAdapter = 'HttpAdapter';
-services.BaseConfig.prototype.baseUrl = '';
-services.BaseConfig.prototype.endpoint = '';
-services.BaseConfig.prototype.beforeValidate = lifecycleNoop;
-services.BaseConfig.prototype.validate = lifecycleNoop;
-services.BaseConfig.prototype.afterValidate = lifecycleNoop;
-services.BaseConfig.prototype.beforeCreate = lifecycleNoop;
-services.BaseConfig.prototype.afterCreate = lifecycleNoop;
-services.BaseConfig.prototype.beforeUpdate = lifecycleNoop;
-services.BaseConfig.prototype.afterUpdate = lifecycleNoop;
-services.BaseConfig.prototype.beforeDestroy = lifecycleNoop;
-services.BaseConfig.prototype.afterDestroy = lifecycleNoop;
-
-},{}],"services":[function(require,module,exports){
-module.exports=require('cX8q+p');
-},{}],39:[function(require,module,exports){
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	errorPrefix = 'DS.changes(resourceName, id): ';
+},{"../utils":"uE/lJt","./async_methods":33,"./sync_methods":44}],37:[function(require,module,exports){
+var errorPrefix = 'DS.changes(resourceName, id): ';
 
 /**
  * @doc method
@@ -2281,53 +2387,34 @@ var utils = require('utils'),
  * @returns {object} The changes of the item of the type specified by `resourceName` with the primary key specified by `id`.
  */
 function changes(resourceName, id) {
-	if (!services.store[resourceName]) {
-		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (!utils.isString(id) && !utils.isNumber(id)) {
-		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+	if (!this.definitions[resourceName]) {
+		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 
 	try {
-		return angular.copy(services.store[resourceName].changes[id]);
+		return angular.copy(this.store[resourceName].changes[id]);
 	} catch (err) {
-		throw new errors.UnhandledError(err);
+		throw new this.errors.UnhandledError(err);
 	}
 }
 
 module.exports = changes;
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],40:[function(require,module,exports){
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	errorPrefix = 'DS.defineResource(definition): ';
+},{}],38:[function(require,module,exports){
+var errorPrefix = 'DS.defineResource(definition): ';
 
-function Resource(options) {
-	services.BaseConfig.apply(this, [options]);
+function Resource(utils, options) {
 
-	if ('name' in options) {
-		this.name = options.name;
-	}
+	utils.deepMixIn(this, options);
 
 	if ('endpoint' in options) {
 		this.endpoint = options.endpoint;
 	} else {
 		this.endpoint = this.name;
 	}
-
-	this.collection = [];
-	this.completedQueries = {};
-	this.pendingQueries = {};
-	this.index = {};
-	this.modified = {};
-	this.changes = {};
-	this.previous_attributes = {};
-	this.saved = {};
-	this.observers = {};
-	this.collectionModified = 0;
 }
-
-Resource.prototype = services.config;
 
 /**
  * @doc method
@@ -2379,38 +2466,50 @@ Resource.prototype = services.config;
  * - `{function=}` - `afterDestroy` - Lifecycle hook. Overrides global. Signature: `afterDestroy(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
  */
 function defineResource(definition) {
-	if (utils.isString(definition)) {
+	if (this.utils.isString(definition)) {
 		definition = {
 			name: definition
 		};
 	}
-	if (!utils.isObject(definition)) {
-		throw new errors.IllegalArgumentError(errorPrefix + 'definition: Must be an object!', { definition: { actual: typeof definition, expected: 'object' } });
-	} else if (!utils.isString(definition.name)) {
-		throw new errors.IllegalArgumentError(errorPrefix + 'definition.name: Must be a string!', { definition: { name: { actual: typeof definition.name, expected: 'string' } } });
-	} else if (definition.idAttribute && !utils.isString(definition.idAttribute)) {
-		throw new errors.IllegalArgumentError(errorPrefix + 'definition.idAttribute: Must be a string!', { definition: { idAttribute: { actual: typeof definition.idAttribute, expected: 'string' } } });
-	} else if (definition.endpoint && !utils.isString(definition.endpoint)) {
-		throw new errors.IllegalArgumentError(errorPrefix + 'definition.endpoint: Must be a string!', { definition: { endpoint: { actual: typeof definition.endpoint, expected: 'string' } } });
-	} else if (services.store[definition.name]) {
-		throw new errors.RuntimeError(errorPrefix + definition.name + ' is already registered!');
+	if (!this.utils.isObject(definition)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'definition: Must be an object!', { definition: { actual: typeof definition, expected: 'object' } });
+	} else if (!this.utils.isString(definition.name)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'definition.name: Must be a string!', { definition: { name: { actual: typeof definition.name, expected: 'string' } } });
+	} else if (definition.idAttribute && !this.utils.isString(definition.idAttribute)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'definition.idAttribute: Must be a string!', { definition: { idAttribute: { actual: typeof definition.idAttribute, expected: 'string' } } });
+	} else if (definition.endpoint && !this.utils.isString(definition.endpoint)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'definition.endpoint: Must be a string!', { definition: { endpoint: { actual: typeof definition.endpoint, expected: 'string' } } });
+	} else if (this.store[definition.name]) {
+		throw new this.errors.RuntimeError(errorPrefix + definition.name + ' is already registered!');
 	}
 
 	try {
-		services.store[definition.name] = new Resource(definition);
+		Resource.prototype = this.defaults;
+		this.definitions[definition.name] = new Resource(this.utils, definition);
+
+		this.store[definition.name] = {
+			collection: [],
+			completedQueries: {},
+			pendingQueries: {},
+			index: {},
+			changes: {},
+			modified: {},
+			saved: {},
+			previousAttributes: {},
+			observers: {},
+			collectionModified: 0
+		};
 	} catch (err) {
-		delete services.store[definition.name];
-		throw new errors.UnhandledError(err);
+		delete this.definitions[definition.name];
+		delete this.store[definition.name];
+		throw new this.errors.UnhandledError(err);
 	}
 }
 
 module.exports = defineResource;
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],41:[function(require,module,exports){
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	observe = require('observejs');
+},{}],39:[function(require,module,exports){
+var observe = require('observejs');
 
 /**
  * @doc method
@@ -2437,31 +2536,28 @@ var utils = require('utils'),
  */
 function digest() {
 	try {
-		if (!services.$rootScope.$$phase) {
-			services.$rootScope.$apply(function () {
+		if (!this.$rootScope.$$phase) {
+			this.$rootScope.$apply(function () {
 				observe.Platform.performMicrotaskCheckpoint();
 			});
 		} else {
 			observe.Platform.performMicrotaskCheckpoint();
 		}
 	} catch (err) {
-		throw new errors.UnhandledError(err);
+		throw new this.errors.UnhandledError(err);
 	}
 }
 
 module.exports = digest;
 
-},{"errors":"hIh4e1","observejs":"u+GZEJ","services":"cX8q+p","utils":"uE/lJt"}],42:[function(require,module,exports){
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	errorPrefix = 'DS.eject(resourceName, id): ';
+},{"observejs":"u+GZEJ"}],40:[function(require,module,exports){
+var errorPrefix = 'DS.eject(resourceName, id): ';
 
-function _eject(resource, id) {
+function _eject(definition, resource, id) {
 	if (id) {
 		var found = false;
 		for (var i = 0; i < resource.collection.length; i++) {
-			if (resource.collection[i][resource.idAttribute] == id) {
+			if (resource.collection[i][definition.idAttribute] == id) {
 				found = true;
 				break;
 			}
@@ -2472,7 +2568,7 @@ function _eject(resource, id) {
 			delete resource.observers[id];
 			delete resource.index[id];
 			delete resource.changes[id];
-			delete resource.previous_attributes[id];
+			delete resource.previousAttributes[id];
 			delete resource.modified[id];
 			delete resource.saved[id];
 		}
@@ -2482,9 +2578,8 @@ function _eject(resource, id) {
 		resource.modified = {};
 		resource.saved = {};
 		resource.changes = {};
-		resource.previous_attributes = {};
+		resource.previousAttributes = {};
 	}
-	resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
 }
 
 /**
@@ -2531,33 +2626,35 @@ function _eject(resource, id) {
  * @param {string|number=} id The primary key of the item to eject.
  */
 function eject(resourceName, id) {
-	if (!services.store[resourceName]) {
-		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (id && !utils.isString(id) && !utils.isNumber(id)) {
-		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+	if (!this.definitions[resourceName]) {
+		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+	} else if (id && !this.utils.isString(id) && !this.utils.isNumber(id)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 
+	var resource = this.store[resourceName],
+		_this = this;
+
 	try {
-		if (!services.$rootScope.$$phase) {
-			services.$rootScope.$apply(function () {
-				_eject(services.store[resourceName], id);
+		if (!this.$rootScope.$$phase) {
+			this.$rootScope.$apply(function () {
+				_eject(_this.definitions[resourceName], resource, id);
+				resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
 			});
 		} else {
-			_eject(services.store[resourceName], id);
+			_eject(_this.definitions[resourceName], resource, id);
+			resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
 		}
 	} catch (err) {
-		throw new errors.UnhandledError(err);
+		throw new this.errors.UnhandledError(err);
 	}
 }
 
 module.exports = eject;
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],43:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 /* jshint loopfunc: true */
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	errorPrefix = 'DS.filter(resourceName, params[, options]): ';
+var errorPrefix = 'DS.filter(resourceName, params[, options]): ';
 
 /**
  * @doc method
@@ -2602,21 +2699,23 @@ var utils = require('utils'),
 function filter(resourceName, params, options) {
 	options = options || {};
 
-	if (!services.store[resourceName]) {
-		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (!utils.isObject(params)) {
-		throw new errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!', { params: { actual: typeof params, expected: 'object' } });
-	} else if (!utils.isObject(options)) {
-		throw new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
+	if (!this.definitions[resourceName]) {
+		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+	} else if (!this.utils.isObject(params)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!', { params: { actual: typeof params, expected: 'object' } });
+	} else if (!this.utils.isObject(options)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
 	}
 
 	try {
-		var resource = services.store[resourceName];
+		var definition = this.definitions[resourceName],
+			resource = this.store[resourceName],
+			_this = this;
 
 		// Protect against null
 		params.query = params.query || {};
 
-		var queryHash = utils.toJson(params);
+		var queryHash = this.utils.toJson(params);
 
 		if (!(queryHash in resource.completedQueries) && options.loadFromServer) {
 			// This particular query has never been completed
@@ -2628,63 +2727,41 @@ function filter(resourceName, params, options) {
 		}
 
 		// The query has been completed, so hit the cache with the query
-		var filtered = utils.filter(resource.collection, function (value) {
-			var keep = true;
+		var filtered = this.utils.filter(resource.collection, function (attrs) {
+			var keep = true,
+				where = params.query.where;
 
 			// Apply 'where' clauses
-			if (params.query.where) {
-				if (!utils.isObject(params.query.where)) {
-					throw new errors.IllegalArgumentError(errorPrefix + 'params.query.where: Must be an object!', { params: { query: { where: { actual: typeof params.query.where, expected: 'object' } } } });
+			if (where) {
+				if (!_this.utils.isObject(where)) {
+					throw new _this.errors.IllegalArgumentError(errorPrefix + 'params.query.where: Must be an object!', { params: { query: { where: { actual: typeof params.query.where, expected: 'object' } } } });
 				}
-				utils.forOwn(params.query.where, function (value2, key2) {
-					if (utils.isString(value2)) {
-						value2 = {
-							'===': value2
-						};
-					}
-					if ('==' in value2) {
-						keep = keep && (value[key2] == value2['==']);
-					} else if ('===' in value2) {
-						keep = keep && (value[key2] === value2['===']);
-					} else if ('!=' in value2) {
-						keep = keep && (value[key2] != value2['!=']);
-					} else if ('>' in value2) {
-						keep = keep && (value[key2] > value2['>']);
-					} else if ('>=' in value2) {
-						keep = keep && (value[key2] >= value2['>=']);
-					} else if ('<' in value2) {
-						keep = keep && (value[key2] < value2['<']);
-					} else if ('<=' in value2) {
-						keep = keep && (value[key2] <= value2['<=']);
-					} else if ('in' in value2) {
-						keep = keep && utils.contains(value2['in'], value[key2]);
-					}
-				});
+				keep = definition.filter(resourceName, where, attrs);
 			}
 			return keep;
 		});
 
 		// Apply 'orderBy'
 		if (params.query.orderBy) {
-			if (utils.isString(params.query.orderBy)) {
+			if (this.utils.isString(params.query.orderBy)) {
 				params.query.orderBy = [
 					[params.query.orderBy, 'ASC']
 				];
 			}
-			if (utils.isArray(params.query.orderBy)) {
+			if (this.utils.isArray(params.query.orderBy)) {
 				for (var i = 0; i < params.query.orderBy.length; i++) {
-					if (utils.isString(params.query.orderBy[i])) {
+					if (this.utils.isString(params.query.orderBy[i])) {
 						params.query.orderBy[i] = [params.query.orderBy[i], 'ASC'];
-					} else if (!utils.isArray(params.query.orderBy[i])) {
-						throw new errors.IllegalArgumentError(errorPrefix + 'params.query.orderBy[' + i + ']: Must be a string or an array!', { params: { query: { 'orderBy[i]': { actual: typeof params.query.orderBy[i], expected: 'string|array' } } } });
+					} else if (!this.utils.isArray(params.query.orderBy[i])) {
+						throw new this.errors.IllegalArgumentError(errorPrefix + 'params.query.orderBy[' + i + ']: Must be a string or an array!', { params: { query: { 'orderBy[i]': { actual: typeof params.query.orderBy[i], expected: 'string|array' } } } });
 					}
-					filtered = utils.sort(filtered, function (a, b) {
+					filtered = this.utils.sort(filtered, function (a, b) {
 						var cA = a[params.query.orderBy[i][0]], cB = b[params.query.orderBy[i][0]];
-						if (utils.isString(cA)) {
-							cA = utils.upperCase(cA);
+						if (_this.utils.isString(cA)) {
+							cA = _this.utils.upperCase(cA);
 						}
-						if (utils.isString(cB)) {
-							cB = utils.upperCase(cB);
+						if (_this.utils.isString(cB)) {
+							cB = _this.utils.upperCase(cB);
 						}
 						if (params.query.orderBy[i][1] === 'DESC') {
 							if (cB < cA) {
@@ -2706,36 +2783,33 @@ function filter(resourceName, params, options) {
 					});
 				}
 			} else {
-				throw new errors.IllegalArgumentError(errorPrefix + 'params.query.orderBy: Must be a string or an array!', { params: { query: { orderBy: { actual: typeof params.query.orderBy, expected: 'string|array' } } } });
+				throw new this.errors.IllegalArgumentError(errorPrefix + 'params.query.orderBy: Must be a string or an array!', { params: { query: { orderBy: { actual: typeof params.query.orderBy, expected: 'string|array' } } } });
 			}
 		}
 
 		// Apply 'limit' and 'skip'
-		if (utils.isNumber(params.query.limit) && utils.isNumber(params.query.skip)) {
-			filtered = utils.slice(filtered, params.query.skip, params.query.skip + params.query.limit);
-		} else if (utils.isNumber(params.query.limit)) {
-			filtered = utils.slice(filtered, 0, params.query.limit);
-		} else if (utils.isNumber(params.query.skip)) {
-			filtered = utils.slice(filtered, params.query.skip);
+		if (this.utils.isNumber(params.query.limit) && this.utils.isNumber(params.query.skip)) {
+			filtered = this.utils.slice(filtered, params.query.skip, params.query.skip + params.query.limit);
+		} else if (this.utils.isNumber(params.query.limit)) {
+			filtered = this.utils.slice(filtered, 0, params.query.limit);
+		} else if (this.utils.isNumber(params.query.skip)) {
+			filtered = this.utils.slice(filtered, params.query.skip);
 		}
 
 		return filtered;
 	} catch (err) {
-		if (err instanceof errors.IllegalArgumentError) {
+		if (err instanceof this.errors.IllegalArgumentError) {
 			throw err;
 		} else {
-			throw new errors.UnhandledError(err);
+			throw new this.errors.UnhandledError(err);
 		}
 	}
 }
 
 module.exports = filter;
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],44:[function(require,module,exports){
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	errorPrefix = 'DS.get(resourceName, id[, options]): ';
+},{}],42:[function(require,module,exports){
+var errorPrefix = 'DS.get(resourceName, id[, options]): ';
 
 /**
  * @doc method
@@ -2771,38 +2845,35 @@ var utils = require('utils'),
 function get(resourceName, id, options) {
 	options = options || {};
 
-	if (!services.store[resourceName]) {
-		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (!utils.isString(id) && !utils.isNumber(id)) {
-		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
-	} else if (!utils.isObject(options)) {
-		throw new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
+	if (!this.definitions[resourceName]) {
+		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+	} else if (!this.utils.isObject(options)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
 	}
 
 	try {
 		// cache miss, request resource from server
-		if (!(id in services.store[resourceName].index) && options.loadFromServer) {
+		if (!(id in this.store[resourceName].index) && options.loadFromServer) {
 			this.find(resourceName, id).then(null, function (err) {
 				throw err;
 			});
 		}
 
 		// return resource from cache
-		return services.store[resourceName].index[id];
+		return this.store[resourceName].index[id];
 	} catch (err) {
-		throw new errors.UnhandledError(err);
+		throw new this.errors.UnhandledError(err);
 	}
 }
 
 module.exports = get;
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],45:[function(require,module,exports){
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	errorPrefix = 'DS.hasChanges(resourceName, id): ';
+},{}],43:[function(require,module,exports){
+var errorPrefix = 'DS.hasChanges(resourceName, id): ';
 
-function diffIsEmpty(diff) {
+function diffIsEmpty(utils, diff) {
 	return !(utils.isEmpty(diff.added) &&
 		utils.isEmpty(diff.removed) &&
 		utils.isEmpty(diff.changed));
@@ -2842,27 +2913,27 @@ function diffIsEmpty(diff) {
  * @returns {boolean} Whether the item of the type specified by `resourceName` with the primary key specified by `id` has changes.
  */
 function hasChanges(resourceName, id) {
-	if (!services.store[resourceName]) {
-		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (!utils.isString(id) && !utils.isNumber(id)) {
-		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+	if (!this.definitions[resourceName]) {
+		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 
 	try {
 		// return resource from cache
-		if (id in services.store[resourceName].changes) {
-			return diffIsEmpty(services.store[resourceName].changes[id]);
+		if (id in this.store[resourceName].changes) {
+			return diffIsEmpty(this.utils, this.store[resourceName].changes[id]);
 		} else {
 			return false;
 		}
 	} catch (err) {
-		throw new errors.UnhandledError(err);
+		throw new this.errors.UnhandledError(err);
 	}
 }
 
 module.exports = hasChanges;
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],46:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 module.exports = {
 	/**
 	 * @doc method
@@ -2974,50 +3045,47 @@ module.exports = {
 	hasChanges: require('./hasChanges')
 };
 
-},{"./changes":39,"./defineResource":40,"./digest":41,"./eject":42,"./filter":43,"./get":44,"./hasChanges":45,"./inject":47,"./lastModified":48,"./lastSaved":49,"./previous":50}],47:[function(require,module,exports){
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	observe = require('observejs'),
+},{"./changes":37,"./defineResource":38,"./digest":39,"./eject":40,"./filter":41,"./get":42,"./hasChanges":43,"./inject":45,"./lastModified":46,"./lastSaved":47,"./previous":48}],45:[function(require,module,exports){
+var observe = require('observejs'),
 	errorPrefix = 'DS.inject(resourceName, attrs[, options]): ';
 
-function _inject(resource, attrs) {
+function _inject(definition, resource, attrs) {
 	var _this = this;
 
 	function _react(added, removed, changed, getOldValueFn) {
 		try {
-			var innerId = getOldValueFn(resource.idAttribute);
+			var innerId = getOldValueFn(definition.idAttribute);
 
-			resource.changes[innerId] = utils.diffObjectFromOldObject(resource.index[innerId], resource.previous_attributes[innerId]);
-			resource.modified[innerId] = utils.updateTimestamp(resource.modified[innerId]);
-			resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
+			resource.changes[innerId] = _this.utils.diffObjectFromOldObject(resource.index[innerId], resource.previousAttributes[innerId]);
+			resource.modified[innerId] = _this.utils.updateTimestamp(resource.modified[innerId]);
+			resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
 
-			if (resource.idAttribute in changed) {
-				services.$log.error('Doh! You just changed the primary key of an object! ' +
-					'I don\'t know how to handle this yet, so your data for the "' + resource.name +
+			if (definition.idAttribute in changed) {
+				$log.error('Doh! You just changed the primary key of an object! ' +
+					'I don\'t know how to handle this yet, so your data for the "' + definition.name +
 					'" resource is now in an undefined (probably broken) state.');
 			}
 		} catch (err) {
-			throw new errors.UnhandledError(err);
+			throw new _this.errors.UnhandledError(err);
 		}
 	}
 
-	if (utils.isArray(attrs)) {
+	if (_this.utils.isArray(attrs)) {
 		for (var i = 0; i < attrs.length; i++) {
-			_inject.call(_this, resource, attrs[i]);
+			_inject.call(_this, definition, resource, attrs[i]);
 		}
 	} else {
-		if (!(resource.idAttribute in attrs)) {
-			throw new errors.RuntimeError(errorPrefix + 'attrs: Must contain the property specified by `idAttribute`!');
+		if (!(definition.idAttribute in attrs)) {
+			throw new _this.errors.RuntimeError(errorPrefix + 'attrs: Must contain the property specified by `idAttribute`!');
 		} else {
-			var id = attrs[resource.idAttribute];
+			var id = attrs[definition.idAttribute];
 
 			if (!(id in resource.index)) {
 				resource.index[id] = {};
-				resource.previous_attributes[id] = {};
+				resource.previousAttributes[id] = {};
 
-				utils.deepMixIn(resource.index[id], attrs);
-				utils.deepMixIn(resource.previous_attributes[id], attrs);
+				_this.utils.deepMixIn(resource.index[id], attrs);
+				_this.utils.deepMixIn(resource.previousAttributes[id], attrs);
 
 				resource.collection.push(resource.index[id]);
 
@@ -3027,7 +3095,7 @@ function _inject(resource, attrs) {
 					return id;
 				});
 			} else {
-				utils.deepMixIn(resource.index[id], attrs);
+				_this.utils.deepMixIn(resource.index[id], attrs);
 				resource.observers[id].deliver();
 			}
 		}
@@ -3083,29 +3151,30 @@ function _inject(resource, attrs) {
 function inject(resourceName, attrs, options) {
 	options = options || {};
 
-	if (!services.store[resourceName]) {
-		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (!utils.isObject(attrs) && !utils.isArray(attrs)) {
-		throw new errors.IllegalArgumentError(errorPrefix + 'attrs: Must be an object or an array!', { attrs: { actual: typeof attrs, expected: 'object|array' } });
-	} else if (!utils.isObject(options)) {
-		throw new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
+	if (!this.definitions[resourceName]) {
+		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+	} else if (!this.utils.isObject(attrs) && !this.utils.isArray(attrs)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'attrs: Must be an object or an array!', { attrs: { actual: typeof attrs, expected: 'object|array' } });
+	} else if (!this.utils.isObject(options)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
 	}
 
-	var resource = services.store[resourceName],
+	var definition = this.definitions[resourceName],
+		resource = this.store[resourceName],
 		_this = this;
 
 	try {
-		if (!services.$rootScope.$$phase) {
-			services.$rootScope.$apply(function () {
-				_inject.apply(_this, [services.store[resourceName], attrs]);
+		if (!this.$rootScope.$$phase) {
+			this.$rootScope.$apply(function () {
+				_inject.apply(_this, [definition, resource, attrs]);
 			});
 		} else {
-			_inject.apply(_this, [services.store[resourceName], attrs]);
+			_inject.apply(_this, [definition, resource, attrs]);
 		}
 		return attrs;
 	} catch (err) {
-		if (!(err instanceof errors.RuntimeError)) {
-			throw new errors.UnhandledError(err);
+		if (!(err instanceof this.errors.RuntimeError)) {
+			throw new this.errors.UnhandledError(err);
 		} else {
 			throw err;
 		}
@@ -3114,11 +3183,8 @@ function inject(resourceName, attrs, options) {
 
 module.exports = inject;
 
-},{"errors":"hIh4e1","observejs":"u+GZEJ","services":"cX8q+p","utils":"uE/lJt"}],48:[function(require,module,exports){
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	errorPrefix = 'DS.lastModified(resourceName[, id]): ';
+},{"observejs":"u+GZEJ"}],46:[function(require,module,exports){
+var errorPrefix = 'DS.lastModified(resourceName[, id]): ';
 
 /**
  * @doc method
@@ -3155,31 +3221,28 @@ var utils = require('utils'),
  * `resourceName` with the given primary key was modified.
  */
 function lastModified(resourceName, id) {
-	if (!services.store[resourceName]) {
-		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (id && !utils.isString(id) && !utils.isNumber(id)) {
-		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+	if (!this.definitions[resourceName]) {
+		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+	} else if (id && !this.utils.isString(id) && !this.utils.isNumber(id)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 	try {
 		if (id) {
-			if (!(id in services.store[resourceName].modified)) {
-				services.store[resourceName].modified[id] = 0;
+			if (!(id in this.store[resourceName].modified)) {
+				this.store[resourceName].modified[id] = 0;
 			}
-			return services.store[resourceName].modified[id];
+			return this.store[resourceName].modified[id];
 		}
-		return services.store[resourceName].collectionModified;
+		return this.store[resourceName].collectionModified;
 	} catch (err) {
-		throw new errors.UnhandledError(err);
+		throw new this.errors.UnhandledError(err);
 	}
 }
 
 module.exports = lastModified;
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],49:[function(require,module,exports){
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	errorPrefix = 'DS.lastSaved(resourceName[, id]): ';
+},{}],47:[function(require,module,exports){
+var errorPrefix = 'DS.lastSaved(resourceName[, id]): ';
 
 /**
  * @doc method
@@ -3223,31 +3286,28 @@ var utils = require('utils'),
  * `resourceName` with the given primary key was modified.
  */
 function lastSaved(resourceName, id) {
-	if (!services.store[resourceName]) {
-		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (id && !utils.isString(id) && !utils.isNumber(id)) {
-		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+	if (!this.definitions[resourceName]) {
+		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+	} else if (id && !this.utils.isString(id) && !this.utils.isNumber(id)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 	try {
 		if (id) {
-			if (!(id in services.store[resourceName].saved)) {
-				services.store[resourceName].saved[id] = 0;
+			if (!(id in this.store[resourceName].saved)) {
+				this.store[resourceName].saved[id] = 0;
 			}
-			return services.store[resourceName].saved[id];
+			return this.store[resourceName].saved[id];
 		}
-		return services.store[resourceName].collectionModified;
+		return this.store[resourceName].collectionModified;
 	} catch (err) {
-		throw new errors.UnhandledError(err);
+		throw new this.errors.UnhandledError(err);
 	}
 }
 
 module.exports = lastSaved;
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],50:[function(require,module,exports){
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	errorPrefix = 'DS.previous(resourceName, id): ';
+},{}],48:[function(require,module,exports){
+var errorPrefix = 'DS.previous(resourceName, id): ';
 
 /**
  * @doc method
@@ -3285,23 +3345,23 @@ var utils = require('utils'),
  * @returns {object} The previous attributes of the item of the type specified by `resourceName` with the primary key specified by `id`.
  */
 function previous(resourceName, id) {
-	if (!services.store[resourceName]) {
-		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (!utils.isString(id) && !utils.isNumber(id)) {
-		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+	if (!this.definitions[resourceName]) {
+		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 
 	try {
 		// return resource from cache
-		return angular.copy(services.store[resourceName].previous_attributes[id]);
+		return angular.copy(this.store[resourceName].previousAttributes[id]);
 	} catch (err) {
-		throw new errors.UnhandledError(err);
+		throw new this.errors.UnhandledError(err);
 	}
 }
 
 module.exports = previous;
 
-},{"errors":"hIh4e1","services":"cX8q+p","utils":"uE/lJt"}],"errors":[function(require,module,exports){
+},{}],"errors":[function(require,module,exports){
 module.exports=require('hIh4e1');
 },{}],"hIh4e1":[function(require,module,exports){
 /**
@@ -3409,52 +3469,6 @@ IllegalArgumentError.prototype.constructor = IllegalArgumentError;
 
 /**
  * @doc function
- * @id errors.types:ValidationError
- * @name ValidationError
- * @description Error that is thrown/returned when validation of a schema fails.
- * @param {string=} message Error message. Default: `"Validation Error!"`.
- * @param {object=} errors Object containing information about the error.
- * @returns {ValidationError} A new instance of `ValidationError`.
- */
-function ValidationError(message, errors) {
-	Error.call(this);
-	if (typeof Error.captureStackTrace === 'function') {
-		Error.captureStackTrace(this, this.constructor);
-	}
-
-	/**
-	 * @doc property
-	 * @id errors.types:ValidationError.type
-	 * @name type
-	 * @propertyOf errors.types:ValidationError
-	 * @description Name of error type. Default: `"ValidationError"`.
-	 */
-	this.type = this.constructor.name;
-
-	/**
-	 * @doc property
-	 * @id errors.types:ValidationError.errors
-	 * @name errors
-	 * @propertyOf errors.types:ValidationError
-	 * @description Object containing information about the error.
-	 */
-	this.errors = errors || {};
-
-	/**
-	 * @doc property
-	 * @id errors.types:ValidationError.message
-	 * @name message
-	 * @propertyOf errors.types:ValidationError
-	 * @description Error message. Default: `"Validation Error!"`.
-	 */
-	this.message = message || 'Validation Error!';
-}
-
-ValidationError.prototype = Object.create(Error.prototype);
-ValidationError.prototype.constructor = ValidationError;
-
-/**
- * @doc function
  * @id errors.types:RuntimeError
  * @name RuntimeError
  * @description Error that is thrown/returned for invalid state during runtime.
@@ -3504,171 +3518,141 @@ RuntimeError.prototype.constructor = RuntimeError;
  * @id errors
  * @name angular-data error types
  * @description
- * `UnhandledError`, `IllegalArgumentError`, `RuntimeError` and `ValidationError`.
+ * `UnhandledError`, `IllegalArgumentError` and `RuntimeError`.
  *
  * References to the constructor functions of these errors can be found at `DS.errors`.
  */
-module.exports = {
-	UnhandledError: UnhandledError,
-	IllegalArgumentError: IllegalArgumentError,
-	ValidationError: ValidationError,
-	RuntimeError: RuntimeError
-};
+module.exports = [function () {
+	return {
+		UnhandledError: UnhandledError,
+		IllegalArgumentError: IllegalArgumentError,
+		RuntimeError: RuntimeError
+	};
+}];
 
-},{}],53:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 (function (window, angular, undefined) {
 	'use strict';
 
-//	angular.module('jmdobry.binary-heap', []);
-//
-//	/**
-//	 * @doc interface
-//	 * @id BinaryHeapProvider
-//	 * @name BinaryHeapProvider
-//	 */
-//	function BinaryHeapProvider() {
-//
-//		var defaults = require('./binaryHeap/defaults');
-//
-//		/**
-//		 * @doc method
-//		 * @id BinaryHeapProvider.methods:setDefaultWeightFunction
-//		 * @name setDefaultWeightFunction
-//		 * @param {function} weightFunc New default weight function.
-//		 */
-//		function setDefaultWeightFunction(weightFunc) {
-//			if (!angular.isFunction(weightFunc)) {
-//				throw new Error('BinaryHeapProvider.setDefaultWeightFunction(weightFunc): weightFunc: Must be a function!');
-//			}
-//			defaults.userProvidedDefaultWeightFunc = weightFunc;
-//		}
-//
-//		/**
-//		 * @doc method
-//		 * @id BinaryHeapProvider.methods:setDefaultWeightFunction
-//		 * @name setDefaultWeightFunction
-//		 * @methodOf BinaryHeapProvider
-//		 * @param {function} weightFunc New default weight function.
-//		 */
-//		this.setDefaultWeightFunction = setDefaultWeightFunction;
-//
-//		this.$get = function () {
-//			return require('./binaryHeap');
-//		};
-//	}
-//	angular.module('jmdobry.binary-heap').provider('BinaryHeap', BinaryHeapProvider);
+	angular.module('angular-data.BinaryHeap', [])
+		.provider('BinaryHeap', require('./binaryHeap'));
+	angular.module('angular-data.DS', ['ng', 'angular-data.BinaryHeap'])
+		.service('DSUtils', require('./utils'))
+		.service('DSErrors', require('./errors'))
+		.provider('DSHttpAdapter', require('./adapters/http'))
+		.provider('DS', require('./datastore'))
+		.config(['$provide', function ($provide) {
+			$provide.decorator('$q', function ($delegate) {
+				// do whatever you you want
+				$delegate.promisify = function (fn, target) {
+					var _this = this;
+					return function () {
+						var deferred = _this.defer(),
+							args = Array.prototype.slice.apply(arguments);
 
-	angular.module('jmdobry.angular-data', ['ng'/*, 'jmdobry.binary-heap'*/]).config(['$provide', function ($provide) {
-		$provide.decorator('$q', function ($delegate) {
-			// do whatever you you want
-			$delegate.promisify = function (fn, target) {
-				var _this = this;
-				return function () {
-					var deferred = _this.defer(),
-						args = Array.prototype.slice.apply(arguments);
+						args.push(function (err, result) {
+							if (err) {
+								deferred.reject(err);
+							} else {
+								deferred.resolve(result);
+							}
+						});
 
-					args.push(function (err, result) {
-						if (err) {
+						try {
+							fn.apply(target || this, args);
+						} catch (err) {
 							deferred.reject(err);
-						} else {
-							deferred.resolve(result);
 						}
-					});
 
-					try {
-						fn.apply(target || this, args);
-					} catch (err) {
-						deferred.reject(err);
-					}
-
-					return deferred.promise;
+						return deferred.promise;
+					};
 				};
-			};
-			return $delegate;
-		});
-	}]);
-	angular.module('jmdobry.angular-data').provider('DS', require('./datastore'));
+				return $delegate;
+			});
+		}]);
 
 })(window, window.angular);
 
-},{"./datastore":36}],"uE/lJt":[function(require,module,exports){
-module.exports = {
-	isString: angular.isString,
-	isArray: angular.isArray,
-	isObject: angular.isObject,
-	isNumber: angular.isNumber,
-	isFunction: angular.isFunction,
-	isEmpty: require('mout/lang/isEmpty'),
-	toJson: angular.toJson,
-	makePath: require('mout/string/makePath'),
-	upperCase: require('mout/string/upperCase'),
-	deepMixIn: require('mout/object/deepMixIn'),
-	forOwn: require('mout/object/forOwn'),
-	contains: require('mout/array/contains'),
-	filter: require('mout/array/filter'),
-	toLookup: require('mout/array/toLookup'),
-	slice: require('mout/array/slice'),
-	sort: require('mout/array/sort'),
-	updateTimestamp: function (timestamp) {
-		var newTimestamp = typeof Date.now === 'function' ? Date.now() : new Date().getTime();
-		if (timestamp && newTimestamp <= timestamp) {
-			return timestamp + 1;
-		} else {
-			return newTimestamp;
-		}
-	},
-	deepFreeze: function deepFreeze(o) {
-		if (typeof Object.freeze === 'function') {
-			var prop, propKey;
-			Object.freeze(o); // First freeze the object.
-			for (propKey in o) {
-				prop = o[propKey];
-				if (!o.hasOwnProperty(propKey) || typeof prop !== 'object' || Object.isFrozen(prop)) {
-					// If the object is on the prototype, not an object, or is already frozen,
-					// skip it. Note that this might leave an unfrozen reference somewhere in the
-					// object if there is an already frozen object containing an unfrozen object.
+},{"./adapters/http":27,"./binaryHeap":28,"./datastore":36,"./errors":"hIh4e1","./utils":"uE/lJt"}],"uE/lJt":[function(require,module,exports){
+module.exports = [function () {
+	return {
+		isString: angular.isString,
+		isArray: angular.isArray,
+		isObject: angular.isObject,
+		isNumber: angular.isNumber,
+		isFunction: angular.isFunction,
+		isEmpty: require('mout/lang/isEmpty'),
+		toJson: angular.toJson,
+		makePath: require('mout/string/makePath'),
+		upperCase: require('mout/string/upperCase'),
+		deepMixIn: require('mout/object/deepMixIn'),
+		forOwn: require('mout/object/forOwn'),
+		contains: require('mout/array/contains'),
+		filter: require('mout/array/filter'),
+		toLookup: require('mout/array/toLookup'),
+		slice: require('mout/array/slice'),
+		sort: require('mout/array/sort'),
+		updateTimestamp: function (timestamp) {
+			var newTimestamp = typeof Date.now === 'function' ? Date.now() : new Date().getTime();
+			if (timestamp && newTimestamp <= timestamp) {
+				return timestamp + 1;
+			} else {
+				return newTimestamp;
+			}
+		},
+		deepFreeze: function deepFreeze(o) {
+			if (typeof Object.freeze === 'function') {
+				var prop, propKey;
+				Object.freeze(o); // First freeze the object.
+				for (propKey in o) {
+					prop = o[propKey];
+					if (!o.hasOwnProperty(propKey) || typeof prop !== 'object' || Object.isFrozen(prop)) {
+						// If the object is on the prototype, not an object, or is already frozen,
+						// skip it. Note that this might leave an unfrozen reference somewhere in the
+						// object if there is an already frozen object containing an unfrozen object.
+						continue;
+					}
+
+					deepFreeze(prop); // Recursively call deepFreeze.
+				}
+			}
+		},
+		diffObjectFromOldObject: function (object, oldObject) {
+			var added = {};
+			var removed = {};
+			var changed = {};
+
+			for (var prop in oldObject) {
+				var newValue = object[prop];
+
+				if (newValue !== undefined && newValue === oldObject[prop])
+					continue;
+
+				if (!(prop in object)) {
+					removed[prop] = undefined;
 					continue;
 				}
 
-				deepFreeze(prop); // Recursively call deepFreeze.
-			}
-		}
-	},
-	diffObjectFromOldObject: function (object, oldObject) {
-		var added = {};
-		var removed = {};
-		var changed = {};
-
-		for (var prop in oldObject) {
-			var newValue = object[prop];
-
-			if (newValue !== undefined && newValue === oldObject[prop])
-				continue;
-
-			if (!(prop in object)) {
-				removed[prop] = undefined;
-				continue;
+				if (newValue !== oldObject[prop])
+					changed[prop] = newValue;
 			}
 
-			if (newValue !== oldObject[prop])
-				changed[prop] = newValue;
+			for (var prop2 in object) {
+				if (prop2 in oldObject)
+					continue;
+
+				added[prop2] = object[prop2];
+			}
+
+			return {
+				added: added,
+				removed: removed,
+				changed: changed
+			};
 		}
-
-		for (var prop2 in object) {
-			if (prop2 in oldObject)
-				continue;
-
-			added[prop2] = object[prop2];
-		}
-
-		return {
-			added: added,
-			removed: removed,
-			changed: changed
-		};
-	}
-};
+	};
+}];
 
 },{"mout/array/contains":3,"mout/array/filter":4,"mout/array/slice":7,"mout/array/sort":8,"mout/array/toLookup":9,"mout/lang/isEmpty":14,"mout/object/deepMixIn":21,"mout/object/forOwn":23,"mout/string/makePath":25,"mout/string/upperCase":26}],"utils":[function(require,module,exports){
 module.exports=require('uE/lJt');
-},{}]},{},[53])
+},{}]},{},[51])

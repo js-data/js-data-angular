@@ -1,7 +1,4 @@
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	errorPrefix = 'DS.find(resourceName, id[, options]): ';
+var errorPrefix = 'DS.find(resourceName, id[, options]): ';
 
 /**
  * @doc method
@@ -48,20 +45,21 @@ var utils = require('utils'),
  * - `{UnhandledError}`
  */
 function find(resourceName, id, options) {
-	var deferred = services.$q.defer(),
+	var deferred = this.$q.defer(),
 		promise = deferred.promise;
 
 	options = options || {};
 
-	if (!services.store[resourceName]) {
-		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
-	} else if (!utils.isString(id) && !utils.isNumber(id)) {
-		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
-	} else if (!utils.isObject(options)) {
-		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
+	if (!this.definitions[resourceName]) {
+		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
+	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
+	} else if (!this.utils.isObject(options)) {
+		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
 	} else {
 		try {
-			var resource = services.store[resourceName],
+			var definition = this.definitions[resourceName],
+				resource = this.store[resourceName],
 				_this = this;
 
 			if (options.bypassCache) {
@@ -70,7 +68,7 @@ function find(resourceName, id, options) {
 
 			if (!(id in resource.completedQueries)) {
 				if (!(id in resource.pendingQueries)) {
-					promise = resource.pendingQueries[id] = services.adapters[resource.defaultAdapter].GET(utils.makePath(resource.baseUrl, resource.endpoint, id), null)
+					promise = resource.pendingQueries[id] = _this.adapters[options.adapter || definition.defaultAdapter].find(definition, id, options)
 						.then(function (data) {
 							// Query is no longer pending
 							delete resource.pendingQueries[id];

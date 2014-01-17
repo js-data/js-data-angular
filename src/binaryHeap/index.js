@@ -1,5 +1,3 @@
-var defaults = require('./defaults');
-
 /*!
  * @doc method
  * @id BinaryHeap.private_functions:bubbleUp
@@ -193,9 +191,43 @@ BinaryHeap.prototype.size = function () {
 
 /**
  * @doc interface
- * @id BinaryHeap
- * @name BinaryHeap
- * @description
- * Binary heap implementation of a priority queue.
+ * @id BinaryHeapProvider
+ * @name BinaryHeapProvider
  */
-module.exports = BinaryHeap;
+function BinaryHeapProvider() {
+
+	var defaults = {
+		defaultWeightFunc: function (x) {
+			return x;
+		},
+		userProvidedDefaultWeightFunc: null
+	};
+
+	/**
+	 * @doc method
+	 * @id BinaryHeapProvider.methods:setDefaultWeightFunction
+	 * @name setDefaultWeightFunction
+	 * @param {function} weightFunc New default weight function.
+	 */
+	function setDefaultWeightFunction(weightFunc) {
+		if (!angular.isFunction(weightFunc)) {
+			throw new Error('BinaryHeapProvider.setDefaultWeightFunction(weightFunc): weightFunc: Must be a function!');
+		}
+		defaults.userProvidedDefaultWeightFunc = weightFunc;
+	}
+
+	/**
+	 * @doc method
+	 * @id BinaryHeapProvider.methods:setDefaultWeightFunction
+	 * @name setDefaultWeightFunction
+	 * @methodOf BinaryHeapProvider
+	 * @param {function} weightFunc New default weight function.
+	 */
+	this.setDefaultWeightFunction = setDefaultWeightFunction;
+
+	this.$get = function () {
+		return BinaryHeap;
+	};
+}
+
+module.exports = BinaryHeapProvider;

@@ -27,7 +27,7 @@ var fail = function (msg) {
 	}],
 	TYPES_EXCEPT_FUNCTION = ['string', 123, 123.123, null, undefined, {}, [], true, false];
 
-angular.module('app', ['ng', 'jmdobry.angular-data']);
+angular.module('app', ['ng', 'angular-data.DS']);
 
 // Setup before each test
 beforeEach(function (done) {
@@ -69,18 +69,16 @@ beforeEach(function (done) {
 	};
 	module('app', function (_DSProvider_) {
 		DSProvider = _DSProvider_;
-		DSProvider.config({
-			baseUrl: 'http://test.angular-cache.com',
-			beforeValidate: lifecycle.beforeValidate,
-			validate: lifecycle.validate,
-			afterValidate: lifecycle.afterValidate,
-			beforeCreate: lifecycle.beforeCreate,
-			afterCreate: lifecycle.afterCreate,
-			beforeUpdate: lifecycle.beforeUpdate,
-			afterUpdate: lifecycle.afterUpdate,
-			beforeDestroy: lifecycle.beforeDestroy,
-			afterDestroy: lifecycle.afterDestroy
-		});
+		DSProvider.defaults.baseUrl = 'http://test.angular-cache.com';
+		DSProvider.defaults.beforeValidate = lifecycle.beforeValidate;
+		DSProvider.defaults.validate = lifecycle.validate;
+		DSProvider.defaults.afterValidate = lifecycle.afterValidate;
+		DSProvider.defaults.beforeCreate = lifecycle.beforeCreate;
+		DSProvider.defaults.afterCreate = lifecycle.afterCreate;
+		DSProvider.defaults.beforeUpdate = lifecycle.beforeUpdate;
+		DSProvider.defaults.afterUpdate = lifecycle.afterUpdate;
+		DSProvider.defaults.beforeDestroy = lifecycle.beforeDestroy;
+		DSProvider.defaults.afterDestroy = lifecycle.afterDestroy;
 	});
 	inject(function (_$rootScope_, _$q_, _$httpBackend_, _DS_, _$log_) {
 		// Setup global mocks

@@ -1,7 +1,4 @@
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	errorPrefix = 'DS.lastSaved(resourceName[, id]): ';
+var errorPrefix = 'DS.lastSaved(resourceName[, id]): ';
 
 /**
  * @doc method
@@ -45,21 +42,21 @@ var utils = require('utils'),
  * `resourceName` with the given primary key was modified.
  */
 function lastSaved(resourceName, id) {
-	if (!services.store[resourceName]) {
-		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (id && !utils.isString(id) && !utils.isNumber(id)) {
-		throw new errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+	if (!this.definitions[resourceName]) {
+		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+	} else if (id && !this.utils.isString(id) && !this.utils.isNumber(id)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 	try {
 		if (id) {
-			if (!(id in services.store[resourceName].saved)) {
-				services.store[resourceName].saved[id] = 0;
+			if (!(id in this.store[resourceName].saved)) {
+				this.store[resourceName].saved[id] = 0;
 			}
-			return services.store[resourceName].saved[id];
+			return this.store[resourceName].saved[id];
 		}
-		return services.store[resourceName].collectionModified;
+		return this.store[resourceName].collectionModified;
 	} catch (err) {
-		throw new errors.UnhandledError(err);
+		throw new this.errors.UnhandledError(err);
 	}
 }
 

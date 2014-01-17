@@ -1,10 +1,7 @@
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	errorPrefix = 'DS.findAll(resourceName, params[, options]): ';
+var errorPrefix = 'DS.findAll(resourceName, params[, options]): ';
 
-function processResults(data, resourceName, queryHash) {
-	var resource = services.store[resourceName];
+function processResults(utils, data, resourceName, queryHash) {
+	var resource = this.store[resourceName];
 
 	data = data || [];
 
@@ -18,15 +15,16 @@ function processResults(data, resourceName, queryHash) {
 	}
 
 	// Update the data store's index for this resource
-	resource.index = utils.toLookup(resource.collection, resource.idAttribute);
+	resource.index = utils.toLookup(resource.collection, this.definitions[resourceName].idAttribute);
 
 	// Update modified timestamp of collection
 	resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
 	return data;
 }
 
-function _findAll(resourceName, params, options) {
-	var resource = services.store[resourceName],
+function _findAll(utils, resourceName, params, options) {
+	var definition = this.definitions[resourceName],
+		resource = this.store[resourceName],
 		_this = this,
 		queryHash = utils.toJson(params);
 
@@ -40,12 +38,12 @@ function _findAll(resourceName, params, options) {
 		if (!(queryHash in resource.pendingQueries)) {
 
 			// This particular query has never even been made
-			resource.pendingQueries[queryHash] = services.adapters[resource.defaultAdapter].GET(utils.makePath(resource.baseUrl, resource.endpoint), { params: params })
+			resource.pendingQueries[queryHash] = _this.adapters[options.adapter || definition.defaultAdapter].findAll(definition, { params: params }, options)
 				.then(function (data) {
 					try {
-						return processResults.apply(_this, [data, resourceName, queryHash]);
+						return processResults.apply(_this, [utils, data, resourceName, queryHash]);
 					} catch (err) {
-						throw new errors.UnhandledError(err);
+						throw new _this.errors.UnhandledError(err);
 					}
 				});
 		}
@@ -124,26 +122,26 @@ function _findAll(resourceName, params, options) {
  * - `{UnhandledError}`
  */
 function findAll(resourceName, params, options) {
-	var deferred = services.$q.defer(),
+	var deferred = this.$q.defer(),
 		promise = deferred.promise,
 		_this = this;
 
 	options = options || {};
 
-	if (!services.store[resourceName]) {
-		deferred.reject(new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
-	} else if (!utils.isObject(params)) {
-		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!', { params: { actual: typeof params, expected: 'object' } }));
-	} else if (!utils.isObject(options)) {
-		deferred.reject(new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
+	if (!this.definitions[resourceName]) {
+		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
+	} else if (!this.utils.isObject(params)) {
+		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!', { params: { actual: typeof params, expected: 'object' } }));
+	} else if (!this.utils.isObject(options)) {
+		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
 	} else {
 		try {
 			promise = promise.then(function () {
-				return _findAll.apply(_this, [resourceName, params, options]);
+				return _findAll.apply(_this, [_this.utils, resourceName, params, options]);
 			});
 			deferred.resolve();
 		} catch (err) {
-			deferred.reject(new errors.UnhandledError(err));
+			deferred.reject(new this.errors.UnhandledError(err));
 		}
 	}
 

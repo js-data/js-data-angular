@@ -103,52 +103,6 @@ IllegalArgumentError.prototype.constructor = IllegalArgumentError;
 
 /**
  * @doc function
- * @id errors.types:ValidationError
- * @name ValidationError
- * @description Error that is thrown/returned when validation of a schema fails.
- * @param {string=} message Error message. Default: `"Validation Error!"`.
- * @param {object=} errors Object containing information about the error.
- * @returns {ValidationError} A new instance of `ValidationError`.
- */
-function ValidationError(message, errors) {
-	Error.call(this);
-	if (typeof Error.captureStackTrace === 'function') {
-		Error.captureStackTrace(this, this.constructor);
-	}
-
-	/**
-	 * @doc property
-	 * @id errors.types:ValidationError.type
-	 * @name type
-	 * @propertyOf errors.types:ValidationError
-	 * @description Name of error type. Default: `"ValidationError"`.
-	 */
-	this.type = this.constructor.name;
-
-	/**
-	 * @doc property
-	 * @id errors.types:ValidationError.errors
-	 * @name errors
-	 * @propertyOf errors.types:ValidationError
-	 * @description Object containing information about the error.
-	 */
-	this.errors = errors || {};
-
-	/**
-	 * @doc property
-	 * @id errors.types:ValidationError.message
-	 * @name message
-	 * @propertyOf errors.types:ValidationError
-	 * @description Error message. Default: `"Validation Error!"`.
-	 */
-	this.message = message || 'Validation Error!';
-}
-
-ValidationError.prototype = Object.create(Error.prototype);
-ValidationError.prototype.constructor = ValidationError;
-
-/**
- * @doc function
  * @id errors.types:RuntimeError
  * @name RuntimeError
  * @description Error that is thrown/returned for invalid state during runtime.
@@ -198,13 +152,14 @@ RuntimeError.prototype.constructor = RuntimeError;
  * @id errors
  * @name angular-data error types
  * @description
- * `UnhandledError`, `IllegalArgumentError`, `RuntimeError` and `ValidationError`.
+ * `UnhandledError`, `IllegalArgumentError` and `RuntimeError`.
  *
  * References to the constructor functions of these errors can be found at `DS.errors`.
  */
-module.exports = {
-	UnhandledError: UnhandledError,
-	IllegalArgumentError: IllegalArgumentError,
-	ValidationError: ValidationError,
-	RuntimeError: RuntimeError
-};
+module.exports = [function () {
+	return {
+		UnhandledError: UnhandledError,
+		IllegalArgumentError: IllegalArgumentError,
+		RuntimeError: RuntimeError
+	};
+}];

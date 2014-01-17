@@ -1,8 +1,5 @@
 /* jshint loopfunc: true */
-var utils = require('utils'),
-	errors = require('errors'),
-	services = require('services'),
-	errorPrefix = 'DS.filter(resourceName, params[, options]): ';
+var errorPrefix = 'DS.filter(resourceName, params[, options]): ';
 
 /**
  * @doc method
@@ -47,21 +44,23 @@ var utils = require('utils'),
 function filter(resourceName, params, options) {
 	options = options || {};
 
-	if (!services.store[resourceName]) {
-		throw new errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (!utils.isObject(params)) {
-		throw new errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!', { params: { actual: typeof params, expected: 'object' } });
-	} else if (!utils.isObject(options)) {
-		throw new errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
+	if (!this.definitions[resourceName]) {
+		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+	} else if (!this.utils.isObject(params)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!', { params: { actual: typeof params, expected: 'object' } });
+	} else if (!this.utils.isObject(options)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
 	}
 
 	try {
-		var resource = services.store[resourceName];
+		var definition = this.definitions[resourceName],
+			resource = this.store[resourceName],
+			_this = this;
 
 		// Protect against null
 		params.query = params.query || {};
 
-		var queryHash = utils.toJson(params);
+		var queryHash = this.utils.toJson(params);
 
 		if (!(queryHash in resource.completedQueries) && options.loadFromServer) {
 			// This particular query has never been completed
@@ -73,63 +72,41 @@ function filter(resourceName, params, options) {
 		}
 
 		// The query has been completed, so hit the cache with the query
-		var filtered = utils.filter(resource.collection, function (value) {
-			var keep = true;
+		var filtered = this.utils.filter(resource.collection, function (attrs) {
+			var keep = true,
+				where = params.query.where;
 
 			// Apply 'where' clauses
-			if (params.query.where) {
-				if (!utils.isObject(params.query.where)) {
-					throw new errors.IllegalArgumentError(errorPrefix + 'params.query.where: Must be an object!', { params: { query: { where: { actual: typeof params.query.where, expected: 'object' } } } });
+			if (where) {
+				if (!_this.utils.isObject(where)) {
+					throw new _this.errors.IllegalArgumentError(errorPrefix + 'params.query.where: Must be an object!', { params: { query: { where: { actual: typeof params.query.where, expected: 'object' } } } });
 				}
-				utils.forOwn(params.query.where, function (value2, key2) {
-					if (utils.isString(value2)) {
-						value2 = {
-							'===': value2
-						};
-					}
-					if ('==' in value2) {
-						keep = keep && (value[key2] == value2['==']);
-					} else if ('===' in value2) {
-						keep = keep && (value[key2] === value2['===']);
-					} else if ('!=' in value2) {
-						keep = keep && (value[key2] != value2['!=']);
-					} else if ('>' in value2) {
-						keep = keep && (value[key2] > value2['>']);
-					} else if ('>=' in value2) {
-						keep = keep && (value[key2] >= value2['>=']);
-					} else if ('<' in value2) {
-						keep = keep && (value[key2] < value2['<']);
-					} else if ('<=' in value2) {
-						keep = keep && (value[key2] <= value2['<=']);
-					} else if ('in' in value2) {
-						keep = keep && utils.contains(value2['in'], value[key2]);
-					}
-				});
+				keep = definition.filter(resourceName, where, attrs);
 			}
 			return keep;
 		});
 
 		// Apply 'orderBy'
 		if (params.query.orderBy) {
-			if (utils.isString(params.query.orderBy)) {
+			if (this.utils.isString(params.query.orderBy)) {
 				params.query.orderBy = [
 					[params.query.orderBy, 'ASC']
 				];
 			}
-			if (utils.isArray(params.query.orderBy)) {
+			if (this.utils.isArray(params.query.orderBy)) {
 				for (var i = 0; i < params.query.orderBy.length; i++) {
-					if (utils.isString(params.query.orderBy[i])) {
+					if (this.utils.isString(params.query.orderBy[i])) {
 						params.query.orderBy[i] = [params.query.orderBy[i], 'ASC'];
-					} else if (!utils.isArray(params.query.orderBy[i])) {
-						throw new errors.IllegalArgumentError(errorPrefix + 'params.query.orderBy[' + i + ']: Must be a string or an array!', { params: { query: { 'orderBy[i]': { actual: typeof params.query.orderBy[i], expected: 'string|array' } } } });
+					} else if (!this.utils.isArray(params.query.orderBy[i])) {
+						throw new this.errors.IllegalArgumentError(errorPrefix + 'params.query.orderBy[' + i + ']: Must be a string or an array!', { params: { query: { 'orderBy[i]': { actual: typeof params.query.orderBy[i], expected: 'string|array' } } } });
 					}
-					filtered = utils.sort(filtered, function (a, b) {
+					filtered = this.utils.sort(filtered, function (a, b) {
 						var cA = a[params.query.orderBy[i][0]], cB = b[params.query.orderBy[i][0]];
-						if (utils.isString(cA)) {
-							cA = utils.upperCase(cA);
+						if (_this.utils.isString(cA)) {
+							cA = _this.utils.upperCase(cA);
 						}
-						if (utils.isString(cB)) {
-							cB = utils.upperCase(cB);
+						if (_this.utils.isString(cB)) {
+							cB = _this.utils.upperCase(cB);
 						}
 						if (params.query.orderBy[i][1] === 'DESC') {
 							if (cB < cA) {
@@ -151,25 +128,25 @@ function filter(resourceName, params, options) {
 					});
 				}
 			} else {
-				throw new errors.IllegalArgumentError(errorPrefix + 'params.query.orderBy: Must be a string or an array!', { params: { query: { orderBy: { actual: typeof params.query.orderBy, expected: 'string|array' } } } });
+				throw new this.errors.IllegalArgumentError(errorPrefix + 'params.query.orderBy: Must be a string or an array!', { params: { query: { orderBy: { actual: typeof params.query.orderBy, expected: 'string|array' } } } });
 			}
 		}
 
 		// Apply 'limit' and 'skip'
-		if (utils.isNumber(params.query.limit) && utils.isNumber(params.query.skip)) {
-			filtered = utils.slice(filtered, params.query.skip, params.query.skip + params.query.limit);
-		} else if (utils.isNumber(params.query.limit)) {
-			filtered = utils.slice(filtered, 0, params.query.limit);
-		} else if (utils.isNumber(params.query.skip)) {
-			filtered = utils.slice(filtered, params.query.skip);
+		if (this.utils.isNumber(params.query.limit) && this.utils.isNumber(params.query.skip)) {
+			filtered = this.utils.slice(filtered, params.query.skip, params.query.skip + params.query.limit);
+		} else if (this.utils.isNumber(params.query.limit)) {
+			filtered = this.utils.slice(filtered, 0, params.query.limit);
+		} else if (this.utils.isNumber(params.query.skip)) {
+			filtered = this.utils.slice(filtered, params.query.skip);
 		}
 
 		return filtered;
 	} catch (err) {
-		if (err instanceof errors.IllegalArgumentError) {
+		if (err instanceof this.errors.IllegalArgumentError) {
 			throw err;
 		} else {
-			throw new errors.UnhandledError(err);
+			throw new this.errors.UnhandledError(err);
 		}
 	}
 }
