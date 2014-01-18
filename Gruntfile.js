@@ -11,6 +11,8 @@ module.exports = function (grunt) {
 	require('load-grunt-tasks')(grunt);
 	require('time-grunt')(grunt);
 
+	var dev = process.cwd().indexOf('/home/codetrain/angular-data') === -1;
+
 	// Project configuration.
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
@@ -250,7 +252,16 @@ module.exports = function (grunt) {
 			showAngularDocs: false,
 			docular_partial_home: 'guide/home.html',
 			docular_partial_navigation: 'guide/nav.html',
-			docular_partial_footer: 'guide/footer.html'
+			docular_partial_footer: 'guide/footer.html',
+			analytics: {
+				account: 'UA-46792694-5',
+				domainName: 'angular-data.codetrain.io'
+			},
+			discussions: {
+				shortName: 'angular-data',
+				url: 'http://angular-data.codetrain.io',
+				dev: dev
+			}
 		}
 	});
 
