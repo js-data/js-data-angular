@@ -43,6 +43,7 @@ module.exports = {
 	 * @doc method
 	 * @id DS.sync_methods:inject
 	 * @name inject
+	 * @methodOf DS
 	 * @description
 	 * See [DS.inject](/documentation/api/api/DS.sync_methods:inject).
 	 */
