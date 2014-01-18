@@ -5,25 +5,6 @@
 
 # Overview
 
-Angular-data is an in-browser data store for [Angular.js](http://angularjs.org).
-[synchronous methods](/documentation/guide/synchronous/index) talk only to the data store, and
-[asynchronous methods](/documentation/guide/asynchronous/index) that persist changes to the server, and a few custom
-error types.
-
-Angular-data does not decorate your data in any way–your data maintains the pure POJO representation common to Angular
-apps. Angular-data maintains meta information about your data to facilitate its operation. You can "watch" data that
-resides in the data store to stay up-to-date on that data.
-
-You define _resources_ and register them with the data store. A _resource definition_ tells angular-data
-about a particular resource, like what its root endpoint is and which attribute refers to the primary key of the
-resource. A _resource definition_ can also specify validation functions to be executed before create and update
-operations.
-
-Angular-data provides several injectable services:
-
-- `DS` - the data store
-- `BinaryHeap` - priority queue implementation used by `DS`
-
 <page-list></page-list>
 
 @doc overview
@@ -32,25 +13,81 @@ Angular-data provides several injectable services:
 @description
 
 Angular-data is an in-browser data store for [Angular.js](http://angularjs.org).
-[synchronous methods](/documentation/guide/synchronous/index) talk only to the data store, and
-[asynchronous methods](/documentation/guide/asynchronous/index) that persist changes to the server, and a few custom
-error types.
+[Synchronous methods](/documentation/guide/synchronous/index) talk only to the data store, and
+[asynchronous methods](/documentation/guide/asynchronous/index) persist changes to a persistence layer.
+
+```js
+angular.module('myApp', ['angular-data.DS'])
+	.config(function (DSProvider) {
+		DSProvider.defaults.baseUrl = 'https://example.com/api';
+		{...}
+	})
+	.run(function (DS) {
+		DS.defineResource({
+			name: 'post',
+			endpoint: 'posts',
+			idAttribute: '_id'
+		});
+	})
+	.controller('PostCtrl', function ($scope, DS) {
+		var query = {
+                        query: {
+                            where: {
+                                author: 'John Anderson'
+                            }
+                        }
+                    };
+
+		DS.findAll('post', query);
+
+		$scope.$watch(function () {
+			return DS.lastModified('post');
+		}, function () {
+			$scope.posts = DS.filter('post', query);
+		});
+	});
+```
 
 Angular-data does not decorate your data in any way–your data maintains the pure POJO representation common to Angular
 apps. Angular-data maintains meta information about your data to facilitate its operation. You can "watch" data that
 resides in the data store to stay up-to-date on that data.
 
+```js
+$scope.posts;   //  [{ id: 1, author: 'John Anderson', title: 'How to cook' },
+					 { id: 2, author: 'John Anderson', title: 'How NOT to cook' }]
+```
+
 You define _resources_ and register them with the data store. A _resource definition_ tells angular-data
 about a particular resource, like what its root endpoint is and which attribute refers to the primary key of the
-resource. A _resource definition_ can also specify validation functions to be executed before create and update
-operations.
+resource. A _resource definition_ can also specify validation functions to be executed during model lifecycle operations.
 
-Angular-data provides several injectable services:
+```js
+DS.defineResource({
+	name: 'post',
+	endpoint: 'posts',
+	idAttribute: '_id',
+	validate: function (resourceName, attrs, cb) {
+		if (!attrs.title) {
+			cb('Title is required');
+		} else {
+			cb(null, attrs);
+		}
+	}
+});
+```
 
-- `DS` - the data store
-- `BinaryHeap` - priority queue implementation used by `DS`
+`validate` will be executed at the beginning of the lifecycle initiated by a call to `DS.create` or `DS.save`.
+```js
+DS.create('post', { author: 'Sally', title: 'Angular gotchas' })
+	.then(function (post) {
+		post; // { id: 65, author: 'Sally', title: 'Angular gotchas' }
+	});
 
-<page-list></page-list>
+DS.create('post', { author: 'Sally' })
+	.then(null, function (err) {
+		err; // 'Title is required'
+	});
+```
 
 @doc overview
 @id resources
@@ -62,12 +99,13 @@ Angular-data keeps track of _resource definitions_ to know what kind of data sho
 ```js
 myApp.run(function (DS) {
 
-	// This is a basic resource definition, and angular-data will make a few assumption here
+	// This is a basic resource definition
 	DS.defineResource({
 		name: 'document'
 	});
 
-	// angular-data now knows it can perform operations related to the "document" resource
+	// angular-data now knows it can perform
+	// operations related to the "document" resource
 });
 ```
 
@@ -123,7 +161,7 @@ This document is in the data store for both users: `{ title: 'How to Cook', id: 
 
 User #1
 ```js
-DS.destroy('document', 45).then(function {...}); // sends DELETE request to the server
+DS.destroy('document', 45).then(function (id) {...}); // sends DELETE request to the server
 ```
 
 User #2 receives notification from the server that document 45 was deleted

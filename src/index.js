@@ -1,9 +1,7 @@
 (function (window, angular, undefined) {
 	'use strict';
 
-	angular.module('angular-data.BinaryHeap', [])
-		.provider('BinaryHeap', require('./binaryHeap'));
-	angular.module('angular-data.DS', ['ng', 'angular-data.BinaryHeap'])
+	angular.module('angular-data.DS', ['ng'])
 		.service('DSUtils', require('./utils'))
 		.service('DSErrors', require('./errors'))
 		.provider('DSHttpAdapter', require('./adapters/http'))

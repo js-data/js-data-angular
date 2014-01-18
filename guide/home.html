@@ -1,70 +1,103 @@
 <div class="span12">
     <div class="row">
-        <div class="span4">
-            <documentation-group-list></documentation-group-list>
-        </div>
-        <div class="span8">
+        <div class="span12">
+            <div class="jumbotron">
+                <h1>Respect your data</h1>
+
+                <p class="lead">Give your data the treatment it deserves with a data store built for Angular.js.</p>
+                <a class="btn btn-large btn-success" href="/documentation/guide/overview/overview">Show me!</a>
+            </div>
+
+            <div class="row-fluid home-lists">
+                <div class="span4">
+                    <h1>Benefits</h1>
+                    <ul>
+                        <li>Less code to write</li>
+                        <li>Less code to test</li>
+                        <li>Less code to maintain</li>
+                        <li>Less code that can break</li>
+                        <li>Improved sense of well-being</li>
+                    </ul>
+                </div>
+                <div class="span4">
+                    <h1>Features</h1>
+                    <ul>
+                        <li>CRUD operations</li>
+                        <li>Data management</li>
+                        <li>Model lifecycle hooks</li>
+                        <li>Pluggable Adapters</li>
+                        <li>Custom JSON serializers/deserializers</li>
+                        <li>Query system for querying server/cache</li>
+                    </ul>
+                </div>
+                <div class="span4">
+                    <h1>Roadmap</h1>
+                    <ul>
+                        <li>Relationships</li>
+                        <li>Schemas/Validation</li>
+                        <li>You tell me!</li>
+                    </ul>
+                </div>
+            </div>
+
+            <p style="color: #d14; font-size: 16px;">This is software is approaching beta!</p>
+
             <h1>
-                angular-data
-                <a href="https://travis-ci.org/jmdobry/angular-data">
-                    <img src="https://travis-ci.org/jmdobry/angular-data.png?branch=master" alt="Build Status"
-                         style="max-width:100%;">
-                </a>
-                <a href="https://codeclimate.com/github/jmdobry/angular-data">
-                    <img src="https://codeclimate.com/github/jmdobry/angular-data.png" alt="Code Climate"
-                         style="max-width:100%;">
-                </a>
-                <a href="https://gemnasium.com/jmdobry/angular-data">
-                    <img src="https://gemnasium.com/jmdobry/angular-data.png" alt="Dependency Status"
-                         style="max-width:100%;">
-                </a>
-                <iframe src="http://benschwarz.github.io/bower-badges/embed.html?pkgname=angular-data" width="160" height="32" allowtransparency="true" frameborder="0" scrolling="0"></iframe>
+                Project Status
             </h1>
+            <table>
+                <thead>
+                <tr>
+                    <th>Branch</th>
+                    <th>Master</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Bower</td>
+                    <td><a href="http://badge.fury.io/bo/angular-data"><img
+                            src="https://badge.fury.io/bo/angular-data.png" alt="Bower version" style="max-width:100%;"></a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>NPM</td>
+                    <td><a href="http://badge.fury.io/js/angular-data"><img
+                            src="https://badge.fury.io/js/angular-data.png" alt="NPM version"
+                            style="max-width:100%;"></a></td>
+                </tr>
+                <tr>
+                    <td>Build Status</td>
+                    <td><a href="https://travis-ci.org/jmdobry/angular-data"><img
+                            src="https://travis-ci.org/jmdobry/angular-data.png?branch=master" alt="Build Status"
+                            style="max-width:100%;"></a></td>
+                </tr>
+                <tr>
+                    <td>Code Climate</td>
+                    <td><a href="https://codeclimate.com/github/jmdobry/angular-data"><img
+                            src="https://codeclimate.com/github/jmdobry/angular-data.png" alt="Code Climate"
+                            style="max-width:100%;"></a></td>
+                </tr>
+                <tr>
+                    <td>Dependency Status</td>
+                    <td><a href="https://gemnasium.com/jmdobry/angular-data"><img
+                            src="https://gemnasium.com/jmdobry/angular-data.png" alt="Dependency Status"
+                            style="max-width:100%;"></a></td>
+                </tr>
+                <tr>
+                    <td>Coverage</td>
+                    <td><a href="https://coveralls.io/r/jmdobry/angular-data?branch=master"><img
+                            src="https://coveralls.io/repos/jmdobry/angular-data/badge.png?branch=master"
+                            alt="Coverage Status" style="max-width:100%;"></a></td>
+                </tr>
+                </tbody>
+            </table>
 
-            <p style="color: #d14; font-size: 16px;">This is alpha software!</p>
-            <p>More documentation coming soon!</p>
-
-            <h3>
-                <a name="benefits" href="#benefits"></a>Benefits
-            </h3>
-
-            <p>
+            <h1>
+                <a name="license" href="#license"></a>License
                 <a href="https://nodei.co/npm/angular-data/" class="pull-right">
                     <img src="https://nodei.co/npm/angular-data.png?downloads=true">
                 </a>
-            <ul>
-                <li>Less code to write</li>
-                <li>Less code to test</li>
-                <li>Less code to maintain</li>
-                <li>Less code that can break</li>
-                <li>Improved sense of well-being</li>
-            </ul>
-            </p>
-
-            <h3><a name="features" href="#features"></a>Features:</h3>
-
-            <ul>
-                <li>CRUD operations</li>
-                <li>Data management</li>
-                <li>Validation lifecycle</li>
-                <li>Query system for querying server/cache</li>
-            </ul>
-
-            <h3><a name="roadmap" href="#roadmap"></a>Roadmap:</h3>
-
-            <ul>
-                <li>Unit Tests</li>
-                <li>Integration Tests</li>
-                <li>Custom JSON serializers/deserializers</li>
-                <li>Configurable query system</li>
-                <li>Pluggable Adapters (AJAX, IndexedDB, localstorage)</li>
-                <li>Relationships</li>
-                <li>You tell me!</li>
-            </ul>
-
-            <h2>
-                <a name="license" href="#license"></a>License
-            </h2>
+            </h1>
 
             <p><a href="https://github.com/jmdobry/angular-data/blob/master/LICENSE">MIT License</a></p>
 

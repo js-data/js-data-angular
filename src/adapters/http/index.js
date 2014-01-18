@@ -1,20 +1,87 @@
+/**
+ * @doc function
+ * @id DSHttpAdapterProvider
+ * @name DSHttpAdapterProvider
+ */
 function DSHttpAdapterProvider() {
 
 	this.$get = ['$http', '$log', 'DSUtils', function ($http, $log, DSUtils) {
 
+		/**
+		 * @doc property
+		 * @id DSHttpAdapterProvider.properties:defaults
+		 * @name defaults
+		 * @description
+		 * Default configuration for this adapter.
+		 *
+		 * Properties:
+		 *
+		 * - `{function}` - `serialize` - See [the guide](/documentation/guide/adapters/index). Default: No-op.
+		 * - `{function}` - `deserialize` - See [the guide](/documentation/guide/adapters/index). Default: No-op.
+		 * - `{function}` - `queryTransform` - See [the guide](/documentation/guide/adapters/index). Default: No-op.
+		 */
 		var defaults = this.defaults = {
+			/**
+			 * @doc property
+			 * @id DSHttpAdapterProvider.properties:defaults.serialize
+			 * @name defaults.serialize
+			 * @description
+			 * Your server might expect a custom request object rather than the plain POJO payload. Use `serialize` to
+			 * create your custom request object.
+			 *
+			 * @param {object} data Data to be sent to the server.
+			 * @returns {*} Returns `data` as-is.
+			 */
 			serialize: function (data) {
 				return data;
 			},
+
+			/**
+			 * @doc property
+			 * @id DSHttpAdapterProvider.properties:defaults.deserialize
+			 * @name defaults.deserialize
+			 * @description
+			 * Your server might return a custom response object instead of the plain POJO payload. Use `deserialize` to
+			 * pull the payload out of your response object so angular-data can use it.
+			 *
+			 * @param {object} data Response object from `$http()`.
+			 * @returns {*} Returns `data.data`.
+			 */
 			deserialize: function (data) {
 				return data.data;
 			},
+
+			/**
+			 * @doc property
+			 * @id DSHttpAdapterProvider.properties:defaults.queryTransform
+			 * @name defaults.queryTransform
+			 * @description
+			 * Transform the angular-data query to something your server understands. You might just do this on the server instead.
+			 *
+			 * @param {object} query Response object from `$http()`.
+			 * @returns {*} Returns `query` as-is.
+			 */
 			queryTransform: function (query) {
 				return query;
 			}
 		};
 
+		/**
+		 * @doc interface
+		 * @id DSHttpAdapter
+		 * @name DSHttpAdapter
+		 * @description
+		 * Default adapter used by angular-data. This adapter uses AJAX and JSON to send/retrieve data to/from a server.
+		 * Developers may provide custom adapters that implement the adapter interface.
+		 */
 		return {
+			/**
+			 * @doc property
+			 * @id DSHttpAdapter.properties:defaults
+			 * @name defaults
+			 * @description
+			 * Reference to [DSHttpAdapterProvider.defaults](/documentation/api/api/DSHttpAdapterProvider.properties:defaults).
+			 */
 			defaults: defaults,
 
 			/**
@@ -138,22 +205,104 @@ function DSHttpAdapterProvider() {
 			 */
 			DEL: DEL,
 
+			/**
+			 * @doc method
+			 * @id DSHttpAdapter.methods:find
+			 * @name find
+			 * @description
+			 * Retrieve a single entity from the server.
+			 *
+			 * Sends a `GET` request to `:baseUrl/:endpoint/:id`.
+			 *
+			 * @param {object} resourceConfig Properties:
+			 * - `{string}` - `baseUrl` - Base url.
+			 * - `{string=}` - `endpoint` - Endpoint path for the resource.
+			 * @param {string|number} id The primary key of the entity to retrieve.
+			 * @param {object=} options Optional configuration. Refer to the documentation for `$http.get`.
+			 * @returns {Promise} Promise.
+			 */
 			find: find,
 
+			/**
+			 * @doc method
+			 * @id DSHttpAdapter.methods:findAll
+			 * @name findAll
+			 * @description
+			 * Retrieve a collection of entities from the server.
+			 *
+			 * Sends a `GET` request to `:baseUrl/:endpoint`.
+			 *
+			 *
+			 * @param {object} resourceConfig Properties:
+			 * - `{string}` - `baseUrl` - Base url.
+			 * - `{string=}` - `endpoint` - Endpoint path for the resource.
+			 * @param {object=} params Search query parameters. See the [query guide](/documentation/guide/queries/index).
+			 * @param {object=} options Optional configuration. Refer to the documentation for `$http.get`.
+			 * @returns {Promise} Promise.
+			 */
 			findAll: findAll,
 
+			/**
+			 * @doc method
+			 * @id DSHttpAdapter.methods:findAll
+			 * @name find
+			 * @description
+			 * Create a new entity on the server.
+			 *
+			 * Sends a `POST` request to `:baseUrl/:endpoint`.
+			 *
+			 * @param {object} resourceConfig Properties:
+			 * - `{string}` - `baseUrl` - Base url.
+			 * - `{string=}` - `endpoint` - Endpoint path for the resource.
+			 * @param {object=} params Search query parameters. See the [query guide](/documentation/guide/queries/index).
+			 * @param {object=} options Optional configuration. Refer to the documentation for `$http.post`.
+			 * @returns {Promise} Promise.
+			 */
 			create: create,
 
 			createMany: function () {
 				throw new Error('Not yet implemented!');
 			},
 
+			/**
+			 * @doc method
+			 * @id DSHttpAdapter.methods:update
+			 * @name update
+			 * @description
+			 * Update an entity on the server.
+			 *
+			 * Sends a `PUT` request to `:baseUrl/:endpoint/:id`.
+			 *
+			 * @param {object} resourceConfig Properties:
+			 * - `{string}` - `baseUrl` - Base url.
+			 * - `{string=}` - `endpoint` - Endpoint path for the resource.
+			 * @param {string|number} id The primary key of the entity to update.
+			 * @param {object} attrs The attributes with which to update the entity. See the [query guide](/documentation/guide/queries/index).
+			 * @param {object=} options Optional configuration. Refer to the documentation for `$http.put`.
+			 * @returns {Promise} Promise.
+			 */
 			update: update,
 
 			updateMany: function () {
 				throw new Error('Not yet implemented!');
 			},
 
+			/**
+			 * @doc method
+			 * @id DSHttpAdapter.methods:destroy
+			 * @name destroy
+			 * @description
+			 * destroy an entity on the server.
+			 *
+			 * Sends a `PUT` request to `:baseUrl/:endpoint/:id`.
+			 *
+			 * @param {object} resourceConfig Properties:
+			 * - `{string}` - `baseUrl` - Base url.
+			 * - `{string=}` - `endpoint` - Endpoint path for the resource.
+			 * @param {string|number} id The primary key of the entity to destroy.
+			 * @param {object=} options Optional configuration. Refer to the documentation for `$http.delete`.
+			 * @returns {Promise} Promise.
+			 */
 			destroy: destroy,
 
 			destroyMany: function () {
@@ -204,17 +353,6 @@ function DSHttpAdapterProvider() {
 			}));
 		}
 
-		/**
-		 * @doc method
-		 * @id DSHttpAdapter.methods:find
-		 * @name find
-		 * @param {object} resourceConfig Properties:
-		 * - `{string}` - `baseUrl` - Base url.
-		 * - `{string=}` - `endpoint` - Endpoint path for the resource.
-		 * @param {string|number} id
-		 * @param {object=} options
-		 * @returns {Promise} Promise.
-		 */
 		function find(resourceConfig, id, options) {
 			return this.GET(
 				DSUtils.makePath(resourceConfig.baseUrl, resourceConfig.endpoint, id),
@@ -243,9 +381,9 @@ function DSHttpAdapterProvider() {
 			);
 		}
 
-		function update(resourceConfig, attrs, options) {
+		function update(resourceConfig, id, attrs, options) {
 			return this.PUT(
-				DSUtils.makePath(resourceConfig.baseUrl, resourceConfig.endpoint, attrs[resourceConfig.idAttribute]),
+				DSUtils.makePath(resourceConfig.baseUrl, resourceConfig.endpoint, id),
 				defaults.serialize(attrs),
 				options
 			);

@@ -96,7 +96,6 @@ function _inject(definition, resource, attrs) {
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {object|array} attrs The item or collection of items to inject into the data store.
  * @param {object=} options Optional configuration. Properties:
- * - `{string=}` - `mergeStrategy` - Specify the merge strategy to use if the item is already in the cache. Default: `"mergeWithExisting"`.
  * @returns {object|array} A reference to the item that was injected into the data store or an array of references to
  * the items that were injected into the data store.
  */

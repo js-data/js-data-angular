@@ -36,9 +36,6 @@ var errorPrefix = 'DS.filter(resourceName, params[, options]): ';
  *
  * @param {object=} options Optional configuration. Properties:
  * - `{boolean=}` - `loadFromServer` - Send the query to server if it has not been sent yet. Default: `false`.
- * - `{string=}` - `mergeStrategy` - If `findAll` is called, specify the merge strategy that should be used when the new
- * items are injected into the data store. Default: `"mergeWithExisting"`.
- *
  * @returns {array} The filtered collection of items of the type specified by `resourceName`.
  */
 function filter(resourceName, params, options) {

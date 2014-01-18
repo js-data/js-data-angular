@@ -28,9 +28,6 @@ var errorPrefix = 'DS.save(resourceName, id[, options]): ';
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to retrieve.
  * @param {object=} options Optional configuration. Properties:
- * - `{string=}` - `mergeStrategy` - When the updated item returns from the server, specify the merge strategy that
- * should be used when the updated item is injected into the data store. Default: `"mergeWithExisting"`.
- *
  * @returns {Promise} Promise produced by the `$q` service.
  *
  * ## Resolves with:
@@ -76,16 +73,16 @@ function save(resourceName, id, options) {
 				return _this.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
 			})
 			.then(function (attrs) {
-				return _this.adapters[options.adapter || definition.defaultAdapter].update(definition, attrs, options);
+				return _this.adapters[options.adapter || definition.defaultAdapter].update(definition, id, attrs, options);
 			})
 			.then(function (data) {
 				return _this.$q.promisify(definition.afterUpdate)(resourceName, data);
 			})
 			.then(function (data) {
-				var saved = _this.inject(definition.name, data, options);
+				_this.inject(definition.name, data, options);
 				resource.previousAttributes[id] = _this.utils.deepMixIn({}, data);
 				resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
-				return saved;
+				return _this.get(resourceName, id);
 			});
 
 		deferred.resolve(resource.index[id]);

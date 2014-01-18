@@ -36,8 +36,6 @@ var errorPrefix = 'DS.refresh(resourceName, id[, options]): ';
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to refresh from the server.
  * @param {object=} options Optional configuration. Properties:
- * - `{string=}` - `mergeStrategy` - Specify what merge strategy is to be used when the fresh item returns from the
- * server and needs to be inserted into the data store. Default `"mergeWithExisting"`.
  * @returns {false|Promise} `false` if the item doesn't already exist in the data store. A `Promise` if the item does
  * exist in the data store and is being refreshed.
  *

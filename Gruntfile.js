@@ -207,6 +207,24 @@ module.exports = function (grunt) {
 								basic: 3,
 								advanced: 4
 							}
+						},
+						{
+							id: 'queries',
+							title: 'Queries',
+							docs: ['guide/queries/'],
+							rank: {
+								index: 1,
+								overview: 2
+							}
+						},
+						{
+							id: 'adapters',
+							title: 'Adapters',
+							docs: ['guide/adapters/'],
+							rank: {
+								index: 1,
+								overview: 2
+							}
 						}
 					]
 				},

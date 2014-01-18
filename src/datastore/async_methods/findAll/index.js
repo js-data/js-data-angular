@@ -106,8 +106,6 @@ function _findAll(utils, resourceName, params, options) {
  *
  * @param {object=} options Optional configuration. Properties:
  * - `{boolean=}` - `bypassCache` - Bypass the cache. Default: `false`.
- * - `{string=}` - `mergeStrategy` - If `findAll` is called, specify the merge strategy that should be used when the new
- * items are injected into the data store. Default `"mergeWithExisting"`.
  *
  * @returns {Promise} Promise produced by the `$q` service.
  *
