@@ -137,13 +137,13 @@ $scope.$watch(function () {
 }, function (lastModifiedTimestamp) {
 	// When this callback is executed, it means that the data store thinks the item changed
 
-	// Retrieve the updated item from the server
+	// Retrieve the updated item from the data store's cache
 	$scope.document = DS.get('document', 45);
 });
 ```
 
-When the app starts up the calls to `lastModified()` and `get()` will both returned undefined, because the item isn't in
-the data store. If we insert `DS.find('document', 45);` right above the `$watch` function, the data store will make an
+When the app starts up, the calls to `lastModified()` and `get()` will both returned undefined, because the item isn't in
+the data store yet. If we insert the statement: `DS.find('document', 45);` right above the `$watch` function, the data store will make an
 AJAX request for that item. When the item returns from the server, the last modified timestamp for that item will change
 from `undefined` to something like `1388809123529`, causing the `get()` call inside the `$watch` callback function to be
 executed, retrieving the item from the data store and putting it on the `$scope`.
@@ -159,12 +159,12 @@ deleted. Example:
 
 This document is in the data store for both users: `{ title: 'How to Cook', id: 45 }`
 
-User #1
+User #1 (asynchronous)
 ```js
 DS.destroy('document', 45).then(function (id) {...}); // sends DELETE request to the server
 ```
 
-User #2 receives notification from the server that document 45 was deleted
+User #2 receives notification from the server that document 45 was deleted and synchronously ejects it from the data store.
 ```js
 DS.eject('document', 45); // synchronously eject document from the store
 ```
@@ -180,7 +180,7 @@ See the [API](/documentation/api/api/index) for more information.
 @description
 
 Angular-data ships with a number of asynchronous methods that facilitate communication between the data store and the
-persistence layer. These methods include the basic CRUD operations and wrappers for the `$http` service.
+persistence layer. These methods cover the basic CRUD operations.
 
 The asynchronous methods return Promises produced by Angular's `$q` service.
 
@@ -196,15 +196,17 @@ DS.find('document', 45).then(function (document) {
 	DS.get('document', 45); // { title: 'How to Cook', id: 45 }
 });
 
-DS.get('document', 45); // undefined
+DS.get('document', 45); // still undefined, because the find operation has not completed yet
 ```
 
 #### Another example
 
 ```js
-DS.get('document', 45); // { title: 'How to Cook', id: 45 }
+var document = DS.get('document', 45); // { title: 'How to Cook', id: 45 }
 
-DS.update('document', 45, { title: 'How NOT to Cook' }).then(function (document) {
+document.title = 'How NOT to cook';
+
+DS.save('document', 45).then(function (document) {
 	document; // { title: 'How NOT to Cook', id: 45 }
 
 	// document 45 in the store has been updated
@@ -214,6 +216,4 @@ DS.update('document', 45, { title: 'How NOT to Cook' }).then(function (document)
 DS.get('document', 45); // { title: 'How to Cook', id: 45 }
 ```
 
-By using the data store's `update()` operation, the data store is able to update the last modified timestamp of the item
-so any code that's `$watch`ing the item can be notified of updates. If you directly modify attributes of items in the
-data store, the data store will not pick up on those updates.
+See the [API](/documentation/api/api/index) for more information.

@@ -207,7 +207,8 @@ module.exports = function (grunt) {
 								index: 1,
 								overview: 2,
 								basic: 3,
-								advanced: 4
+								advanced: 4,
+								lifecycle: 5
 							}
 						},
 						{
