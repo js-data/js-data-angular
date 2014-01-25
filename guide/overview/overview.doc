@@ -13,9 +13,14 @@
 @description
 
 Angular-data is an in-browser data store for [Angular.js](http://angularjs.org).
-[Synchronous methods](/documentation/guide/synchronous/index) talk only to the data store, and
-[asynchronous methods](/documentation/guide/asynchronous/index) persist changes to a persistence layer.
+[Synchronous methods](/documentation/guide/synchronous/index) work only with data already in the data store, and
+[asynchronous methods](/documentation/guide/asynchronous/index) work with persistence layer.
 
+<p>
+    <img src="/resources/img/chart.png" width="940">
+</p>
+
+## Example:
 ```js
 angular.module('myApp', ['angular-data.DS'])
 	.config(function (DSProvider) {

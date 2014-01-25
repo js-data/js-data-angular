@@ -172,6 +172,13 @@ module.exports = function (grunt) {
 				dest: 'doc/resources/img/',
 				flatten: true
 			},
+			chart: {
+				expand: true,
+				cwd: 'guide/',
+				src: 'chart.png',
+				dest: 'doc/resources/img/',
+				flatten: true
+			},
 			cream_dust: {
 				expand: true,
 				cwd: 'guide/',
