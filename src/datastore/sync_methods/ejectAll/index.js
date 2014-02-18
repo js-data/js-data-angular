@@ -1,13 +1,14 @@
 var errorPrefix = 'DS.ejectAll(resourceName[, params]): ';
 
-function _ejectAll(definition, params) {
-	params.query = params.query || {};
-
-	var items = this.filter(definition.name, params);
+function _ejectAll(definition, resource, params) {
+	var queryHash = this.utils.toJson(params),
+		items = this.filter(definition.name, params);
 
 	for (var i = 0; i < items.length; i++) {
 		this.eject(definition.name, items[i][definition.idAttribute]);
 	}
+
+	delete resource.completedQueries[queryHash];
 }
 
 /**
@@ -86,11 +87,11 @@ function ejectAll(resourceName, params) {
 	try {
 		if (!this.$rootScope.$$phase) {
 			this.$rootScope.$apply(function () {
-				_ejectAll.apply(_this, [_this.definitions[resourceName], params]);
+				_ejectAll.apply(_this, [_this.definitions[resourceName], resource, params]);
 				resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
 			});
 		} else {
-			_ejectAll.apply(_this, [_this.definitions[resourceName], params]);
+			_ejectAll.apply(_this, [_this.definitions[resourceName], resource, params]);
 			resource.collectionModified = this.utils.updateTimestamp(resource.collectionModified);
 		}
 	} catch (err) {

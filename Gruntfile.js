@@ -279,5 +279,5 @@ module.exports = function (grunt) {
 	grunt.registerTask('default', ['build']);
 
 	// Used by TravisCI
-	grunt.registerTask('ci', ['build', 'karma:ci', /*'coveralls', */'doc']);
+	grunt.registerTask('ci', ['build', 'karma:ci', 'coveralls', 'doc']);
 };

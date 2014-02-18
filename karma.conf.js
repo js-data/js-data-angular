@@ -11,8 +11,8 @@ module.exports = function (config) {
 			'karma-chai',
 			'karma-chrome-launcher',
 			'karma-phantomjs-launcher',
-			'karma-firefox-launcher'//,
-//			'karma-coverage'
+			'karma-firefox-launcher',
+			'karma-coverage'
 		],
 		autoWatch: false,
 		browsers: ['Chrome'],
@@ -26,11 +26,11 @@ module.exports = function (config) {
 			'karma.start.js'
 		],
 
-		reporters: ['progress'/*, 'coverage'*/],
+		reporters: ['progress', 'coverage'],
 
-//		preprocessors: {
-//			'dist/angular-data.js': ['coverage']
-//		},
+		preprocessors: {
+			'dist/angular-data.js': ['coverage']
+		},
 
 		// optionally, configure the reporter
 		coverageReporter: {
