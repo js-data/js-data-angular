@@ -1,5 +1,5 @@
 // Setup global test variables
-var $rootScope, $q, $log, DSProvider, DS, app, $httpBackend, p1, p2, p3, p4;
+var $rootScope, $q, $log, DSProvider, DS, app, $httpBackend, p1, p2, p3, p4, p5;
 
 var lifecycle = {};
 
@@ -107,6 +107,7 @@ beforeEach(function (done) {
 	p2 = { author: 'Sally', age: 31, id: 6 };
 	p3 = { author: 'Mike', age: 32, id: 7 };
 	p4 = { author: 'Adam', age: 33, id: 8 };
+	p5 = { author: 'Adam', age: 33, id: 9 };
 
 	done();
 });

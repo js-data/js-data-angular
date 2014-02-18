@@ -21,6 +21,16 @@ module.exports = {
 
 	/**
 	 * @doc method
+	 * @id DS.sync_methods:ejectAll
+	 * @name ejectAll
+	 * @methodOf DS
+	 * @description
+	 * See [DS.ejectAll](/documentation/api/api/DS.sync_methods:ejectAll).
+	 */
+	ejectAll: require('./ejectAll'),
+
+	/**
+	 * @doc method
 	 * @id DS.sync_methods:filter
 	 * @name filter
 	 * @methodOf DS

@@ -1,5 +1,15 @@
+/**
+ * @author Jason Dobry <jason.dobry@gmail.com>
+ * @file angular-data.js
+ * @version 0.7.0 - Homepage <http://jmdobry.github.io/angular-data/>
+ * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/angular-data>
+ * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
+ *
+ * @overview Data store for Angular.js.
+ */
 require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"u+GZEJ":[function(require,module,exports){
-var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};// Copyright 2012 Google Inc.
+(function (global){
+// Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -468,6 +478,7 @@ var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? 
 	global.ObjectObserver = ObjectObserver;
 })((exports.Number = { isNaN: window.isNaN }) ? exports : exports);
 
+}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],"observejs":[function(require,module,exports){
 module.exports=require('u+GZEJ');
 },{}],3:[function(require,module,exports){
@@ -562,13 +573,28 @@ var filter = require('./filter');
 },{"./filter":4}],7:[function(require,module,exports){
 
 
-    var arrSlice = Array.prototype.slice;
-
     /**
      * Create slice of source array or array-like object
      */
     function slice(arr, start, end){
-        return arrSlice.call(arr, start, end);
+        if (start == null) {
+            start = 0;
+        } else if (start < 0) {
+            start = Math.max(arr.length + start, 0);
+        }
+
+        if (end == null) {
+            end = arr.length;
+        } else if (end < 0) {
+            end = Math.max(arr.length + end, 0);
+        }
+
+        var result = [];
+        while (start < end) {
+            result.push(arr[start++]);
+        }
+
+        return result;
     }
 
     module.exports = slice;
@@ -931,7 +957,7 @@ var isPlainObject = require('../lang/isPlainObject');
 
 
 },{"../lang/isPlainObject":17,"./forOwn":23}],22:[function(require,module,exports){
-
+var hasOwn = require('./hasOwn');
 
     var _hasDontEnumBug,
         _dontEnums;
@@ -973,11 +999,25 @@ var isPlainObject = require('../lang/isPlainObject');
             }
         }
 
+
         if (_hasDontEnumBug) {
+            var ctor = obj.constructor,
+                isProto = !!ctor && obj === ctor.prototype;
+
             while (key = _dontEnums[i++]) {
-                // since we aren't using hasOwn check we need to make sure the
-                // property was overwritten
-                if (obj[key] !== Object.prototype[key]) {
+                // For constructor, if it is a prototype object the constructor
+                // is always non-enumerable unless defined otherwise (and
+                // enumerated above).  For non-prototype objects, it will have
+                // to be defined on this object, since it cannot be defined on
+                // any prototype objects.
+                //
+                // For other [[DontEnum]] properties, check if the value is
+                // different than Object prototype value.
+                if (
+                    (key !== 'constructor' ||
+                        (!isProto && hasOwn(obj, key))) &&
+                    obj[key] !== Object.prototype[key]
+                ) {
                     if (exec(fn, obj, key, thisObj) === false) {
                         break;
                     }
@@ -994,7 +1034,7 @@ var isPlainObject = require('../lang/isPlainObject');
 
 
 
-},{}],23:[function(require,module,exports){
+},{"./hasOwn":24}],23:[function(require,module,exports){
 var hasOwn = require('./hasOwn');
 var forIn = require('./forIn');
 
@@ -1059,23 +1099,90 @@ var toString = require('../lang/toString');
 
 
 },{"../lang/toString":19}],27:[function(require,module,exports){
+/**
+ * @doc function
+ * @id DSHttpAdapterProvider
+ * @name DSHttpAdapterProvider
+ */
 function DSHttpAdapterProvider() {
 
 	this.$get = ['$http', '$log', 'DSUtils', function ($http, $log, DSUtils) {
 
+		/**
+		 * @doc property
+		 * @id DSHttpAdapterProvider.properties:defaults
+		 * @name defaults
+		 * @description
+		 * Default configuration for this adapter.
+		 *
+		 * Properties:
+		 *
+		 * - `{function}` - `serialize` - See [the guide](/documentation/guide/adapters/index). Default: No-op.
+		 * - `{function}` - `deserialize` - See [the guide](/documentation/guide/adapters/index). Default: No-op.
+		 * - `{function}` - `queryTransform` - See [the guide](/documentation/guide/adapters/index). Default: No-op.
+		 */
 		var defaults = this.defaults = {
+			/**
+			 * @doc property
+			 * @id DSHttpAdapterProvider.properties:defaults.serialize
+			 * @name defaults.serialize
+			 * @description
+			 * Your server might expect a custom request object rather than the plain POJO payload. Use `serialize` to
+			 * create your custom request object.
+			 *
+			 * @param {object} data Data to be sent to the server.
+			 * @returns {*} Returns `data` as-is.
+			 */
 			serialize: function (data) {
 				return data;
 			},
+
+			/**
+			 * @doc property
+			 * @id DSHttpAdapterProvider.properties:defaults.deserialize
+			 * @name defaults.deserialize
+			 * @description
+			 * Your server might return a custom response object instead of the plain POJO payload. Use `deserialize` to
+			 * pull the payload out of your response object so angular-data can use it.
+			 *
+			 * @param {object} data Response object from `$http()`.
+			 * @returns {*} Returns `data.data`.
+			 */
 			deserialize: function (data) {
 				return data.data;
 			},
+
+			/**
+			 * @doc property
+			 * @id DSHttpAdapterProvider.properties:defaults.queryTransform
+			 * @name defaults.queryTransform
+			 * @description
+			 * Transform the angular-data query to something your server understands. You might just do this on the server instead.
+			 *
+			 * @param {object} query Response object from `$http()`.
+			 * @returns {*} Returns `query` as-is.
+			 */
 			queryTransform: function (query) {
 				return query;
 			}
 		};
 
+		/**
+		 * @doc interface
+		 * @id DSHttpAdapter
+		 * @name DSHttpAdapter
+		 * @description
+		 * Default adapter used by angular-data. This adapter uses AJAX and JSON to send/retrieve data to/from a server.
+		 * Developers may provide custom adapters that implement the adapter interface.
+		 */
 		return {
+			/**
+			 * @doc property
+			 * @id DSHttpAdapter.properties:defaults
+			 * @name defaults
+			 * @description
+			 * Reference to [DSHttpAdapterProvider.defaults](/documentation/api/api/DSHttpAdapterProvider.properties:defaults).
+			 */
 			defaults: defaults,
 
 			/**
@@ -1199,22 +1306,104 @@ function DSHttpAdapterProvider() {
 			 */
 			DEL: DEL,
 
+			/**
+			 * @doc method
+			 * @id DSHttpAdapter.methods:find
+			 * @name find
+			 * @description
+			 * Retrieve a single entity from the server.
+			 *
+			 * Sends a `GET` request to `:baseUrl/:endpoint/:id`.
+			 *
+			 * @param {object} resourceConfig Properties:
+			 * - `{string}` - `baseUrl` - Base url.
+			 * - `{string=}` - `endpoint` - Endpoint path for the resource.
+			 * @param {string|number} id The primary key of the entity to retrieve.
+			 * @param {object=} options Optional configuration. Refer to the documentation for `$http.get`.
+			 * @returns {Promise} Promise.
+			 */
 			find: find,
 
+			/**
+			 * @doc method
+			 * @id DSHttpAdapter.methods:findAll
+			 * @name findAll
+			 * @description
+			 * Retrieve a collection of entities from the server.
+			 *
+			 * Sends a `GET` request to `:baseUrl/:endpoint`.
+			 *
+			 *
+			 * @param {object} resourceConfig Properties:
+			 * - `{string}` - `baseUrl` - Base url.
+			 * - `{string=}` - `endpoint` - Endpoint path for the resource.
+			 * @param {object=} params Search query parameters. See the [query guide](/documentation/guide/queries/index).
+			 * @param {object=} options Optional configuration. Refer to the documentation for `$http.get`.
+			 * @returns {Promise} Promise.
+			 */
 			findAll: findAll,
 
+			/**
+			 * @doc method
+			 * @id DSHttpAdapter.methods:findAll
+			 * @name find
+			 * @description
+			 * Create a new entity on the server.
+			 *
+			 * Sends a `POST` request to `:baseUrl/:endpoint`.
+			 *
+			 * @param {object} resourceConfig Properties:
+			 * - `{string}` - `baseUrl` - Base url.
+			 * - `{string=}` - `endpoint` - Endpoint path for the resource.
+			 * @param {object=} params Search query parameters. See the [query guide](/documentation/guide/queries/index).
+			 * @param {object=} options Optional configuration. Refer to the documentation for `$http.post`.
+			 * @returns {Promise} Promise.
+			 */
 			create: create,
 
 			createMany: function () {
 				throw new Error('Not yet implemented!');
 			},
 
+			/**
+			 * @doc method
+			 * @id DSHttpAdapter.methods:update
+			 * @name update
+			 * @description
+			 * Update an entity on the server.
+			 *
+			 * Sends a `PUT` request to `:baseUrl/:endpoint/:id`.
+			 *
+			 * @param {object} resourceConfig Properties:
+			 * - `{string}` - `baseUrl` - Base url.
+			 * - `{string=}` - `endpoint` - Endpoint path for the resource.
+			 * @param {string|number} id The primary key of the entity to update.
+			 * @param {object} attrs The attributes with which to update the entity. See the [query guide](/documentation/guide/queries/index).
+			 * @param {object=} options Optional configuration. Refer to the documentation for `$http.put`.
+			 * @returns {Promise} Promise.
+			 */
 			update: update,
 
 			updateMany: function () {
 				throw new Error('Not yet implemented!');
 			},
 
+			/**
+			 * @doc method
+			 * @id DSHttpAdapter.methods:destroy
+			 * @name destroy
+			 * @description
+			 * destroy an entity on the server.
+			 *
+			 * Sends a `PUT` request to `:baseUrl/:endpoint/:id`.
+			 *
+			 * @param {object} resourceConfig Properties:
+			 * - `{string}` - `baseUrl` - Base url.
+			 * - `{string=}` - `endpoint` - Endpoint path for the resource.
+			 * @param {string|number} id The primary key of the entity to destroy.
+			 * @param {object=} options Optional configuration. Refer to the documentation for `$http.delete`.
+			 * @returns {Promise} Promise.
+			 */
 			destroy: destroy,
 
 			destroyMany: function () {
@@ -1265,17 +1454,6 @@ function DSHttpAdapterProvider() {
 			}));
 		}
 
-		/**
-		 * @doc method
-		 * @id DSHttpAdapter.methods:find
-		 * @name find
-		 * @param {object} resourceConfig Properties:
-		 * - `{string}` - `baseUrl` - Base url.
-		 * - `{string=}` - `endpoint` - Endpoint path for the resource.
-		 * @param {string|number} id
-		 * @param {object=} options
-		 * @returns {Promise} Promise.
-		 */
 		function find(resourceConfig, id, options) {
 			return this.GET(
 				DSUtils.makePath(resourceConfig.baseUrl, resourceConfig.endpoint, id),
@@ -1304,9 +1482,9 @@ function DSHttpAdapterProvider() {
 			);
 		}
 
-		function update(resourceConfig, attrs, options) {
+		function update(resourceConfig, id, attrs, options) {
 			return this.PUT(
-				DSUtils.makePath(resourceConfig.baseUrl, resourceConfig.endpoint, attrs[resourceConfig.idAttribute]),
+				DSUtils.makePath(resourceConfig.baseUrl, resourceConfig.endpoint, id),
 				defaults.serialize(attrs),
 				options
 			);
@@ -1477,6 +1655,8 @@ function destroy(resourceName, id, options) {
 		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
 	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
 		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
+	} else if (!(id in this.store[resourceName].index)) {
+		deferred.reject(new this.errors.RuntimeError(errorPrefix + 'id: "' + id + '" not found!'));
 	} else {
 		var definition = this.definitions[resourceName],
 			resource = this.store[resourceName],
@@ -1964,7 +2144,7 @@ function save(resourceName, id, options) {
 				return _this.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
 			})
 			.then(function (attrs) {
-				return _this.adapters[options.adapter || definition.defaultAdapter].update(definition, attrs, options);
+				return _this.adapters[options.adapter || definition.defaultAdapter].update(definition, id, attrs, options);
 			})
 			.then(function (data) {
 				return _this.$q.promisify(definition.afterUpdate)(resourceName, data);
@@ -2003,6 +2183,10 @@ BaseConfig.prototype.filter = function (resourceName, where, attrs) {
 			clause = {
 				'===': clause
 			};
+		} else if (utils.isNumber(clause)) {
+			clause = {
+				'==': clause
+			};
 		}
 		if ('==' in clause) {
 			keep = keep && (attrs[field] == clause['==']);
@@ -2037,7 +2221,7 @@ BaseConfig.prototype.beforeDestroy = lifecycleNoop;
 BaseConfig.prototype.afterDestroy = lifecycleNoop;
 
 /**
- * @doc interface
+ * @doc function
  * @id DSProvider
  * @name DSProvider
  */
@@ -2048,7 +2232,10 @@ function DSProvider() {
 	 * @id DSProvider.properties:defaults
 	 * @name defaults
 	 * @description
+	 * See the [configuration guide](/documentation/guide/configure/global).
+	 *
 	 * Properties:
+	 *
 	 * - `{string}` - `baseUrl`
 	 * - `{string}` - `idAttribute` - Default: `"id"`
 	 * - `{string}` - `defaultAdapter` - Default: `"DSHttpAdapter"`
@@ -2077,19 +2264,70 @@ function DSProvider() {
 			 * @id DS
 			 * @name DS
 			 * @description
-			 * Data store
+			 * Public data store interface. Consists of several properties and a number of methods. Injectable as `DS`.
+			 *
+			 * See the [guide](/documentation/guide/overview/index).
 			 */
 			var DS = {
 				$rootScope: $rootScope,
 				$log: $log,
 				$q: $q,
+
+				/**
+				 * @doc property
+				 * @id DS.properties:defaults
+				 * @name defaults
+				 * @description
+				 * Reference to [DSProvider.defaults](/documentation/api/api/DSProvider.properties:defaults).
+				 */
 				defaults: defaults,
+
+				/*!
+				 * @doc property
+				 * @id DS.properties:store
+				 * @name store
+				 * @description
+				 * Meta data for each registered resource.
+				 */
 				store: {},
+
+				/*!
+				 * @doc property
+				 * @id DS.properties:definitions
+				 * @name definitions
+				 * @description
+				 * Registered resource definitions available to the data store.
+				 */
 				definitions: {},
+
+				/**
+				 * @doc property
+				 * @id DS.properties:adapters
+				 * @name adapters
+				 * @description
+				 * Registered adapters available to the data store. Object consists of key-values pairs where the key is
+				 * the name of the adapter and the value is the adapter itself.
+				 */
 				adapters: {
 					DSHttpAdapter: DSHttpAdapter
 				},
+
+				/**
+				 * @doc property
+				 * @id DS.properties:errors
+				 * @name errors
+				 * @description
+				 * References to the various [error types](/documentation/api/api/errors) used by angular-data.
+				 */
 				errors: DSErrors,
+
+				/*!
+				 * @doc property
+				 * @id DS.properties:utils
+				 * @name utils
+				 * @description
+				 * Utility functions used internally by angular-data.
+				 */
 				utils: DSUtils
 			};
 
@@ -2118,7 +2356,7 @@ function DSProvider() {
 
 module.exports = DSProvider;
 
-},{"../utils":"uE/lJt","./async_methods":32,"./sync_methods":43}],36:[function(require,module,exports){
+},{"../utils":"uE/lJt","./async_methods":32,"./sync_methods":44}],36:[function(require,module,exports){
 var errorPrefix = 'DS.changes(resourceName, id): ';
 
 /**
@@ -2422,6 +2660,109 @@ function eject(resourceName, id) {
 module.exports = eject;
 
 },{}],40:[function(require,module,exports){
+var errorPrefix = 'DS.ejectAll(resourceName[, params]): ';
+
+function _ejectAll(definition, params) {
+	params.query = params.query || {};
+
+	var items = this.filter(definition.name, params);
+
+	for (var i = 0; i < items.length; i++) {
+		this.eject(definition.name, items[i][definition.idAttribute]);
+	}
+}
+
+/**
+ * @doc method
+ * @id DS.sync_methods:ejectAll
+ * @name ejectAll
+ * @description
+ * Eject all matching items of the specified type from the data store. If query is specified then all items of the
+ * specified type will be removed. Ejection only removes items from the data store and does not attempt to delete items
+ * on the server.
+ *
+ * ## Signature:
+ * ```js
+ * DS.ejectAll(resourceName[, params])
+ * ```
+ *
+ * ## Example:
+ *
+ * ```js
+ * DS.get('document', 45); // { title: 'How to Cook', id: 45 }
+ *
+ * DS.eject('document', 45);
+ *
+ * DS.get('document', 45); // undefined
+ * ```
+ *
+ * Eject all items of the specified type that match the criteria from the data store.
+ *
+ * ```js
+ * DS.filter('document');   // [ { title: 'How to Cook', id: 45, author: 'John Anderson' },
+ *                          //   { title: 'How to Eat', id: 46, author: 'Sally Jane' } ]
+ *
+ * DS.ejectAll('document', { query: { where: { author: 'Sally Jane' } } });
+ *
+ * DS.filter('document'); // [ { title: 'How to Cook', id: 45, author: 'John Anderson' } ]
+ * ```
+ *
+ * Eject all items of the specified type from the data store.
+ *
+ * ```js
+ * DS.filter('document');   // [ { title: 'How to Cook', id: 45, author: 'John Anderson' },
+ *                          //   { title: 'How to Eat', id: 46, author: 'Sally Jane' } ]
+ *
+ * DS.ejectAll('document');
+ *
+ * DS.filter('document'); // [ ]
+ * ```
+ *
+ * ## Throws
+ *
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
+ *
+ * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
+ * @param {object} params Parameter object that is serialized into the query string. Properties:
+ *
+ * - `{object=}` - `query` - The query object by which to filter items of the type specified by `resourceName`. Properties:
+ *      - `{object=}` - `where` - Where clause.
+ *      - `{number=}` - `limit` - Limit clause.
+ *      - `{skip=}` - `skip` - Skip clause.
+ *      - `{orderBy=}` - `orderBy` - OrderBy clause.
+ */
+function ejectAll(resourceName, params) {
+	params = params || {};
+
+	if (!this.definitions[resourceName]) {
+		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+	} else if (!this.utils.isObject(params)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!', { params: { actual: typeof params, expected: 'object' } });
+	}
+
+	var resource = this.store[resourceName],
+		_this = this;
+
+	try {
+		if (!this.$rootScope.$$phase) {
+			this.$rootScope.$apply(function () {
+				_ejectAll.apply(_this, [_this.definitions[resourceName], params]);
+				resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
+			});
+		} else {
+			_ejectAll.apply(_this, [_this.definitions[resourceName], params]);
+			resource.collectionModified = this.utils.updateTimestamp(resource.collectionModified);
+		}
+	} catch (err) {
+		throw new this.errors.UnhandledError(err);
+	}
+}
+
+module.exports = ejectAll;
+
+},{}],41:[function(require,module,exports){
 /* jshint loopfunc: true */
 var errorPrefix = 'DS.filter(resourceName, params[, options]): ';
 
@@ -2574,7 +2915,7 @@ function filter(resourceName, params, options) {
 
 module.exports = filter;
 
-},{}],41:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 var errorPrefix = 'DS.get(resourceName, id[, options]): ';
 
 /**
@@ -2636,7 +2977,7 @@ function get(resourceName, id, options) {
 
 module.exports = get;
 
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 var errorPrefix = 'DS.hasChanges(resourceName, id): ';
 
 function diffIsEmpty(utils, diff) {
@@ -2699,7 +3040,7 @@ function hasChanges(resourceName, id) {
 
 module.exports = hasChanges;
 
-},{}],43:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 module.exports = {
 	/**
 	 * @doc method
@@ -2720,6 +3061,16 @@ module.exports = {
 	 * See [DS.eject](/documentation/api/api/DS.sync_methods:eject).
 	 */
 	eject: require('./eject'),
+
+	/**
+	 * @doc method
+	 * @id DS.sync_methods:ejectAll
+	 * @name ejectAll
+	 * @methodOf DS
+	 * @description
+	 * See [DS.ejectAll](/documentation/api/api/DS.sync_methods:ejectAll).
+	 */
+	ejectAll: require('./ejectAll'),
 
 	/**
 	 * @doc method
@@ -2745,6 +3096,7 @@ module.exports = {
 	 * @doc method
 	 * @id DS.sync_methods:inject
 	 * @name inject
+	 * @methodOf DS
 	 * @description
 	 * See [DS.inject](/documentation/api/api/DS.sync_methods:inject).
 	 */
@@ -2811,7 +3163,7 @@ module.exports = {
 	hasChanges: require('./hasChanges')
 };
 
-},{"./changes":36,"./defineResource":37,"./digest":38,"./eject":39,"./filter":40,"./get":41,"./hasChanges":42,"./inject":44,"./lastModified":45,"./lastSaved":46,"./previous":47}],44:[function(require,module,exports){
+},{"./changes":36,"./defineResource":37,"./digest":38,"./eject":39,"./ejectAll":40,"./filter":41,"./get":42,"./hasChanges":43,"./inject":45,"./lastModified":46,"./lastSaved":47,"./previous":48}],45:[function(require,module,exports){
 var observe = require('observejs'),
 	errorPrefix = 'DS.inject(resourceName, attrs[, options]): ';
 
@@ -2948,7 +3300,7 @@ function inject(resourceName, attrs, options) {
 
 module.exports = inject;
 
-},{"observejs":"u+GZEJ"}],45:[function(require,module,exports){
+},{"observejs":"u+GZEJ"}],46:[function(require,module,exports){
 var errorPrefix = 'DS.lastModified(resourceName[, id]): ';
 
 /**
@@ -3006,7 +3358,7 @@ function lastModified(resourceName, id) {
 
 module.exports = lastModified;
 
-},{}],46:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 var errorPrefix = 'DS.lastSaved(resourceName[, id]): ';
 
 /**
@@ -3071,7 +3423,7 @@ function lastSaved(resourceName, id) {
 
 module.exports = lastSaved;
 
-},{}],47:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 var errorPrefix = 'DS.previous(resourceName, id): ';
 
 /**
@@ -3283,9 +3635,13 @@ RuntimeError.prototype.constructor = RuntimeError;
  * @id errors
  * @name angular-data error types
  * @description
- * `UnhandledError`, `IllegalArgumentError` and `RuntimeError`.
+ * Various error types that may be thrown by angular-data.
  *
- * References to the constructor functions of these errors can be found at `DS.errors`.
+ * - [UnhandledError](/documentation/api/api/errors.types:UnhandledError)
+ * - [IllegalArgumentError](/documentation/api/api/errors.types:IllegalArgumentError)
+ * - [RuntimeError](/documentation/api/api/errors.types:RuntimeError)
+ *
+ * References to the constructor functions of these errors can be found in `DS.errors`.
  */
 module.exports = [function () {
 	return {
@@ -3295,7 +3651,7 @@ module.exports = [function () {
 	};
 }];
 
-},{}],50:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 (function (window, angular, undefined) {
 	'use strict';
 
@@ -3418,4 +3774,4 @@ module.exports = [function () {
 
 },{"mout/array/contains":3,"mout/array/filter":4,"mout/array/slice":7,"mout/array/sort":8,"mout/array/toLookup":9,"mout/lang/isEmpty":14,"mout/object/deepMixIn":21,"mout/object/forOwn":23,"mout/string/makePath":25,"mout/string/upperCase":26}],"utils":[function(require,module,exports){
 module.exports=require('uE/lJt');
-},{}]},{},[50])
+},{}]},{},[51])

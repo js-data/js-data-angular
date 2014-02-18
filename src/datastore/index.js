@@ -16,6 +16,10 @@ BaseConfig.prototype.filter = function (resourceName, where, attrs) {
 			clause = {
 				'===': clause
 			};
+		} else if (utils.isNumber(clause)) {
+			clause = {
+				'==': clause
+			};
 		}
 		if ('==' in clause) {
 			keep = keep && (attrs[field] == clause['==']);
