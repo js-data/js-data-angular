@@ -1858,6 +1858,8 @@ var errorPrefix = 'DS.find(resourceName, id[, options]): ';
  * @param {string|number} id The primary key of the item to retrieve.
  * @param {object=} options Optional configuration. Properties:
  * - `{boolean=}` - `bypassCache` - Bypass the cache. Default: `false`.
+ * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
+ *
  * @returns {Promise} Promise produced by the `$q` service.
  *
  * ## Resolves with:
@@ -1883,6 +1885,11 @@ function find(resourceName, id, options) {
 	} else if (!this.utils.isObject(options)) {
 		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
 	} else {
+		if (!('cacheResponse' in options)) {
+			options.cacheResponse = true;
+		} else {
+			options.cacheResponse = !!options.cacheResponse;
+		}
 		try {
 			var definition = this.definitions[resourceName],
 				resource = this.store[resourceName],
@@ -1896,10 +1903,14 @@ function find(resourceName, id, options) {
 				if (!(id in resource.pendingQueries)) {
 					promise = resource.pendingQueries[id] = _this.adapters[options.adapter || definition.defaultAdapter].find(definition, id, options)
 						.then(function (data) {
-							// Query is no longer pending
-							delete resource.pendingQueries[id];
-							resource.completedQueries[id] = new Date().getTime();
-							return _this.inject(resourceName, data);
+							if (options.cacheResponse) {
+								// Query is no longer pending
+								delete resource.pendingQueries[id];
+								resource.completedQueries[id] = new Date().getTime();
+								return _this.inject(resourceName, data);
+							} else {
+								return data;
+							}
 						});
 				}
 
@@ -1960,10 +1971,14 @@ function _findAll(utils, resourceName, params, options) {
 			// This particular query has never even been made
 			resource.pendingQueries[queryHash] = _this.adapters[options.adapter || definition.defaultAdapter].findAll(definition, { params: params }, options)
 				.then(function (data) {
-					try {
-						return processResults.apply(_this, [utils, data, resourceName, queryHash]);
-					} catch (err) {
-						throw new _this.errors.UnhandledError(err);
+					if (options.cacheResponse) {
+						try {
+							return processResults.apply(_this, [utils, data, resourceName, queryHash]);
+						} catch (err) {
+							throw new _this.errors.UnhandledError(err);
+						}
+					} else {
+						return data;
 					}
 				});
 		}
@@ -2026,6 +2041,7 @@ function _findAll(utils, resourceName, params, options) {
  *
  * @param {object=} options Optional configuration. Properties:
  * - `{boolean=}` - `bypassCache` - Bypass the cache. Default: `false`.
+ * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
  *
  * @returns {Promise} Promise produced by the `$q` service.
  *
@@ -2053,6 +2069,11 @@ function findAll(resourceName, params, options) {
 	} else if (!this.utils.isObject(options)) {
 		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
 	} else {
+		if (!('cacheResponse' in options)) {
+			options.cacheResponse = true;
+		} else {
+			options.cacheResponse = !!options.cacheResponse;
+		}
 		try {
 			promise = promise.then(function () {
 				return _findAll.apply(_this, [_this.utils, resourceName, params, options]);
@@ -2779,6 +2800,7 @@ function eject(resourceName, id) {
 			_eject(_this.definitions[resourceName], resource, id);
 			resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
 		}
+		delete this.store[resourceName].completedQueries[id];
 	} catch (err) {
 		throw new this.errors.UnhandledError(err);
 	}

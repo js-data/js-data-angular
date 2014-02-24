@@ -72,6 +72,7 @@ function eject(resourceName, id) {
 			_eject(_this.definitions[resourceName], resource, id);
 			resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
 		}
+		delete this.store[resourceName].completedQueries[id];
 	} catch (err) {
 		throw new this.errors.UnhandledError(err);
 	}
