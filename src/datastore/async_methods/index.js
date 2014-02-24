@@ -21,6 +21,16 @@ module.exports = {
 
 	/**
 	 * @doc method
+	 * @id DS.async_methods:destroyAll
+	 * @name destroyAll
+	 * @methodOf DS
+	 * @description
+	 * See [DS.destroyAll](/documentation/api/api/DS.async_methods:destroyAll).
+	 */
+	destroyAll: require('./destroyAll'),
+
+	/**
+	 * @doc method
 	 * @id DS.async_methods:find
 	 * @name find
 	 * @methodOf DS

@@ -11,22 +11,23 @@
   "main": "./dist/angular-data.min.js",
   "ignore": [
     ".idea/",
-    ".bowerrc",
+    ".*",
     "*.iml",
     "src/",
+    "lib/",
     "doc/",
     "guide/",
     "coverage/",
-    ".jshintrc",
     "Gruntfile.js",
     "node_modules/",
     "test/",
+    "package.json",
     "karma.conf.js",
-    ".gitignore",
-    ".travis.yml"
+    "karma.start.js"
   ],
   "devDependencies": {
     "angular": "~1.2.8",
-    "angular-mocks": "~1.2.8"
+    "angular-mocks": "~1.2.8",
+    "observe-js": "~0.2.0"
   }
 }

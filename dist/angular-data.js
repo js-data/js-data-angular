@@ -7,7 +7,7 @@
  *
  * @overview Data store for Angular.js.
  */
-require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"u+GZEJ":[function(require,module,exports){
+require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"salHtg":[function(require,module,exports){
 (function (global){
 // Copyright 2012 Google Inc.
 //
@@ -23,6 +23,17 @@ require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof requ
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Modifications
+// Copyright 2014 Jason Dobry
+//
+// Summary of modifications:
+// Removed all code related to:
+// - ArrayObserver
+// - ArraySplice
+// - PathObserver
+// - CompoundObserver
+// - Path
+// - ObserverTransform
 (function(global) {
 	'use strict';
 
@@ -480,7 +491,7 @@ require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof requ
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],"observejs":[function(require,module,exports){
-module.exports=require('u+GZEJ');
+module.exports=require('salHtg');
 },{}],3:[function(require,module,exports){
 var indexOf = require('./indexOf');
 
@@ -1406,9 +1417,24 @@ function DSHttpAdapterProvider() {
 			 */
 			destroy: destroy,
 
-			destroyMany: function () {
-				throw new Error('Not yet implemented!');
-			}
+			/**
+			 * @doc method
+			 * @id DSHttpAdapter.methods:destroyAll
+			 * @name destroyAll
+			 * @description
+			 * Retrieve a collection of entities from the server.
+			 *
+			 * Sends a `DELETE` request to `:baseUrl/:endpoint`.
+			 *
+			 *
+			 * @param {object} resourceConfig Properties:
+			 * - `{string}` - `baseUrl` - Base url.
+			 * - `{string=}` - `endpoint` - Endpoint path for the resource.
+			 * @param {object=} params Search query parameters. See the [query guide](/documentation/guide/queries/index).
+			 * @param {object=} options Optional configuration. Refer to the documentation for `$http.delete`.
+			 * @returns {Promise} Promise.
+			 */
+			destroyAll: destroyAll
 		};
 
 		function HTTP(config) {
@@ -1455,6 +1481,7 @@ function DSHttpAdapterProvider() {
 		}
 
 		function find(resourceConfig, id, options) {
+			options = options || {};
 			return this.GET(
 				DSUtils.makePath(resourceConfig.baseUrl, resourceConfig.endpoint, id),
 				options
@@ -1475,6 +1502,7 @@ function DSHttpAdapterProvider() {
 		}
 
 		function create(resourceConfig, attrs, options) {
+			options = options || {};
 			return this.POST(
 				DSUtils.makePath(resourceConfig.baseUrl, resourceConfig.endpoint),
 				defaults.serialize(attrs),
@@ -1491,8 +1519,22 @@ function DSHttpAdapterProvider() {
 		}
 
 		function destroy(resourceConfig, id, options) {
+			options = options || {};
 			return this.DEL(
 				DSUtils.makePath(resourceConfig.baseUrl, resourceConfig.endpoint, id),
+				options
+			);
+		}
+
+		function destroyAll(resourceConfig, params, options) {
+			options = options || {};
+			options.params = options.params || {};
+			if (options.params.query) {
+				options.params.query = defaults.queryTransform(options.params.query);
+			}
+			DSUtils.deepMixIn(options, params);
+			return this.DEL(
+				DSUtils.makePath(resourceConfig.baseUrl, resourceConfig.endpoint),
 				options
 			);
 		}
@@ -1689,6 +1731,101 @@ function destroy(resourceName, id, options) {
 module.exports = destroy;
 
 },{}],30:[function(require,module,exports){
+var errorPrefix = 'DS.destroyAll(resourceName, params[, options]): ';
+
+/**
+ * @doc method
+ * @id DS.async_methods:destroyAll
+ * @name destroyAll
+ * @description
+ * Asynchronously return the resource from the server filtered by the query. The results will be added to the data
+ * store when it returns from the server.
+ *
+ * ## Signature:
+ * ```js
+ * DS.destroyAll(resourceName, params[, options])
+ * ```
+ *
+ * ## Example:
+ *
+ * ```js
+ *  var query = {
+ *      where: {
+ *          author: {
+ *              '==': 'John Anderson'
+ *          }
+ *      }
+ *  };
+ *
+ *  DS.destroyAll('document', {
+ *      query: query
+ *  }).then(function (documents) {
+ *      // The documents are gone from the data store
+ *      DS.filter('document', {
+ *          query: query
+ *      }); // []
+ *
+ *  }, function (err) {
+ *      // handle error
+ *  });
+ * ```
+ *
+ * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
+ * @param {object} params Parameter object that is serialized into the query string. Properties:
+ *
+ * - `{object=}` - `query` - The query object by which to filter items of the type specified by `resourceName`. Properties:
+ *      - `{object=}` - `where` - Where clause.
+ *      - `{number=}` - `limit` - Limit clause.
+ *      - `{skip=}` - `skip` - Skip clause.
+ *      - `{orderBy=}` - `orderBy` - OrderBy clause.
+ *
+ * @param {object=} options Optional configuration. Properties:
+ * - `{boolean=}` - `bypassCache` - Bypass the cache. Default: `false`.
+ *
+ * @returns {Promise} Promise produced by the `$q` service.
+ *
+ * ## Rejects with:
+ *
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
+ */
+function destroyAll(resourceName, params, options) {
+	var deferred = this.$q.defer(),
+		promise = deferred.promise,
+		_this = this;
+
+	options = options || {};
+
+	if (!this.definitions[resourceName]) {
+		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
+	} else if (!this.utils.isObject(params)) {
+		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!', { params: { actual: typeof params, expected: 'object' } }));
+	} else if (!this.utils.isObject(options)) {
+		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
+	} else {
+		try {
+			var definition = this.definitions[resourceName];
+
+			promise = promise
+				.then(function () {
+					return _this.adapters[options.adapter || definition.defaultAdapter].destroyAll(definition, { params: params }, options);
+				})
+				.then(function () {
+					return _this.ejectAll(resourceName, params);
+				});
+			deferred.resolve();
+		} catch (err) {
+			deferred.reject(new this.errors.UnhandledError(err));
+		}
+	}
+
+	return promise;
+}
+
+module.exports = destroyAll;
+
+},{}],31:[function(require,module,exports){
 var errorPrefix = 'DS.find(resourceName, id[, options]): ';
 
 /**
@@ -1780,7 +1917,7 @@ function find(resourceName, id, options) {
 
 module.exports = find;
 
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 var errorPrefix = 'DS.findAll(resourceName, params[, options]): ';
 
 function processResults(utils, data, resourceName, queryHash) {
@@ -1931,7 +2068,7 @@ function findAll(resourceName, params, options) {
 
 module.exports = findAll;
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 module.exports = {
 	/**
 	 * @doc method
@@ -1952,6 +2089,16 @@ module.exports = {
 	 * See [DS.destroy](/documentation/api/api/DS.async_methods:destroy).
 	 */
 	destroy: require('./destroy'),
+
+	/**
+	 * @doc method
+	 * @id DS.async_methods:destroyAll
+	 * @name destroyAll
+	 * @methodOf DS
+	 * @description
+	 * See [DS.destroyAll](/documentation/api/api/DS.async_methods:destroyAll).
+	 */
+	destroyAll: require('./destroyAll'),
 
 	/**
 	 * @doc method
@@ -1994,7 +2141,7 @@ module.exports = {
 	save: require('./save')
 };
 
-},{"./create":28,"./destroy":29,"./find":30,"./findAll":31,"./refresh":33,"./save":34}],33:[function(require,module,exports){
+},{"./create":28,"./destroy":29,"./destroyAll":30,"./find":31,"./findAll":32,"./refresh":34,"./save":35}],34:[function(require,module,exports){
 var errorPrefix = 'DS.refresh(resourceName, id[, options]): ';
 
 /**
@@ -2068,7 +2215,7 @@ function refresh(resourceName, id, options) {
 
 module.exports = refresh;
 
-},{}],34:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 var errorPrefix = 'DS.save(resourceName, id[, options]): ';
 
 /**
@@ -2164,7 +2311,7 @@ function save(resourceName, id, options) {
 
 module.exports = save;
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 var utils = require('../utils')[0]();
 
 function lifecycleNoop(resourceName, attrs, cb) {
@@ -2356,7 +2503,7 @@ function DSProvider() {
 
 module.exports = DSProvider;
 
-},{"../utils":"uE/lJt","./async_methods":32,"./sync_methods":44}],36:[function(require,module,exports){
+},{"../utils":"uE/lJt","./async_methods":33,"./sync_methods":45}],37:[function(require,module,exports){
 var errorPrefix = 'DS.changes(resourceName, id): ';
 
 /**
@@ -2409,7 +2556,7 @@ function changes(resourceName, id) {
 
 module.exports = changes;
 
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 var errorPrefix = 'DS.defineResource(definition): ';
 
 function Resource(utils, options) {
@@ -2515,7 +2662,7 @@ function defineResource(definition) {
 
 module.exports = defineResource;
 
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 var observe = require('observejs');
 
 /**
@@ -2557,7 +2704,7 @@ function digest() {
 
 module.exports = digest;
 
-},{"observejs":"u+GZEJ"}],39:[function(require,module,exports){
+},{"observejs":"salHtg"}],40:[function(require,module,exports){
 var errorPrefix = 'DS.eject(resourceName, id): ';
 
 function _eject(definition, resource, id) {
@@ -2639,7 +2786,7 @@ function eject(resourceName, id) {
 
 module.exports = eject;
 
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 var errorPrefix = 'DS.ejectAll(resourceName[, params]): ';
 
 function _ejectAll(definition, resource, params) {
@@ -2743,7 +2890,7 @@ function ejectAll(resourceName, params) {
 
 module.exports = ejectAll;
 
-},{}],41:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 /* jshint loopfunc: true */
 var errorPrefix = 'DS.filter(resourceName, params[, options]): ';
 
@@ -2896,7 +3043,7 @@ function filter(resourceName, params, options) {
 
 module.exports = filter;
 
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 var errorPrefix = 'DS.get(resourceName, id[, options]): ';
 
 /**
@@ -2958,7 +3105,7 @@ function get(resourceName, id, options) {
 
 module.exports = get;
 
-},{}],43:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 var errorPrefix = 'DS.hasChanges(resourceName, id): ';
 
 function diffIsEmpty(utils, diff) {
@@ -3021,7 +3168,7 @@ function hasChanges(resourceName, id) {
 
 module.exports = hasChanges;
 
-},{}],44:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 module.exports = {
 	/**
 	 * @doc method
@@ -3144,7 +3291,7 @@ module.exports = {
 	hasChanges: require('./hasChanges')
 };
 
-},{"./changes":36,"./defineResource":37,"./digest":38,"./eject":39,"./ejectAll":40,"./filter":41,"./get":42,"./hasChanges":43,"./inject":45,"./lastModified":46,"./lastSaved":47,"./previous":48}],45:[function(require,module,exports){
+},{"./changes":37,"./defineResource":38,"./digest":39,"./eject":40,"./ejectAll":41,"./filter":42,"./get":43,"./hasChanges":44,"./inject":46,"./lastModified":47,"./lastSaved":48,"./previous":49}],46:[function(require,module,exports){
 var observe = require('observejs'),
 	errorPrefix = 'DS.inject(resourceName, attrs[, options]): ';
 
@@ -3281,7 +3428,7 @@ function inject(resourceName, attrs, options) {
 
 module.exports = inject;
 
-},{"observejs":"u+GZEJ"}],46:[function(require,module,exports){
+},{"observejs":"salHtg"}],47:[function(require,module,exports){
 var errorPrefix = 'DS.lastModified(resourceName[, id]): ';
 
 /**
@@ -3339,7 +3486,7 @@ function lastModified(resourceName, id) {
 
 module.exports = lastModified;
 
-},{}],47:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 var errorPrefix = 'DS.lastSaved(resourceName[, id]): ';
 
 /**
@@ -3404,7 +3551,7 @@ function lastSaved(resourceName, id) {
 
 module.exports = lastSaved;
 
-},{}],48:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 var errorPrefix = 'DS.previous(resourceName, id): ';
 
 /**
@@ -3632,10 +3779,40 @@ module.exports = [function () {
 	};
 }];
 
-},{}],51:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 (function (window, angular, undefined) {
 	'use strict';
 
+	/**
+	 * @doc overview
+	 * @id angular-data
+	 * @name angular-data
+	 * @description
+	 * Angular-data is installable via:
+	 *
+	 * ```text
+	 * bower install angular-data
+	 * ```
+	 *
+	 * or by downloading angular-data.x.x.x.js from the [Releases](https://github.com/jmdobry/angular-data/releases)
+	 * section of the angular-data GitHub project.
+	 *
+	 * Angular-data has a hard dependency on [angular-cache](/documentation/api/api/angular-cache) v3.0.0 or newer,
+	 * which must be loaded before angular-data.
+	 *
+	 * Your Angular app must depend on the module `"angular-data.DS"` in order to use angular-data. Loading
+	 * angular-data into your app allows you to inject the following:
+	 *
+	 * - `DS`
+	 * - `DSHttpAdapter`
+	 * - `DSUtils`
+	 * - `DSErrors`
+	 *
+	 * [DS](/documentation/api/api/DS) is the Data Store itself, which you will inject often.
+	 * [DSHttpAdapter](/documentation/api/api/DSHttpAdapter) is useful as a wrapper for `$http` and is configurable.
+	 * [DSUtils](/documentation/api/api/DSUtils) has some useful utility methods.
+	 * [DSErrors](/documentation/api/api/DSErrors) provides references to the various errors thrown by the data store.
+	 */
 	angular.module('angular-data.DS', ['ng'])
 		.service('DSUtils', require('./utils'))
 		.service('DSErrors', require('./errors'))
@@ -3673,7 +3850,7 @@ module.exports = [function () {
 
 })(window, window.angular);
 
-},{"./adapters/http":27,"./datastore":35,"./errors":"hIh4e1","./utils":"uE/lJt"}],"uE/lJt":[function(require,module,exports){
+},{"./adapters/http":27,"./datastore":36,"./errors":"hIh4e1","./utils":"uE/lJt"}],"uE/lJt":[function(require,module,exports){
 module.exports = [function () {
 	return {
 		isString: angular.isString,
@@ -3755,4 +3932,4 @@ module.exports = [function () {
 
 },{"mout/array/contains":3,"mout/array/filter":4,"mout/array/slice":7,"mout/array/sort":8,"mout/array/toLookup":9,"mout/lang/isEmpty":14,"mout/object/deepMixIn":21,"mout/object/forOwn":23,"mout/string/makePath":25,"mout/string/upperCase":26}],"utils":[function(require,module,exports){
 module.exports=require('uE/lJt');
-},{}]},{},[51])
+},{}]},{},[52])
