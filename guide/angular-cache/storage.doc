@@ -6,12 +6,12 @@
 #### Using angular-cache with localStorage (or sessionStorage)
 Using angular-cache in browsers that support localStorage:
 ```javascript
-app.service('myService', function ($angularCacheFactory) {
+app.service('myService', function (DSCacheFactory) {
 
     // This cache will sync itself with localStorage if it exists, otherwise it won't. Every time the
     // browser loads this app, this cache will attempt to initialize itself with any data it had
     // already saved to localStorage (or sessionStorage if you used that).
-    var myAwesomeCache = $angularCacheFactory('myAwesomeCache', {
+    var myAwesomeCache = DSCacheFactory('myAwesomeCache', {
         maxAge: 900000, // Items added to this cache expire after 15 minutes.
         cacheFlushInterval: 3600000, // This cache will clear itself every hour.
         deleteOnExpire: 'aggressive', // Items will be deleted from this cache right when they expire.
@@ -28,7 +28,7 @@ Option 2 - Create/use a polyfill that provides the global `localStorage` and `se
 
 Option 3 - Tell angular-cache exactly which polyfill to use (also useful if you just want to use your own implementation/wrapper for localStorage):
 ```javascript
-app.service('myService', function ($angularCacheFactory) {
+app.service('myService', function (DSCacheFactory) {
 
     var localStoragePolyfill = {
         getItem: function (key) { ... },
@@ -37,7 +37,7 @@ app.service('myService', function ($angularCacheFactory) {
     };
 
     // Always use the polyfill
-    var myAwesomeCache = $angularCacheFactory('myAwesomeCache', {
+    var myAwesomeCache = DSCacheFactory('myAwesomeCache', {
         maxAge: 900000, // Items added to this cache expire after 15 minutes.
         cacheFlushInterval: 3600000, // This cache will clear itself every hour.
         deleteOnExpire: 'aggressive', // Items will be deleted from this cache right when they expire.
@@ -55,7 +55,7 @@ app.service('myService', function ($angularCacheFactory) {
     if (!window.localStorage) {
         options.storageImpl = localStoragePolyfill;
     }
-    var myAwesomeCache = $angularCacheFactory('myAwesomeCache', options);
+    var myAwesomeCache = DSCacheFactory('myAwesomeCache', options);
 });
 ```
 
@@ -84,7 +84,7 @@ var storeJsToStandard {
   removeItem: store.remove
 };
 
-$angularCacheFactory('myNewCache', {
+DSCacheFactory('myNewCache', {
   storageMode: 'localStorage',
   storageImpl: storeJsToStandard
 });

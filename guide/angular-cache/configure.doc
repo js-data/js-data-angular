@@ -3,13 +3,13 @@
 @name Configure a cache
 @description
 
-See [Configuration Options](configuration.html) for information on the available configuration options.
+See the [API Documentation](/documentation/api/angular-cache/angular-cache) for information on the available configuration options.
 
 #### Dynamically configure a cache
 ```javascript
-app.service('myService', function ($angularCacheFactory) {
+app.service('myService', function (DSCacheFactory) {
 
-    var cache = $angularCacheFactory('cache', {
+    var cache = DSCacheFactory('cache', {
         capacity: 100,
         maxAge: 300000
     });
@@ -40,4 +40,4 @@ app.service('myService', function ($angularCacheFactory) {
     cache.info('someItem'); // { maxAge: 12000, deleteOnExpire: 'aggressive', isExpired: false, ... }
 });
 ```
-See [AngularCache.setOptions(options)](api.html#cachesetoptions).
+See the [API Documentation](/documentation/api/angular-cache/angular-cache) for more information.
