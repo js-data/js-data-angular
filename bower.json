@@ -26,8 +26,8 @@
     "karma.start.js"
   ],
   "devDependencies": {
-    "angular": "~1.2.8",
-    "angular-mocks": "~1.2.8",
+    "angular": "~1.2.13",
+    "angular-mocks": "~1.2.13",
     "observe-js": "~0.2.0"
   }
 }

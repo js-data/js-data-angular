@@ -55,7 +55,7 @@ describe('DS.destroyAll(resourceName, params[, options]): ', function () {
 		assert.isUndefined(DS.get('post', 8));
 		assert.isUndefined(DS.get('post', 9));
 
-		$httpBackend.expectDELETE('http://test.angular-cache.com/posts?').respond(200);
+		$httpBackend.expectDELETE(/http:\/\/test\.angular-cache\.com\/posts?\?/).respond(200);
 
 		DS.inject('post', p1);
 		DS.inject('post', p2);
