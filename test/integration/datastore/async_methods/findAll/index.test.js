@@ -30,7 +30,7 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
 		});
 	});
 	it('should query the server for a collection', function () {
-		$httpBackend.expectGET(/http:\/\/test\.angular-cache\.com\/posts?\?/).respond(200, [p1, p2, p3, p4]);
+		$httpBackend.expectGET(/http:\/\/test\.angular-cache\.com\/posts\??/).respond(200, [p1, p2, p3, p4]);
 
 		DS.findAll('post', {}).then(function (data) {
 			assert.deepEqual(data, [p1, p2, p3, p4]);
@@ -63,7 +63,7 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
 			fail('Should not have rejected!');
 		});
 
-		$httpBackend.expectGET(/http:\/\/test\.angular-cache\.com\/posts?\?/).respond(200, [p1, p2, p3, p4]);
+		$httpBackend.expectGET(/http:\/\/test\.angular-cache\.com\/posts\??/).respond(200, [p1, p2, p3, p4]);
 
 		// Should make a request because bypassCache is set to true
 		DS.findAll('post', {}, { bypassCache: true }).then(function (data) {
@@ -76,7 +76,7 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
 		$httpBackend.flush();
 	});
 	it('should query the server for a collection but not store the data if cacheResponse is false', function () {
-		$httpBackend.expectGET(/http:\/\/test\.angular-cache\.com\/posts?\?/).respond(200, [p1, p2, p3, p4]);
+		$httpBackend.expectGET(/http:\/\/test\.angular-cache\.com\/posts\??/).respond(200, [p1, p2, p3, p4]);
 
 		DS.findAll('post', {}, { cacheResponse: false }).then(function (data) {
 			assert.deepEqual(data, [p1, p2, p3, p4]);
