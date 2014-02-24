@@ -195,9 +195,15 @@ module.exports = function (grunt) {
 					groupIcon: 'icon-book',
 					sections: [
 						{
-							id: 'overview',
-							title: 'Overview',
-							docs: ['guide/overview/'],
+							id: 'angular-data',
+							title: 'angular-data',
+							docs: [
+								'guide/angular-data/index.doc',
+								'guide/angular-data/overview.doc',
+								'guide/angular-data/resources.doc',
+								'guide/angular-data/synchronous.doc',
+								'guide/angular-data/asynchronous.doc'
+							],
 							rank: {
 								index: 1,
 								overview: 2,
@@ -207,9 +213,21 @@ module.exports = function (grunt) {
 							}
 						},
 						{
-							id: 'resource',
+							id: 'angular-cache',
+							title: 'angular-cache',
+							docs: ['guide/angular-cache/'],
+							rank: {
+								index: 1,
+								basics: 2,
+								configure: 3,
+								http: 4,
+								storage: 5
+							}
+						},
+						{
+							id: 'angular-data-resource',
 							title: 'Defining Resources',
-							docs: ['guide/resource/'],
+							docs: ['guide/angular-data/resource/'],
 							rank: {
 								index: 1,
 								overview: 2,
@@ -219,18 +237,18 @@ module.exports = function (grunt) {
 							}
 						},
 						{
-							id: 'queries',
+							id: 'angular-data-queries',
 							title: 'Queries',
-							docs: ['guide/queries/'],
+							docs: ['guide/angular-data/queries/'],
 							rank: {
 								index: 1,
 								overview: 2
 							}
 						},
 						{
-							id: 'adapters',
+							id: 'angular-data-adapters',
 							title: 'Adapters',
-							docs: ['guide/adapters/'],
+							docs: ['guide/angular-data/adapters/'],
 							rank: {
 								index: 1,
 								overview: 2
@@ -245,10 +263,18 @@ module.exports = function (grunt) {
 					showSource: true,
 					sections: [
 						{
-							id: 'api',
+							id: 'angular-data',
 							title: 'angular-data',
 							scripts: [
 								'src/'
+							],
+							docs: ['guide/api']
+						},
+						{
+							id: 'angular-cache',
+							title: 'angular-cache',
+							scripts: [
+								'../angular-cache/dist/angular-cache.js'
 							],
 							docs: ['guide/api']
 						}
@@ -260,16 +286,16 @@ module.exports = function (grunt) {
 			showAngularDocs: false,
 			docular_partial_home: 'guide/home.html',
 			docular_partial_navigation: 'guide/nav.html',
-			docular_partial_footer: 'guide/footer.html',
-			analytics: {
-				account: 'UA-46792694-5',
-				domainName: 'angular-data.codetrain.io'
-			},
-			discussions: {
-				shortName: 'angular-data',
-				url: 'http://angular-data.codetrain.io',
-				dev: dev
-			}
+			docular_partial_footer: 'guide/footer.html'//,
+//			analytics: {
+//				account: 'UA-46792694-5',
+//				domainName: 'angular-cache.codetrain.io'
+//			},
+//			discussions: {
+//				shortName: 'angular-data',
+//				url: 'http://angular-cache.codetrain.io',
+//				dev: dev
+//			}
 		}
 	});
 

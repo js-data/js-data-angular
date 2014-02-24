@@ -1,0 +1,86 @@
+@doc overview
+@id overview
+@name Overview of Angular-data
+@description
+
+Angular-data is an in-browser data store for [Angular.js](http://angularjs.org).
+[Synchronous methods](/documentation/guide/synchronous/index) work only with data already in the data store, and
+[asynchronous methods](/documentation/guide/asynchronous/index) work with persistence layer.
+
+<p>
+    <img src="/resources/img/chart.png" width="940">
+</p>
+
+## Example:
+```js
+angular.module('myApp', ['angular-data.DS'])
+	.config(function (DSProvider) {
+		DSProvider.defaults.baseUrl = 'https://example.com/api';
+		{...}
+	})
+	.run(function (DS) {
+		DS.defineResource({
+			name: 'post',
+			endpoint: 'posts',
+			idAttribute: '_id'
+		});
+	})
+	.controller('PostCtrl', function ($scope, DS) {
+		var query = {
+                        query: {
+                            where: {
+                                author: 'John Anderson'
+                            }
+                        }
+                    };
+
+		DS.findAll('post', query);
+
+		$scope.$watch(function () {
+			return DS.lastModified('post');
+		}, function () {
+			$scope.posts = DS.filter('post', query);
+		});
+	});
+```
+
+Angular-data does not decorate your data in any way–your data maintains the pure POJO representation common to Angular
+apps. Angular-data maintains meta information about your data to facilitate its operation. You can "watch" data that
+resides in the data store to stay up-to-date on that data.
+
+```js
+$scope.posts;   //  [{ id: 1, author: 'John Anderson', title: 'How to cook' },
+					 { id: 2, author: 'John Anderson', title: 'How NOT to cook' }]
+```
+
+You define _resources_ and register them with the data store. A _resource definition_ tells angular-data
+about a particular resource, like what its root endpoint is and which attribute refers to the primary key of the
+resource. A _resource definition_ can also specify validation functions to be executed during model lifecycle operations.
+
+```js
+DS.defineResource({
+	name: 'post',
+	endpoint: 'posts',
+	idAttribute: '_id',
+	validate: function (resourceName, attrs, cb) {
+		if (!attrs.title) {
+			cb('Title is required');
+		} else {
+			cb(null, attrs);
+		}
+	}
+});
+```
+
+`validate` will be executed at the beginning of the lifecycle initiated by a call to `DS.create` or `DS.save`.
+```js
+DS.create('post', { author: 'Sally', title: 'Angular gotchas' })
+	.then(function (post) {
+		post; // { id: 65, author: 'Sally', title: 'Angular gotchas' }
+	});
+
+DS.create('post', { author: 'Sally' })
+	.then(null, function (err) {
+		err; // 'Title is required'
+	});
+```
