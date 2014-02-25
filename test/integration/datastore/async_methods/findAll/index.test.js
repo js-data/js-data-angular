@@ -1,7 +1,7 @@
 describe('DS.findAll(resourceName, params[, options]): ', function () {
 	var errorPrefix = 'DS.findAll(resourceName, params[, options]): ';
 
-	it('should throw an error when method pre-conditions are not met', function (done) {
+	it('should throw an error when method pre-conditions are not met', function () {
 		DS.findAll('does not exist', {}).then(function () {
 			fail('should have rejected');
 		}, function (err) {
@@ -28,11 +28,9 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
 				});
 			}
 		});
-
-		done();
 	});
-	it('should query the server for a collection', function (done) {
-		$httpBackend.expectGET('http://test.angular-cache.com/posts?').respond(200, [p1, p2, p3, p4]);
+	it('should query the server for a collection', function () {
+		$httpBackend.expectGET(/http:\/\/test\.angular-cache\.com\/posts\??/).respond(200, [p1, p2, p3, p4]);
 
 		DS.findAll('post', {}).then(function (data) {
 			assert.deepEqual(data, [p1, p2, p3, p4]);
@@ -65,7 +63,7 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
 			fail('Should not have rejected!');
 		});
 
-		$httpBackend.expectGET('http://test.angular-cache.com/posts?').respond(200, [p1, p2, p3, p4]);
+		$httpBackend.expectGET(/http:\/\/test\.angular-cache\.com\/posts\??/).respond(200, [p1, p2, p3, p4]);
 
 		// Should make a request because bypassCache is set to true
 		DS.findAll('post', {}, { bypassCache: true }).then(function (data) {
@@ -76,7 +74,19 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
 		});
 
 		$httpBackend.flush();
+	});
+	it('should query the server for a collection but not store the data if cacheResponse is false', function () {
+		$httpBackend.expectGET(/http:\/\/test\.angular-cache\.com\/posts\??/).respond(200, [p1, p2, p3, p4]);
 
-		done();
+		DS.findAll('post', {}, { cacheResponse: false }).then(function (data) {
+			assert.deepEqual(data, [p1, p2, p3, p4]);
+		}, function (err) {
+			console.error(err.stack);
+			fail('Should not have rejected!');
+		});
+
+		$httpBackend.flush();
+
+		assert.deepEqual(DS.filter('post', {}), [], 'The posts should not have been injected into the store');
 	});
 });

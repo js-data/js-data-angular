@@ -55,6 +55,7 @@ function create(resourceName, attrs, options) {
 	} else {
 		try {
 			var definition = this.definitions[resourceName],
+				resource = this.store[resourceName],
 				_this = this;
 
 			promise = promise
@@ -77,7 +78,11 @@ function create(resourceName, attrs, options) {
 					return _this.$q.promisify(definition.afterCreate)(resourceName, data);
 				})
 				.then(function (data) {
-					return _this.inject(definition.name, data);
+					var created = _this.inject(definition.name, data),
+						id = created[definition.idAttribute];
+					resource.previousAttributes[id] = _this.utils.deepMixIn({}, created);
+					resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
+					return _this.get(definition.name, id);
 				});
 
 			deferred.resolve(attrs);

@@ -1,9 +1,48 @@
 (function (window, angular, undefined) {
 	'use strict';
 
-	angular.module('angular-data.BinaryHeap', [])
-		.provider('BinaryHeap', require('./binaryHeap'));
-	angular.module('angular-data.DS', ['ng', 'angular-data.BinaryHeap'])
+	/**
+	 * @doc overview
+	 * @id angular-data
+	 * @name angular-data
+	 * @description
+	 * __Version:__ <%= pkg.version %>
+	 *
+	 * ## Install
+	 *
+	 * #### Bower
+	 * ```text
+	 * bower install angular-data
+	 * ```
+	 *
+	 * Load `dist/angular-data.js` or `dist/angular-data.min.js` onto your web page after Angular.js.
+	 *
+	 * #### Npm
+	 * ```text
+	 * npm install angular-data
+	 * ```
+	 *
+	 * Load `dist/angular-data.js` or `dist/angular-data.min.js` onto your web page after Angular.js.
+	 *
+	 * #### Manual download
+	 * Download angular-data.<%= pkg.version %>.js from the [Releases](https://github.com/jmdobry/angular-data/releases)
+	 * section of the angular-data GitHub project.
+	 *
+	 * ## Load into Angular
+	 * Your Angular app must depend on the module `"angular-data.DS"` in order to use angular-data. Loading
+	 * angular-data into your app allows you to inject the following:
+	 *
+	 * - `DS`
+	 * - `DSHttpAdapter`
+	 * - `DSUtils`
+	 * - `DSErrors`
+	 *
+	 * [DS](/documentation/api/api/DS) is the Data Store itself, which you will inject often.
+	 * [DSHttpAdapter](/documentation/api/api/DSHttpAdapter) is useful as a wrapper for `$http` and is configurable.
+	 * [DSUtils](/documentation/api/api/DSUtils) has some useful utility methods.
+	 * [DSErrors](/documentation/api/api/DSErrors) provides references to the various errors thrown by the data store.
+	 */
+	angular.module('angular-data.DS', ['ng'])
 		.service('DSUtils', require('./utils'))
 		.service('DSErrors', require('./errors'))
 		.provider('DSHttpAdapter', require('./adapters/http'))

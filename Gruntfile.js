@@ -11,9 +11,12 @@ module.exports = function (grunt) {
 	require('load-grunt-tasks')(grunt);
 	require('time-grunt')(grunt);
 
+	var dev = process.cwd().indexOf('/home/codetrain/angular-data') === -1,
+		pkg = grunt.file.readJSON('package.json');
+
 	// Project configuration.
 	grunt.initConfig({
-		pkg: grunt.file.readJSON('package.json'),
+		pkg: pkg,
 		clean: {
 			coverage: ['coverage/'],
 			dist: ['dist/'],
@@ -70,13 +73,13 @@ module.exports = function (grunt) {
 				files: {
 					'dist/angular-data.js': ['src/index.js']
 				},
-				// TODO: There's got to be a better way to consume observe-js without it polluting the global space
 				options: {
 					alias: [
-						'lib/observe-js.js:observejs',
+						'lib/observe-js/observe-js.js:observejs',
 						'src/errors/index.js:errors',
 						'src/utils/index.js:utils'
 					],
+					// TODO: There's got to be a better way to consume observe-js without it polluting the global space
 					postBundleCB: function (err, src, next) {
 						if (err) {
 							next(err);
@@ -170,6 +173,13 @@ module.exports = function (grunt) {
 				dest: 'doc/resources/img/',
 				flatten: true
 			},
+			chart: {
+				expand: true,
+				cwd: 'guide/',
+				src: 'chart.png',
+				dest: 'doc/resources/img/',
+				flatten: true
+			},
 			cream_dust: {
 				expand: true,
 				cwd: 'guide/',
@@ -186,9 +196,15 @@ module.exports = function (grunt) {
 					groupIcon: 'icon-book',
 					sections: [
 						{
-							id: 'overview',
-							title: 'Overview',
-							docs: ['guide/overview/'],
+							id: 'angular-data',
+							title: 'angular-data',
+							docs: [
+								'guide/angular-data/index.doc',
+								'guide/angular-data/overview.doc',
+								'guide/angular-data/resources.doc',
+								'guide/angular-data/synchronous.doc',
+								'guide/angular-data/asynchronous.doc'
+							],
 							rank: {
 								index: 1,
 								overview: 2,
@@ -198,14 +214,45 @@ module.exports = function (grunt) {
 							}
 						},
 						{
-							id: 'resource',
+							id: 'angular-cache',
+							title: 'angular-cache',
+							docs: ['guide/angular-cache/'],
+							rank: {
+								index: 1,
+								basics: 2,
+								configure: 3,
+								http: 4,
+								storage: 5
+							}
+						},
+						{
+							id: 'angular-data-resource',
 							title: 'Defining Resources',
-							docs: ['guide/resource/'],
+							docs: ['guide/angular-data/resource/'],
 							rank: {
 								index: 1,
 								overview: 2,
 								basic: 3,
-								advanced: 4
+								advanced: 4,
+								lifecycle: 5
+							}
+						},
+						{
+							id: 'angular-data-queries',
+							title: 'Queries',
+							docs: ['guide/angular-data/queries/'],
+							rank: {
+								index: 1,
+								overview: 2
+							}
+						},
+						{
+							id: 'angular-data-adapters',
+							title: 'Adapters',
+							docs: ['guide/angular-data/adapters/'],
+							rank: {
+								index: 1,
+								overview: 2
 							}
 						}
 					]
@@ -217,10 +264,18 @@ module.exports = function (grunt) {
 					showSource: true,
 					sections: [
 						{
-							id: 'api',
+							id: 'angular-data',
 							title: 'angular-data',
 							scripts: [
 								'src/'
+							],
+							docs: ['guide/api']
+						},
+						{
+							id: 'angular-cache',
+							title: 'angular-cache',
+							scripts: [
+								'bower_components/angular-cache/dist/angular-cache.js'
 							],
 							docs: ['guide/api']
 						}
@@ -232,13 +287,36 @@ module.exports = function (grunt) {
 			showAngularDocs: false,
 			docular_partial_home: 'guide/home.html',
 			docular_partial_navigation: 'guide/nav.html',
-			docular_partial_footer: 'guide/footer.html'
+			docular_partial_footer: 'guide/footer.html'//,
+//			analytics: {
+//				account: 'UA-46792694-5',
+//				domainName: 'angular-cache.codetrain.io'
+//			},
+//			discussions: {
+//				shortName: 'angular-data',
+//				url: 'http://angular-cache.codetrain.io',
+//				dev: dev
+//			}
 		}
+	});
+
+	grunt.registerTask('version', function (filePath) {
+		var file = grunt.file.read(filePath);
+
+		file = file.replace(/<%= pkg\.version %>/gi, pkg.version);
+
+		grunt.file.write(filePath, file);
 	});
 
 	grunt.registerTask('test', ['clean:coverage', 'karma:dev']);
 	grunt.registerTask('doc', ['clean:doc', 'docular', 'concat', 'copy', 'clean:afterDoc', 'uglify:scripts']);
-	grunt.registerTask('build', ['clean:dist', 'jshint', 'browserify', 'uglify:main']);
+	grunt.registerTask('build', [
+		'clean',
+		'jshint',
+		'browserify',
+		'version:dist/angular-data.js',
+		'uglify:main'
+	]);
 	grunt.registerTask('default', ['build']);
 
 	// Used by TravisCI

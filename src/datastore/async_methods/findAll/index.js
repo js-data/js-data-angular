@@ -40,10 +40,14 @@ function _findAll(utils, resourceName, params, options) {
 			// This particular query has never even been made
 			resource.pendingQueries[queryHash] = _this.adapters[options.adapter || definition.defaultAdapter].findAll(definition, { params: params }, options)
 				.then(function (data) {
-					try {
-						return processResults.apply(_this, [utils, data, resourceName, queryHash]);
-					} catch (err) {
-						throw new _this.errors.UnhandledError(err);
+					if (options.cacheResponse) {
+						try {
+							return processResults.apply(_this, [utils, data, resourceName, queryHash]);
+						} catch (err) {
+							throw new _this.errors.UnhandledError(err);
+						}
+					} else {
+						return data;
 					}
 				});
 		}
@@ -106,8 +110,7 @@ function _findAll(utils, resourceName, params, options) {
  *
  * @param {object=} options Optional configuration. Properties:
  * - `{boolean=}` - `bypassCache` - Bypass the cache. Default: `false`.
- * - `{string=}` - `mergeStrategy` - If `findAll` is called, specify the merge strategy that should be used when the new
- * items are injected into the data store. Default `"mergeWithExisting"`.
+ * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
  *
  * @returns {Promise} Promise produced by the `$q` service.
  *
@@ -135,6 +138,11 @@ function findAll(resourceName, params, options) {
 	} else if (!this.utils.isObject(options)) {
 		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
 	} else {
+		if (!('cacheResponse' in options)) {
+			options.cacheResponse = true;
+		} else {
+			options.cacheResponse = !!options.cacheResponse;
+		}
 		try {
 			promise = promise.then(function () {
 				return _findAll.apply(_this, [_this.utils, resourceName, params, options]);

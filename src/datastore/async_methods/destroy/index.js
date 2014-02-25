@@ -52,6 +52,8 @@ function destroy(resourceName, id, options) {
 		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
 	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
 		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
+	} else if (!(id in this.store[resourceName].index)) {
+		deferred.reject(new this.errors.RuntimeError(errorPrefix + 'id: "' + id + '" not found!'));
 	} else {
 		var definition = this.definitions[resourceName],
 			resource = this.store[resourceName],
