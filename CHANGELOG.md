@@ -1,3 +1,13 @@
+##### 0.7.0 - 24 February 2014
+
+###### Breaking API changes
+- `DS.eject(resourceName, id)` can now only eject individual items
+
+###### Backwards API changes
+- #34 - Added `DS.ejectAll(resourceName, params)`
+- #33 - Added `DS.destroyAll(resourceName, params[, options])`
+- #35 - Add options for asynchronous getter methods to return data without putting it into the data store
+
 ##### 0.6.0 - 17 January 2014
 
 Added pluggable filters for the "where" clause of a query. Angular-data's "query language" will remain small and simple.

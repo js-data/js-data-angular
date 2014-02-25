@@ -6,18 +6,29 @@
 	 * @id angular-data
 	 * @name angular-data
 	 * @description
-	 * Angular-data is installable via:
+	 * __Version:__ <%= pkg.version %>
 	 *
+	 * ## Install
+	 *
+	 * #### Bower
 	 * ```text
 	 * bower install angular-data
 	 * ```
 	 *
-	 * or by downloading angular-data.x.x.x.js from the [Releases](https://github.com/jmdobry/angular-data/releases)
+	 * Load `dist/angular-data.js` or `dist/angular-data.min.js` onto your web page after Angular.js.
+	 *
+	 * #### Npm
+	 * ```text
+	 * npm install angular-data
+	 * ```
+	 *
+	 * Load `dist/angular-data.js` or `dist/angular-data.min.js` onto your web page after Angular.js.
+	 *
+	 * #### Manual download
+	 * Download angular-data.<%= pkg.version %>.js from the [Releases](https://github.com/jmdobry/angular-data/releases)
 	 * section of the angular-data GitHub project.
 	 *
-	 * Angular-data has a hard dependency on [angular-cache](/documentation/api/api/angular-cache) v3.0.0 or newer,
-	 * which must be loaded before angular-data.
-	 *
+	 * ## Load into Angular
 	 * Your Angular app must depend on the module `"angular-data.DS"` in order to use angular-data. Loading
 	 * angular-data into your app allows you to inject the following:
 	 *

@@ -11,11 +11,12 @@ module.exports = function (grunt) {
 	require('load-grunt-tasks')(grunt);
 	require('time-grunt')(grunt);
 
-	var dev = process.cwd().indexOf('/home/codetrain/angular-data') === -1;
+	var dev = process.cwd().indexOf('/home/codetrain/angular-data') === -1,
+		pkg = grunt.file.readJSON('package.json');
 
 	// Project configuration.
 	grunt.initConfig({
-		pkg: grunt.file.readJSON('package.json'),
+		pkg: pkg,
 		clean: {
 			coverage: ['coverage/'],
 			dist: ['dist/'],
@@ -274,7 +275,7 @@ module.exports = function (grunt) {
 							id: 'angular-cache',
 							title: 'angular-cache',
 							scripts: [
-								'../angular-cache/dist/angular-cache.js'
+								'bower_components/angular-cache/dist/angular-cache.js'
 							],
 							docs: ['guide/api']
 						}
@@ -299,9 +300,23 @@ module.exports = function (grunt) {
 		}
 	});
 
+	grunt.registerTask('version', function (filePath) {
+		var file = grunt.file.read(filePath);
+
+		file = file.replace(/<%= pkg\.version %>/gi, pkg.version);
+
+		grunt.file.write(filePath, file);
+	});
+
 	grunt.registerTask('test', ['clean:coverage', 'karma:dev']);
 	grunt.registerTask('doc', ['clean:doc', 'docular', 'concat', 'copy', 'clean:afterDoc', 'uglify:scripts']);
-	grunt.registerTask('build', ['clean:dist', 'jshint', 'browserify', 'uglify:main']);
+	grunt.registerTask('build', [
+		'clean',
+		'jshint',
+		'browserify',
+		'version:dist/angular-data.js',
+		'uglify:main'
+	]);
 	grunt.registerTask('default', ['build']);
 
 	// Used by TravisCI
