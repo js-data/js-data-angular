@@ -1,13 +1,13 @@
 /**
  * @author Jason Dobry <jason.dobry@gmail.com>
  * @file angular-data.js
- * @version 0.7.0 - Homepage <http://jmdobry.github.io/angular-data/>
- * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/angular-data>
+ * @version 0.7.1 - Homepage <http://angular-data.codetrain.io/>
+ * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>
  * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
  *
  * @overview Data store for Angular.js.
  */
-require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"salHtg":[function(require,module,exports){
+require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"QYwGEY":[function(require,module,exports){
 (function (global){
 // Copyright 2012 Google Inc.
 //
@@ -491,7 +491,7 @@ require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof requ
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],"observejs":[function(require,module,exports){
-module.exports=require('salHtg');
+module.exports=require('QYwGEY');
 },{}],3:[function(require,module,exports){
 var indexOf = require('./indexOf');
 
@@ -2524,7 +2524,7 @@ function DSProvider() {
 
 module.exports = DSProvider;
 
-},{"../utils":"uE/lJt","./async_methods":33,"./sync_methods":45}],37:[function(require,module,exports){
+},{"../utils":"iWjGJZ","./async_methods":33,"./sync_methods":45}],37:[function(require,module,exports){
 var errorPrefix = 'DS.changes(resourceName, id): ';
 
 /**
@@ -2725,7 +2725,7 @@ function digest() {
 
 module.exports = digest;
 
-},{"observejs":"salHtg"}],40:[function(require,module,exports){
+},{"observejs":"QYwGEY"}],40:[function(require,module,exports){
 var errorPrefix = 'DS.eject(resourceName, id): ';
 
 function _eject(definition, resource, id) {
@@ -3046,11 +3046,15 @@ function filter(resourceName, params, options) {
 
 		// Apply 'limit' and 'skip'
 		if (this.utils.isNumber(params.query.limit) && this.utils.isNumber(params.query.skip)) {
-			filtered = this.utils.slice(filtered, params.query.skip, params.query.skip + params.query.limit);
+			filtered = this.utils.slice(filtered, params.query.skip, Math.min(filtered.length, params.query.skip + params.query.limit));
 		} else if (this.utils.isNumber(params.query.limit)) {
-			filtered = this.utils.slice(filtered, 0, params.query.limit);
+			filtered = this.utils.slice(filtered, 0, Math.min(filtered.length, params.query.limit));
 		} else if (this.utils.isNumber(params.query.skip)) {
-			filtered = this.utils.slice(filtered, params.query.skip);
+			if (params.query.skip < filtered.length) {
+				filtered = this.utils.slice(filtered, params.query.skip);
+			} else {
+				filtered = [];
+			}
 		}
 
 		return filtered;
@@ -3450,7 +3454,7 @@ function inject(resourceName, attrs, options) {
 
 module.exports = inject;
 
-},{"observejs":"salHtg"}],47:[function(require,module,exports){
+},{"observejs":"QYwGEY"}],47:[function(require,module,exports){
 var errorPrefix = 'DS.lastModified(resourceName[, id]): ';
 
 /**
@@ -3629,8 +3633,8 @@ function previous(resourceName, id) {
 module.exports = previous;
 
 },{}],"errors":[function(require,module,exports){
-module.exports=require('hIh4e1');
-},{}],"hIh4e1":[function(require,module,exports){
+module.exports=require('ht0wMj');
+},{}],"ht0wMj":[function(require,module,exports){
 /**
  * @doc function
  * @id errors.types:UnhandledError
@@ -3810,7 +3814,7 @@ module.exports = [function () {
 	 * @id angular-data
 	 * @name angular-data
 	 * @description
-	 * __Version:__ 0.7.0
+	 * __Version:__ 0.7.1
 	 *
 	 * ## Install
 	 *
@@ -3829,7 +3833,7 @@ module.exports = [function () {
 	 * Load `dist/angular-data.js` or `dist/angular-data.min.js` onto your web page after Angular.js.
 	 *
 	 * #### Manual download
-	 * Download angular-data.0.7.0.js from the [Releases](https://github.com/jmdobry/angular-data/releases)
+	 * Download angular-data.0.7.1.js from the [Releases](https://github.com/jmdobry/angular-data/releases)
 	 * section of the angular-data GitHub project.
 	 *
 	 * ## Load into Angular
@@ -3883,7 +3887,9 @@ module.exports = [function () {
 
 })(window, window.angular);
 
-},{"./adapters/http":27,"./datastore":36,"./errors":"hIh4e1","./utils":"uE/lJt"}],"uE/lJt":[function(require,module,exports){
+},{"./adapters/http":27,"./datastore":36,"./errors":"ht0wMj","./utils":"iWjGJZ"}],"utils":[function(require,module,exports){
+module.exports=require('iWjGJZ');
+},{}],"iWjGJZ":[function(require,module,exports){
 module.exports = [function () {
 	return {
 		isString: angular.isString,
@@ -3963,6 +3969,4 @@ module.exports = [function () {
 	};
 }];
 
-},{"mout/array/contains":3,"mout/array/filter":4,"mout/array/slice":7,"mout/array/sort":8,"mout/array/toLookup":9,"mout/lang/isEmpty":14,"mout/object/deepMixIn":21,"mout/object/forOwn":23,"mout/string/makePath":25,"mout/string/upperCase":26}],"utils":[function(require,module,exports){
-module.exports=require('uE/lJt');
-},{}]},{},[52])
+},{"mout/array/contains":3,"mout/array/filter":4,"mout/array/slice":7,"mout/array/sort":8,"mout/array/toLookup":9,"mout/lang/isEmpty":14,"mout/object/deepMixIn":21,"mout/object/forOwn":23,"mout/string/makePath":25,"mout/string/upperCase":26}]},{},[52])

@@ -131,11 +131,15 @@ function filter(resourceName, params, options) {
 
 		// Apply 'limit' and 'skip'
 		if (this.utils.isNumber(params.query.limit) && this.utils.isNumber(params.query.skip)) {
-			filtered = this.utils.slice(filtered, params.query.skip, params.query.skip + params.query.limit);
+			filtered = this.utils.slice(filtered, params.query.skip, Math.min(filtered.length, params.query.skip + params.query.limit));
 		} else if (this.utils.isNumber(params.query.limit)) {
-			filtered = this.utils.slice(filtered, 0, params.query.limit);
+			filtered = this.utils.slice(filtered, 0, Math.min(filtered.length, params.query.limit));
 		} else if (this.utils.isNumber(params.query.skip)) {
-			filtered = this.utils.slice(filtered, params.query.skip);
+			if (params.query.skip < filtered.length) {
+				filtered = this.utils.slice(filtered, params.query.skip);
+			} else {
+				filtered = [];
+			}
 		}
 
 		return filtered;

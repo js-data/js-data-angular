@@ -1,7 +1,7 @@
 describe('DS.filter(resourceName, params[, options])', function () {
 	var errorPrefix = 'DS.filter(resourceName, params[, options]): ';
 
-	it('should throw an error when method pre-conditions are not met', function (done) {
+	it('should throw an error when method pre-conditions are not met', function () {
 		assert.throws(function () {
 			DS.filter('does not exist', {});
 		}, DS.errors.RuntimeError, errorPrefix + 'does not exist is not a registered resource!');
@@ -65,10 +65,8 @@ describe('DS.filter(resourceName, params[, options])', function () {
 		});
 
 		DS.filter('post', {});
-
-		done();
 	});
-	it('should return an empty array if the query has never been made before', function (done) {
+	it('should return an empty array if the query has never been made before', function () {
 		$httpBackend.expectGET('http://test.angular-cache.com/posts?query=%7B%22where%22:%7B%22author%22:%7B%22%3D%3D%22:%22John%22%7D%7D%7D').respond(200, [p1]);
 
 		assert.deepEqual(DS.filter('post', {
@@ -104,9 +102,8 @@ describe('DS.filter(resourceName, params[, options])', function () {
 		}), [
 			p1
 		], 'should no longer be empty');
-		done();
 	});
-	it('should correctly apply "where" predicates', function (done) {
+	it('should correctly apply "where" predicates', function () {
 		assert.doesNotThrow(function () {
 			DS.inject('post', p1);
 			DS.inject('post', p2);
@@ -188,10 +185,8 @@ describe('DS.filter(resourceName, params[, options])', function () {
 		params.query.where = { age: { garbage: 'should have no effect' } };
 
 		assert.deepEqual(DS.filter('post', params), [p1, p2, p3, p4], 'should return all elements');
-
-		done();
 	});
-	it('should correctly apply "orderBy" predicates', function (done) {
+	it('should correctly apply "orderBy" predicates', function () {
 		assert.doesNotThrow(function () {
 			DS.inject('post', p1);
 			DS.inject('post', p2);
@@ -230,10 +225,8 @@ describe('DS.filter(resourceName, params[, options])', function () {
 		params.query.orderBy = ['author'];
 
 		assert.deepEqual(DS.filter('post', params), [p4, p1, p3, p2], 'should accept an array of a string and sort in ascending for strings');
-
-		done();
 	});
-	it('should correctly apply "skip" predicates', function (done) {
+	it('should correctly apply "skip" predicates', function () {
 		assert.doesNotThrow(function () {
 			DS.inject('post', p1);
 			DS.inject('post', p2);
@@ -257,10 +250,8 @@ describe('DS.filter(resourceName, params[, options])', function () {
 
 		params.query.skip = 4;
 		assert.deepEqual(DS.filter('post', params), [], 'should skip 4');
-
-		done();
 	});
-	it('should correctly apply "limit" predicates', function (done) {
+	it('should correctly apply "limit" predicates', function () {
 		assert.doesNotThrow(function () {
 			DS.inject('post', p1);
 			DS.inject('post', p2);
@@ -284,10 +275,8 @@ describe('DS.filter(resourceName, params[, options])', function () {
 
 		params.query.limit = 4;
 		assert.deepEqual(DS.filter('post', params), [p1, p2, p3, p4], 'should limit to 4');
-
-		done();
 	});
-	it('should correctly apply "limit" and "skip" predicates together', function (done) {
+	it('should correctly apply "limit" and "skip" predicates together', function () {
 		assert.doesNotThrow(function () {
 			DS.inject('post', p1);
 			DS.inject('post', p2);
@@ -314,9 +303,23 @@ describe('DS.filter(resourceName, params[, options])', function () {
 		params.query.skip = 3;
 		assert.deepEqual(DS.filter('post', params), [p4], 'should limit to 1 and skip 3');
 
-		done();
+		params.query.limit = 8;
+		params.query.skip = 0;
+		assert.deepEqual(DS.filter('post', params), [p1, p2, p3, p4], 'should return all items');
+
+		params.query.limit = 1;
+		params.query.skip = 5;
+		assert.deepEqual(DS.filter('post', params), [], 'should return nothing if skip if greater than the number of items');
+
+		params.query.limit = 8;
+		delete params.query.skip;
+		assert.deepEqual(DS.filter('post', params), [p1, p2, p3, p4], 'should return all items');
+
+		delete params.query.limit;
+		params.query.skip = 5;
+		assert.deepEqual(DS.filter('post', params), [], 'should return nothing if skip if greater than the number of items');
 	});
-	it('should allow custom "where" filter function', function (done) {
+	it('should allow custom "where" filter function', function () {
 		DS.defineResource({
 			name: 'comment',
 			filter: function (resourceName, where, attrs) {
@@ -344,7 +347,5 @@ describe('DS.filter(resourceName, params[, options])', function () {
 		};
 
 		assert.deepEqual(DS.filter('comment', params), [p1, p2], 'should keep p1 and p2');
-
-		done();
 	});
 });

@@ -1,9 +1,14 @@
+##### 0.7.1 - 26 February 2014
+
+###### Backwards compatible bug fixes
+- #36 - Fixed inconsistencies in `DS.filter` when using skip or limit in the query
+
 ##### 0.7.0 - 24 February 2014
 
 ###### Breaking API changes
 - `DS.eject(resourceName, id)` can now only eject individual items
 
-###### Backwards API changes
+###### Backwards compatible API changes
 - #34 - Added `DS.ejectAll(resourceName, params)`
 - #33 - Added `DS.destroyAll(resourceName, params[, options])`
 - #35 - Add options for asynchronous getter methods to return data without putting it into the data store
