@@ -287,16 +287,16 @@ module.exports = function (grunt) {
 			showAngularDocs: false,
 			docular_partial_home: 'guide/home.html',
 			docular_partial_navigation: 'guide/nav.html',
-			docular_partial_footer: 'guide/footer.html'//,
-//			analytics: {
-//				account: 'UA-46792694-5',
-//				domainName: 'angular-cache.codetrain.io'
-//			},
-//			discussions: {
-//				shortName: 'angular-data',
-//				url: 'http://angular-cache.codetrain.io',
-//				dev: dev
-//			}
+			docular_partial_footer: 'guide/footer.html',
+			analytics: {
+				account: 'UA-46792694-5',
+				domainName: 'angular-data.codetrain.io'
+			},
+			discussions: {
+				shortName: 'angular-data',
+				url: 'http://angular-data.codetrain.io',
+				dev: dev
+			}
 		}
 	});
 
