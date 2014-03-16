@@ -66,4 +66,44 @@ describe('DS.save(resourceName, id[, options])', function () {
 
 		done();
 	});
+	it('should save changes of an item to the server', function (done) {
+		$httpBackend.expectPUT('http://test.angular-cache.com/posts/5', { author: 'Jake' }).respond(200, {
+			author: 'Jake',
+			id: 5,
+			age: 30
+		});
+
+		DS.inject('post', p1);
+
+		var initialModified = DS.lastModified('post', 5),
+			initialSaved = DS.lastSaved('post', 5),
+			post1 = DS.get('post', 5);
+
+		post1.author = 'Jake';
+
+		DS.save('post', 5, { changesOnly: true }).then(function (post) {
+			assert.deepEqual(post, post1, 'post 5 should have been saved');
+			assert.equal(post.author, 'Jake');
+		}, function (err) {
+			console.error(err.stack);
+			fail('should not have rejected');
+		});
+
+		$httpBackend.flush();
+
+		assert.equal(lifecycle.beforeUpdate.callCount, 1, 'beforeUpdate should have been called');
+		assert.equal(lifecycle.afterUpdate.callCount, 1, 'afterUpdate should have been called');
+		assert.deepEqual(DS.get('post', 5), post1);
+		assert.notEqual(DS.lastModified('post', 5), initialModified);
+		assert.notEqual(DS.lastSaved('post', 5), initialSaved);
+
+		DS.save('post', 6).then(function () {
+			fail('should not have succeeded');
+		}, function (err) {
+			assert.isTrue(err instanceof DS.errors.RuntimeError);
+			assert.equal(err.message, errorPrefix + 'id: "6" not found!');
+		});
+
+		done();
+	});
 });

@@ -18,12 +18,16 @@ describe('DS.lastSaved(resourceName[, id])', function () {
 	});
 	it('should lastSaved an item into the store', function (done) {
 
+		var lastSaved = DS.lastSaved('post', 5);
 		assert.equal(DS.lastSaved('post', 5), 0);
-		assert.equal(DS.lastSaved('post'), 0);
 
 		assert.doesNotThrow(function () {
 			DS.inject('post', p1);
 		});
+
+		assert.notEqual(lastSaved, DS.lastSaved('post', 5));
+
+		lastSaved = DS.lastSaved('post', 5);
 
 		$httpBackend.expectPUT('http://test.angular-cache.com/posts/5').respond(200, p1);
 
@@ -35,30 +39,8 @@ describe('DS.lastSaved(resourceName[, id])', function () {
 
 		$httpBackend.flush();
 
-		assert.notEqual(DS.lastSaved('post', 5), 0);
-		assert.isNumber(DS.lastSaved('post', 5));
+		assert.notEqual(lastSaved, DS.lastSaved('post', 5));
 
 		done();
 	});
-//	it('should lastSaved an item into the store', function (done) {
-//
-//		assert.equal(DS.lastSaved('post', 5), 0);
-//		assert.doesNotThrow(function () {
-//			assert.deepEqual(DS.lastSaved('post', p1), p1);
-//		});
-//		assert.notEqual(DS.lastSaved('post', 5), 0);
-//		assert.isNumber(DS.lastSaved('post', 5));
-//
-//		var post = DS.get('post', 5);
-//
-//		post.id = 10;
-//
-//		DS.digest();
-//
-//		assert.deepEqual('Doh! You just changed the primary key of an object! ' +
-//			'I don\'t know how to handle this yet, so your data for the "post' +
-//			'" resource is now in an undefined (probably broken) state.', $log.error.logs[0][0]);
-//
-//		done();
-//	});
 });

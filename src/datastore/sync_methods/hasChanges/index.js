@@ -48,8 +48,8 @@ function hasChanges(resourceName, id) {
 
 	try {
 		// return resource from cache
-		if (id in this.store[resourceName].changes) {
-			return diffIsEmpty(this.utils, this.store[resourceName].changes[id]);
+		if (id in this.store[resourceName].index) {
+			return diffIsEmpty(this.utils, this.changes(resourceName, id));
 		} else {
 			return false;
 		}

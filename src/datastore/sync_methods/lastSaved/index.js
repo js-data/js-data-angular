@@ -37,24 +37,20 @@ var errorPrefix = 'DS.lastSaved(resourceName[, id]): ';
  * - `{UnhandledError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
- * @param {string|number=} id The primary key of the item to remove.
- * @returns {number} The timestamp of the last time either the collection for `resourceName` or the item of type
- * `resourceName` with the given primary key was modified.
+ * @param {string|number} id The primary key of the item for which to retrieve the lastSaved timestamp.
+ * @returns {number} The timestamp of the last time the item of type `resourceName` with the given primary key was saved.
  */
 function lastSaved(resourceName, id) {
 	if (!this.definitions[resourceName]) {
 		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (id && !this.utils.isString(id) && !this.utils.isNumber(id)) {
+	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
 		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 	try {
-		if (id) {
-			if (!(id in this.store[resourceName].saved)) {
-				this.store[resourceName].saved[id] = 0;
-			}
-			return this.store[resourceName].saved[id];
+		if (!(id in this.store[resourceName].saved)) {
+			this.store[resourceName].saved[id] = 0;
 		}
-		return this.store[resourceName].collectionModified;
+		return this.store[resourceName].saved[id];
 	} catch (err) {
 		throw new this.errors.UnhandledError(err);
 	}

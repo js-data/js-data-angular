@@ -28,6 +28,8 @@ var errorPrefix = 'DS.save(resourceName, id[, options]): ';
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to retrieve.
  * @param {object=} options Optional configuration. Properties:
+ * - `{boolean=}` - `changesOnly` - Only send changed and added values back to the server.
+ *
  * @returns {Promise} Promise produced by the `$q` service.
  *
  * ## Resolves with:
@@ -73,6 +75,25 @@ function save(resourceName, id, options) {
 				return _this.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
 			})
 			.then(function (attrs) {
+				if (options.changesOnly) {
+					resource.observers[id].deliver();
+					var toKeep = [],
+						changes = _this.changes(resourceName, id);
+
+					for (var key in changes.added) {
+						toKeep.push(key);
+					}
+					for (key in changes.changed) {
+						toKeep.push(key);
+					}
+					changes = _this.utils.pick(attrs, toKeep);
+					if (_this.utils.isEmpty(changes)) {
+						// no changes, return
+						return attrs;
+					} else {
+						attrs = changes;
+					}
+				}
 				return _this.adapters[options.adapter || definition.defaultAdapter].update(definition, id, attrs, options);
 			})
 			.then(function (data) {

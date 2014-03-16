@@ -1,7 +1,7 @@
 describe('DS.previous(resourceName, id)', function () {
 	var errorPrefix = 'DS.previous(resourceName, id): ';
 
-	it('should throw an error when method pre-conditions are not met', function (done) {
+	it('should throw an error when method pre-conditions are not met', function () {
 		assert.throws(function () {
 			DS.previous('does not exist', {});
 		}, DS.errors.RuntimeError, errorPrefix + 'does not exist is not a registered resource!');
@@ -11,15 +11,12 @@ describe('DS.previous(resourceName, id)', function () {
 				DS.previous('post', key);
 			}, DS.errors.IllegalArgumentError, errorPrefix + 'id: Must be a string or a number!');
 		});
-
-		done();
 	});
-	it('should return false if the item is not in the store', function (done) {
+	it('should return false if the item is not in the store', function () {
 
 		assert.isUndefined(DS.previous('post', 5));
-		done();
 	});
-	it('should return the previous in an object', function (done) {
+	it('should return the previous in an object', function () {
 
 		DS.inject('post', p1);
 
@@ -42,7 +39,29 @@ describe('DS.previous(resourceName, id)', function () {
 
 		assert.deepEqual(DS.previous('post', 5), { author: 'Jake', age: 30, id: 5 }, 'previous attributes should have been updated');
 		assert.deepEqual(DS.get('post', 5), { author: 'Jake', age: 30, id: 5 });
+	});
+	it('should return the previous in an object and save changed only', function () {
 
-		done();
+		DS.inject('post', p1);
+
+		var post = DS.get('post', 5);
+
+		assert.deepEqual(DS.previous('post', 5), p1);
+
+		post.author = 'Jake';
+
+		DS.digest();
+
+		assert.deepEqual(DS.previous('post', 5), p1);
+		assert.deepEqual(DS.get('post', 5), { author: 'Jake', age: 30, id: 5 });
+
+		$httpBackend.expectPUT('http://test.angular-cache.com/posts/5', { author: 'Jake' }).respond(200, { author: 'Jake', age: 30, id: 5 });
+
+		DS.save('post', 5, { changesOnly: true });
+
+		$httpBackend.flush();
+
+		assert.deepEqual(DS.previous('post', 5), { author: 'Jake', age: 30, id: 5 }, 'previous attributes should have been updated');
+		assert.deepEqual(DS.get('post', 5), { author: 'Jake', age: 30, id: 5 });
 	});
 });

@@ -41,8 +41,13 @@ function changes(resourceName, id) {
 		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 
+	var resource = this.store[resourceName];
+
 	try {
-		return angular.copy(this.store[resourceName].changes[id]);
+		if (resource.index[id]) {
+			resource.observers[id].deliver();
+			return this.utils.diffObjectFromOldObject(resource.index[id], resource.previousAttributes[id]);
+		}
 	} catch (err) {
 		throw new this.errors.UnhandledError(err);
 	}

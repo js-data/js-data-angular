@@ -11,6 +11,7 @@ module.exports = [function () {
 		upperCase: require('mout/string/upperCase'),
 		deepMixIn: require('mout/object/deepMixIn'),
 		forOwn: require('mout/object/forOwn'),
+		pick: require('mout/object/pick'),
 		contains: require('mout/array/contains'),
 		filter: require('mout/array/filter'),
 		toLookup: require('mout/array/toLookup'),

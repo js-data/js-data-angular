@@ -87,7 +87,6 @@ function defineResource(definition) {
 			completedQueries: {},
 			pendingQueries: {},
 			index: {},
-			changes: {},
 			modified: {},
 			saved: {},
 			previousAttributes: {},

@@ -8,7 +8,6 @@ function _inject(definition, resource, attrs) {
 		try {
 			var innerId = getOldValueFn(definition.idAttribute);
 
-			resource.changes[innerId] = _this.utils.diffObjectFromOldObject(resource.index[innerId], resource.previousAttributes[innerId]);
 			resource.modified[innerId] = _this.utils.updateTimestamp(resource.modified[innerId]);
 			resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
 
@@ -50,6 +49,7 @@ function _inject(definition, resource, attrs) {
 				_this.utils.deepMixIn(resource.index[id], attrs);
 				resource.observers[id].deliver();
 			}
+			resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
 		}
 	}
 }

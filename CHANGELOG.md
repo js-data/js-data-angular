@@ -1,3 +1,11 @@
+##### 0.8.0 - 13 March 2014
+
+###### Backwards compatible API changes
+- #37 - Add option to only save changed attributes when calling DS.save()
+
+###### Backwards compatible bug fixes
+- #38 - "saved" attribute item isn't being updated properly
+
 ##### 0.7.1 - 26 February 2014
 
 ###### Backwards compatible bug fixes

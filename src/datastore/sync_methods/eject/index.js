@@ -13,7 +13,6 @@ function _eject(definition, resource, id) {
 		resource.observers[id].close();
 		delete resource.observers[id];
 		delete resource.index[id];
-		delete resource.changes[id];
 		delete resource.previousAttributes[id];
 		delete resource.modified[id];
 		delete resource.saved[id];
