@@ -2,17 +2,23 @@
 
 __Data store for Angular.js.__
 
-__Current version:__ 0.7.1
+__Current version:__ 0.8.0
 
 Angular-data is in a pre-1.0.0 development stage; the API is fluctuating, not a lot of tests yet, etc.
 
-Not for production use (yet).
+Not for production use (yet). If you still want to develop with Angular-data, be prepared to keep a close eye on the changelog, as the API is very liable to change (a lot).
 
 Pending:
-- Roadmap
+- A Solid Roadmap
+- Relations/Associations
+- Various Adapters
+- Schema Definition/Validation
+- Cache Expiry
+- Nested Resources
 - Website / documentation
 - 100% tested (whatever _that_ means)
 - See [issues](https://github.com/jmdobry/angular-data/issues?milestone=7&page=1&state=open) for what's in development
+- See [Design Doc](https://docs.google.com/document/d/1o069KLuBH4jpwm1FCLZFwKMgM73Xi8_1JyjhSxVpidM/edit?usp=sharing) for other juicy reading material
 
 ## Changelog
 [CHANGELOG.md](https://github.com/jmdobry/angular-data/blob/master/CHANGELOG.md)
@@ -20,9 +26,13 @@ Pending:
 ## Resources
 
 #### Community
+[Mailing List](https://groups.google.com/forum/?fromgroups#!forum/angular-data) - Ask your questions!
+
 [Issues](https://github.com/jmdobry/angular-data/issues) - Found a bug? Feature request? Submit an issue!
 
 [GitHub](https://github.com/jmdobry/angular-data) - View the source code for angular-data.
+
+[Design Doc](https://docs.google.com/document/d/1o069KLuBH4jpwm1FCLZFwKMgM73Xi8_1JyjhSxVpidM/edit?usp=sharing) - Design document for Angular-data.
 
 ## Project Status
 

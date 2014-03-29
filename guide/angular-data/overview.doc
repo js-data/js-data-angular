@@ -5,7 +5,7 @@
 
 Angular-data is an in-browser data store for [Angular.js](http://angularjs.org).
 [Synchronous methods](/documentation/guide/synchronous/index) work only with data already in the data store, and
-[asynchronous methods](/documentation/guide/asynchronous/index) work with persistence layer.
+[asynchronous methods](/documentation/guide/asynchronous/index) work with a persistence layer.
 
 <p>
     <img src="/resources/img/chart.png" width="940">
@@ -16,7 +16,6 @@ Angular-data is an in-browser data store for [Angular.js](http://angularjs.org).
 angular.module('myApp', ['angular-data.DS'])
 	.config(function (DSProvider) {
 		DSProvider.defaults.baseUrl = 'https://example.com/api';
-		{...}
 	})
 	.run(function (DS) {
 		DS.defineResource({
