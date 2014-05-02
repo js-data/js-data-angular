@@ -1,7 +1,8 @@
-##### 0.8.0 - 13 March 2014
+##### 0.8.1 - 02 May 2014
 
-###### Backwards compatible API changes
-- #37 - Add option to only save changed attributes when calling DS.save()
+###### Backwards compatible Bug fixes
+- #44 - Pending query isn't deleted when the response is a failure
+- #47 - Minification error in $q $delegate
 
 ##### 0.8.0 - 13 March 2014
 

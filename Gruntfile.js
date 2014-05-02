@@ -99,6 +99,20 @@ module.exports = function (grunt) {
 				autoWatch: true,
 				singleRun: false
 			},
+			min: {
+				browsers: ['Chrome'],
+				autoWatch: false,
+				singleRun: true,
+				options: {
+					files: [
+						'bower_components/angular/angular.js',
+						'bower_components/angular-mocks/angular-mocks.js',
+						'dist/angular-data.min.js',
+						'test/integration/**/*.js',
+						'karma.start.js'
+					]
+				}
+			},
 			ci: {
 				browsers: ['Firefox', 'PhantomJS']
 			}

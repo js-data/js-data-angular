@@ -49,6 +49,9 @@ function _findAll(utils, resourceName, params, options) {
 					} else {
 						return data;
 					}
+				}, function (err) {
+					delete resource.pendingQueries[queryHash];
+					return err;
 				});
 		}
 

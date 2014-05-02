@@ -1,7 +1,7 @@
 /**
  * @author Jason Dobry <jason.dobry@gmail.com>
  * @file angular-data.js
- * @version 0.8.0 - Homepage <http://angular-data.codetrain.io/>
+ * @version 0.8.1 - Homepage <http://angular-data.codetrain.io/>
  * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>
  * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
  *
@@ -1931,6 +1931,9 @@ function find(resourceName, id, options) {
 							} else {
 								return data;
 							}
+						}, function (err) {
+							delete resource.pendingQueries[id];
+							return err;
 						});
 				}
 
@@ -2000,6 +2003,9 @@ function _findAll(utils, resourceName, params, options) {
 					} else {
 						return data;
 					}
+				}, function (err) {
+					delete resource.pendingQueries[queryHash];
+					return err;
 				});
 		}
 
@@ -3854,7 +3860,7 @@ module.exports = [function () {
 	 * @id angular-data
 	 * @name angular-data
 	 * @description
-	 * __Version:__ 0.8.0
+	 * __Version:__ 0.8.1
 	 *
 	 * ## Install
 	 *
@@ -3873,7 +3879,7 @@ module.exports = [function () {
 	 * Load `dist/angular-data.js` or `dist/angular-data.min.js` onto your web page after Angular.js.
 	 *
 	 * #### Manual download
-	 * Download angular-data.0.8.0.js from the [Releases](https://github.com/jmdobry/angular-data/releases)
+	 * Download angular-data.0.8.1.js from the [Releases](https://github.com/jmdobry/angular-data/releases)
 	 * section of the angular-data GitHub project.
 	 *
 	 * ## Load into Angular
@@ -3896,7 +3902,7 @@ module.exports = [function () {
 		.provider('DSHttpAdapter', require('./adapters/http'))
 		.provider('DS', require('./datastore'))
 		.config(['$provide', function ($provide) {
-			$provide.decorator('$q', function ($delegate) {
+			$provide.decorator('$q', ['$delegate', function ($delegate) {
 				// do whatever you you want
 				$delegate.promisify = function (fn, target) {
 					var _this = this;
@@ -3922,7 +3928,7 @@ module.exports = [function () {
 					};
 				};
 				return $delegate;
-			});
+			}]);
 		}]);
 
 })(window, window.angular);

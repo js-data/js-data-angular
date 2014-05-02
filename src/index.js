@@ -48,7 +48,7 @@
 		.provider('DSHttpAdapter', require('./adapters/http'))
 		.provider('DS', require('./datastore'))
 		.config(['$provide', function ($provide) {
-			$provide.decorator('$q', function ($delegate) {
+			$provide.decorator('$q', ['$delegate', function ($delegate) {
 				// do whatever you you want
 				$delegate.promisify = function (fn, target) {
 					var _this = this;
@@ -74,7 +74,7 @@
 					};
 				};
 				return $delegate;
-			});
+			}]);
 		}]);
 
 })(window, window.angular);
