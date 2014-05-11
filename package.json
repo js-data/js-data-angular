@@ -50,6 +50,8 @@
   },
   "dependencies": {
     "observe-js": "0.1.0",
-    "mout": "0.9.1"
+    "mout": "0.9.1",
+    "browserify": "^3.46.1",
+    "grunt-browserify": "^2.0.8"
   }
 }
