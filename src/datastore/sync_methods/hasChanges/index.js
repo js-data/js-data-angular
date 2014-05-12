@@ -48,7 +48,7 @@ function hasChanges(resourceName, id) {
 
 	try {
 		// return resource from cache
-		if (id in this.store[resourceName].index) {
+		if (this.get(resourceName, id)) {
 			return diffIsEmpty(this.utils, this.changes(resourceName, id));
 		} else {
 			return false;

@@ -44,14 +44,15 @@ function get(resourceName, id, options) {
 
 	try {
 		// cache miss, request resource from server
-		if (!(id in this.store[resourceName].index) && options.loadFromServer) {
+		var item = this.store[resourceName].index.get(id);
+		if (!item && options.loadFromServer) {
 			this.find(resourceName, id).then(null, function (err) {
 				throw err;
 			});
 		}
 
 		// return resource from cache
-		return this.store[resourceName].index[id];
+		return item;
 	} catch (err) {
 		throw new this.errors.UnhandledError(err);
 	}

@@ -86,11 +86,21 @@ function DSProvider() {
 	var defaults = this.defaults = new BaseConfig();
 
 	this.$get = [
-		'$rootScope', '$log', '$q', 'DSHttpAdapter', 'DSUtils', 'DSErrors',
-		function ($rootScope, $log, $q, DSHttpAdapter, DSUtils, DSErrors) {
+		'$rootScope', '$log', '$q', 'DSHttpAdapter', 'DSUtils', 'DSErrors', 'DSCacheFactory',
+		function ($rootScope, $log, $q, DSHttpAdapter, DSUtils, DSErrors, DSCacheFactory) {
 
 			var syncMethods = require('./sync_methods'),
-				asyncMethods = require('./async_methods');
+				asyncMethods = require('./async_methods'),
+				cache;
+
+			try {
+				cache = angular.injector(['angular-data.DSCacheFactory']).get('DSCacheFactory');
+			} catch (err) {
+				$log.warn(err);
+				$log.warn('DSCacheFactory is unavailable. Resorting to the lesser capabilities of $cacheFactory.');
+				cache = angular.injector(['ng']).get('$cacheFactory');
+			}
+
 
 			/**
 			 * @doc interface
@@ -105,6 +115,8 @@ function DSProvider() {
 				$rootScope: $rootScope,
 				$log: $log,
 				$q: $q,
+
+				cacheFactory: cache,
 
 				/**
 				 * @doc property

@@ -29,24 +29,31 @@ function _inject(definition, resource, attrs) {
 		if (!(definition.idAttribute in attrs)) {
 			throw new _this.errors.RuntimeError(errorPrefix + 'attrs: Must contain the property specified by `idAttribute`!');
 		} else {
-			var id = attrs[definition.idAttribute];
+			var id = attrs[definition.idAttribute],
+				item = this.get(definition.name, id);
 
-			if (!(id in resource.index)) {
-				resource.index[id] = {};
+			if (!item) {
+				item = {};
 				resource.previousAttributes[id] = {};
 
-				_this.utils.deepMixIn(resource.index[id], attrs);
+				_this.utils.deepMixIn(item, attrs);
 				_this.utils.deepMixIn(resource.previousAttributes[id], attrs);
 
-				resource.collection.push(resource.index[id]);
+				resource.collection.push(item);
 
-				resource.observers[id] = new observe.ObjectObserver(resource.index[id], _react);
+				resource.observers[id] = new observe.ObjectObserver(item, _react);
+				resource.index.put(id, item);
 
 				_react({}, {}, {}, function () {
 					return id;
 				});
 			} else {
-				_this.utils.deepMixIn(resource.index[id], attrs);
+				_this.utils.deepMixIn(item, attrs);
+				if (typeof resource.index.touch === 'function') {
+					resource.index.touch(id);
+				} else {
+					resource.index.put(id, resource.index.get(id));
+				}
 				resource.observers[id].deliver();
 			}
 			resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);

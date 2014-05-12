@@ -21,9 +21,9 @@ module.exports = function (config) {
 		files: [
 			'bower_components/angular/angular.js',
 			'bower_components/angular-mocks/angular-mocks.js',
+			'bower_components/angular-cache/dist/angular-cache.js',
 			'dist/angular-data.js',
 			'test/integration/**/*.js',
-//			'test/integration/datastore/async_methods/save/*.js',
 			'karma.start.js'
 		],
 

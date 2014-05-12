@@ -82,11 +82,12 @@ function defineResource(definition) {
 		Resource.prototype = this.defaults;
 		this.definitions[definition.name] = new Resource(this.utils, definition);
 
+		var cache = this.cacheFactory('DS.' + definition.name);
 		this.store[definition.name] = {
 			collection: [],
 			completedQueries: {},
 			pendingQueries: {},
-			index: {},
+			index: cache,
 			modified: {},
 			saved: {},
 			previousAttributes: {},

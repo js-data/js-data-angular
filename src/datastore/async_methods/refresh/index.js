@@ -61,7 +61,7 @@ function refresh(resourceName, id, options) {
 	} else {
 		options.bypassCache = true;
 
-		if (id in this.store[resourceName].index) {
+		if (this.get(resourceName, id)) {
 			return this.find(resourceName, id, options);
 		} else {
 			return false;

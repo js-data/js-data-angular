@@ -1,7 +1,7 @@
 describe('DS.defineResource(definition)', function () {
 	var errorPrefix = 'DS.defineResource(definition): ';
 
-	it('should throw an error when method pre-conditions are not met', function (done) {
+	it('should throw an error when method pre-conditions are not met', function () {
 		angular.forEach(TYPES_EXCEPT_STRING_OR_OBJECT, function (key) {
 			if (!angular.isArray(key)) {
 				assert.throws(function () {
@@ -41,11 +41,9 @@ describe('DS.defineResource(definition)', function () {
 		assert.doesNotThrow(function () {
 			DS.defineResource('new resource');
 		}, 'Should not throw');
-
-		done();
 	});
 
-	it('should correctly register a resource', function (done) {
+	it('should correctly register a resource', function () {
 
 		var callCount = 0,
 			test = {
@@ -84,7 +82,5 @@ describe('DS.defineResource(definition)', function () {
 
 		assert.equal(callCount, 1, 'overridden validate should have been called once');
 		assert.equal(lifecycle.validate.callCount, 0, 'global validate should not have been called');
-
-		done();
 	});
 });
