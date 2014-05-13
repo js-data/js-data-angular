@@ -1,3 +1,12 @@
+/**
+ * @author Jason Dobry <jason.dobry@gmail.com>
+ * @file angular-data.js
+ * @version 0.9.0-SNAPSHOT - Homepage <http://angular-data.codetrain.io/>
+ * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>
+ * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
+ *
+ * @overview Data store for Angular.js.
+ */
 require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"QYwGEY":[function(require,module,exports){
 (function (global){
 // Copyright 2012 Google Inc.
@@ -2718,7 +2727,23 @@ function defineResource(definition) {
 		Resource.prototype = this.defaults;
 		this.definitions[definition.name] = new Resource(this.utils, definition);
 
-		var cache = this.cacheFactory('DS.' + definition.name);
+		var _this = this;
+
+		var cache = this.cacheFactory('DS.' + definition.name, {
+			maxAge: definition.maxAge || null,
+			recycleFreq: definition.recycleFreq || 1000,
+			cacheFlushInterval: definition.cacheFlushInterval || null,
+			deleteOnExpire: definition.deleteOnExpire || 'none',
+			onExpire: function (id) {
+				_this.eject(definition.name, id);
+			},
+			capacity: Number.MAX_VALUE,
+			storageMode: 'memory',
+			storageImpl: null,
+			disabled: false,
+			storagePrefix: 'DS.' + definition.name
+		});
+
 		this.store[definition.name] = {
 			collection: [],
 			completedQueries: {},
@@ -3874,7 +3899,7 @@ module.exports = [function () {
 	 * @id angular-data
 	 * @name angular-data
 	 * @description
-	 * __Version:__ 0.8.1
+	 * __Version:__ 0.9.0-SNAPSHOT
 	 *
 	 * ## Install
 	 *
@@ -3893,7 +3918,7 @@ module.exports = [function () {
 	 * Load `dist/angular-data.js` or `dist/angular-data.min.js` onto your web page after Angular.js.
 	 *
 	 * #### Manual download
-	 * Download angular-data.0.8.1.js from the [Releases](https://github.com/jmdobry/angular-data/releases)
+	 * Download angular-data.0.9.0-SNAPSHOT.js from the [Releases](https://github.com/jmdobry/angular-data/releases)
 	 * section of the angular-data GitHub project.
 	 *
 	 * ## Load into Angular

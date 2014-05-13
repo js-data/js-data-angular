@@ -82,7 +82,23 @@ function defineResource(definition) {
 		Resource.prototype = this.defaults;
 		this.definitions[definition.name] = new Resource(this.utils, definition);
 
-		var cache = this.cacheFactory('DS.' + definition.name);
+		var _this = this;
+
+		var cache = this.cacheFactory('DS.' + definition.name, {
+			maxAge: definition.maxAge || null,
+			recycleFreq: definition.recycleFreq || 1000,
+			cacheFlushInterval: definition.cacheFlushInterval || null,
+			deleteOnExpire: definition.deleteOnExpire || 'none',
+			onExpire: function (id) {
+				_this.eject(definition.name, id);
+			},
+			capacity: Number.MAX_VALUE,
+			storageMode: 'memory',
+			storageImpl: null,
+			disabled: false,
+			storagePrefix: 'DS.' + definition.name
+		});
+
 		this.store[definition.name] = {
 			collection: [],
 			completedQueries: {},
