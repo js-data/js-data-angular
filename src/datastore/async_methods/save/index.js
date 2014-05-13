@@ -54,61 +54,63 @@ function save(resourceName, id, options) {
 		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
 	} else if (!this.utils.isObject(options)) {
 		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
-	} else if (!(id in this.store[resourceName].index)) {
-		deferred.reject(new this.errors.RuntimeError(errorPrefix + 'id: "' + id + '" not found!'));
 	} else {
-		var definition = this.definitions[resourceName],
-			resource = this.store[resourceName],
-			_this = this;
+		var item = this.get(resourceName, id);
+		if (!item) {
+			deferred.reject(new this.errors.RuntimeError(errorPrefix + 'id: "' + id + '" not found!'));
+		} else {
+			var definition = this.definitions[resourceName],
+				resource = this.store[resourceName],
+				_this = this;
 
-		promise = promise
-			.then(function (attrs) {
-				return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
-			})
-			.then(function (attrs) {
-				return _this.$q.promisify(definition.validate)(resourceName, attrs);
-			})
-			.then(function (attrs) {
-				return _this.$q.promisify(definition.afterValidate)(resourceName, attrs);
-			})
-			.then(function (attrs) {
-				return _this.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
-			})
-			.then(function (attrs) {
-				if (options.changesOnly) {
-					resource.observers[id].deliver();
-					var toKeep = [],
-						changes = _this.changes(resourceName, id);
+			promise = promise
+				.then(function (attrs) {
+					return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
+				})
+				.then(function (attrs) {
+					return _this.$q.promisify(definition.validate)(resourceName, attrs);
+				})
+				.then(function (attrs) {
+					return _this.$q.promisify(definition.afterValidate)(resourceName, attrs);
+				})
+				.then(function (attrs) {
+					return _this.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
+				})
+				.then(function (attrs) {
+					if (options.changesOnly) {
+						resource.observers[id].deliver();
+						var toKeep = [],
+							changes = _this.changes(resourceName, id);
 
-					for (var key in changes.added) {
-						toKeep.push(key);
+						for (var key in changes.added) {
+							toKeep.push(key);
+						}
+						for (key in changes.changed) {
+							toKeep.push(key);
+						}
+						changes = _this.utils.pick(attrs, toKeep);
+						if (_this.utils.isEmpty(changes)) {
+							// no changes, return
+							return attrs;
+						} else {
+							attrs = changes;
+						}
 					}
-					for (key in changes.changed) {
-						toKeep.push(key);
-					}
-					changes = _this.utils.pick(attrs, toKeep);
-					if (_this.utils.isEmpty(changes)) {
-						// no changes, return
-						return attrs;
-					} else {
-						attrs = changes;
-					}
-				}
-				return _this.adapters[options.adapter || definition.defaultAdapter].update(definition, id, attrs, options);
-			})
-			.then(function (data) {
-				return _this.$q.promisify(definition.afterUpdate)(resourceName, data);
-			})
-			.then(function (data) {
-				_this.inject(definition.name, data, options);
-				resource.previousAttributes[id] = _this.utils.deepMixIn({}, data);
-				resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
-				return _this.get(resourceName, id);
-			});
+					return _this.adapters[options.adapter || definition.defaultAdapter].update(definition, id, attrs, options);
+				})
+				.then(function (data) {
+					return _this.$q.promisify(definition.afterUpdate)(resourceName, data);
+				})
+				.then(function (data) {
+					_this.inject(definition.name, data, options);
+					resource.previousAttributes[id] = _this.utils.deepMixIn({}, data);
+					resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
+					return _this.get(resourceName, id);
+				});
 
-		deferred.resolve(resource.index[id]);
+			deferred.resolve(item);
+		}
 	}
-
 	return promise;
 }
 

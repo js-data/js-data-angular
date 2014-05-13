@@ -52,14 +52,15 @@ function destroy(resourceName, id, options) {
 		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
 	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
 		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
-	} else if (!(id in this.store[resourceName].index)) {
-		deferred.reject(new this.errors.RuntimeError(errorPrefix + 'id: "' + id + '" not found!'));
 	} else {
-		var definition = this.definitions[resourceName],
-			resource = this.store[resourceName],
-			_this = this;
+		var item = this.get(resourceName, id);
+		if (!item) {
+			deferred.reject(new this.errors.RuntimeError(errorPrefix + 'id: "' + id + '" not found!'));
+		} else {
+			var definition = this.definitions[resourceName],
+				resource = this.store[resourceName],
+				_this = this;
 
-		if (id in resource.index) {
 			promise = promise
 				.then(function (attrs) {
 					return _this.$q.promisify(definition.beforeDestroy)(resourceName, attrs);
@@ -68,15 +69,13 @@ function destroy(resourceName, id, options) {
 					return _this.adapters[options.adapter || definition.defaultAdapter].destroy(definition, id, options);
 				})
 				.then(function () {
-					return _this.$q.promisify(definition.afterDestroy)(resourceName, resource.index[id]);
+					return _this.$q.promisify(definition.afterDestroy)(resourceName, item);
 				})
 				.then(function () {
 					_this.eject(resourceName, id);
 					return id;
 				});
-			deferred.resolve(resource.index[id]);
-		} else {
-			deferred.resolve();
+			deferred.resolve(item);
 		}
 	}
 

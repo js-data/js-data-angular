@@ -1,7 +1,7 @@
 /**
  * @author Jason Dobry <jason.dobry@gmail.com>
  * @file angular-data.js
- * @version 0.8.1 - Homepage <http://angular-data.codetrain.io/>
+ * @version 0.9.0-SNAPSHOT - Homepage <http://angular-data.codetrain.io/>
  * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>
  * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
  *
@@ -588,16 +588,22 @@ var filter = require('./filter');
      * Create slice of source array or array-like object
      */
     function slice(arr, start, end){
+        var len = arr.length;
+
         if (start == null) {
             start = 0;
         } else if (start < 0) {
-            start = Math.max(arr.length + start, 0);
+            start = Math.max(len + start, 0);
+        } else {
+            start = Math.min(start, len);
         }
 
         if (end == null) {
-            end = arr.length;
+            end = len;
         } else if (end < 0) {
-            end = Math.max(arr.length + end, 0);
+            end = Math.max(len + end, 0);
+        } else {
+            end = Math.min(end, len);
         }
 
         var result = [];
@@ -1717,14 +1723,15 @@ function destroy(resourceName, id, options) {
 		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
 	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
 		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
-	} else if (!(id in this.store[resourceName].index)) {
-		deferred.reject(new this.errors.RuntimeError(errorPrefix + 'id: "' + id + '" not found!'));
 	} else {
-		var definition = this.definitions[resourceName],
-			resource = this.store[resourceName],
-			_this = this;
+		var item = this.get(resourceName, id);
+		if (!item) {
+			deferred.reject(new this.errors.RuntimeError(errorPrefix + 'id: "' + id + '" not found!'));
+		} else {
+			var definition = this.definitions[resourceName],
+				resource = this.store[resourceName],
+				_this = this;
 
-		if (id in resource.index) {
 			promise = promise
 				.then(function (attrs) {
 					return _this.$q.promisify(definition.beforeDestroy)(resourceName, attrs);
@@ -1733,15 +1740,13 @@ function destroy(resourceName, id, options) {
 					return _this.adapters[options.adapter || definition.defaultAdapter].destroy(definition, id, options);
 				})
 				.then(function () {
-					return _this.$q.promisify(definition.afterDestroy)(resourceName, resource.index[id]);
+					return _this.$q.promisify(definition.afterDestroy)(resourceName, item);
 				})
 				.then(function () {
 					_this.eject(resourceName, id);
 					return id;
 				});
-			deferred.resolve(resource.index[id]);
-		} else {
-			deferred.resolve();
+			deferred.resolve(item);
 		}
 	}
 
@@ -1964,12 +1969,7 @@ function processResults(utils, data, resourceName, queryHash) {
 	resource.completedQueries[queryHash] = new Date().getTime();
 
 	// Merge the new values into the cache
-	for (var i = 0; i < data.length; i++) {
-		this.inject(resourceName, data[i]);
-	}
-
-	// Update the data store's index for this resource
-	resource.index = utils.toLookup(resource.collection, this.definitions[resourceName].idAttribute);
+	this.inject(resourceName, data);
 
 	// Update modified timestamp of collection
 	resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
@@ -2252,7 +2252,7 @@ function refresh(resourceName, id, options) {
 	} else {
 		options.bypassCache = true;
 
-		if (id in this.store[resourceName].index) {
+		if (this.get(resourceName, id)) {
 			return this.find(resourceName, id, options);
 		} else {
 			return false;
@@ -2319,61 +2319,63 @@ function save(resourceName, id, options) {
 		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
 	} else if (!this.utils.isObject(options)) {
 		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
-	} else if (!(id in this.store[resourceName].index)) {
-		deferred.reject(new this.errors.RuntimeError(errorPrefix + 'id: "' + id + '" not found!'));
 	} else {
-		var definition = this.definitions[resourceName],
-			resource = this.store[resourceName],
-			_this = this;
+		var item = this.get(resourceName, id);
+		if (!item) {
+			deferred.reject(new this.errors.RuntimeError(errorPrefix + 'id: "' + id + '" not found!'));
+		} else {
+			var definition = this.definitions[resourceName],
+				resource = this.store[resourceName],
+				_this = this;
 
-		promise = promise
-			.then(function (attrs) {
-				return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
-			})
-			.then(function (attrs) {
-				return _this.$q.promisify(definition.validate)(resourceName, attrs);
-			})
-			.then(function (attrs) {
-				return _this.$q.promisify(definition.afterValidate)(resourceName, attrs);
-			})
-			.then(function (attrs) {
-				return _this.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
-			})
-			.then(function (attrs) {
-				if (options.changesOnly) {
-					resource.observers[id].deliver();
-					var toKeep = [],
-						changes = _this.changes(resourceName, id);
+			promise = promise
+				.then(function (attrs) {
+					return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
+				})
+				.then(function (attrs) {
+					return _this.$q.promisify(definition.validate)(resourceName, attrs);
+				})
+				.then(function (attrs) {
+					return _this.$q.promisify(definition.afterValidate)(resourceName, attrs);
+				})
+				.then(function (attrs) {
+					return _this.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
+				})
+				.then(function (attrs) {
+					if (options.changesOnly) {
+						resource.observers[id].deliver();
+						var toKeep = [],
+							changes = _this.changes(resourceName, id);
 
-					for (var key in changes.added) {
-						toKeep.push(key);
+						for (var key in changes.added) {
+							toKeep.push(key);
+						}
+						for (key in changes.changed) {
+							toKeep.push(key);
+						}
+						changes = _this.utils.pick(attrs, toKeep);
+						if (_this.utils.isEmpty(changes)) {
+							// no changes, return
+							return attrs;
+						} else {
+							attrs = changes;
+						}
 					}
-					for (key in changes.changed) {
-						toKeep.push(key);
-					}
-					changes = _this.utils.pick(attrs, toKeep);
-					if (_this.utils.isEmpty(changes)) {
-						// no changes, return
-						return attrs;
-					} else {
-						attrs = changes;
-					}
-				}
-				return _this.adapters[options.adapter || definition.defaultAdapter].update(definition, id, attrs, options);
-			})
-			.then(function (data) {
-				return _this.$q.promisify(definition.afterUpdate)(resourceName, data);
-			})
-			.then(function (data) {
-				_this.inject(definition.name, data, options);
-				resource.previousAttributes[id] = _this.utils.deepMixIn({}, data);
-				resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
-				return _this.get(resourceName, id);
-			});
+					return _this.adapters[options.adapter || definition.defaultAdapter].update(definition, id, attrs, options);
+				})
+				.then(function (data) {
+					return _this.$q.promisify(definition.afterUpdate)(resourceName, data);
+				})
+				.then(function (data) {
+					_this.inject(definition.name, data, options);
+					resource.previousAttributes[id] = _this.utils.deepMixIn({}, data);
+					resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
+					return _this.get(resourceName, id);
+				});
 
-		deferred.resolve(resource.index[id]);
+			deferred.resolve(item);
+		}
 	}
-
 	return promise;
 }
 
@@ -2468,11 +2470,21 @@ function DSProvider() {
 	var defaults = this.defaults = new BaseConfig();
 
 	this.$get = [
-		'$rootScope', '$log', '$q', 'DSHttpAdapter', 'DSUtils', 'DSErrors',
-		function ($rootScope, $log, $q, DSHttpAdapter, DSUtils, DSErrors) {
+		'$rootScope', '$log', '$q', 'DSHttpAdapter', 'DSUtils', 'DSErrors', 'DSCacheFactory',
+		function ($rootScope, $log, $q, DSHttpAdapter, DSUtils, DSErrors, DSCacheFactory) {
 
 			var syncMethods = require('./sync_methods'),
-				asyncMethods = require('./async_methods');
+				asyncMethods = require('./async_methods'),
+				cache;
+
+			try {
+				cache = angular.injector(['angular-data.DSCacheFactory']).get('DSCacheFactory');
+			} catch (err) {
+				$log.warn(err);
+				$log.warn('DSCacheFactory is unavailable. Resorting to the lesser capabilities of $cacheFactory.');
+				cache = angular.injector(['ng']).get('$cacheFactory');
+			}
+
 
 			/**
 			 * @doc interface
@@ -2487,6 +2499,8 @@ function DSProvider() {
 				$rootScope: $rootScope,
 				$log: $log,
 				$q: $q,
+
+				cacheFactory: cache,
 
 				/**
 				 * @doc property
@@ -2615,12 +2629,11 @@ function changes(resourceName, id) {
 		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 
-	var resource = this.store[resourceName];
-
 	try {
-		if (resource.index[id]) {
-			resource.observers[id].deliver();
-			return this.utils.diffObjectFromOldObject(resource.index[id], resource.previousAttributes[id]);
+		var item = this.get(resourceName, id);
+		if (item) {
+			this.store[resourceName].observers[id].deliver();
+			return this.utils.diffObjectFromOldObject(item, this.store[resourceName].previousAttributes[id]);
 		}
 	} catch (err) {
 		throw new this.errors.UnhandledError(err);
@@ -2714,11 +2727,28 @@ function defineResource(definition) {
 		Resource.prototype = this.defaults;
 		this.definitions[definition.name] = new Resource(this.utils, definition);
 
+		var _this = this;
+
+		var cache = this.cacheFactory('DS.' + definition.name, {
+			maxAge: definition.maxAge || null,
+			recycleFreq: definition.recycleFreq || 1000,
+			cacheFlushInterval: definition.cacheFlushInterval || null,
+			deleteOnExpire: definition.deleteOnExpire || 'none',
+			onExpire: function (id) {
+				_this.eject(definition.name, id);
+			},
+			capacity: Number.MAX_VALUE,
+			storageMode: 'memory',
+			storageImpl: null,
+			disabled: false,
+			storagePrefix: 'DS.' + definition.name
+		});
+
 		this.store[definition.name] = {
 			collection: [],
 			completedQueries: {},
 			pendingQueries: {},
-			index: {},
+			index: cache,
 			modified: {},
 			saved: {},
 			previousAttributes: {},
@@ -2791,7 +2821,8 @@ function _eject(definition, resource, id) {
 		resource.collection.splice(i, 1);
 		resource.observers[id].close();
 		delete resource.observers[id];
-		delete resource.index[id];
+
+		resource.index.remove(id);
 		delete resource.previousAttributes[id];
 		delete resource.modified[id];
 		delete resource.saved[id];
@@ -3166,14 +3197,15 @@ function get(resourceName, id, options) {
 
 	try {
 		// cache miss, request resource from server
-		if (!(id in this.store[resourceName].index) && options.loadFromServer) {
+		var item = this.store[resourceName].index.get(id);
+		if (!item && options.loadFromServer) {
 			this.find(resourceName, id).then(null, function (err) {
 				throw err;
 			});
 		}
 
 		// return resource from cache
-		return this.store[resourceName].index[id];
+		return item;
 	} catch (err) {
 		throw new this.errors.UnhandledError(err);
 	}
@@ -3232,7 +3264,7 @@ function hasChanges(resourceName, id) {
 
 	try {
 		// return resource from cache
-		if (id in this.store[resourceName].index) {
+		if (this.get(resourceName, id)) {
 			return diffIsEmpty(this.utils, this.changes(resourceName, id));
 		} else {
 			return false;
@@ -3399,24 +3431,31 @@ function _inject(definition, resource, attrs) {
 		if (!(definition.idAttribute in attrs)) {
 			throw new _this.errors.RuntimeError(errorPrefix + 'attrs: Must contain the property specified by `idAttribute`!');
 		} else {
-			var id = attrs[definition.idAttribute];
+			var id = attrs[definition.idAttribute],
+				item = this.get(definition.name, id);
 
-			if (!(id in resource.index)) {
-				resource.index[id] = {};
+			if (!item) {
+				item = {};
 				resource.previousAttributes[id] = {};
 
-				_this.utils.deepMixIn(resource.index[id], attrs);
+				_this.utils.deepMixIn(item, attrs);
 				_this.utils.deepMixIn(resource.previousAttributes[id], attrs);
 
-				resource.collection.push(resource.index[id]);
+				resource.collection.push(item);
 
-				resource.observers[id] = new observe.ObjectObserver(resource.index[id], _react);
+				resource.observers[id] = new observe.ObjectObserver(item, _react);
+				resource.index.put(id, item);
 
 				_react({}, {}, {}, function () {
 					return id;
 				});
 			} else {
-				_this.utils.deepMixIn(resource.index[id], attrs);
+				_this.utils.deepMixIn(item, attrs);
+				if (typeof resource.index.touch === 'function') {
+					resource.index.touch(id);
+				} else {
+					resource.index.put(id, resource.index.get(id));
+				}
 				resource.observers[id].deliver();
 			}
 			resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
@@ -3860,7 +3899,7 @@ module.exports = [function () {
 	 * @id angular-data
 	 * @name angular-data
 	 * @description
-	 * __Version:__ 0.8.1
+	 * __Version:__ 0.9.0-SNAPSHOT
 	 *
 	 * ## Install
 	 *
@@ -3879,7 +3918,7 @@ module.exports = [function () {
 	 * Load `dist/angular-data.js` or `dist/angular-data.min.js` onto your web page after Angular.js.
 	 *
 	 * #### Manual download
-	 * Download angular-data.0.8.1.js from the [Releases](https://github.com/jmdobry/angular-data/releases)
+	 * Download angular-data.0.9.0-SNAPSHOT.js from the [Releases](https://github.com/jmdobry/angular-data/releases)
 	 * section of the angular-data GitHub project.
 	 *
 	 * ## Load into Angular
@@ -3896,7 +3935,7 @@ module.exports = [function () {
 	 * [DSUtils](/documentation/api/api/DSUtils) has some useful utility methods.
 	 * [DSErrors](/documentation/api/api/DSErrors) provides references to the various errors thrown by the data store.
 	 */
-	angular.module('angular-data.DS', ['ng'])
+	angular.module('angular-data.DS', ['ng', 'angular-data.DSCacheFactory'])
 		.service('DSUtils', require('./utils'))
 		.service('DSErrors', require('./errors'))
 		.provider('DSHttpAdapter', require('./adapters/http'))

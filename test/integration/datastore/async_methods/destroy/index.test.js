@@ -20,7 +20,7 @@ describe('DS.destroy(resourceName, id)', function () {
 
 		done();
 	});
-	it('should delete an item from the data store', function (done) {
+	it('should delete an item from the data store', function () {
 		$httpBackend.expectDELETE('http://test.angular-cache.com/posts/5').respond(200, 5);
 
 		DS.inject('post', p1);
@@ -39,7 +39,5 @@ describe('DS.destroy(resourceName, id)', function () {
 		assert.isUndefined(DS.get('post', 5));
 		assert.equal(DS.lastModified('post', 5), 0);
 		assert.equal(DS.lastSaved('post', 5), 0);
-
-		done();
 	});
 });

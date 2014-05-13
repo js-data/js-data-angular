@@ -1,3 +1,8 @@
+##### 0.9.0 - xx May 2014
+
+###### Backwards compatible API changes
+- #30, #48 - DSCacheFactory integration
+
 ##### 0.8.1 - 02 May 2014
 
 ###### Backwards compatible Bug fixes

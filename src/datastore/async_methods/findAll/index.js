@@ -10,12 +10,7 @@ function processResults(utils, data, resourceName, queryHash) {
 	resource.completedQueries[queryHash] = new Date().getTime();
 
 	// Merge the new values into the cache
-	for (var i = 0; i < data.length; i++) {
-		this.inject(resourceName, data[i]);
-	}
-
-	// Update the data store's index for this resource
-	resource.index = utils.toLookup(resource.collection, this.definitions[resourceName].idAttribute);
+	this.inject(resourceName, data);
 
 	// Update modified timestamp of collection
 	resource.collectionModified = utils.updateTimestamp(resource.collectionModified);

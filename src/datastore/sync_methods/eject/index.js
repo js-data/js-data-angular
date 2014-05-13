@@ -12,7 +12,8 @@ function _eject(definition, resource, id) {
 		resource.collection.splice(i, 1);
 		resource.observers[id].close();
 		delete resource.observers[id];
-		delete resource.index[id];
+
+		resource.index.remove(id);
 		delete resource.previousAttributes[id];
 		delete resource.modified[id];
 		delete resource.saved[id];

@@ -41,12 +41,11 @@ function changes(resourceName, id) {
 		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
 	}
 
-	var resource = this.store[resourceName];
-
 	try {
-		if (resource.index[id]) {
-			resource.observers[id].deliver();
-			return this.utils.diffObjectFromOldObject(resource.index[id], resource.previousAttributes[id]);
+		var item = this.get(resourceName, id);
+		if (item) {
+			this.store[resourceName].observers[id].deliver();
+			return this.utils.diffObjectFromOldObject(item, this.store[resourceName].previousAttributes[id]);
 		}
 	} catch (err) {
 		throw new this.errors.UnhandledError(err);
