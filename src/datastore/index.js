@@ -52,6 +52,10 @@ BaseConfig.prototype.beforeUpdate = lifecycleNoop;
 BaseConfig.prototype.afterUpdate = lifecycleNoop;
 BaseConfig.prototype.beforeDestroy = lifecycleNoop;
 BaseConfig.prototype.afterDestroy = lifecycleNoop;
+BaseConfig.prototype.beforeInject = function () {
+};
+BaseConfig.prototype.afterInject = function () {
+};
 
 /**
  * @doc function
@@ -82,6 +86,8 @@ function DSProvider() {
 	 * - `{function}` - `afterUpdate` - See [](). Default: No-op
 	 * - `{function}` - `beforeDestroy` - See [](). Default: No-op
 	 * - `{function}` - `afterDestroy` - See [](). Default: No-op
+	 * - `{function}` - `beforeInject` - See [](). Default: No-op
+	 * - `{function}` - `afterInject` - See [](). Default: No-op
 	 */
 	var defaults = this.defaults = new BaseConfig();
 

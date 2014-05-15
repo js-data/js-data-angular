@@ -111,6 +111,9 @@ describe('DS.filter(resourceName, params[, options])', function () {
 			DS.inject('post', p4);
 		}, Error, 'should not throw an error');
 
+		assert.equal(lifecycle.beforeInject.callCount, 4);
+		assert.equal(lifecycle.afterInject.callCount, 4);
+
 		var params = {
 			query: {
 				where: {

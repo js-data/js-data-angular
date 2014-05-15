@@ -29,11 +29,12 @@ function _inject(definition, resource, attrs) {
 		if (!(definition.idAttribute in attrs)) {
 			throw new _this.errors.RuntimeError(errorPrefix + 'attrs: Must contain the property specified by `idAttribute`!');
 		} else {
+			definition.beforeInject(definition.name, attrs);
 			var id = attrs[definition.idAttribute],
 				item = this.get(definition.name, id);
 
 			if (!item) {
-				item = {};
+				item = definition.class ? new definition[definition.class]() : {};
 				resource.previousAttributes[id] = {};
 
 				_this.utils.deepMixIn(item, attrs);
@@ -57,6 +58,7 @@ function _inject(definition, resource, attrs) {
 				resource.observers[id].deliver();
 			}
 			resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
+			definition.afterInject(definition.name, item);
 		}
 	}
 }
@@ -129,7 +131,11 @@ function inject(resourceName, attrs, options) {
 		} else {
 			_inject.apply(_this, [definition, resource, attrs]);
 		}
-		return attrs;
+		if (_this.utils.isArray(attrs)) {
+			return attrs;
+		} else {
+			return this.get(resourceName, attrs[definition.idAttribute]);
+		}
 	} catch (err) {
 		if (!(err instanceof this.errors.RuntimeError)) {
 			throw new this.errors.UnhandledError(err);
