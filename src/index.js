@@ -42,9 +42,9 @@
 	 * [DSUtils](/documentation/api/api/DSUtils) has some useful utility methods.
 	 * [DSErrors](/documentation/api/api/DSErrors) provides references to the various errors thrown by the data store.
 	 */
-	angular.module('angular-data.DS', ['ng', 'angular-data.DSCacheFactory'])
-		.service('DSUtils', require('./utils'))
-		.service('DSErrors', require('./errors'))
+	angular.module('angular-data.DS', ['ng'])
+		.factory('DSUtils', require('./utils'))
+		.factory('DSErrors', require('./errors'))
 		.provider('DSHttpAdapter', require('./adapters/http'))
 		.provider('DS', require('./datastore'))
 		.config(['$provide', function ($provide) {

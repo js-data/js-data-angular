@@ -504,7 +504,7 @@ var indexOf = require('./indexOf');
     module.exports = contains;
 
 
-},{"./indexOf":5}],4:[function(require,module,exports){
+},{"./indexOf":6}],4:[function(require,module,exports){
 var makeIterator = require('../function/makeIterator_');
 
     /**
@@ -532,7 +532,32 @@ var makeIterator = require('../function/makeIterator_');
 
 
 
-},{"../function/makeIterator_":11}],5:[function(require,module,exports){
+},{"../function/makeIterator_":12}],5:[function(require,module,exports){
+
+
+    /**
+     * Array forEach
+     */
+    function forEach(arr, callback, thisObj) {
+        if (arr == null) {
+            return;
+        }
+        var i = -1,
+            len = arr.length;
+        while (++i < len) {
+            // we iterate over sparse items since there is no way to make it
+            // work properly on IE 7-8. see #64
+            if ( callback.call(thisObj, arr[i], i, arr) === false ) {
+                break;
+            }
+        }
+    }
+
+    module.exports = forEach;
+
+
+
+},{}],6:[function(require,module,exports){
 
 
     /**
@@ -562,7 +587,7 @@ var makeIterator = require('../function/makeIterator_');
     module.exports = indexOf;
 
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 var filter = require('./filter');
 
     function isValidString(val) {
@@ -581,7 +606,7 @@ var filter = require('./filter');
     module.exports = join;
 
 
-},{"./filter":4}],7:[function(require,module,exports){
+},{"./filter":4}],8:[function(require,module,exports){
 
 
     /**
@@ -618,7 +643,7 @@ var filter = require('./filter');
 
 
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 
 
     /**
@@ -675,7 +700,7 @@ var filter = require('./filter');
 
 
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 var isFunction = require('../lang/isFunction');
 
     /**
@@ -705,7 +730,7 @@ var isFunction = require('../lang/isFunction');
     module.exports = toLookup;
 
 
-},{"../lang/isFunction":15}],10:[function(require,module,exports){
+},{"../lang/isFunction":16}],11:[function(require,module,exports){
 
 
     /**
@@ -719,7 +744,7 @@ var isFunction = require('../lang/isFunction');
 
 
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 var identity = require('./identity');
 var prop = require('./prop');
 var deepMatches = require('../object/deepMatches');
@@ -755,7 +780,7 @@ var deepMatches = require('../object/deepMatches');
 
 
 
-},{"../object/deepMatches":20,"./identity":10,"./prop":12}],12:[function(require,module,exports){
+},{"../object/deepMatches":21,"./identity":11,"./prop":13}],13:[function(require,module,exports){
 
 
     /**
@@ -771,7 +796,7 @@ var deepMatches = require('../object/deepMatches');
 
 
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 var isKind = require('./isKind');
     /**
      */
@@ -781,7 +806,7 @@ var isKind = require('./isKind');
     module.exports = isArray;
 
 
-},{"./isKind":16}],14:[function(require,module,exports){
+},{"./isKind":17}],15:[function(require,module,exports){
 var forOwn = require('../object/forOwn');
 var isArray = require('./isArray');
 
@@ -807,7 +832,7 @@ var isArray = require('./isArray');
 
 
 
-},{"../object/forOwn":23,"./isArray":13}],15:[function(require,module,exports){
+},{"../object/forOwn":24,"./isArray":14}],16:[function(require,module,exports){
 var isKind = require('./isKind');
     /**
      */
@@ -817,7 +842,7 @@ var isKind = require('./isKind');
     module.exports = isFunction;
 
 
-},{"./isKind":16}],16:[function(require,module,exports){
+},{"./isKind":17}],17:[function(require,module,exports){
 var kindOf = require('./kindOf');
     /**
      * Check if value is from a specific "kind".
@@ -828,7 +853,7 @@ var kindOf = require('./kindOf');
     module.exports = isKind;
 
 
-},{"./kindOf":18}],17:[function(require,module,exports){
+},{"./kindOf":19}],18:[function(require,module,exports){
 
 
     /**
@@ -843,7 +868,7 @@ var kindOf = require('./kindOf');
 
 
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 
 
     var _rKind = /^\[object (.*)\]$/,
@@ -865,7 +890,7 @@ var kindOf = require('./kindOf');
     module.exports = kindOf;
 
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 
 
     /**
@@ -880,7 +905,7 @@ var kindOf = require('./kindOf');
 
 
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 var forOwn = require('./forOwn');
 var isArray = require('../lang/isArray');
 
@@ -937,7 +962,7 @@ var isArray = require('../lang/isArray');
 
 
 
-},{"../lang/isArray":13,"./forOwn":23}],21:[function(require,module,exports){
+},{"../lang/isArray":14,"./forOwn":24}],22:[function(require,module,exports){
 var forOwn = require('./forOwn');
 var isPlainObject = require('../lang/isPlainObject');
 
@@ -973,7 +998,7 @@ var isPlainObject = require('../lang/isPlainObject');
 
 
 
-},{"../lang/isPlainObject":17,"./forOwn":23}],22:[function(require,module,exports){
+},{"../lang/isPlainObject":18,"./forOwn":24}],23:[function(require,module,exports){
 var hasOwn = require('./hasOwn');
 
     var _hasDontEnumBug,
@@ -1051,7 +1076,7 @@ var hasOwn = require('./hasOwn');
 
 
 
-},{"./hasOwn":24}],23:[function(require,module,exports){
+},{"./hasOwn":25}],24:[function(require,module,exports){
 var hasOwn = require('./hasOwn');
 var forIn = require('./forIn');
 
@@ -1072,7 +1097,7 @@ var forIn = require('./forIn');
 
 
 
-},{"./forIn":22,"./hasOwn":24}],24:[function(require,module,exports){
+},{"./forIn":23,"./hasOwn":25}],25:[function(require,module,exports){
 
 
     /**
@@ -1086,7 +1111,28 @@ var forIn = require('./forIn');
 
 
 
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
+var forEach = require('../array/forEach');
+
+    /**
+     * Create nested object if non-existent
+     */
+    function namespace(obj, path){
+        if (!path) return obj;
+        forEach(path.split('.'), function(key){
+            if (!obj[key]) {
+                obj[key] = {};
+            }
+            obj = obj[key];
+        });
+        return obj;
+    }
+
+    module.exports = namespace;
+
+
+
+},{"../array/forEach":5}],27:[function(require,module,exports){
 var slice = require('../array/slice');
 
     /**
@@ -1106,7 +1152,26 @@ var slice = require('../array/slice');
 
 
 
-},{"../array/slice":7}],26:[function(require,module,exports){
+},{"../array/slice":8}],28:[function(require,module,exports){
+var namespace = require('./namespace');
+
+    /**
+     * set "nested" object property
+     */
+    function set(obj, prop, val){
+        var parts = (/^(.+)\.(.+)$/).exec(prop);
+        if (parts){
+            namespace(obj, parts[1])[parts[2]] = val;
+        } else {
+            obj[prop] = val;
+        }
+    }
+
+    module.exports = set;
+
+
+
+},{"./namespace":26}],29:[function(require,module,exports){
 var join = require('../array/join');
 var slice = require('../array/slice');
 
@@ -1123,7 +1188,7 @@ var slice = require('../array/slice');
     module.exports = makePath;
 
 
-},{"../array/join":6,"../array/slice":7}],27:[function(require,module,exports){
+},{"../array/join":7,"../array/slice":8}],30:[function(require,module,exports){
 var toString = require('../lang/toString');
     /**
      * "Safer" String.toUpperCase()
@@ -1135,7 +1200,7 @@ var toString = require('../lang/toString');
     module.exports = upperCase;
 
 
-},{"../lang/toString":19}],28:[function(require,module,exports){
+},{"../lang/toString":20}],31:[function(require,module,exports){
 /**
  * @doc function
  * @id DSHttpAdapterProvider
@@ -1569,7 +1634,7 @@ function DSHttpAdapterProvider() {
 
 module.exports = DSHttpAdapterProvider;
 
-},{}],29:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 var errorPrefix = 'DS.create(resourceName, attrs): ';
 
 /**
@@ -1668,7 +1733,7 @@ function create(resourceName, attrs, options) {
 
 module.exports = create;
 
-},{}],30:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 var errorPrefix = 'DS.destroy(resourceName, id): ';
 
 /**
@@ -1755,7 +1820,7 @@ function destroy(resourceName, id, options) {
 
 module.exports = destroy;
 
-},{}],31:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 var errorPrefix = 'DS.destroyAll(resourceName, params[, options]): ';
 
 /**
@@ -1850,7 +1915,7 @@ function destroyAll(resourceName, params, options) {
 
 module.exports = destroyAll;
 
-},{}],32:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 var errorPrefix = 'DS.find(resourceName, id[, options]): ';
 
 /**
@@ -1956,7 +2021,7 @@ function find(resourceName, id, options) {
 
 module.exports = find;
 
-},{}],33:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 var errorPrefix = 'DS.findAll(resourceName, params[, options]): ';
 
 function processResults(utils, data, resourceName, queryHash) {
@@ -2115,7 +2180,7 @@ function findAll(resourceName, params, options) {
 
 module.exports = findAll;
 
-},{}],34:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 module.exports = {
 	/**
 	 * @doc method
@@ -2188,7 +2253,7 @@ module.exports = {
 	save: require('./save')
 };
 
-},{"./create":29,"./destroy":30,"./destroyAll":31,"./find":32,"./findAll":33,"./refresh":35,"./save":36}],35:[function(require,module,exports){
+},{"./create":32,"./destroy":33,"./destroyAll":34,"./find":35,"./findAll":36,"./refresh":38,"./save":39}],38:[function(require,module,exports){
 var errorPrefix = 'DS.refresh(resourceName, id[, options]): ';
 
 /**
@@ -2262,7 +2327,7 @@ function refresh(resourceName, id, options) {
 
 module.exports = refresh;
 
-},{}],36:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 var errorPrefix = 'DS.save(resourceName, id[, options]): ';
 
 /**
@@ -2381,7 +2446,7 @@ function save(resourceName, id, options) {
 
 module.exports = save;
 
-},{}],37:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 var utils = require('../utils')[0]();
 
 function lifecycleNoop(resourceName, attrs, cb) {
@@ -2585,7 +2650,139 @@ function DSProvider() {
 
 module.exports = DSProvider;
 
-},{"../utils":"iWjGJZ","./async_methods":34,"./sync_methods":46}],38:[function(require,module,exports){
+},{"../utils":"K0yknU","./async_methods":37,"./sync_methods":51}],41:[function(require,module,exports){
+var errorPrefix = 'DS.bindAll(scope, expr, resourceName, params): ';
+
+/**
+ * @doc method
+ * @id DS.sync_methods:bindAll
+ * @name bindAll
+ * @description
+ * Bind a collection of items in the data store to `scope` under the property specified by `expr` filtered by `params`.
+ *
+ * ## Signature:
+ * ```js
+ * DS.bindAll(scope, expr, resourceName, params)
+ * ```
+ *
+ * ## Example:
+ *
+ * ```js
+ * // bind the documents with ownerId of 5 to the 'docs' property of the $scope
+ * var deregisterFunc = DS.bindAll($scope, 'docs', 'document', {
+ *      query: {
+ *          criteria: {
+ *              ownerId: 5
+ *          }
+ *      }
+ * });
+ * ```
+ *
+ * ## Throws
+ *
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
+ *
+ * @param {object} scope The scope to bind to.
+ * @param {string} expr An expression used to bind to the scope. Can be used to set nested keys, i.e. `"user.comments"`.
+ * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
+ * @param {object} params Parameter object that is used in filtering the collection. Properties:
+ *
+ * - `{object=}` - `query` - The query object by which to filter items of the type specified by `resourceName`. Properties:
+ *      - `{object=}` - `where` - Where clause.
+ *      - `{number=}` - `limit` - Limit clause.
+ *      - `{skip=}` - `skip` - Skip clause.
+ *      - `{orderBy=}` - `orderBy` - OrderBy clause.
+ * @returns {function} Scope $watch deregistration function.
+ */
+function bindOne(scope, expr, resourceName, params) {
+	if (!this.utils.isObject(scope)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'scope: Must be an object!');
+	} else if (!this.utils.isString(expr)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'expr: Must be a string!');
+	} else if (!this.definitions[resourceName]) {
+		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+	} else if (!this.utils.isObject(params)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!');
+	}
+
+	var _this = this;
+
+	try {
+		return scope.$watch(function () {
+			return _this.lastModified(resourceName);
+		}, function () {
+			_this.utils.set(scope, expr, _this.filter(resourceName, params));
+		});
+	} catch (err) {
+		throw new this.errors.UnhandledError(err);
+	}
+}
+
+module.exports = bindOne;
+
+},{}],42:[function(require,module,exports){
+var errorPrefix = 'DS.bindOne(scope, expr, resourceName, id): ';
+
+/**
+ * @doc method
+ * @id DS.sync_methods:bindOne
+ * @name bindOne
+ * @description
+ * Bind an item in the data store to `scope` under the property specified by `expr`.
+ *
+ * ## Signature:
+ * ```js
+ * DS.bindOne(scope, expr, resourceName, id)
+ * ```
+ *
+ * ## Example:
+ *
+ * ```js
+ * // bind the document with id 5 to the 'doc' property of the $scope
+ * var deregisterFunc = DS.bindOne($scope, 'doc', 'document', 5);
+ * ```
+ *
+ * ## Throws
+ *
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
+ *
+ * @param {object} scope The scope to bind to.
+ * @param {string} expr An expression used to bind to the scope. Can be used to set nested keys, i.e. `"user.profile"`.
+ * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
+ * @param {string|number} id The primary key of the item to bind.
+ * @returns {function} Scope $watch deregistration function.
+ */
+function bindOne(scope, expr, resourceName, id) {
+	if (!this.utils.isObject(scope)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'scope: Must be an object!');
+	} else if (!this.utils.isString(expr)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'expr: Must be a string!');
+	} else if (!this.definitions[resourceName]) {
+		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!');
+	}
+
+	var _this = this;
+
+	try {
+		return scope.$watch(function () {
+			return _this.lastModified(resourceName, id);
+		}, function () {
+			_this.utils.set(scope, expr, _this.get(resourceName, id));
+		});
+	} catch (err) {
+		throw new this.errors.UnhandledError(err);
+	}
+}
+
+module.exports = bindOne;
+
+},{}],43:[function(require,module,exports){
 var errorPrefix = 'DS.changes(resourceName, id): ';
 
 /**
@@ -2642,7 +2839,7 @@ function changes(resourceName, id) {
 
 module.exports = changes;
 
-},{}],39:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 var errorPrefix = 'DS.defineResource(definition): ';
 
 function Resource(utils, options) {
@@ -2764,7 +2961,7 @@ function defineResource(definition) {
 
 module.exports = defineResource;
 
-},{}],40:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 var observe = require('observejs');
 
 /**
@@ -2806,7 +3003,7 @@ function digest() {
 
 module.exports = digest;
 
-},{"observejs":"QYwGEY"}],41:[function(require,module,exports){
+},{"observejs":"QYwGEY"}],46:[function(require,module,exports){
 var errorPrefix = 'DS.eject(resourceName, id): ';
 
 function _eject(definition, resource, id) {
@@ -2889,7 +3086,7 @@ function eject(resourceName, id) {
 
 module.exports = eject;
 
-},{}],42:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 var errorPrefix = 'DS.ejectAll(resourceName[, params]): ';
 
 function _ejectAll(definition, resource, params) {
@@ -2993,7 +3190,7 @@ function ejectAll(resourceName, params) {
 
 module.exports = ejectAll;
 
-},{}],43:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 /* jshint loopfunc: true */
 var errorPrefix = 'DS.filter(resourceName, params[, options]): ';
 
@@ -3150,7 +3347,7 @@ function filter(resourceName, params, options) {
 
 module.exports = filter;
 
-},{}],44:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 var errorPrefix = 'DS.get(resourceName, id[, options]): ';
 
 /**
@@ -3213,7 +3410,7 @@ function get(resourceName, id, options) {
 
 module.exports = get;
 
-},{}],45:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 var errorPrefix = 'DS.hasChanges(resourceName, id): ';
 
 function diffIsEmpty(utils, diff) {
@@ -3276,7 +3473,7 @@ function hasChanges(resourceName, id) {
 
 module.exports = hasChanges;
 
-},{}],46:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 module.exports = {
 	/**
 	 * @doc method
@@ -3287,6 +3484,26 @@ module.exports = {
 	 * See [DS.defineResource](/documentation/api/api/DS.sync_methods:defineResource).
 	 */
 	defineResource: require('./defineResource'),
+
+	/**
+	 * @doc method
+	 * @id DS.sync_methods:bindOne
+	 * @name bindOne
+	 * @methodOf DS
+	 * @description
+	 * See [DS.bindOne](/documentation/api/api/DS.sync_methods:bindOne).
+	 */
+	bindOne: require('./bindOne'),
+
+	/**
+	 * @doc method
+	 * @id DS.sync_methods:bindAll
+	 * @name bindAll
+	 * @methodOf DS
+	 * @description
+	 * See [DS.bindAll](/documentation/api/api/DS.sync_methods:bindAll).
+	 */
+	bindAll: require('./bindAll'),
 
 	/**
 	 * @doc method
@@ -3399,7 +3616,7 @@ module.exports = {
 	hasChanges: require('./hasChanges')
 };
 
-},{"./changes":38,"./defineResource":39,"./digest":40,"./eject":41,"./ejectAll":42,"./filter":43,"./get":44,"./hasChanges":45,"./inject":47,"./lastModified":48,"./lastSaved":49,"./previous":50}],47:[function(require,module,exports){
+},{"./bindAll":41,"./bindOne":42,"./changes":43,"./defineResource":44,"./digest":45,"./eject":46,"./ejectAll":47,"./filter":48,"./get":49,"./hasChanges":50,"./inject":52,"./lastModified":53,"./lastSaved":54,"./previous":55}],52:[function(require,module,exports){
 var observe = require('observejs'),
 	errorPrefix = 'DS.inject(resourceName, attrs[, options]): ';
 
@@ -3543,7 +3760,7 @@ function inject(resourceName, attrs, options) {
 
 module.exports = inject;
 
-},{"observejs":"QYwGEY"}],48:[function(require,module,exports){
+},{"observejs":"QYwGEY"}],53:[function(require,module,exports){
 var errorPrefix = 'DS.lastModified(resourceName[, id]): ';
 
 /**
@@ -3601,7 +3818,7 @@ function lastModified(resourceName, id) {
 
 module.exports = lastModified;
 
-},{}],49:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 var errorPrefix = 'DS.lastSaved(resourceName[, id]): ';
 
 /**
@@ -3662,7 +3879,7 @@ function lastSaved(resourceName, id) {
 
 module.exports = lastSaved;
 
-},{}],50:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 var errorPrefix = 'DS.previous(resourceName, id): ';
 
 /**
@@ -3718,8 +3935,8 @@ function previous(resourceName, id) {
 module.exports = previous;
 
 },{}],"errors":[function(require,module,exports){
-module.exports=require('ht0wMj');
-},{}],"ht0wMj":[function(require,module,exports){
+module.exports=require('XIsZmp');
+},{}],"XIsZmp":[function(require,module,exports){
 /**
  * @doc function
  * @id errors.types:UnhandledError
@@ -3890,7 +4107,7 @@ module.exports = [function () {
 	};
 }];
 
-},{}],53:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 (function (window, angular, undefined) {
 	'use strict';
 
@@ -3935,9 +4152,9 @@ module.exports = [function () {
 	 * [DSUtils](/documentation/api/api/DSUtils) has some useful utility methods.
 	 * [DSErrors](/documentation/api/api/DSErrors) provides references to the various errors thrown by the data store.
 	 */
-	angular.module('angular-data.DS', ['ng', 'angular-data.DSCacheFactory'])
-		.service('DSUtils', require('./utils'))
-		.service('DSErrors', require('./errors'))
+	angular.module('angular-data.DS', ['ng'])
+		.factory('DSUtils', require('./utils'))
+		.factory('DSErrors', require('./errors'))
 		.provider('DSHttpAdapter', require('./adapters/http'))
 		.provider('DS', require('./datastore'))
 		.config(['$provide', function ($provide) {
@@ -3972,9 +4189,7 @@ module.exports = [function () {
 
 })(window, window.angular);
 
-},{"./adapters/http":28,"./datastore":37,"./errors":"ht0wMj","./utils":"iWjGJZ"}],"utils":[function(require,module,exports){
-module.exports=require('iWjGJZ');
-},{}],"iWjGJZ":[function(require,module,exports){
+},{"./adapters/http":31,"./datastore":40,"./errors":"XIsZmp","./utils":"K0yknU"}],"K0yknU":[function(require,module,exports){
 module.exports = [function () {
 	return {
 		isString: angular.isString,
@@ -3989,6 +4204,7 @@ module.exports = [function () {
 		deepMixIn: require('mout/object/deepMixIn'),
 		forOwn: require('mout/object/forOwn'),
 		pick: require('mout/object/pick'),
+		set: require('mout/object/set'),
 		contains: require('mout/array/contains'),
 		filter: require('mout/array/filter'),
 		toLookup: require('mout/array/toLookup'),
@@ -4055,4 +4271,6 @@ module.exports = [function () {
 	};
 }];
 
-},{"mout/array/contains":3,"mout/array/filter":4,"mout/array/slice":7,"mout/array/sort":8,"mout/array/toLookup":9,"mout/lang/isEmpty":14,"mout/object/deepMixIn":21,"mout/object/forOwn":23,"mout/object/pick":25,"mout/string/makePath":26,"mout/string/upperCase":27}]},{},[53])
+},{"mout/array/contains":3,"mout/array/filter":4,"mout/array/slice":8,"mout/array/sort":9,"mout/array/toLookup":10,"mout/lang/isEmpty":15,"mout/object/deepMixIn":22,"mout/object/forOwn":24,"mout/object/pick":27,"mout/object/set":28,"mout/string/makePath":29,"mout/string/upperCase":30}],"utils":[function(require,module,exports){
+module.exports=require('K0yknU');
+},{}]},{},[58])
