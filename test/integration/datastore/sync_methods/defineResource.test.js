@@ -83,4 +83,32 @@ describe('DS.defineResource(definition)', function () {
 		assert.equal(callCount, 1, 'overridden validate should have been called once');
 		assert.equal(lifecycle.validate.callCount, 0, 'global validate should not have been called');
 	});
+	it('should allow custom behavior to be applied to resources', function () {
+		DS.defineResource({
+			name: 'user',
+			methods: {
+				fullName: function () {
+					return this.first + ' ' + this.last;
+				}
+			}
+		});
+
+		DS.inject('user', {
+			first: 'John',
+			last: 'Anderson',
+			id: 1
+		});
+
+		var user = DS.get('user', 1);
+
+		assert.deepEqual(JSON.stringify(user), JSON.stringify({
+			first: 'John',
+			last: 'Anderson',
+			id: 1
+		}));
+		assert.equal(user.fullName(), 'John Anderson');
+		assert.isTrue(user instanceof DS.definitions.user.factory);
+		assert.equal(lifecycle.beforeInject.callCount, 1, 'beforeInject should have been called');
+		assert.equal(lifecycle.afterInject.callCount, 1, 'afterInject should have been called');
+	});
 });

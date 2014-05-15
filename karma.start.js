@@ -67,6 +67,12 @@ beforeEach(function (done) {
 		lifecycle.afterDestroy.callCount += 1;
 		cb(null, attrs);
 	};
+	lifecycle.beforeInject = function () {
+		lifecycle.beforeInject.callCount += 1;
+	};
+	lifecycle.afterInject = function () {
+		lifecycle.afterInject.callCount += 1;
+	};
 	module('app', function (_DSProvider_) {
 		DSProvider = _DSProvider_;
 		DSProvider.defaults.baseUrl = 'http://test.angular-cache.com';
@@ -79,6 +85,8 @@ beforeEach(function (done) {
 		DSProvider.defaults.afterUpdate = lifecycle.afterUpdate;
 		DSProvider.defaults.beforeDestroy = lifecycle.beforeDestroy;
 		DSProvider.defaults.afterDestroy = lifecycle.afterDestroy;
+		DSProvider.defaults.beforeInject = lifecycle.beforeInject;
+		DSProvider.defaults.afterInject = lifecycle.afterInject;
 	});
 	inject(function (_$rootScope_, _$q_, _$httpBackend_, _DS_, _$log_) {
 		// Setup global mocks
@@ -101,6 +109,8 @@ beforeEach(function (done) {
 		lifecycle.afterUpdate.callCount = 0;
 		lifecycle.beforeDestroy.callCount = 0;
 		lifecycle.afterDestroy.callCount = 0;
+		lifecycle.beforeInject.callCount = 0;
+		lifecycle.afterInject.callCount = 0;
 
 		p1 = { author: 'John', age: 30, id: 5 };
 		p2 = { author: 'Sally', age: 31, id: 6 };

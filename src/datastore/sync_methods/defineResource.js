@@ -50,6 +50,10 @@ function Resource(utils, options) {
  * - `{string="id"}` - `idAttribute` - The attribute that specifies the primary key for this resource.
  * - `{string=}` - `endpoint` - The attribute that specifies the primary key for this resource. Default is the value of `name`.
  * - `{string=}` - `baseUrl` - The url relative to which all AJAX requests will be made.
+ * - `{object=}` - `methods` - If provided, items of this resource will be wrapped in a constructor function that is
+ * empty save for the attributes in this option which will be mixed in to the constructor function prototype. Enabling
+ * this feature for this resource will incur a slight performance penalty, but allows you to give custom behavior to what
+ * are now "instances" of this resource.
  * - `{function=}` - `beforeValidate` - Lifecycle hook. Overrides global. Signature: `beforeValidate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
  * - `{function=}` - `validate` - Lifecycle hook. Overrides global. Signature: `validate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
  * - `{function=}` - `afterValidate` - Lifecycle hook. Overrides global. Signature: `afterValidate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
@@ -59,6 +63,8 @@ function Resource(utils, options) {
  * - `{function=}` - `afterUpdate` - Lifecycle hook. Overrides global. Signature: `afterUpdate(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
  * - `{function=}` - `beforeDestroy` - Lifecycle hook. Overrides global. Signature: `beforeDestroy(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
  * - `{function=}` - `afterDestroy` - Lifecycle hook. Overrides global. Signature: `afterDestroy(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
+ * - `{function=}` - `beforeInject` - Lifecycle hook. Overrides global. Signature: `beforeInject(resourceName, attrs)`.
+ * - `{function=}` - `afterInject` - Lifecycle hook. Overrides global. Signature: `afterInject(resourceName, attrs)`.
  */
 function defineResource(definition) {
 	if (this.utils.isString(definition)) {
@@ -82,24 +88,31 @@ function defineResource(definition) {
 		Resource.prototype = this.defaults;
 		this.definitions[definition.name] = new Resource(this.utils, definition);
 
-		var _this = this;
+		var _this = this,
+			def = this.definitions[definition.name];
 
-		var cache = this.cacheFactory('DS.' + definition.name, {
-			maxAge: definition.maxAge || null,
-			recycleFreq: definition.recycleFreq || 1000,
-			cacheFlushInterval: definition.cacheFlushInterval || null,
-			deleteOnExpire: definition.deleteOnExpire || 'none',
+		var cache = this.cacheFactory('DS.' + def.name, {
+			maxAge: def.maxAge || null,
+			recycleFreq: def.recycleFreq || 1000,
+			cacheFlushInterval: def.cacheFlushInterval || null,
+			deleteOnExpire: def.deleteOnExpire || 'none',
 			onExpire: function (id) {
-				_this.eject(definition.name, id);
+				_this.eject(def.name, id);
 			},
 			capacity: Number.MAX_VALUE,
 			storageMode: 'memory',
 			storageImpl: null,
 			disabled: false,
-			storagePrefix: 'DS.' + definition.name
+			storagePrefix: 'DS.' + def.name
 		});
 
-		this.store[definition.name] = {
+		if (def.methods) {
+			def.factory = function () {
+			};
+			this.utils.deepMixIn(def.factory.prototype, def.methods);
+		}
+
+		this.store[def.name] = {
 			collection: [],
 			completedQueries: {},
 			pendingQueries: {},
