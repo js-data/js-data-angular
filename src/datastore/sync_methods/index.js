@@ -11,6 +11,26 @@ module.exports = {
 
 	/**
 	 * @doc method
+	 * @id DS.sync_methods:bindOne
+	 * @name bindOne
+	 * @methodOf DS
+	 * @description
+	 * See [DS.bindOne](/documentation/api/api/DS.sync_methods:bindOne).
+	 */
+	bindOne: require('./bindOne'),
+
+	/**
+	 * @doc method
+	 * @id DS.sync_methods:bindAll
+	 * @name bindAll
+	 * @methodOf DS
+	 * @description
+	 * See [DS.bindAll](/documentation/api/api/DS.sync_methods:bindAll).
+	 */
+	bindAll: require('./bindAll'),
+
+	/**
+	 * @doc method
 	 * @id DS.sync_methods:eject
 	 * @name eject
 	 * @methodOf DS

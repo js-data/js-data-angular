@@ -2,6 +2,8 @@
 
 ###### Backwards compatible API changes
 - #30, #48 - DSCacheFactory integration
+- #49 - DS.bindOne($scope, prop, resourceName, id)
+- #50 - DS.bindAll($scope, prop, resourceName, query)
 
 ##### 0.8.1 - 02 May 2014
 

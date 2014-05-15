@@ -27,7 +27,7 @@ var fail = function (msg) {
 	}],
 	TYPES_EXCEPT_FUNCTION = ['string', 123, 123.123, null, undefined, {}, [], true, false];
 
-angular.module('app', ['ng', 'angular-data.DS']);
+angular.module('app', ['ng', 'angular-data.DS', 'angular-data.DSCacheFactory']);
 
 // Setup before each test
 beforeEach(function (done) {
@@ -101,15 +101,15 @@ beforeEach(function (done) {
 		lifecycle.afterUpdate.callCount = 0;
 		lifecycle.beforeDestroy.callCount = 0;
 		lifecycle.afterDestroy.callCount = 0;
+
+		p1 = { author: 'John', age: 30, id: 5 };
+		p2 = { author: 'Sally', age: 31, id: 6 };
+		p3 = { author: 'Mike', age: 32, id: 7 };
+		p4 = { author: 'Adam', age: 33, id: 8 };
+		p5 = { author: 'Adam', age: 33, id: 9 };
+
+		done();
 	});
-
-	p1 = { author: 'John', age: 30, id: 5 };
-	p2 = { author: 'Sally', age: 31, id: 6 };
-	p3 = { author: 'Mike', age: 32, id: 7 };
-	p4 = { author: 'Adam', age: 33, id: 8 };
-	p5 = { author: 'Adam', age: 33, id: 9 };
-
-	done();
 });
 
 // Clean up after each test
