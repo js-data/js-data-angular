@@ -1,3 +1,4 @@
+/*jshint evil:true*/
 var errorPrefix = 'DS.defineResource(definition): ';
 
 function Resource(utils, options) {
@@ -107,9 +108,10 @@ function defineResource(definition) {
 		});
 
 		if (def.methods) {
-			def.factory = function () {
-			};
-			this.utils.deepMixIn(def.factory.prototype, def.methods);
+			def.class = definition.name[0].toUpperCase() + definition.name.substring(1);
+			eval('function ' + def.class + '() {}');
+			def[def.class] = eval(def.class);
+			this.utils.deepMixIn(def[def.class].prototype, def.methods);
 		}
 
 		this.store[def.name] = {

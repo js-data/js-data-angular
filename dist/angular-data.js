@@ -2846,6 +2846,7 @@ function changes(resourceName, id) {
 module.exports = changes;
 
 },{}],44:[function(require,module,exports){
+/*jshint evil:true*/
 var errorPrefix = 'DS.defineResource(definition): ';
 
 function Resource(utils, options) {
@@ -2955,9 +2956,10 @@ function defineResource(definition) {
 		});
 
 		if (def.methods) {
-			def.factory = function () {
-			};
-			this.utils.deepMixIn(def.factory.prototype, def.methods);
+			def.class = definition.name[0].toUpperCase() + definition.name.substring(1);
+			eval('function ' + def.class + '() {}');
+			def[def.class] = eval(def.class);
+			this.utils.deepMixIn(def[def.class].prototype, def.methods);
 		}
 
 		this.store[def.name] = {
@@ -3672,7 +3674,7 @@ function _inject(definition, resource, attrs) {
 				item = this.get(definition.name, id);
 
 			if (!item) {
-				item = definition.factory ? new definition.factory() : {};
+				item = definition.class ? new definition[definition.class]() : {};
 				resource.previousAttributes[id] = {};
 
 				_this.utils.deepMixIn(item, attrs);

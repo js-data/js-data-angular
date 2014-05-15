@@ -34,7 +34,7 @@ function _inject(definition, resource, attrs) {
 				item = this.get(definition.name, id);
 
 			if (!item) {
-				item = definition.factory ? new definition.factory() : {};
+				item = definition.class ? new definition[definition.class]() : {};
 				resource.previousAttributes[id] = {};
 
 				_this.utils.deepMixIn(item, attrs);

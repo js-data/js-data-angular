@@ -107,7 +107,9 @@ describe('DS.defineResource(definition)', function () {
 			id: 1
 		}));
 		assert.equal(user.fullName(), 'John Anderson');
-		assert.isTrue(user instanceof DS.definitions.user.factory);
+		assert.isTrue(user instanceof DS.definitions.user[DS.definitions.user.class]);
+		assert.equal(DS.definitions.user.class, 'User');
+		assert.equal(DS.definitions.user[DS.definitions.user.class].name, 'User');
 		assert.equal(lifecycle.beforeInject.callCount, 1, 'beforeInject should have been called');
 		assert.equal(lifecycle.afterInject.callCount, 1, 'afterInject should have been called');
 	});
