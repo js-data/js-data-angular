@@ -67,5 +67,15 @@ module.exports = {
 	 * @description
 	 * See [DS.save](/documentation/api/api/DS.async_methods:save).
 	 */
-	save: require('./save')
+	save: require('./save'),
+
+	/**
+	 * @doc method
+	 * @id DS.async_methods:update
+	 * @name update
+	 * @methodOf DS
+	 * @description
+	 * See [DS.update](/documentation/api/api/DS.async_methods:update).
+	 */
+	update: require('./update')
 };

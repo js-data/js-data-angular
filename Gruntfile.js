@@ -331,6 +331,7 @@ module.exports = function (grunt) {
 		'version:dist/angular-data.js',
 		'uglify:main'
 	]);
+	grunt.registerTask('go', ['build', 'watch']);
 	grunt.registerTask('default', ['build']);
 
 	// Used by TravisCI

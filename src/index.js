@@ -6,7 +6,7 @@
 	 * @id angular-data
 	 * @name angular-data
 	 * @description
-	 * __Version:__ <%= pkg.version %>
+	 * __Version:__ 0.9.0
 	 *
 	 * ## Install
 	 *

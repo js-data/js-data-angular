@@ -2,7 +2,7 @@
   "author": "Jason Dobry",
   "name": "angular-data",
   "description": "Data store for Angular.js.",
-  "version": "0.9.0-SNAPSHOT",
+  "version": "0.9.0",
   "homepage": "http://angular-data.codetrain.io/",
   "repository": {
     "type": "git",
@@ -28,6 +28,7 @@
   "devDependencies": {
     "angular": "~1.2.16",
     "angular-mocks": "~1.2.16",
+    "angular-data-mocks": "git@github.com:jmdobry/angular-data-mocks.git#0.0.1",
     "angular-cache": "~3.0.0-beta.4",
     "observe-js": "~0.2.0"
   }

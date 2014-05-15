@@ -1,7 +1,7 @@
 /**
  * @author Jason Dobry <jason.dobry@gmail.com>
  * @file angular-data.js
- * @version 0.9.0-SNAPSHOT - Homepage <http://angular-data.codetrain.io/>
+ * @version 0.9.0 - Homepage <http://angular-data.codetrain.io/>
  * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>
  * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
  *
@@ -2250,10 +2250,20 @@ module.exports = {
 	 * @description
 	 * See [DS.save](/documentation/api/api/DS.async_methods:save).
 	 */
-	save: require('./save')
+	save: require('./save'),
+
+	/**
+	 * @doc method
+	 * @id DS.async_methods:update
+	 * @name update
+	 * @methodOf DS
+	 * @description
+	 * See [DS.update](/documentation/api/api/DS.async_methods:update).
+	 */
+	update: require('./update')
 };
 
-},{"./create":32,"./destroy":33,"./destroyAll":34,"./find":35,"./findAll":36,"./refresh":38,"./save":39}],38:[function(require,module,exports){
+},{"./create":32,"./destroy":33,"./destroyAll":34,"./find":35,"./findAll":36,"./refresh":38,"./save":39,"./update":40}],38:[function(require,module,exports){
 var errorPrefix = 'DS.refresh(resourceName, id[, options]): ';
 
 /**
@@ -2447,6 +2457,116 @@ function save(resourceName, id, options) {
 module.exports = save;
 
 },{}],40:[function(require,module,exports){
+var errorPrefix = 'DS.update(resourceName, id, attrs[, options]): ';
+
+/**
+ * @doc method
+ * @id DS.async_methods:update
+ * @name update
+ * @description
+ * Update the item of type `resourceName` and primary key `id` with `attrs`. This is useful when you want to update an
+ * item that isn't already in the data store, or you don't want to update the item that's in the data store until the
+ * server-side operation succeeds. This differs from `DS.save` which simply saves items in their current form that
+ * already reside in the data store.
+ *
+ * ## Signature:
+ * ```js
+ * DS.update(resourceName, id, attrs[, options])
+ * ```
+ *
+ * ## Example:
+ *
+ * ```js
+ *  DS.get('document', 5); // undefined
+ *
+ *  DS.update('document', 5, { title: 'How to cook in style' })
+ *  .then(function (document) {
+ *      document; // A reference to the document that's been saved to the server
+ *                // and now resides in the data store
+ *  });
+ * ```
+ *
+ * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
+ * @param {string|number} id The primary key of the item to update.
+ * @param {object} attrs The attributes with which to update the item.
+ * @param {object=} options Optional configuration. Properties:
+ * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
+ *
+ * @returns {Promise} Promise produced by the `$q` service.
+ *
+ * ## Resolves with:
+ *
+ * - `{object}` - `item` - A reference to the newly saved item.
+ *
+ * ## Rejects with:
+ *
+ * - `{IllegalArgumentError}`
+ * - `{RuntimeError}`
+ * - `{UnhandledError}`
+ */
+function save(resourceName, id, attrs, options) {
+	var deferred = this.$q.defer(),
+		promise = deferred.promise;
+
+	options = options || {};
+
+	if (!this.definitions[resourceName]) {
+		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
+	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!'));
+	} else if (!this.utils.isObject(attrs)) {
+		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'attrs: Must be an object!'));
+	} else if (!this.utils.isObject(options)) {
+		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!'));
+	} else {
+		var definition = this.definitions[resourceName],
+			resource = this.store[resourceName],
+			_this = this;
+
+		if (!('cacheResponse' in options)) {
+			options.cacheResponse = true;
+		} else {
+			options.cacheResponse = !!options.cacheResponse;
+		}
+
+		promise = promise
+			.then(function (attrs) {
+				return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
+			})
+			.then(function (attrs) {
+				return _this.$q.promisify(definition.validate)(resourceName, attrs);
+			})
+			.then(function (attrs) {
+				return _this.$q.promisify(definition.afterValidate)(resourceName, attrs);
+			})
+			.then(function (attrs) {
+				return _this.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
+			})
+			.then(function (attrs) {
+				return _this.adapters[options.adapter || definition.defaultAdapter].update(definition, id, attrs, options);
+			})
+			.then(function (data) {
+				return _this.$q.promisify(definition.afterUpdate)(resourceName, data);
+			})
+			.then(function (data) {
+				if (options.cacheResponse) {
+					_this.inject(definition.name, data, options);
+					resource.previousAttributes[id] = _this.utils.deepMixIn({}, data);
+					resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
+					return _this.get(resourceName, id);
+				} else {
+					return data;
+				}
+			});
+
+		deferred.resolve(attrs);
+	}
+	return promise;
+}
+
+module.exports = save;
+
+},{}],41:[function(require,module,exports){
 var utils = require('../utils')[0]();
 
 function lifecycleNoop(resourceName, attrs, cb) {
@@ -2656,7 +2776,7 @@ function DSProvider() {
 
 module.exports = DSProvider;
 
-},{"../utils":"K0yknU","./async_methods":37,"./sync_methods":51}],41:[function(require,module,exports){
+},{"../utils":"K0yknU","./async_methods":37,"./sync_methods":52}],42:[function(require,module,exports){
 var errorPrefix = 'DS.bindAll(scope, expr, resourceName, params): ';
 
 /**
@@ -2728,7 +2848,7 @@ function bindOne(scope, expr, resourceName, params) {
 
 module.exports = bindOne;
 
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 var errorPrefix = 'DS.bindOne(scope, expr, resourceName, id): ';
 
 /**
@@ -2788,7 +2908,7 @@ function bindOne(scope, expr, resourceName, id) {
 
 module.exports = bindOne;
 
-},{}],43:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 var errorPrefix = 'DS.changes(resourceName, id): ';
 
 /**
@@ -2845,7 +2965,7 @@ function changes(resourceName, id) {
 
 module.exports = changes;
 
-},{}],44:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 /*jshint evil:true*/
 var errorPrefix = 'DS.defineResource(definition): ';
 
@@ -2982,7 +3102,7 @@ function defineResource(definition) {
 
 module.exports = defineResource;
 
-},{}],45:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 var observe = require('observejs');
 
 /**
@@ -3024,7 +3144,7 @@ function digest() {
 
 module.exports = digest;
 
-},{"observejs":"QYwGEY"}],46:[function(require,module,exports){
+},{"observejs":"QYwGEY"}],47:[function(require,module,exports){
 var errorPrefix = 'DS.eject(resourceName, id): ';
 
 function _eject(definition, resource, id) {
@@ -3107,7 +3227,7 @@ function eject(resourceName, id) {
 
 module.exports = eject;
 
-},{}],47:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 var errorPrefix = 'DS.ejectAll(resourceName[, params]): ';
 
 function _ejectAll(definition, resource, params) {
@@ -3211,7 +3331,7 @@ function ejectAll(resourceName, params) {
 
 module.exports = ejectAll;
 
-},{}],48:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 /* jshint loopfunc: true */
 var errorPrefix = 'DS.filter(resourceName, params[, options]): ';
 
@@ -3368,7 +3488,7 @@ function filter(resourceName, params, options) {
 
 module.exports = filter;
 
-},{}],49:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 var errorPrefix = 'DS.get(resourceName, id[, options]): ';
 
 /**
@@ -3431,7 +3551,7 @@ function get(resourceName, id, options) {
 
 module.exports = get;
 
-},{}],50:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 var errorPrefix = 'DS.hasChanges(resourceName, id): ';
 
 function diffIsEmpty(utils, diff) {
@@ -3494,7 +3614,7 @@ function hasChanges(resourceName, id) {
 
 module.exports = hasChanges;
 
-},{}],51:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 module.exports = {
 	/**
 	 * @doc method
@@ -3637,7 +3757,7 @@ module.exports = {
 	hasChanges: require('./hasChanges')
 };
 
-},{"./bindAll":41,"./bindOne":42,"./changes":43,"./defineResource":44,"./digest":45,"./eject":46,"./ejectAll":47,"./filter":48,"./get":49,"./hasChanges":50,"./inject":52,"./lastModified":53,"./lastSaved":54,"./previous":55}],52:[function(require,module,exports){
+},{"./bindAll":42,"./bindOne":43,"./changes":44,"./defineResource":45,"./digest":46,"./eject":47,"./ejectAll":48,"./filter":49,"./get":50,"./hasChanges":51,"./inject":53,"./lastModified":54,"./lastSaved":55,"./previous":56}],53:[function(require,module,exports){
 var observe = require('observejs'),
 	errorPrefix = 'DS.inject(resourceName, attrs[, options]): ';
 
@@ -3787,7 +3907,7 @@ function inject(resourceName, attrs, options) {
 
 module.exports = inject;
 
-},{"observejs":"QYwGEY"}],53:[function(require,module,exports){
+},{"observejs":"QYwGEY"}],54:[function(require,module,exports){
 var errorPrefix = 'DS.lastModified(resourceName[, id]): ';
 
 /**
@@ -3845,7 +3965,7 @@ function lastModified(resourceName, id) {
 
 module.exports = lastModified;
 
-},{}],54:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 var errorPrefix = 'DS.lastSaved(resourceName[, id]): ';
 
 /**
@@ -3906,7 +4026,7 @@ function lastSaved(resourceName, id) {
 
 module.exports = lastSaved;
 
-},{}],55:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 var errorPrefix = 'DS.previous(resourceName, id): ';
 
 /**
@@ -4134,7 +4254,7 @@ module.exports = [function () {
 	};
 }];
 
-},{}],58:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 (function (window, angular, undefined) {
 	'use strict';
 
@@ -4143,7 +4263,7 @@ module.exports = [function () {
 	 * @id angular-data
 	 * @name angular-data
 	 * @description
-	 * __Version:__ 0.9.0-SNAPSHOT
+	 * __Version:__ 0.9.0
 	 *
 	 * ## Install
 	 *
@@ -4216,7 +4336,7 @@ module.exports = [function () {
 
 })(window, window.angular);
 
-},{"./adapters/http":31,"./datastore":40,"./errors":"XIsZmp","./utils":"K0yknU"}],"K0yknU":[function(require,module,exports){
+},{"./adapters/http":31,"./datastore":41,"./errors":"XIsZmp","./utils":"K0yknU"}],"K0yknU":[function(require,module,exports){
 module.exports = [function () {
 	return {
 		isString: angular.isString,
@@ -4300,4 +4420,4 @@ module.exports = [function () {
 
 },{"mout/array/contains":3,"mout/array/filter":4,"mout/array/slice":8,"mout/array/sort":9,"mout/array/toLookup":10,"mout/lang/isEmpty":15,"mout/object/deepMixIn":22,"mout/object/forOwn":24,"mout/object/pick":27,"mout/object/set":28,"mout/string/makePath":29,"mout/string/upperCase":30}],"utils":[function(require,module,exports){
 module.exports=require('K0yknU');
-},{}]},{},[58])
+},{}]},{},[59])
