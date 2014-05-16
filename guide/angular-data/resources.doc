@@ -18,4 +18,4 @@ myApp.run(function (DS) {
 });
 ```
 
-See the [Resource Guide](/documentation/guide/resource/index) for detailed information on defining resources.
+See the [Resource Guide](/documentation/guide/angular-data-resource/index) for detailed information on defining resources.

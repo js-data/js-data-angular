@@ -167,3 +167,33 @@ angular.module('myApp', ['angular-data.DS'])
 
 	});
 ```
+
+@doc overview
+@id custom
+@name Custom Model Behavior
+@description
+
+If you provide a `methods` field in the options passed to `DS.defineResource`, angular-data wrap items of that resource
+with an empty constructor function. The `methods` option should be an object where the keys are method names and the
+values are functions. This object will be mixed in to the prototype empty constructor function used to wrap items of the
+new resource. In this way you can add custom behavior to what will now be "instances" of the new resource.
+
+## Example:
+```js
+DS.defineResource({
+	name: 'user',
+	methods: {
+		fullName: function () {
+			return this.first + ' ' + this.last;
+		}
+	}
+});
+
+DS.inject('user', { id: 1, first: 'John', last: 'Anderson' });
+
+var user = DS.get('user', 1);
+
+user.fullName(); // "John Anderson"
+
+user.constructor; // function User() { ... }
+```

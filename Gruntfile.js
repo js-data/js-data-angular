@@ -240,6 +240,17 @@ module.exports = function (grunt) {
 							}
 						},
 						{
+							id: 'angular-data-mocks',
+							title: 'angular-data-mocks',
+							docs: ['guide/angular-data-mocks/'],
+							rank: {
+								index: 1,
+								overview: 2,
+								setup: 3,
+								testing: 4
+							}
+						},
+						{
 							id: 'angular-data-resource',
 							title: 'Defining Resources',
 							docs: ['guide/angular-data/resource/'],
@@ -248,7 +259,8 @@ module.exports = function (grunt) {
 								overview: 2,
 								basic: 3,
 								advanced: 4,
-								lifecycle: 5
+								lifecycle: 5,
+								custom: 6
 							}
 						},
 						{

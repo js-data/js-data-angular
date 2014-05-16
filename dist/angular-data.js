@@ -3956,7 +3956,15 @@ function _inject(definition, resource, attrs) {
 				item = this.get(definition.name, id);
 
 			if (!item) {
-				item = definition.class ? new definition[definition.class]() : {};
+				if (definition.class) {
+					if (attrs instanceof definition[definition.class]) {
+						item = attrs;
+					} else {
+						item = new definition[definition.class]();
+					}
+				} else {
+					item = {};
+				}
 				resource.previousAttributes[id] = {};
 
 				_this.utils.deepMixIn(item, attrs);

@@ -1,0 +1,8 @@
+@doc overview
+@id testing
+@name Testing
+@description
+
+TODO: Explain how to use angular-data-mocks in angular tests.
+
+Refer to the [angular-data-mocks API](/documentation/api/angular-data-mocks/angular-data-mocks) for more detailed information.

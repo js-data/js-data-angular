@@ -1,11 +1,15 @@
 body {
     background-size: auto;
     background: url(/resources/img/cream_dust.png) repeat repeat;
-    font-family:'Open sans',Arial,Helvetica,sans-serif;
+    font-family: 'Open sans', Arial, Helvetica, sans-serif;
 }
 
 .main-nav {
     border-bottom: 2px solid #0088cc;
+}
+
+.main-nav .dropdown-menu {
+    min-width: 250px;
 }
 
 .main-nav:before {

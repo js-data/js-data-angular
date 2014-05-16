@@ -25,9 +25,18 @@ $scope.$watch(function () {
 	// When this callback is executed, it means that the data store thinks the item changed
 
 	// Retrieve the updated item from the data store's cache
-	$scope.document = DS.get('document', 45);
+	$scope.myDoc = DS.get('document', 45);
 });
 ```
+
+To make things simpler, angular-data has some bind methods to help with this:
+
+```js
+DS.bindOne($scope, 'myDoc', 'document', 45');
+```
+
+The above example shows how to bind an item in the data store to the stop. Whenever that item changes it will be updated
+on the $scope.
 
 When the app starts up, the calls to `lastModified()` and `get()` will both returned undefined, because the item isn't in
 the data store yet. If we insert the statement: `DS.find('document', 45);` right above the `$watch` function, the data store will make an
