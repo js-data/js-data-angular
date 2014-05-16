@@ -283,9 +283,24 @@ function DSHttpAdapterProvider() {
 			 */
 			update: update,
 
-			updateMany: function () {
-				throw new Error('Not yet implemented!');
-			},
+			/**
+			 * @doc method
+			 * @id DSHttpAdapter.methods:updateAll
+			 * @name updateAll
+			 * @description
+			 * Update a collection of entities on the server.
+			 *
+			 * Sends a `PUT` request to `:baseUrl/:endpoint`.
+			 *
+			 *
+			 * @param {object} resourceConfig Properties:
+			 * - `{string}` - `baseUrl` - Base url.
+			 * - `{string=}` - `endpoint` - Endpoint path for the resource.
+			 * @param {object=} params Search query parameters. See the [query guide](/documentation/guide/queries/index).
+			 * @param {object=} options Optional configuration. Refer to the documentation for `$http.put`.
+			 * @returns {Promise} Promise.
+			 */
+			updateAll: updateAll,
 
 			/**
 			 * @doc method
@@ -401,6 +416,20 @@ function DSHttpAdapterProvider() {
 		function update(resourceConfig, id, attrs, options) {
 			return this.PUT(
 				DSUtils.makePath(resourceConfig.baseUrl, resourceConfig.endpoint, id),
+				defaults.serialize(attrs),
+				options
+			);
+		}
+
+		function updateAll(resourceConfig, attrs, params, options) {
+			options = options || {};
+			options.params = options.params || {};
+			if (options.params.query) {
+				options.params.query = defaults.queryTransform(options.params.query);
+			}
+			DSUtils.deepMixIn(options, params);
+			return this.PUT(
+				DSUtils.makePath(resourceConfig.baseUrl, resourceConfig.endpoint),
 				defaults.serialize(attrs),
 				options
 			);

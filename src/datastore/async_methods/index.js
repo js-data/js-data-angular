@@ -77,5 +77,15 @@ module.exports = {
 	 * @description
 	 * See [DS.update](/documentation/api/api/DS.async_methods:update).
 	 */
-	update: require('./update')
+	update: require('./update'),
+
+	/**
+	 * @doc method
+	 * @id DS.async_methods:updateAll
+	 * @name updateAll
+	 * @methodOf DS
+	 * @description
+	 * See [DS.updateAll](/documentation/api/api/DS.async_methods:updateAll).
+	 */
+	updateAll: require('./updateAll')
 };

@@ -1,35 +1,51 @@
-var errorPrefix = 'DS.update(resourceName, id, attrs[, options]): ';
+var errorPrefix = 'DS.updateAll(resourceName, attrs, params[, options]): ';
 
 /**
  * @doc method
- * @id DS.async_methods:update
- * @name update
+ * @id DS.async_methods:updateAll
+ * @name updateAll
  * @description
- * Update the item of type `resourceName` and primary key `id` with `attrs`. This is useful when you want to update an
- * item that isn't already in the data store, or you don't want to update the item that's in the data store until the
- * server-side operation succeeds. This differs from `DS.save` which simply saves items in their current form that
- * already reside in the data store.
+ * Update items of type `resourceName` with `attrs` according to the criteria specified by `params`. This is useful when
+ * you want to update multiple items with the same attributes that aren't already in the data store, or you don't want
+ * to update the items that are in the data store until the server-side operation succeeds.
  *
  * ## Signature:
  * ```js
- * DS.update(resourceName, id, attrs[, options])
+ * DS.updateAll(resourceName, attrs, params[, options])
  * ```
  *
  * ## Example:
  *
  * ```js
- *  DS.get('document', 5); // undefined
+ *  DS.filter('document'); // []
  *
- *  DS.update('document', 5, { title: 'How to cook in style' })
- *  .then(function (document) {
- *      document; // A reference to the document that's been saved to the server
- *                // and now resides in the data store
+ *  DS.updateAll('document', 5, { author: 'Sally' }, {
+ *      query: {
+ *          where: {
+ *              author: {
+ *                  '==': 'John Anderson'
+ *              }
+ *          }
+ *      }
+ *  })
+ *  .then(function (documents) {
+ *      documents; // The documents that were updated on the server
+ *                 // and now reside in the data store
+ *
+ *      documents[0].author; // "Sally"
  *  });
  * ```
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
- * @param {string|number} id The primary key of the item to update.
- * @param {object} attrs The attributes with which to update the item.
+ * @param {object} attrs The attributes with which to update the items.
+ * @param {object} params Parameter object that is serialized into the query string. Properties:
+ *
+ * - `{object=}` - `query` - The query object by which to filter items of the type specified by `resourceName`. Properties:
+ *      - `{object=}` - `where` - Where clause.
+ *      - `{number=}` - `limit` - Limit clause.
+ *      - `{skip=}` - `skip` - Skip clause.
+ *      - `{orderBy=}` - `orderBy` - OrderBy clause.
+ *
  * @param {object=} options Optional configuration. Properties:
  * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
  *
@@ -45,7 +61,7 @@ var errorPrefix = 'DS.update(resourceName, id, attrs[, options]): ';
  * - `{RuntimeError}`
  * - `{UnhandledError}`
  */
-function save(resourceName, id, attrs, options) {
+function save(resourceName, attrs, params, options) {
 	var deferred = this.$q.defer(),
 		promise = deferred.promise;
 
@@ -53,10 +69,10 @@ function save(resourceName, id, attrs, options) {
 
 	if (!this.definitions[resourceName]) {
 		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
-	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!'));
 	} else if (!this.utils.isObject(attrs)) {
 		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'attrs: Must be an object!'));
+	} else if (!this.utils.isObject(params)) {
+		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!'));
 	} else if (!this.utils.isObject(options)) {
 		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!'));
 	} else {
@@ -84,17 +100,14 @@ function save(resourceName, id, attrs, options) {
 				return _this.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
 			})
 			.then(function (attrs) {
-				return _this.adapters[options.adapter || definition.defaultAdapter].update(definition, id, attrs, options);
+				return _this.adapters[options.adapter || definition.defaultAdapter].updateAll(definition, attrs, params, options);
 			})
 			.then(function (data) {
 				return _this.$q.promisify(definition.afterUpdate)(resourceName, data);
 			})
 			.then(function (data) {
 				if (options.cacheResponse) {
-					var item = _this.inject(definition.name, data, options);
-					resource.previousAttributes[id] = _this.utils.deepMixIn({}, data);
-					resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
-					return item;
+					return _this.inject(definition.name, data, options);
 				} else {
 					return data;
 				}
