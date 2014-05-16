@@ -1589,7 +1589,7 @@ function DSHttpAdapterProvider() {
 		function find(resourceConfig, id, options) {
 			options = options || {};
 			return this.GET(
-				DSUtils.makePath(resourceConfig.baseUrl, resourceConfig.endpoint, id),
+				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
 				options
 			);
 		}
@@ -1602,7 +1602,7 @@ function DSHttpAdapterProvider() {
 			}
 			DSUtils.deepMixIn(options, params);
 			return this.GET(
-				DSUtils.makePath(resourceConfig.baseUrl, resourceConfig.endpoint),
+				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint),
 				options
 			);
 		}
@@ -1610,7 +1610,7 @@ function DSHttpAdapterProvider() {
 		function create(resourceConfig, attrs, options) {
 			options = options || {};
 			return this.POST(
-				DSUtils.makePath(resourceConfig.baseUrl, resourceConfig.endpoint),
+				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint),
 				defaults.serialize(attrs),
 				options
 			);
@@ -1618,7 +1618,7 @@ function DSHttpAdapterProvider() {
 
 		function update(resourceConfig, id, attrs, options) {
 			return this.PUT(
-				DSUtils.makePath(resourceConfig.baseUrl, resourceConfig.endpoint, id),
+				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
 				defaults.serialize(attrs),
 				options
 			);
@@ -1632,7 +1632,7 @@ function DSHttpAdapterProvider() {
 			}
 			DSUtils.deepMixIn(options, params);
 			return this.PUT(
-				DSUtils.makePath(resourceConfig.baseUrl, resourceConfig.endpoint),
+				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint),
 				defaults.serialize(attrs),
 				options
 			);
@@ -1641,7 +1641,7 @@ function DSHttpAdapterProvider() {
 		function destroy(resourceConfig, id, options) {
 			options = options || {};
 			return this.DEL(
-				DSUtils.makePath(resourceConfig.baseUrl, resourceConfig.endpoint, id),
+				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
 				options
 			);
 		}
@@ -1654,7 +1654,7 @@ function DSHttpAdapterProvider() {
 			}
 			DSUtils.deepMixIn(options, params);
 			return this.DEL(
-				DSUtils.makePath(resourceConfig.baseUrl, resourceConfig.endpoint),
+				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint),
 				options
 			);
 		}
@@ -1664,7 +1664,7 @@ function DSHttpAdapterProvider() {
 module.exports = DSHttpAdapterProvider;
 
 },{}],32:[function(require,module,exports){
-var errorPrefix = 'DS.create(resourceName, attrs): ';
+var errorPrefix = 'DS.create(resourceName, attrs[, options]): ';
 
 /**
  * @doc method
@@ -1675,7 +1675,7 @@ var errorPrefix = 'DS.create(resourceName, attrs): ';
  *
  * ## Signature:
  * ```js
- * DS.create(resourceName, attrs)
+ * DS.create(resourceName, attrs[, options])
  * ```
  *
  * ## Example:

@@ -292,6 +292,14 @@ module.exports = function (grunt) {
 								'bower_components/angular-cache/dist/angular-cache.js'
 							],
 							docs: ['guide/api']
+						},
+						{
+							id: 'angular-data-mocks',
+							title: 'angular-data-mocks',
+							scripts: [
+								'bower_components/angular-data-mocks/dist/angular-data-mocks.js'
+							],
+							docs: ['guide/api']
 						}
 					]
 				}

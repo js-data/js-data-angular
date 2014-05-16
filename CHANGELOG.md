@@ -4,6 +4,7 @@
 - #30, #48 - DSCacheFactory integration
 - #49 - DS.bindOne($scope, prop, resourceName, id)
 - #50 - DS.bindAll($scope, prop, resourceName, query)
+- #51 - Allow baseUrl to be overridable at the method level
 - #52 - DS.update(resourceName, id, attrs[, options]) (different from DS.save())
 - #54 - Adding functionality to resources
 - #56 - DS.updateAll(resourceName, attrs, params[, options])

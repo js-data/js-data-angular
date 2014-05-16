@@ -1,4 +1,4 @@
-var errorPrefix = 'DS.create(resourceName, attrs): ';
+var errorPrefix = 'DS.create(resourceName, attrs[, options]): ';
 
 /**
  * @doc method
@@ -9,7 +9,7 @@ var errorPrefix = 'DS.create(resourceName, attrs): ';
  *
  * ## Signature:
  * ```js
- * DS.create(resourceName, attrs)
+ * DS.create(resourceName, attrs[, options])
  * ```
  *
  * ## Example:

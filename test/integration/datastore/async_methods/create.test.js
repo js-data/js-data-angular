@@ -1,5 +1,5 @@
-describe('DS.create(resourceName, attrs)', function () {
-	var errorPrefix = 'DS.create(resourceName, attrs): ';
+describe('DS.create(resourceName, attrs[, options])', function () {
+	var errorPrefix = 'DS.create(resourceName, attrs[, options]): ';
 
 	it('should throw an error when method pre-conditions are not met', function (done) {
 		DS.create('does not exist', 5).then(function () {
