@@ -28,7 +28,7 @@
   "devDependencies": {
     "angular": "~1.2.16",
     "angular-mocks": "~1.2.16",
-    "angular-data-mocks": "git@github.com:jmdobry/angular-data-mocks.git#0.0.1",
+    "angular-data-mocks": "0.1.0",
     "angular-cache": "~3.0.0-beta.4",
     "observe-js": "~0.2.0"
   }
