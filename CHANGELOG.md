@@ -8,6 +8,7 @@
 - #52 - DS.update(resourceName, id, attrs[, options]) (different from DS.save())
 - #54 - Adding functionality to resources
 - #56 - DS.updateAll(resourceName, attrs, params[, options])
+- #60 - DSHttpAdapterProvider.defaults is undefined
 
 ##### 0.8.1 - 02 May 2014
 

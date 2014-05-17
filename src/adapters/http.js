@@ -5,66 +5,82 @@
  */
 function DSHttpAdapterProvider() {
 
-	this.$get = ['$http', '$log', 'DSUtils', function ($http, $log, DSUtils) {
+	/**
+	 * @doc property
+	 * @id DSHttpAdapterProvider.properties:defaults
+	 * @name defaults
+	 * @description
+	 * Default configuration for this adapter.
+	 *
+	 * Properties:
+	 *
+	 * - `{function}` - `serialize` - See [the guide](/documentation/guide/adapters/index). Default: No-op.
+	 * - `{function}` - `deserialize` - See [the guide](/documentation/guide/adapters/index). Default: No-op.
+	 * - `{function}` - `queryTransform` - See [the guide](/documentation/guide/adapters/index). Default: No-op.
+	 */
+	var defaults = this.defaults = {
+		/**
+		 * @doc property
+		 * @id DSHttpAdapterProvider.properties:defaults.serialize
+		 * @name defaults.serialize
+		 * @description
+		 * Your server might expect a custom request object rather than the plain POJO payload. Use `serialize` to
+		 * create your custom request object.
+		 *
+		 * ## Example:
+		 * ```js
+		 *  DSHttpAdapterProvider.defaults.serialize = function (data) {
+			 *      return {
+			 *          payload: data
+			 *      };
+			 *  };
+		 * ```
+		 *
+		 * @param {object} data Data to be sent to the server.
+		 * @returns {*} Returns `data` as-is.
+		 */
+		serialize: function (data) {
+			return data;
+		},
 
 		/**
 		 * @doc property
-		 * @id DSHttpAdapterProvider.properties:defaults
-		 * @name defaults
+		 * @id DSHttpAdapterProvider.properties:defaults.deserialize
+		 * @name defaults.deserialize
 		 * @description
-		 * Default configuration for this adapter.
+		 * Your server might return a custom response object instead of the plain POJO payload. Use `deserialize` to
+		 * pull the payload out of your response object so angular-data can use it.
 		 *
-		 * Properties:
+		 * ## Example:
+		 * ```js
+		 *  DSHttpAdapterProvider.defaults.deserialize = function (data) {
+			 *      return data ? data.payload : data;
+			 *  };
+		 * ```
 		 *
-		 * - `{function}` - `serialize` - See [the guide](/documentation/guide/adapters/index). Default: No-op.
-		 * - `{function}` - `deserialize` - See [the guide](/documentation/guide/adapters/index). Default: No-op.
-		 * - `{function}` - `queryTransform` - See [the guide](/documentation/guide/adapters/index). Default: No-op.
+		 * @param {object} data Response object from `$http()`.
+		 * @returns {*} Returns `data.data`.
 		 */
-		var defaults = this.defaults = {
-			/**
-			 * @doc property
-			 * @id DSHttpAdapterProvider.properties:defaults.serialize
-			 * @name defaults.serialize
-			 * @description
-			 * Your server might expect a custom request object rather than the plain POJO payload. Use `serialize` to
-			 * create your custom request object.
-			 *
-			 * @param {object} data Data to be sent to the server.
-			 * @returns {*} Returns `data` as-is.
-			 */
-			serialize: function (data) {
-				return data;
-			},
+		deserialize: function (data) {
+			return data.data;
+		},
 
-			/**
-			 * @doc property
-			 * @id DSHttpAdapterProvider.properties:defaults.deserialize
-			 * @name defaults.deserialize
-			 * @description
-			 * Your server might return a custom response object instead of the plain POJO payload. Use `deserialize` to
-			 * pull the payload out of your response object so angular-data can use it.
-			 *
-			 * @param {object} data Response object from `$http()`.
-			 * @returns {*} Returns `data.data`.
-			 */
-			deserialize: function (data) {
-				return data.data;
-			},
+		/**
+		 * @doc property
+		 * @id DSHttpAdapterProvider.properties:defaults.queryTransform
+		 * @name defaults.queryTransform
+		 * @description
+		 * Transform the angular-data query to something your server understands. You might just do this on the server instead.
+		 *
+		 * @param {object} query Response object from `$http()`.
+		 * @returns {*} Returns `query` as-is.
+		 */
+		queryTransform: function (query) {
+			return query;
+		}
+	};
 
-			/**
-			 * @doc property
-			 * @id DSHttpAdapterProvider.properties:defaults.queryTransform
-			 * @name defaults.queryTransform
-			 * @description
-			 * Transform the angular-data query to something your server understands. You might just do this on the server instead.
-			 *
-			 * @param {object} query Response object from `$http()`.
-			 * @returns {*} Returns `query` as-is.
-			 */
-			queryTransform: function (query) {
-				return query;
-			}
-		};
+	this.$get = ['$http', '$log', 'DSUtils', function ($http, $log, DSUtils) {
 
 		/**
 		 * @doc interface

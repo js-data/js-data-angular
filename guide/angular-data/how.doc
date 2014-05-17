@@ -1,0 +1,22 @@
+@doc overview
+@id how
+@name How do I...?
+@description
+
+#### How do I serialize data before it's saved?
+```js
+DSHttpAdapter.defaults.serialize = function (data) {
+	// custom payload format
+	return {
+		payload: data
+	};
+};
+```
+
+#### How do I deserialize data?
+```js
+DSHttpAdapter.defaults.deserialize = function (data) {
+	// extract data from custom payload format
+	return data ? data.payload : data;
+};
+```

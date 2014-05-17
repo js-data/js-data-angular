@@ -217,14 +217,16 @@ module.exports = function (grunt) {
 								'guide/angular-data/overview.doc',
 								'guide/angular-data/resources.doc',
 								'guide/angular-data/synchronous.doc',
-								'guide/angular-data/asynchronous.doc'
+								'guide/angular-data/asynchronous.doc',
+								'guide/angular-data/how.doc'
 							],
 							rank: {
 								index: 1,
 								overview: 2,
 								resources: 3,
 								synchronous: 4,
-								asynchronous: 5
+								asynchronous: 5,
+								how: 6
 							}
 						},
 						{

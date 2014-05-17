@@ -1,5 +1,5 @@
 // Setup global test variables
-var $rootScope, $q, $log, DSProvider, DS, app, $httpBackend, p1, p2, p3, p4, p5;
+var $rootScope, $q, $log, DSProvider, DSHttpAdapterProvider, DS, app, $httpBackend, p1, p2, p3, p4, p5;
 
 var lifecycle = {};
 
@@ -73,8 +73,9 @@ beforeEach(function (done) {
 	lifecycle.afterInject = function () {
 		lifecycle.afterInject.callCount += 1;
 	};
-	module('app', function (_DSProvider_) {
+	module('app', function (_DSProvider_, _DSHttpAdapterProvider_) {
 		DSProvider = _DSProvider_;
+		DSHttpAdapterProvider = _DSHttpAdapterProvider_;
 		DSProvider.defaults.baseUrl = 'http://test.angular-cache.com';
 		DSProvider.defaults.beforeValidate = lifecycle.beforeValidate;
 		DSProvider.defaults.validate = lifecycle.validate;
