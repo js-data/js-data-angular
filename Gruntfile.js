@@ -344,13 +344,31 @@ module.exports = function (grunt) {
 		grunt.file.write(filePath, file);
 	});
 
+	grunt.registerTask('banner', function () {
+		var file = grunt.file.read('dist/angular-data.js');
+
+		var banner = '/**\n' +
+			'* @author Jason Dobry <jason.dobry@gmail.com>\n' +
+			'* @file angular-data.js\n' +
+			'* @version ' + pkg.version + ' - Homepage <http://angular-data.codetrain.io/>\n' +
+			'* @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>\n' +
+			'* @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>\n' +
+			'*\n' +
+			'* @overview Data store for Angular.js.\n' +
+			'*/\n';
+
+		file = banner + file;
+
+		grunt.file.write('dist/angular-data.js', file);
+	});
+
 	grunt.registerTask('test', ['clean:coverage', 'karma:dev']);
 	grunt.registerTask('doc', ['clean:doc', 'docular', 'concat', 'copy', 'clean:afterDoc', 'uglify:scripts']);
 	grunt.registerTask('build', [
 		'clean',
 		'jshint',
 		'browserify',
-		'version:dist/angular-data.js',
+		'banner',
 		'uglify:main'
 	]);
 	grunt.registerTask('go', ['build', 'watch']);

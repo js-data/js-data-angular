@@ -173,7 +173,9 @@ function DSLocalStorageProvider() {
 				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
 				attrs,
 				options
-			);
+			).then(function () {
+					return GET(DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id));
+				});
 		}
 	}];
 }

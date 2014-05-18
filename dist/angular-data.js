@@ -1,12 +1,12 @@
 /**
- * @author Jason Dobry <jason.dobry@gmail.com>
- * @file angular-data.js
- * @version 0.9.0 - Homepage <http://angular-data.codetrain.io/>
- * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>
- * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
- *
- * @overview Data store for Angular.js.
- */
+* @author Jason Dobry <jason.dobry@gmail.com>
+* @file angular-data.js
+* @version 0.9.0 - Homepage <http://angular-data.codetrain.io/>
+* @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>
+* @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
+*
+* @overview Data store for Angular.js.
+*/
 require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"QYwGEY":[function(require,module,exports){
 (function (global){
 // Copyright 2012 Google Inc.
@@ -1805,7 +1805,9 @@ function DSLocalStorageProvider() {
 				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
 				attrs,
 				options
-			);
+			).then(function () {
+					return GET(DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id));
+				});
 		}
 	}];
 }
@@ -4984,7 +4986,7 @@ module.exports = [function () {
 	 * Load `dist/angular-data.js` or `dist/angular-data.min.js` onto your web page after Angular.js.
 	 *
 	 * #### Manual download
-	 * Download angular-data-0.9.0.js from the [Releases](https://github.com/jmdobry/angular-data/releases)
+	 * Download angular-data-<%= pkg.version %>.js from the [Releases](https://github.com/jmdobry/angular-data/releases)
 	 * section of the angular-data GitHub project.
 	 *
 	 * ## Load into Angular
