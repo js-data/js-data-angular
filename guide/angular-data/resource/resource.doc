@@ -58,6 +58,11 @@ DS.defineResource({
 		} else if (!angular.isString(attrs.title)) {
 			cb('title must be a string!');
 		}
+	},
+	// the "meta" property is reserved for developer use
+	// it will never be used by the API
+	meta: {
+
 	}
 });
 ```

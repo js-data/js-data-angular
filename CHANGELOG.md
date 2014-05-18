@@ -13,6 +13,7 @@
 - #54 - Adding functionality to resources
 - #56 - DS.updateAll(resourceName, attrs, params[, options])
 - #60 - DSHttpAdapterProvider.defaults is undefined
+- #63 - DSLocalStorageAdapter
 
 ##### 0.8.1 - 02 May 2014
 

@@ -3702,6 +3702,7 @@ function Resource(utils, options) {
  * - `{string="id"}` - `idAttribute` - The attribute that specifies the primary key for this resource.
  * - `{string=}` - `endpoint` - The attribute that specifies the primary key for this resource. Default is the value of `name`.
  * - `{string=}` - `baseUrl` - The url relative to which all AJAX requests will be made.
+ * - `{*=}` - `meta` - A property reserved for developer use. This will never be used by the API.
  * - `{object=}` - `methods` - If provided, items of this resource will be wrapped in a constructor function that is
  * empty save for the attributes in this option which will be mixed in to the constructor function prototype. Enabling
  * this feature for this resource will incur a slight performance penalty, but allows you to give custom behavior to what
