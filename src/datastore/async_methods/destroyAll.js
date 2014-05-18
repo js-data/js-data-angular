@@ -67,16 +67,16 @@ function destroyAll(resourceName, params, options) {
 	if (!this.definitions[resourceName]) {
 		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
 	} else if (!this.utils.isObject(params)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!', { params: { actual: typeof params, expected: 'object' } }));
+		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!'));
 	} else if (!this.utils.isObject(options)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
+		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!'));
 	} else {
 		try {
 			var definition = this.definitions[resourceName];
 
 			promise = promise
 				.then(function () {
-					return _this.adapters[options.adapter || definition.defaultAdapter].destroyAll(definition, { params: params }, options);
+					return _this.adapters[options.adapter || definition.defaultAdapter].destroyAll(definition, params, options);
 				})
 				.then(function () {
 					return _this.ejectAll(resourceName, params);

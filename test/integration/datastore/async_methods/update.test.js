@@ -62,6 +62,10 @@ describe('DS.update(resourceName, id, attrs[, options])', function () {
 
 		assert.equal(lifecycle.beforeUpdate.callCount, 1, 'beforeUpdate should have been called');
 		assert.equal(lifecycle.afterUpdate.callCount, 1, 'afterUpdate should have been called');
+		assert.equal(lifecycle.beforeInject.callCount, 2, 'beforeInject should have been called');
+		assert.equal(lifecycle.afterInject.callCount, 2, 'afterInject should have been called');
+		assert.equal(lifecycle.serialize.callCount, 1, 'serialize should have been called');
+		assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
 		assert.deepEqual(DS.get('post', 5), post);
 		assert.notEqual(DS.lastModified('post', 5), initialModified);
 		assert.notEqual(DS.lastSaved('post', 5), initialSaved);
@@ -75,5 +79,10 @@ describe('DS.update(resourceName, id, attrs[, options])', function () {
 		});
 
 		$httpBackend.flush();
+
+		assert.equal(lifecycle.beforeInject.callCount, 3, 'beforeInject should have been called');
+		assert.equal(lifecycle.afterInject.callCount, 3, 'afterInject should have been called');
+		assert.equal(lifecycle.serialize.callCount, 2, 'serialize should have been called');
+		assert.equal(lifecycle.deserialize.callCount, 2, 'deserialize should have been called');
 	});
 });

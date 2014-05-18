@@ -1,7 +1,7 @@
 describe('DS.save(resourceName, id[, options])', function () {
 	var errorPrefix = 'DS.save(resourceName, id[, options]): ';
 
-	it('should throw an error when method pre-conditions are not met', function (done) {
+	it('should throw an error when method pre-conditions are not met', function () {
 		DS.save('does not exist', 5).then(function () {
 			fail('should have rejected');
 		}, function (err) {
@@ -28,10 +28,8 @@ describe('DS.save(resourceName, id[, options])', function () {
 				});
 			}
 		});
-
-		done();
 	});
-	it('should save an item to the server', function (done) {
+	it('should save an item to the server', function () {
 		$httpBackend.expectPUT('http://test.angular-cache.com/posts/5').respond(200, p1);
 
 		DS.inject('post', p1);
@@ -64,9 +62,12 @@ describe('DS.save(resourceName, id[, options])', function () {
 			assert.equal(err.message, errorPrefix + 'id: "6" not found!');
 		});
 
-		done();
+		assert.equal(lifecycle.beforeInject.callCount, 2, 'beforeInject should have been called');
+		assert.equal(lifecycle.afterInject.callCount, 2, 'afterInject should have been called');
+		assert.equal(lifecycle.serialize.callCount, 1, 'serialize should have been called');
+		assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
 	});
-	it('should save changes of an item to the server', function (done) {
+	it('should save changes of an item to the server', function () {
 		$httpBackend.expectPUT('http://test.angular-cache.com/posts/5', { author: 'Jake' }).respond(200, {
 			author: 'Jake',
 			id: 5,
@@ -104,6 +105,9 @@ describe('DS.save(resourceName, id[, options])', function () {
 			assert.equal(err.message, errorPrefix + 'id: "6" not found!');
 		});
 
-		done();
+		assert.equal(lifecycle.beforeInject.callCount, 2, 'beforeInject should have been called');
+		assert.equal(lifecycle.afterInject.callCount, 2, 'afterInject should have been called');
+		assert.equal(lifecycle.serialize.callCount, 1, 'serialize should have been called');
+		assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
 	});
 });

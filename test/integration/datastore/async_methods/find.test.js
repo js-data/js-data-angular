@@ -74,6 +74,11 @@ describe('DS.find(resourceName, id[, options]): ', function () {
 		});
 
 		$httpBackend.flush();
+
+		assert.equal(lifecycle.beforeInject.callCount, 2, 'beforeInject should have been called');
+		assert.equal(lifecycle.afterInject.callCount, 2, 'afterInject should have been called');
+		assert.equal(lifecycle.serialize.callCount, 0, 'serialize should have been called');
+		assert.equal(lifecycle.deserialize.callCount, 2, 'deserialize should have been called');
 	});
 	it('should get an item from the server and delete when using DSCacheFactory in passive mode', function (done) {
 		DS.defineResource({
@@ -109,6 +114,12 @@ describe('DS.find(resourceName, id[, options]): ', function () {
 
 		setTimeout(function () {
 			assert.isUndefined(DS.get('comment', 5));
+
+			assert.equal(lifecycle.beforeInject.callCount, 1, 'beforeInject should have been called');
+			assert.equal(lifecycle.afterInject.callCount, 1, 'afterInject should have been called');
+			assert.equal(lifecycle.serialize.callCount, 0, 'serialize should have been called');
+			assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
+
 			done();
 		}, 100);
 	});
@@ -147,6 +158,12 @@ describe('DS.find(resourceName, id[, options]): ', function () {
 
 		setTimeout(function () {
 			assert.isUndefined(DS.get('comment', 5));
+
+			assert.equal(lifecycle.beforeInject.callCount, 1, 'beforeInject should have been called');
+			assert.equal(lifecycle.afterInject.callCount, 1, 'afterInject should have been called');
+			assert.equal(lifecycle.serialize.callCount, 0, 'serialize should have been called');
+			assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
+
 			done();
 		}, 100);
 	});
@@ -163,5 +180,9 @@ describe('DS.find(resourceName, id[, options]): ', function () {
 		$httpBackend.flush();
 
 		assert.isUndefined(DS.get('post', 5), 'The post should not have been injected into the store');
+		assert.equal(lifecycle.beforeInject.callCount, 0, 'beforeInject should have been called');
+		assert.equal(lifecycle.afterInject.callCount, 0, 'afterInject should have been called');
+		assert.equal(lifecycle.serialize.callCount, 0, 'serialize should have been called');
+		assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
 	});
 });

@@ -1,5 +1,9 @@
 ##### 0.9.0 - xx May 2014
 
+###### Breading API changes
+- #61 - Make custom serializers/deserializers more valuable
+- #59, #62 - Make queryTransform() consistent with the rest of the API
+
 ###### Backwards compatible API changes
 - #30, #48 - DSCacheFactory integration
 - #49 - DS.bindOne($scope, prop, resourceName, id)

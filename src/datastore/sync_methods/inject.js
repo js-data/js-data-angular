@@ -2,7 +2,8 @@ var observe = require('observejs'),
 	errorPrefix = 'DS.inject(resourceName, attrs[, options]): ';
 
 function _inject(definition, resource, attrs) {
-	var _this = this;
+	var _this = this,
+		$log = _this.$log;
 
 	function _react(added, removed, changed, getOldValueFn) {
 		try {
@@ -29,44 +30,49 @@ function _inject(definition, resource, attrs) {
 		if (!(definition.idAttribute in attrs)) {
 			throw new _this.errors.RuntimeError(errorPrefix + 'attrs: Must contain the property specified by `idAttribute`!');
 		} else {
-			definition.beforeInject(definition.name, attrs);
-			var id = attrs[definition.idAttribute],
-				item = this.get(definition.name, id);
+			try {
+				definition.beforeInject(definition.name, attrs);
+				var id = attrs[definition.idAttribute],
+					item = this.get(definition.name, id);
 
-			if (!item) {
-				if (definition.class) {
-					if (attrs instanceof definition[definition.class]) {
-						item = attrs;
+				if (!item) {
+					if (definition.class) {
+						if (attrs instanceof definition[definition.class]) {
+							item = attrs;
+						} else {
+							item = new definition[definition.class]();
+						}
 					} else {
-						item = new definition[definition.class]();
+						item = {};
 					}
+					resource.previousAttributes[id] = {};
+
+					_this.utils.deepMixIn(item, attrs);
+					_this.utils.deepMixIn(resource.previousAttributes[id], attrs);
+
+					resource.collection.push(item);
+
+					resource.observers[id] = new observe.ObjectObserver(item, _react);
+					resource.index.put(id, item);
+
+					_react({}, {}, {}, function () {
+						return id;
+					});
 				} else {
-					item = {};
+					_this.utils.deepMixIn(item, attrs);
+					if (typeof resource.index.touch === 'function') {
+						resource.index.touch(id);
+					} else {
+						resource.index.put(id, resource.index.get(id));
+					}
+					resource.observers[id].deliver();
 				}
-				resource.previousAttributes[id] = {};
-
-				_this.utils.deepMixIn(item, attrs);
-				_this.utils.deepMixIn(resource.previousAttributes[id], attrs);
-
-				resource.collection.push(item);
-
-				resource.observers[id] = new observe.ObjectObserver(item, _react);
-				resource.index.put(id, item);
-
-				_react({}, {}, {}, function () {
-					return id;
-				});
-			} else {
-				_this.utils.deepMixIn(item, attrs);
-				if (typeof resource.index.touch === 'function') {
-					resource.index.touch(id);
-				} else {
-					resource.index.put(id, resource.index.get(id));
-				}
-				resource.observers[id].deliver();
+				resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
+				definition.afterInject(definition.name, item);
+			} catch (err) {
+				$log.error(err);
+				$log.error('inject failed!', definition.name, attrs);
 			}
-			resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
-			definition.afterInject(definition.name, item);
 		}
 	}
 }

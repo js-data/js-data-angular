@@ -1,7 +1,7 @@
 describe('DS.create(resourceName, attrs[, options])', function () {
 	var errorPrefix = 'DS.create(resourceName, attrs[, options]): ';
 
-	it('should throw an error when method pre-conditions are not met', function (done) {
+	it('should throw an error when method pre-conditions are not met', function () {
 		DS.create('does not exist', 5).then(function () {
 			fail('should have rejected');
 		}, function (err) {
@@ -17,10 +17,8 @@ describe('DS.create(resourceName, attrs[, options])', function () {
 				assert.equal(err.message, errorPrefix + 'attrs: Must be an object!');
 			});
 		});
-
-		done();
 	});
-	it('should create an item and save it to the server', function (done) {
+	it('should create an item and save it to the server', function () {
 		$httpBackend.expectPOST('http://test.angular-cache.com/posts').respond(200, p1);
 
 		DS.create('post', { author: 'John', age: 30 }).then(function (post) {
@@ -34,8 +32,10 @@ describe('DS.create(resourceName, attrs[, options])', function () {
 
 		assert.equal(lifecycle.beforeCreate.callCount, 1, 'beforeCreate should have been called');
 		assert.equal(lifecycle.afterCreate.callCount, 1, 'afterCreate should have been called');
+		assert.equal(lifecycle.beforeInject.callCount, 1, 'beforeInject should have been called');
+		assert.equal(lifecycle.afterInject.callCount, 1, 'afterInject should have been called');
+		assert.equal(lifecycle.serialize.callCount, 1, 'serialize should have been called');
+		assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
 		assert.deepEqual(DS.get('post', 5), p1);
-
-		done();
 	});
 });

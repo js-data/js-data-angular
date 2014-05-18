@@ -45,7 +45,7 @@ var errorPrefix = 'DS.update(resourceName, id, attrs[, options]): ';
  * - `{RuntimeError}`
  * - `{UnhandledError}`
  */
-function save(resourceName, id, attrs, options) {
+function update(resourceName, id, attrs, options) {
 	var deferred = this.$q.defer(),
 		promise = deferred.promise;
 
@@ -84,17 +84,18 @@ function save(resourceName, id, attrs, options) {
 				return _this.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
 			})
 			.then(function (attrs) {
-				return _this.adapters[options.adapter || definition.defaultAdapter].update(definition, id, attrs, options);
+				return _this.adapters[options.adapter || definition.defaultAdapter].update(definition, id, definition.serialize(resourceName, attrs), options);
 			})
-			.then(function (data) {
-				return _this.$q.promisify(definition.afterUpdate)(resourceName, data);
+			.then(function (res) {
+				return _this.$q.promisify(definition.afterUpdate)(resourceName, definition.deserialize(resourceName, res));
 			})
 			.then(function (data) {
 				if (options.cacheResponse) {
-					var item = _this.inject(definition.name, data, options);
-					resource.previousAttributes[id] = _this.utils.deepMixIn({}, data);
+					var updated = _this.inject(definition.name, data, options);
+					var id = updated[definition.idAttribute];
+					resource.previousAttributes[id] = _this.utils.deepMixIn({}, updated);
 					resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
-					return item;
+					return _this.get(definition.name, id);
 				} else {
 					return data;
 				}
@@ -105,4 +106,4 @@ function save(resourceName, id, attrs, options) {
 	return promise;
 }
 
-module.exports = save;
+module.exports = update;

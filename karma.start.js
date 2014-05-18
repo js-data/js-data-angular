@@ -1,5 +1,5 @@
 // Setup global test variables
-var $rootScope, $q, $log, DSProvider, DSHttpAdapterProvider, DS, app, $httpBackend, p1, p2, p3, p4, p5;
+var $rootScope, $q, $log, DSProvider, DSHttpAdapterProvider, DS, DSHttpAdapter, app, $httpBackend, p1, p2, p3, p4, p5;
 
 var lifecycle = {};
 
@@ -73,9 +73,22 @@ beforeEach(function (done) {
 	lifecycle.afterInject = function () {
 		lifecycle.afterInject.callCount += 1;
 	};
+	lifecycle.serialize = function (resourceName, data) {
+		lifecycle.serialize.callCount += 1;
+		return data;
+	};
+	lifecycle.deserialize = function (resourceName, data) {
+		lifecycle.deserialize.callCount += 1;
+		return data.data;
+	};
+	lifecycle.queryTransform = function (resourceName, query) {
+		lifecycle.queryTransform.callCount += 1;
+		return query;
+	};
 	module('app', function (_DSProvider_, _DSHttpAdapterProvider_) {
-		DSProvider = _DSProvider_;
 		DSHttpAdapterProvider = _DSHttpAdapterProvider_;
+		DSHttpAdapterProvider.defaults.queryTransform = lifecycle.queryTransform;
+		DSProvider = _DSProvider_;
 		DSProvider.defaults.baseUrl = 'http://test.angular-cache.com';
 		DSProvider.defaults.beforeValidate = lifecycle.beforeValidate;
 		DSProvider.defaults.validate = lifecycle.validate;
@@ -88,12 +101,15 @@ beforeEach(function (done) {
 		DSProvider.defaults.afterDestroy = lifecycle.afterDestroy;
 		DSProvider.defaults.beforeInject = lifecycle.beforeInject;
 		DSProvider.defaults.afterInject = lifecycle.afterInject;
+		DSProvider.defaults.serialize = lifecycle.serialize;
+		DSProvider.defaults.deserialize = lifecycle.deserialize;
 	});
-	inject(function (_$rootScope_, _$q_, _$httpBackend_, _DS_, _$log_) {
+	inject(function (_$rootScope_, _$q_, _$httpBackend_, _DS_, _$log_, _DSHttpAdapter_) {
 		// Setup global mocks
 		$q = _$q_;
 		$rootScope = _$rootScope_;
 		DS = _DS_;
+		DSHttpAdapter = _DSHttpAdapter_;
 		$httpBackend = _$httpBackend_;
 		DS.defineResource({
 			name: 'post',
@@ -112,6 +128,9 @@ beforeEach(function (done) {
 		lifecycle.afterDestroy.callCount = 0;
 		lifecycle.beforeInject.callCount = 0;
 		lifecycle.afterInject.callCount = 0;
+		lifecycle.serialize.callCount = 0;
+		lifecycle.deserialize.callCount = 0;
+		lifecycle.queryTransform.callCount = 0;
 
 		p1 = { author: 'John', age: 30, id: 5 };
 		p2 = { author: 'Sally', age: 31, id: 6 };

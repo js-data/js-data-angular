@@ -33,8 +33,9 @@ function _findAll(utils, resourceName, params, options) {
 		if (!(queryHash in resource.pendingQueries)) {
 
 			// This particular query has never even been made
-			resource.pendingQueries[queryHash] = _this.adapters[options.adapter || definition.defaultAdapter].findAll(definition, { params: params }, options)
-				.then(function (data) {
+			resource.pendingQueries[queryHash] = _this.adapters[options.adapter || definition.defaultAdapter].findAll(definition, params, options)
+				.then(function (res) {
+					var data = definition.deserialize(resourceName, res);
 					if (options.cacheResponse) {
 						try {
 							return processResults.apply(_this, [utils, data, resourceName, queryHash]);
@@ -132,9 +133,9 @@ function findAll(resourceName, params, options) {
 	if (!this.definitions[resourceName]) {
 		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
 	} else if (!this.utils.isObject(params)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!', { params: { actual: typeof params, expected: 'object' } }));
+		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!'));
 	} else if (!this.utils.isObject(options)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
+		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!'));
 	} else {
 		if (!('cacheResponse' in options)) {
 			options.cacheResponse = true;

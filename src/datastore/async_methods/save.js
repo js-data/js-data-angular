@@ -96,10 +96,10 @@ function save(resourceName, id, options) {
 							attrs = changes;
 						}
 					}
-					return _this.adapters[options.adapter || definition.defaultAdapter].update(definition, id, attrs, options);
+					return _this.adapters[options.adapter || definition.defaultAdapter].update(definition, id, definition.serialize(resourceName, attrs), options);
 				})
-				.then(function (data) {
-					return _this.$q.promisify(definition.afterUpdate)(resourceName, data);
+				.then(function (res) {
+					return _this.$q.promisify(definition.afterUpdate)(resourceName, definition.deserialize(resourceName, res));
 				})
 				.then(function (data) {
 					_this.inject(definition.name, data, options);

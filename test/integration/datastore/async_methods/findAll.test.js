@@ -74,6 +74,11 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
 		});
 
 		$httpBackend.flush();
+
+		assert.equal(lifecycle.beforeInject.callCount, 8, 'beforeInject should have been called');
+		assert.equal(lifecycle.afterInject.callCount, 8, 'afterInject should have been called');
+		assert.equal(lifecycle.serialize.callCount, 0, 'serialize should have been called');
+		assert.equal(lifecycle.deserialize.callCount, 2, 'deserialize should have been called');
 	});
 	it('should query the server for a collection but not store the data if cacheResponse is false', function () {
 		$httpBackend.expectGET(/http:\/\/test\.angular-cache\.com\/posts\??/).respond(200, [p1, p2, p3, p4]);
@@ -88,5 +93,10 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
 		$httpBackend.flush();
 
 		assert.deepEqual(DS.filter('post', {}), [], 'The posts should not have been injected into the store');
+
+		assert.equal(lifecycle.beforeInject.callCount, 0, 'beforeInject should have been called');
+		assert.equal(lifecycle.afterInject.callCount, 0, 'afterInject should have been called');
+		assert.equal(lifecycle.serialize.callCount, 0, 'serialize should have been called');
+		assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
 	});
 });

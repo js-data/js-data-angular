@@ -1217,57 +1217,9 @@ function DSHttpAdapterProvider() {
 	 *
 	 * Properties:
 	 *
-	 * - `{function}` - `serialize` - See [the guide](/documentation/guide/adapters/index). Default: No-op.
-	 * - `{function}` - `deserialize` - See [the guide](/documentation/guide/adapters/index). Default: No-op.
 	 * - `{function}` - `queryTransform` - See [the guide](/documentation/guide/adapters/index). Default: No-op.
 	 */
 	var defaults = this.defaults = {
-		/**
-		 * @doc property
-		 * @id DSHttpAdapterProvider.properties:defaults.serialize
-		 * @name defaults.serialize
-		 * @description
-		 * Your server might expect a custom request object rather than the plain POJO payload. Use `serialize` to
-		 * create your custom request object.
-		 *
-		 * ## Example:
-		 * ```js
-		 *  DSHttpAdapterProvider.defaults.serialize = function (data) {
-			 *      return {
-			 *          payload: data
-			 *      };
-			 *  };
-		 * ```
-		 *
-		 * @param {object} data Data to be sent to the server.
-		 * @returns {*} Returns `data` as-is.
-		 */
-		serialize: function (data) {
-			return data;
-		},
-
-		/**
-		 * @doc property
-		 * @id DSHttpAdapterProvider.properties:defaults.deserialize
-		 * @name defaults.deserialize
-		 * @description
-		 * Your server might return a custom response object instead of the plain POJO payload. Use `deserialize` to
-		 * pull the payload out of your response object so angular-data can use it.
-		 *
-		 * ## Example:
-		 * ```js
-		 *  DSHttpAdapterProvider.defaults.deserialize = function (data) {
-			 *      return data ? data.payload : data;
-			 *  };
-		 * ```
-		 *
-		 * @param {object} data Response object from `$http()`.
-		 * @returns {*} Returns `data.data`.
-		 */
-		deserialize: function (data) {
-			return data.data;
-		},
-
 		/**
 		 * @doc property
 		 * @id DSHttpAdapterProvider.properties:defaults.queryTransform
@@ -1275,10 +1227,11 @@ function DSHttpAdapterProvider() {
 		 * @description
 		 * Transform the angular-data query to something your server understands. You might just do this on the server instead.
 		 *
+		 * @param {string} resourceName The name of the resource.
 		 * @param {object} query Response object from `$http()`.
 		 * @returns {*} Returns `query` as-is.
 		 */
-		queryTransform: function (query) {
+		queryTransform: function (resourceName, query) {
 			return query;
 		}
 	};
@@ -1564,7 +1517,7 @@ function DSHttpAdapterProvider() {
 
 			return $http(config).then(function (data) {
 				$log.debug(data.config.method + ' request:' + data.config.url + ' Time taken: ' + (new Date().getTime() - start) + 'ms', arguments);
-				return defaults.deserialize(data);
+				return data;
 			});
 		}
 
@@ -1602,54 +1555,11 @@ function DSHttpAdapterProvider() {
 			}));
 		}
 
-		function find(resourceConfig, id, options) {
-			options = options || {};
-			return this.GET(
-				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
-				options
-			);
-		}
-
-		function findAll(resourceConfig, params, options) {
-			options = options || {};
-			options.params = options.params || {};
-			if (options.params.query) {
-				options.params.query = defaults.queryTransform(options.params.query);
-			}
-			DSUtils.deepMixIn(options, params);
-			return this.GET(
-				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint),
-				options
-			);
-		}
-
 		function create(resourceConfig, attrs, options) {
 			options = options || {};
 			return this.POST(
 				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint),
-				defaults.serialize(attrs),
-				options
-			);
-		}
-
-		function update(resourceConfig, id, attrs, options) {
-			return this.PUT(
-				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
-				defaults.serialize(attrs),
-				options
-			);
-		}
-
-		function updateAll(resourceConfig, attrs, params, options) {
-			options = options || {};
-			options.params = options.params || {};
-			if (options.params.query) {
-				options.params.query = defaults.queryTransform(options.params.query);
-			}
-			DSUtils.deepMixIn(options, params);
-			return this.PUT(
-				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint),
-				defaults.serialize(attrs),
+				attrs,
 				options
 			);
 		}
@@ -1665,12 +1575,56 @@ function DSHttpAdapterProvider() {
 		function destroyAll(resourceConfig, params, options) {
 			options = options || {};
 			options.params = options.params || {};
-			if (options.params.query) {
-				options.params.query = defaults.queryTransform(options.params.query);
+			if (params) {
+				params.query = params.query ? defaults.queryTransform(resourceConfig.name, params.query) : params.query;
+				DSUtils.deepMixIn(options.params, params);
 			}
-			DSUtils.deepMixIn(options, params);
 			return this.DEL(
 				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint),
+				options
+			);
+		}
+
+		function find(resourceConfig, id, options) {
+			options = options || {};
+			return this.GET(
+				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
+				options
+			);
+		}
+
+		function findAll(resourceConfig, params, options) {
+			options = options || {};
+			options.params = options.params || {};
+			if (params) {
+				params.query = params.query ? defaults.queryTransform(resourceConfig.name, params.query) : params.query;
+				DSUtils.deepMixIn(options.params, params);
+			}
+			return this.GET(
+				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint),
+				options
+			);
+		}
+
+		function update(resourceConfig, id, attrs, options) {
+			options = options || {};
+			return this.PUT(
+				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
+				attrs,
+				options
+			);
+		}
+
+		function updateAll(resourceConfig, attrs, params, options) {
+			options = options || {};
+			options.params = options.params || {};
+			if (params) {
+				params.query = params.query ? defaults.queryTransform(resourceConfig.name, params.query) : params.query;
+				DSUtils.deepMixIn(options.params, params);
+			}
+			return this.PUT(
+				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint),
+				attrs,
 				options
 			);
 		}
@@ -1754,14 +1708,14 @@ function create(resourceName, attrs, options) {
 					return _this.$q.promisify(definition.beforeCreate)(resourceName, attrs);
 				})
 				.then(function (attrs) {
-					return _this.adapters[options.adapter || definition.defaultAdapter].create(definition, attrs, options);
+					return _this.adapters[options.adapter || definition.defaultAdapter].create(definition, definition.serialize(resourceName, attrs), options);
+				})
+				.then(function (res) {
+					return _this.$q.promisify(definition.afterCreate)(resourceName, definition.deserialize(resourceName, res));
 				})
 				.then(function (data) {
-					return _this.$q.promisify(definition.afterCreate)(resourceName, data);
-				})
-				.then(function (data) {
-					var created = _this.inject(definition.name, data),
-						id = created[definition.idAttribute];
+					var created = _this.inject(definition.name, data);
+					var id = created[definition.idAttribute];
 					resource.previousAttributes[id] = _this.utils.deepMixIn({}, created);
 					resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
 					return _this.get(definition.name, id);
@@ -1935,16 +1889,16 @@ function destroyAll(resourceName, params, options) {
 	if (!this.definitions[resourceName]) {
 		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
 	} else if (!this.utils.isObject(params)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!', { params: { actual: typeof params, expected: 'object' } }));
+		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!'));
 	} else if (!this.utils.isObject(options)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
+		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!'));
 	} else {
 		try {
 			var definition = this.definitions[resourceName];
 
 			promise = promise
 				.then(function () {
-					return _this.adapters[options.adapter || definition.defaultAdapter].destroyAll(definition, { params: params }, options);
+					return _this.adapters[options.adapter || definition.defaultAdapter].destroyAll(definition, params, options);
 				})
 				.then(function () {
 					return _this.ejectAll(resourceName, params);
@@ -2037,7 +1991,8 @@ function find(resourceName, id, options) {
 			if (!(id in resource.completedQueries)) {
 				if (!(id in resource.pendingQueries)) {
 					promise = resource.pendingQueries[id] = _this.adapters[options.adapter || definition.defaultAdapter].find(definition, id, options)
-						.then(function (data) {
+						.then(function (res) {
+							var data = definition.deserialize(resourceName, res);
 							if (options.cacheResponse) {
 								// Query is no longer pending
 								delete resource.pendingQueries[id];
@@ -2102,8 +2057,9 @@ function _findAll(utils, resourceName, params, options) {
 		if (!(queryHash in resource.pendingQueries)) {
 
 			// This particular query has never even been made
-			resource.pendingQueries[queryHash] = _this.adapters[options.adapter || definition.defaultAdapter].findAll(definition, { params: params }, options)
-				.then(function (data) {
+			resource.pendingQueries[queryHash] = _this.adapters[options.adapter || definition.defaultAdapter].findAll(definition, params, options)
+				.then(function (res) {
+					var data = definition.deserialize(resourceName, res);
 					if (options.cacheResponse) {
 						try {
 							return processResults.apply(_this, [utils, data, resourceName, queryHash]);
@@ -2201,9 +2157,9 @@ function findAll(resourceName, params, options) {
 	if (!this.definitions[resourceName]) {
 		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
 	} else if (!this.utils.isObject(params)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!', { params: { actual: typeof params, expected: 'object' } }));
+		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!'));
 	} else if (!this.utils.isObject(options)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
+		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!'));
 	} else {
 		if (!('cacheResponse' in options)) {
 			options.cacheResponse = true;
@@ -2491,10 +2447,10 @@ function save(resourceName, id, options) {
 							attrs = changes;
 						}
 					}
-					return _this.adapters[options.adapter || definition.defaultAdapter].update(definition, id, attrs, options);
+					return _this.adapters[options.adapter || definition.defaultAdapter].update(definition, id, definition.serialize(resourceName, attrs), options);
 				})
-				.then(function (data) {
-					return _this.$q.promisify(definition.afterUpdate)(resourceName, data);
+				.then(function (res) {
+					return _this.$q.promisify(definition.afterUpdate)(resourceName, definition.deserialize(resourceName, res));
 				})
 				.then(function (data) {
 					_this.inject(definition.name, data, options);
@@ -2559,7 +2515,7 @@ var errorPrefix = 'DS.update(resourceName, id, attrs[, options]): ';
  * - `{RuntimeError}`
  * - `{UnhandledError}`
  */
-function save(resourceName, id, attrs, options) {
+function update(resourceName, id, attrs, options) {
 	var deferred = this.$q.defer(),
 		promise = deferred.promise;
 
@@ -2598,17 +2554,18 @@ function save(resourceName, id, attrs, options) {
 				return _this.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
 			})
 			.then(function (attrs) {
-				return _this.adapters[options.adapter || definition.defaultAdapter].update(definition, id, attrs, options);
+				return _this.adapters[options.adapter || definition.defaultAdapter].update(definition, id, definition.serialize(resourceName, attrs), options);
 			})
-			.then(function (data) {
-				return _this.$q.promisify(definition.afterUpdate)(resourceName, data);
+			.then(function (res) {
+				return _this.$q.promisify(definition.afterUpdate)(resourceName, definition.deserialize(resourceName, res));
 			})
 			.then(function (data) {
 				if (options.cacheResponse) {
-					var item = _this.inject(definition.name, data, options);
-					resource.previousAttributes[id] = _this.utils.deepMixIn({}, data);
+					var updated = _this.inject(definition.name, data, options);
+					var id = updated[definition.idAttribute];
+					resource.previousAttributes[id] = _this.utils.deepMixIn({}, updated);
 					resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
-					return item;
+					return _this.get(definition.name, id);
 				} else {
 					return data;
 				}
@@ -2619,7 +2576,7 @@ function save(resourceName, id, attrs, options) {
 	return promise;
 }
 
-module.exports = save;
+module.exports = update;
 
 },{}],41:[function(require,module,exports){
 var errorPrefix = 'DS.updateAll(resourceName, attrs, params[, options]): ';
@@ -2685,7 +2642,7 @@ var errorPrefix = 'DS.updateAll(resourceName, attrs, params[, options]): ';
  * - `{RuntimeError}`
  * - `{UnhandledError}`
  */
-function save(resourceName, attrs, params, options) {
+function updateAll(resourceName, attrs, params, options) {
 	var deferred = this.$q.defer(),
 		promise = deferred.promise;
 
@@ -2724,10 +2681,10 @@ function save(resourceName, attrs, params, options) {
 				return _this.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
 			})
 			.then(function (attrs) {
-				return _this.adapters[options.adapter || definition.defaultAdapter].updateAll(definition, attrs, params, options);
+				return _this.adapters[options.adapter || definition.defaultAdapter].updateAll(definition, definition.serialize(resourceName, attrs), params, options);
 			})
-			.then(function (data) {
-				return _this.$q.promisify(definition.afterUpdate)(resourceName, data);
+			.then(function (res) {
+				return _this.$q.promisify(definition.afterUpdate)(resourceName, definition.deserialize(resourceName, res));
 			})
 			.then(function (data) {
 				if (options.cacheResponse) {
@@ -2742,7 +2699,7 @@ function save(resourceName, attrs, params, options) {
 	return promise;
 }
 
-module.exports = save;
+module.exports = updateAll;
 
 },{}],42:[function(require,module,exports){
 var utils = require('../utils')[0]();
@@ -2790,18 +2747,385 @@ BaseConfig.prototype.filter = function (resourceName, where, attrs) {
 };
 BaseConfig.prototype.baseUrl = '';
 BaseConfig.prototype.endpoint = '';
+/**
+ * @doc property
+ * @id DSProvider.properties:defaults.beforeValidate
+ * @name defaults.beforeValidate
+ * @description
+ * Called before the `validate` lifecycle step. Can be overridden per resource as well.
+ *
+ * ## Signature:
+ * ```js
+ * beforeValidate(resourceName, attrs, cb)
+ * ```
+ *
+ * ## Callback signature:
+ * ```js
+ * cb(err, attrs)
+ * ```
+ * Remember to pass the attributes along to the next step. Passing a first argument to the callback will abort the
+ * lifecycle and reject the promise.
+ *
+ * ## Example:
+ * ```js
+ *  DSProvider.defaults.beforeValidate = function (resourceName, attrs, cb) {
+ *      // do somthing/inspect attrs
+ *      cb(null, attrs);
+ *  };
+ * ```
+ *
+ * @param {string} resourceName The name of the resource moving through the lifecycle.
+ * @param {object} attrs Attributes of the item moving through the lifecycle.
+ */
 BaseConfig.prototype.beforeValidate = lifecycleNoop;
+/**
+ * @doc property
+ * @id DSProvider.properties:defaults.validate
+ * @name defaults.validate
+ * @description
+ * Called before the `afterValidate` lifecycle step. Can be overridden per resource as well.
+ *
+ * ## Signature:
+ * ```js
+ * validate(resourceName, attrs, cb)
+ * ```
+ *
+ * ## Callback signature:
+ * ```js
+ * cb(err, attrs)
+ * ```
+ * Remember to pass the attributes along to the next step. Passing a first argument to the callback will abort the
+ * lifecycle and reject the promise.
+ *
+ * ## Example:
+ * ```js
+ *  DSProvider.defaults.validate = function (resourceName, attrs, cb) {
+ *      // do somthing/inspect attrs
+ *      cb(null, attrs);
+ *  };
+ * ```
+ *
+ * @param {string} resourceName The name of the resource moving through the lifecycle.
+ * @param {object} attrs Attributes of the item moving through the lifecycle.
+ */
 BaseConfig.prototype.validate = lifecycleNoop;
+/**
+ * @doc property
+ * @id DSProvider.properties:defaults.afterValidate
+ * @name defaults.afterValidate
+ * @description
+ * Called before the `beforeCreate` or `beforeUpdate` lifecycle step. Can be overridden per resource as well.
+ *
+ * ## Signature:
+ * ```js
+ * afterValidate(resourceName, attrs, cb)
+ * ```
+ *
+ * ## Callback signature:
+ * ```js
+ * cb(err, attrs)
+ * ```
+ * Remember to pass the attributes along to the next step. Passing a first argument to the callback will abort the
+ * lifecycle and reject the promise.
+ *
+ * ## Example:
+ * ```js
+ *  DSProvider.defaults.afterValidate = function (resourceName, attrs, cb) {
+ *      // do somthing/inspect attrs
+ *      cb(null, attrs);
+ *  };
+ * ```
+ *
+ * @param {string} resourceName The name of the resource moving through the lifecycle.
+ * @param {object} attrs Attributes of the item moving through the lifecycle.
+ */
 BaseConfig.prototype.afterValidate = lifecycleNoop;
+/**
+ * @doc property
+ * @id DSProvider.properties:defaults.beforeCreate
+ * @name defaults.beforeCreate
+ * @description
+ * Called before the `create` lifecycle step. Can be overridden per resource as well.
+ *
+ * ## Signature:
+ * ```js
+ * beforeCreate(resourceName, attrs, cb)
+ * ```
+ *
+ * ## Callback signature:
+ * ```js
+ * cb(err, attrs)
+ * ```
+ * Remember to pass the attributes along to the next step. Passing a first argument to the callback will abort the
+ * lifecycle and reject the promise.
+ *
+ * ## Example:
+ * ```js
+ *  DSProvider.defaults.beforeCreate = function (resourceName, attrs, cb) {
+ *      // do somthing/inspect attrs
+ *      cb(null, attrs);
+ *  };
+ * ```
+ *
+ * @param {string} resourceName The name of the resource moving through the lifecycle.
+ * @param {object} attrs Attributes of the item moving through the lifecycle.
+ */
 BaseConfig.prototype.beforeCreate = lifecycleNoop;
+/**
+ * @doc property
+ * @id DSProvider.properties:defaults.afterCreate
+ * @name defaults.afterCreate
+ * @description
+ * Called after the `create` lifecycle step. Can be overridden per resource as well.
+ *
+ * ## Signature:
+ * ```js
+ * afterCreate(resourceName, attrs, cb)
+ * ```
+ *
+ * ## Callback signature:
+ * ```js
+ * cb(err, attrs)
+ * ```
+ * Remember to pass the attributes along to the next step. Passing a first argument to the callback will abort the
+ * lifecycle and reject the promise.
+ *
+ * ## Example:
+ * ```js
+ *  DSProvider.defaults.afterCreate = function (resourceName, attrs, cb) {
+ *      // do somthing/inspect attrs
+ *      cb(null, attrs);
+ *  };
+ * ```
+ *
+ * @param {string} resourceName The name of the resource moving through the lifecycle.
+ * @param {object} attrs Attributes of the item moving through the lifecycle.
+ */
 BaseConfig.prototype.afterCreate = lifecycleNoop;
+/**
+ * @doc property
+ * @id DSProvider.properties:defaults.beforeUpdate
+ * @name defaults.beforeUpdate
+ * @description
+ * Called before the `update` or `save` lifecycle step. Can be overridden per resource as well.
+ *
+ * ## Signature:
+ * ```js
+ * beforeUpdate(resourceName, attrs, cb)
+ * ```
+ *
+ * ## Callback signature:
+ * ```js
+ * cb(err, attrs)
+ * ```
+ * Remember to pass the attributes along to the next step. Passing a first argument to the callback will abort the
+ * lifecycle and reject the promise.
+ *
+ * ## Example:
+ * ```js
+ *  DSProvider.defaults.beforeUpdate = function (resourceName, attrs, cb) {
+ *      // do somthing/inspect attrs
+ *      cb(null, attrs);
+ *  };
+ * ```
+ *
+ * @param {string} resourceName The name of the resource moving through the lifecycle.
+ * @param {object} attrs Attributes of the item moving through the lifecycle.
+ */
 BaseConfig.prototype.beforeUpdate = lifecycleNoop;
+/**
+ * @doc property
+ * @id DSProvider.properties:defaults.afterUpdate
+ * @name defaults.afterUpdate
+ * @description
+ * Called after the `update` or `save` lifecycle step. Can be overridden per resource as well.
+ *
+ * ## Signature:
+ * ```js
+ * afterUpdate(resourceName, attrs, cb)
+ * ```
+ *
+ * ## Callback signature:
+ * ```js
+ * cb(err, attrs)
+ * ```
+ * Remember to pass the attributes along to the next step. Passing a first argument to the callback will abort the
+ * lifecycle and reject the promise.
+ *
+ * ## Example:
+ * ```js
+ *  DSProvider.defaults.afterUpdate = function (resourceName, attrs, cb) {
+ *      // do somthing/inspect attrs
+ *      cb(null, attrs);
+ *  };
+ * ```
+ *
+ * @param {string} resourceName The name of the resource moving through the lifecycle.
+ * @param {object} attrs Attributes of the item moving through the lifecycle.
+ */
 BaseConfig.prototype.afterUpdate = lifecycleNoop;
+/**
+ * @doc property
+ * @id DSProvider.properties:defaults.beforeDestroy
+ * @name defaults.beforeDestroy
+ * @description
+ * Called before the `destroy` lifecycle step. Can be overridden per resource as well.
+ *
+ * ## Signature:
+ * ```js
+ * beforeDestroy(resourceName, attrs, cb)
+ * ```
+ *
+ * ## Callback signature:
+ * ```js
+ * cb(err, attrs)
+ * ```
+ * Remember to pass the attributes along to the next step. Passing a first argument to the callback will abort the
+ * lifecycle and reject the promise.
+ *
+ * ## Example:
+ * ```js
+ *  DSProvider.defaults.beforeDestroy = function (resourceName, attrs, cb) {
+ *      // do somthing/inspect attrs
+ *      cb(null, attrs);
+ *  };
+ * ```
+ *
+ * @param {string} resourceName The name of the resource moving through the lifecycle.
+ * @param {object} attrs Attributes of the item moving through the lifecycle.
+ */
 BaseConfig.prototype.beforeDestroy = lifecycleNoop;
+/**
+ * @doc property
+ * @id DSProvider.properties:defaults.afterDestroy
+ * @name defaults.afterDestroy
+ * @description
+ * Called after the `destroy` lifecycle step. Can be overridden per resource as well.
+ *
+ * ## Signature:
+ * ```js
+ * afterDestroy(resourceName, attrs, cb)
+ * ```
+ *
+ * ## Callback signature:
+ * ```js
+ * cb(err, attrs)
+ * ```
+ * Remember to pass the attributes along to the next step. Passing a first argument to the callback will abort the
+ * lifecycle and reject the promise.
+ *
+ * ## Example:
+ * ```js
+ *  DSProvider.defaults.afterDestroy = function (resourceName, attrs, cb) {
+ *      // do somthing/inspect attrs
+ *      cb(null, attrs);
+ *  };
+ * ```
+ *
+ * @param {string} resourceName The name of the resource moving through the lifecycle.
+ * @param {object} attrs Attributes of the item moving through the lifecycle.
+ */
 BaseConfig.prototype.afterDestroy = lifecycleNoop;
-BaseConfig.prototype.beforeInject = function () {
+/**
+ * @doc property
+ * @id DSProvider.properties:defaults.beforeInject
+ * @name defaults.beforeInject
+ * @description
+ * Called before the `inject` lifecycle step. Can be overridden per resource as well.
+ *
+ * ## Signature:
+ * ```js
+ * beforeInject(resourceName, attrs)
+ * ```
+ *
+ * Throwing an error inside this step will cancel the injection.
+ *
+ * ## Example:
+ * ```js
+ *  DSProvider.defaults.beforeInject = function (resourceName, attrs) {
+ *      // do somthing/inspect/modify attrs
+ *  };
+ * ```
+ *
+ * @param {string} resourceName The name of the resource moving through the lifecycle.
+ * @param {object} attrs Attributes of the item moving through the lifecycle.
+ */
+BaseConfig.prototype.beforeInject = function (resourceName, attrs) {
+	return attrs;
 };
-BaseConfig.prototype.afterInject = function () {
+/**
+ * @doc property
+ * @id DSProvider.properties:defaults.afterInject
+ * @name defaults.afterInject
+ * @description
+ * Called after the `inject` lifecycle step. Can be overridden per resource as well.
+ *
+ * ## Signature:
+ * ```js
+ * afterInject(resourceName, attrs)
+ * ```
+ *
+ * Throwing an error inside this step will cancel the injection.
+ *
+ * ## Example:
+ * ```js
+ *  DSProvider.defaults.afterInject = function (resourceName, attrs) {
+ *      // do somthing/inspect/modify attrs
+ *  };
+ * ```
+ *
+ * @param {string} resourceName The name of the resource moving through the lifecycle.
+ * @param {object} attrs Attributes of the item moving through the lifecycle.
+ */
+BaseConfig.prototype.afterInject = function (resourceName, attrs) {
+	return attrs;
+};
+/**
+ * @doc property
+ * @id DSProvider.properties:defaults.serialize
+ * @name defaults.serialize
+ * @description
+ * Your server might expect a custom request object rather than the plain POJO payload. Use `serialize` to
+ * create your custom request object.
+ *
+ * ## Example:
+ * ```js
+ *  DSProvider.defaults.serialize = function (resourceName, data) {
+ *      return {
+ *          payload: data
+ *      };
+ *  };
+ * ```
+ *
+ * @param {string} resourceName The name of the resource to serialize.
+ * @param {object} data Data to be sent to the server.
+ * @returns {*} By default returns `data` as-is.
+ */
+BaseConfig.prototype.serialize = function (resourceName, data) {
+	return data;
+};
+
+/**
+ * @doc property
+ * @id DSProvider.properties:defaults.deserialize
+ * @name DSProvider.properties:defaults.deserialize
+ * @description
+ * Your server might return a custom response object instead of the plain POJO payload. Use `deserialize` to
+ * pull the payload out of your response object so angular-data can use it.
+ *
+ * ## Example:
+ * ```js
+ *  DSProvider.defaults.deserialize = function (resourceName, data) {
+ *      return data ? data.payload : data;
+ *  };
+ * ```
+ *
+ * @param {string} resourceName The name of the resource to deserialize.
+ * @param {object} data Response object from `$http()`.
+ * @returns {*} By default returns `data.data`.
+ */
+BaseConfig.prototype.deserialize = function (resourceName, data) {
+	return data.data;
 };
 
 /**
@@ -2820,21 +3144,23 @@ function DSProvider() {
 	 *
 	 * Properties:
 	 *
-	 * - `{string}` - `baseUrl`
-	 * - `{string}` - `idAttribute` - Default: `"id"`
+	 * - `{string}` - `baseUrl` - The url relative to which all AJAX requests will be made.
+	 * - `{string}` - `idAttribute` - Default: `"id"` - The attribute that specifies the primary key for resources.
 	 * - `{string}` - `defaultAdapter` - Default: `"DSHttpAdapter"`
 	 * - `{function}` - `filter` - Default: See [angular-data query language](/documentation/guide/queries/custom).
-	 * - `{function}` - `beforeValidate` - See [](). Default: No-op
-	 * - `{function}` - `validate` - See [](). Default: No-op
-	 * - `{function}` - `afterValidate` - See [](). Default: No-op
-	 * - `{function}` - `beforeCreate` - See [](). Default: No-op
-	 * - `{function}` - `afterCreate` - See [](). Default: No-op
-	 * - `{function}` - `beforeUpdate` - See [](). Default: No-op
-	 * - `{function}` - `afterUpdate` - See [](). Default: No-op
-	 * - `{function}` - `beforeDestroy` - See [](). Default: No-op
-	 * - `{function}` - `afterDestroy` - See [](). Default: No-op
-	 * - `{function}` - `beforeInject` - See [](). Default: No-op
-	 * - `{function}` - `afterInject` - See [](). Default: No-op
+	 * - `{function}` - `beforeValidate` - See [DSProvider.defaults.beforeValidate](/documentation/api/angular-data/DSProvider.properties:defaults.beforeValidate). Default: No-op
+	 * - `{function}` - `validate` - See [DSProvider.defaults.validate](/documentation/api/angular-data/DSProvider.properties:defaults.validate). Default: No-op
+	 * - `{function}` - `afterValidate` - See [DSProvider.defaults.afterValidate](/documentation/api/angular-data/DSProvider.properties:defaults.afterValidate). Default: No-op
+	 * - `{function}` - `beforeCreate` - See [DSProvider.defaults.beforeCreate](/documentation/api/angular-data/DSProvider.properties:defaults.beforeCreate). Default: No-op
+	 * - `{function}` - `afterCreate` - See [DSProvider.defaults.afterCreate](/documentation/api/angular-data/DSProvider.properties:defaults.afterCreate). Default: No-op
+	 * - `{function}` - `beforeUpdate` - See [DSProvider.defaults.beforeUpdate](/documentation/api/angular-data/DSProvider.properties:defaults.beforeUpdate). Default: No-op
+	 * - `{function}` - `afterUpdate` - See [DSProvider.defaults.afterUpdate](/documentation/api/angular-data/DSProvider.properties:defaults.afterUpdate). Default: No-op
+	 * - `{function}` - `beforeDestroy` - See [DSProvider.defaults.beforeDestroy](/documentation/api/angular-data/DSProvider.properties:defaults.beforeDestroy). Default: No-op
+	 * - `{function}` - `afterDestroy` - See [DSProvider.defaults.afterDestroy](/documentation/api/angular-data/DSProvider.properties:defaults.afterDestroy). Default: No-op
+	 * - `{function}` - `afterInject` - See [DSProvider.defaults.afterInject](/documentation/api/angular-data/DSProvider.properties:defaults.afterInject). Default: No-op
+	 * - `{function}` - `beforeInject` - See [DSProvider.defaults.beforeInject](/documentation/api/angular-data/DSProvider.properties:defaults.beforeInject). Default: No-op
+	 * - `{function}` - `serialize` - See [DSProvider.defaults.serialize](/documentation/api/angular-data/DSProvider.properties:defaults.serialize). Default: No-op
+	 * - `{function}` - `deserialize` - See [DSProvider.defaults.deserialize](/documentation/api/angular-data/DSProvider.properties:defaults.deserialize). Default: No-op
 	 */
 	var defaults = this.defaults = new BaseConfig();
 
@@ -2853,7 +3179,6 @@ function DSProvider() {
 				$log.warn('DSCacheFactory is unavailable. Resorting to the lesser capabilities of $cacheFactory.');
 				cache = angular.injector(['ng']).get('$cacheFactory');
 			}
-
 
 			/**
 			 * @doc interface
@@ -3212,6 +3537,10 @@ function Resource(utils, options) {
  * - `{function=}` - `afterDestroy` - Lifecycle hook. Overrides global. Signature: `afterDestroy(resourceName, attrs, cb)`. Callback signature: `cb(err, attrs)`.
  * - `{function=}` - `beforeInject` - Lifecycle hook. Overrides global. Signature: `beforeInject(resourceName, attrs)`.
  * - `{function=}` - `afterInject` - Lifecycle hook. Overrides global. Signature: `afterInject(resourceName, attrs)`.
+ * - `{function=}` - `serialize` - Serialization hook. Overrides global. Signature: `serialize(resourceName, attrs)`.
+ * - `{function=}` - `deserialize` - Deserialization hook. Overrides global. Signature: `deserialize(resourceName, attrs)`.
+ *
+ * See [DSProvider.defaults](/documentation/api/angular-data/DSProvider.properties:defaults).
  */
 function defineResource(definition) {
 	if (this.utils.isString(definition)) {
@@ -3940,7 +4269,8 @@ var observe = require('observejs'),
 	errorPrefix = 'DS.inject(resourceName, attrs[, options]): ';
 
 function _inject(definition, resource, attrs) {
-	var _this = this;
+	var _this = this,
+		$log = _this.$log;
 
 	function _react(added, removed, changed, getOldValueFn) {
 		try {
@@ -3967,44 +4297,49 @@ function _inject(definition, resource, attrs) {
 		if (!(definition.idAttribute in attrs)) {
 			throw new _this.errors.RuntimeError(errorPrefix + 'attrs: Must contain the property specified by `idAttribute`!');
 		} else {
-			definition.beforeInject(definition.name, attrs);
-			var id = attrs[definition.idAttribute],
-				item = this.get(definition.name, id);
+			try {
+				definition.beforeInject(definition.name, attrs);
+				var id = attrs[definition.idAttribute],
+					item = this.get(definition.name, id);
 
-			if (!item) {
-				if (definition.class) {
-					if (attrs instanceof definition[definition.class]) {
-						item = attrs;
+				if (!item) {
+					if (definition.class) {
+						if (attrs instanceof definition[definition.class]) {
+							item = attrs;
+						} else {
+							item = new definition[definition.class]();
+						}
 					} else {
-						item = new definition[definition.class]();
+						item = {};
 					}
+					resource.previousAttributes[id] = {};
+
+					_this.utils.deepMixIn(item, attrs);
+					_this.utils.deepMixIn(resource.previousAttributes[id], attrs);
+
+					resource.collection.push(item);
+
+					resource.observers[id] = new observe.ObjectObserver(item, _react);
+					resource.index.put(id, item);
+
+					_react({}, {}, {}, function () {
+						return id;
+					});
 				} else {
-					item = {};
+					_this.utils.deepMixIn(item, attrs);
+					if (typeof resource.index.touch === 'function') {
+						resource.index.touch(id);
+					} else {
+						resource.index.put(id, resource.index.get(id));
+					}
+					resource.observers[id].deliver();
 				}
-				resource.previousAttributes[id] = {};
-
-				_this.utils.deepMixIn(item, attrs);
-				_this.utils.deepMixIn(resource.previousAttributes[id], attrs);
-
-				resource.collection.push(item);
-
-				resource.observers[id] = new observe.ObjectObserver(item, _react);
-				resource.index.put(id, item);
-
-				_react({}, {}, {}, function () {
-					return id;
-				});
-			} else {
-				_this.utils.deepMixIn(item, attrs);
-				if (typeof resource.index.touch === 'function') {
-					resource.index.touch(id);
-				} else {
-					resource.index.put(id, resource.index.get(id));
-				}
-				resource.observers[id].deliver();
+				resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
+				definition.afterInject(definition.name, item);
+			} catch (err) {
+				$log.error(err);
+				$log.error('inject failed!', definition.name, attrs);
 			}
-			resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
-			definition.afterInject(definition.name, item);
 		}
 	}
 }

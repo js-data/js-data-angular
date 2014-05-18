@@ -61,7 +61,7 @@ var errorPrefix = 'DS.updateAll(resourceName, attrs, params[, options]): ';
  * - `{RuntimeError}`
  * - `{UnhandledError}`
  */
-function save(resourceName, attrs, params, options) {
+function updateAll(resourceName, attrs, params, options) {
 	var deferred = this.$q.defer(),
 		promise = deferred.promise;
 
@@ -100,10 +100,10 @@ function save(resourceName, attrs, params, options) {
 				return _this.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
 			})
 			.then(function (attrs) {
-				return _this.adapters[options.adapter || definition.defaultAdapter].updateAll(definition, attrs, params, options);
+				return _this.adapters[options.adapter || definition.defaultAdapter].updateAll(definition, definition.serialize(resourceName, attrs), params, options);
 			})
-			.then(function (data) {
-				return _this.$q.promisify(definition.afterUpdate)(resourceName, data);
+			.then(function (res) {
+				return _this.$q.promisify(definition.afterUpdate)(resourceName, definition.deserialize(resourceName, res));
 			})
 			.then(function (data) {
 				if (options.cacheResponse) {
@@ -118,4 +118,4 @@ function save(resourceName, attrs, params, options) {
 	return promise;
 }
 
-module.exports = save;
+module.exports = updateAll;

@@ -43,18 +43,385 @@ BaseConfig.prototype.filter = function (resourceName, where, attrs) {
 };
 BaseConfig.prototype.baseUrl = '';
 BaseConfig.prototype.endpoint = '';
+/**
+ * @doc property
+ * @id DSProvider.properties:defaults.beforeValidate
+ * @name defaults.beforeValidate
+ * @description
+ * Called before the `validate` lifecycle step. Can be overridden per resource as well.
+ *
+ * ## Signature:
+ * ```js
+ * beforeValidate(resourceName, attrs, cb)
+ * ```
+ *
+ * ## Callback signature:
+ * ```js
+ * cb(err, attrs)
+ * ```
+ * Remember to pass the attributes along to the next step. Passing a first argument to the callback will abort the
+ * lifecycle and reject the promise.
+ *
+ * ## Example:
+ * ```js
+ *  DSProvider.defaults.beforeValidate = function (resourceName, attrs, cb) {
+ *      // do somthing/inspect attrs
+ *      cb(null, attrs);
+ *  };
+ * ```
+ *
+ * @param {string} resourceName The name of the resource moving through the lifecycle.
+ * @param {object} attrs Attributes of the item moving through the lifecycle.
+ */
 BaseConfig.prototype.beforeValidate = lifecycleNoop;
+/**
+ * @doc property
+ * @id DSProvider.properties:defaults.validate
+ * @name defaults.validate
+ * @description
+ * Called before the `afterValidate` lifecycle step. Can be overridden per resource as well.
+ *
+ * ## Signature:
+ * ```js
+ * validate(resourceName, attrs, cb)
+ * ```
+ *
+ * ## Callback signature:
+ * ```js
+ * cb(err, attrs)
+ * ```
+ * Remember to pass the attributes along to the next step. Passing a first argument to the callback will abort the
+ * lifecycle and reject the promise.
+ *
+ * ## Example:
+ * ```js
+ *  DSProvider.defaults.validate = function (resourceName, attrs, cb) {
+ *      // do somthing/inspect attrs
+ *      cb(null, attrs);
+ *  };
+ * ```
+ *
+ * @param {string} resourceName The name of the resource moving through the lifecycle.
+ * @param {object} attrs Attributes of the item moving through the lifecycle.
+ */
 BaseConfig.prototype.validate = lifecycleNoop;
+/**
+ * @doc property
+ * @id DSProvider.properties:defaults.afterValidate
+ * @name defaults.afterValidate
+ * @description
+ * Called before the `beforeCreate` or `beforeUpdate` lifecycle step. Can be overridden per resource as well.
+ *
+ * ## Signature:
+ * ```js
+ * afterValidate(resourceName, attrs, cb)
+ * ```
+ *
+ * ## Callback signature:
+ * ```js
+ * cb(err, attrs)
+ * ```
+ * Remember to pass the attributes along to the next step. Passing a first argument to the callback will abort the
+ * lifecycle and reject the promise.
+ *
+ * ## Example:
+ * ```js
+ *  DSProvider.defaults.afterValidate = function (resourceName, attrs, cb) {
+ *      // do somthing/inspect attrs
+ *      cb(null, attrs);
+ *  };
+ * ```
+ *
+ * @param {string} resourceName The name of the resource moving through the lifecycle.
+ * @param {object} attrs Attributes of the item moving through the lifecycle.
+ */
 BaseConfig.prototype.afterValidate = lifecycleNoop;
+/**
+ * @doc property
+ * @id DSProvider.properties:defaults.beforeCreate
+ * @name defaults.beforeCreate
+ * @description
+ * Called before the `create` lifecycle step. Can be overridden per resource as well.
+ *
+ * ## Signature:
+ * ```js
+ * beforeCreate(resourceName, attrs, cb)
+ * ```
+ *
+ * ## Callback signature:
+ * ```js
+ * cb(err, attrs)
+ * ```
+ * Remember to pass the attributes along to the next step. Passing a first argument to the callback will abort the
+ * lifecycle and reject the promise.
+ *
+ * ## Example:
+ * ```js
+ *  DSProvider.defaults.beforeCreate = function (resourceName, attrs, cb) {
+ *      // do somthing/inspect attrs
+ *      cb(null, attrs);
+ *  };
+ * ```
+ *
+ * @param {string} resourceName The name of the resource moving through the lifecycle.
+ * @param {object} attrs Attributes of the item moving through the lifecycle.
+ */
 BaseConfig.prototype.beforeCreate = lifecycleNoop;
+/**
+ * @doc property
+ * @id DSProvider.properties:defaults.afterCreate
+ * @name defaults.afterCreate
+ * @description
+ * Called after the `create` lifecycle step. Can be overridden per resource as well.
+ *
+ * ## Signature:
+ * ```js
+ * afterCreate(resourceName, attrs, cb)
+ * ```
+ *
+ * ## Callback signature:
+ * ```js
+ * cb(err, attrs)
+ * ```
+ * Remember to pass the attributes along to the next step. Passing a first argument to the callback will abort the
+ * lifecycle and reject the promise.
+ *
+ * ## Example:
+ * ```js
+ *  DSProvider.defaults.afterCreate = function (resourceName, attrs, cb) {
+ *      // do somthing/inspect attrs
+ *      cb(null, attrs);
+ *  };
+ * ```
+ *
+ * @param {string} resourceName The name of the resource moving through the lifecycle.
+ * @param {object} attrs Attributes of the item moving through the lifecycle.
+ */
 BaseConfig.prototype.afterCreate = lifecycleNoop;
+/**
+ * @doc property
+ * @id DSProvider.properties:defaults.beforeUpdate
+ * @name defaults.beforeUpdate
+ * @description
+ * Called before the `update` or `save` lifecycle step. Can be overridden per resource as well.
+ *
+ * ## Signature:
+ * ```js
+ * beforeUpdate(resourceName, attrs, cb)
+ * ```
+ *
+ * ## Callback signature:
+ * ```js
+ * cb(err, attrs)
+ * ```
+ * Remember to pass the attributes along to the next step. Passing a first argument to the callback will abort the
+ * lifecycle and reject the promise.
+ *
+ * ## Example:
+ * ```js
+ *  DSProvider.defaults.beforeUpdate = function (resourceName, attrs, cb) {
+ *      // do somthing/inspect attrs
+ *      cb(null, attrs);
+ *  };
+ * ```
+ *
+ * @param {string} resourceName The name of the resource moving through the lifecycle.
+ * @param {object} attrs Attributes of the item moving through the lifecycle.
+ */
 BaseConfig.prototype.beforeUpdate = lifecycleNoop;
+/**
+ * @doc property
+ * @id DSProvider.properties:defaults.afterUpdate
+ * @name defaults.afterUpdate
+ * @description
+ * Called after the `update` or `save` lifecycle step. Can be overridden per resource as well.
+ *
+ * ## Signature:
+ * ```js
+ * afterUpdate(resourceName, attrs, cb)
+ * ```
+ *
+ * ## Callback signature:
+ * ```js
+ * cb(err, attrs)
+ * ```
+ * Remember to pass the attributes along to the next step. Passing a first argument to the callback will abort the
+ * lifecycle and reject the promise.
+ *
+ * ## Example:
+ * ```js
+ *  DSProvider.defaults.afterUpdate = function (resourceName, attrs, cb) {
+ *      // do somthing/inspect attrs
+ *      cb(null, attrs);
+ *  };
+ * ```
+ *
+ * @param {string} resourceName The name of the resource moving through the lifecycle.
+ * @param {object} attrs Attributes of the item moving through the lifecycle.
+ */
 BaseConfig.prototype.afterUpdate = lifecycleNoop;
+/**
+ * @doc property
+ * @id DSProvider.properties:defaults.beforeDestroy
+ * @name defaults.beforeDestroy
+ * @description
+ * Called before the `destroy` lifecycle step. Can be overridden per resource as well.
+ *
+ * ## Signature:
+ * ```js
+ * beforeDestroy(resourceName, attrs, cb)
+ * ```
+ *
+ * ## Callback signature:
+ * ```js
+ * cb(err, attrs)
+ * ```
+ * Remember to pass the attributes along to the next step. Passing a first argument to the callback will abort the
+ * lifecycle and reject the promise.
+ *
+ * ## Example:
+ * ```js
+ *  DSProvider.defaults.beforeDestroy = function (resourceName, attrs, cb) {
+ *      // do somthing/inspect attrs
+ *      cb(null, attrs);
+ *  };
+ * ```
+ *
+ * @param {string} resourceName The name of the resource moving through the lifecycle.
+ * @param {object} attrs Attributes of the item moving through the lifecycle.
+ */
 BaseConfig.prototype.beforeDestroy = lifecycleNoop;
+/**
+ * @doc property
+ * @id DSProvider.properties:defaults.afterDestroy
+ * @name defaults.afterDestroy
+ * @description
+ * Called after the `destroy` lifecycle step. Can be overridden per resource as well.
+ *
+ * ## Signature:
+ * ```js
+ * afterDestroy(resourceName, attrs, cb)
+ * ```
+ *
+ * ## Callback signature:
+ * ```js
+ * cb(err, attrs)
+ * ```
+ * Remember to pass the attributes along to the next step. Passing a first argument to the callback will abort the
+ * lifecycle and reject the promise.
+ *
+ * ## Example:
+ * ```js
+ *  DSProvider.defaults.afterDestroy = function (resourceName, attrs, cb) {
+ *      // do somthing/inspect attrs
+ *      cb(null, attrs);
+ *  };
+ * ```
+ *
+ * @param {string} resourceName The name of the resource moving through the lifecycle.
+ * @param {object} attrs Attributes of the item moving through the lifecycle.
+ */
 BaseConfig.prototype.afterDestroy = lifecycleNoop;
-BaseConfig.prototype.beforeInject = function () {
+/**
+ * @doc property
+ * @id DSProvider.properties:defaults.beforeInject
+ * @name defaults.beforeInject
+ * @description
+ * Called before the `inject` lifecycle step. Can be overridden per resource as well.
+ *
+ * ## Signature:
+ * ```js
+ * beforeInject(resourceName, attrs)
+ * ```
+ *
+ * Throwing an error inside this step will cancel the injection.
+ *
+ * ## Example:
+ * ```js
+ *  DSProvider.defaults.beforeInject = function (resourceName, attrs) {
+ *      // do somthing/inspect/modify attrs
+ *  };
+ * ```
+ *
+ * @param {string} resourceName The name of the resource moving through the lifecycle.
+ * @param {object} attrs Attributes of the item moving through the lifecycle.
+ */
+BaseConfig.prototype.beforeInject = function (resourceName, attrs) {
+	return attrs;
 };
-BaseConfig.prototype.afterInject = function () {
+/**
+ * @doc property
+ * @id DSProvider.properties:defaults.afterInject
+ * @name defaults.afterInject
+ * @description
+ * Called after the `inject` lifecycle step. Can be overridden per resource as well.
+ *
+ * ## Signature:
+ * ```js
+ * afterInject(resourceName, attrs)
+ * ```
+ *
+ * Throwing an error inside this step will cancel the injection.
+ *
+ * ## Example:
+ * ```js
+ *  DSProvider.defaults.afterInject = function (resourceName, attrs) {
+ *      // do somthing/inspect/modify attrs
+ *  };
+ * ```
+ *
+ * @param {string} resourceName The name of the resource moving through the lifecycle.
+ * @param {object} attrs Attributes of the item moving through the lifecycle.
+ */
+BaseConfig.prototype.afterInject = function (resourceName, attrs) {
+	return attrs;
+};
+/**
+ * @doc property
+ * @id DSProvider.properties:defaults.serialize
+ * @name defaults.serialize
+ * @description
+ * Your server might expect a custom request object rather than the plain POJO payload. Use `serialize` to
+ * create your custom request object.
+ *
+ * ## Example:
+ * ```js
+ *  DSProvider.defaults.serialize = function (resourceName, data) {
+ *      return {
+ *          payload: data
+ *      };
+ *  };
+ * ```
+ *
+ * @param {string} resourceName The name of the resource to serialize.
+ * @param {object} data Data to be sent to the server.
+ * @returns {*} By default returns `data` as-is.
+ */
+BaseConfig.prototype.serialize = function (resourceName, data) {
+	return data;
+};
+
+/**
+ * @doc property
+ * @id DSProvider.properties:defaults.deserialize
+ * @name DSProvider.properties:defaults.deserialize
+ * @description
+ * Your server might return a custom response object instead of the plain POJO payload. Use `deserialize` to
+ * pull the payload out of your response object so angular-data can use it.
+ *
+ * ## Example:
+ * ```js
+ *  DSProvider.defaults.deserialize = function (resourceName, data) {
+ *      return data ? data.payload : data;
+ *  };
+ * ```
+ *
+ * @param {string} resourceName The name of the resource to deserialize.
+ * @param {object} data Response object from `$http()`.
+ * @returns {*} By default returns `data.data`.
+ */
+BaseConfig.prototype.deserialize = function (resourceName, data) {
+	return data.data;
 };
 
 /**
@@ -73,21 +440,23 @@ function DSProvider() {
 	 *
 	 * Properties:
 	 *
-	 * - `{string}` - `baseUrl`
-	 * - `{string}` - `idAttribute` - Default: `"id"`
+	 * - `{string}` - `baseUrl` - The url relative to which all AJAX requests will be made.
+	 * - `{string}` - `idAttribute` - Default: `"id"` - The attribute that specifies the primary key for resources.
 	 * - `{string}` - `defaultAdapter` - Default: `"DSHttpAdapter"`
 	 * - `{function}` - `filter` - Default: See [angular-data query language](/documentation/guide/queries/custom).
-	 * - `{function}` - `beforeValidate` - See [](). Default: No-op
-	 * - `{function}` - `validate` - See [](). Default: No-op
-	 * - `{function}` - `afterValidate` - See [](). Default: No-op
-	 * - `{function}` - `beforeCreate` - See [](). Default: No-op
-	 * - `{function}` - `afterCreate` - See [](). Default: No-op
-	 * - `{function}` - `beforeUpdate` - See [](). Default: No-op
-	 * - `{function}` - `afterUpdate` - See [](). Default: No-op
-	 * - `{function}` - `beforeDestroy` - See [](). Default: No-op
-	 * - `{function}` - `afterDestroy` - See [](). Default: No-op
-	 * - `{function}` - `beforeInject` - See [](). Default: No-op
-	 * - `{function}` - `afterInject` - See [](). Default: No-op
+	 * - `{function}` - `beforeValidate` - See [DSProvider.defaults.beforeValidate](/documentation/api/angular-data/DSProvider.properties:defaults.beforeValidate). Default: No-op
+	 * - `{function}` - `validate` - See [DSProvider.defaults.validate](/documentation/api/angular-data/DSProvider.properties:defaults.validate). Default: No-op
+	 * - `{function}` - `afterValidate` - See [DSProvider.defaults.afterValidate](/documentation/api/angular-data/DSProvider.properties:defaults.afterValidate). Default: No-op
+	 * - `{function}` - `beforeCreate` - See [DSProvider.defaults.beforeCreate](/documentation/api/angular-data/DSProvider.properties:defaults.beforeCreate). Default: No-op
+	 * - `{function}` - `afterCreate` - See [DSProvider.defaults.afterCreate](/documentation/api/angular-data/DSProvider.properties:defaults.afterCreate). Default: No-op
+	 * - `{function}` - `beforeUpdate` - See [DSProvider.defaults.beforeUpdate](/documentation/api/angular-data/DSProvider.properties:defaults.beforeUpdate). Default: No-op
+	 * - `{function}` - `afterUpdate` - See [DSProvider.defaults.afterUpdate](/documentation/api/angular-data/DSProvider.properties:defaults.afterUpdate). Default: No-op
+	 * - `{function}` - `beforeDestroy` - See [DSProvider.defaults.beforeDestroy](/documentation/api/angular-data/DSProvider.properties:defaults.beforeDestroy). Default: No-op
+	 * - `{function}` - `afterDestroy` - See [DSProvider.defaults.afterDestroy](/documentation/api/angular-data/DSProvider.properties:defaults.afterDestroy). Default: No-op
+	 * - `{function}` - `afterInject` - See [DSProvider.defaults.afterInject](/documentation/api/angular-data/DSProvider.properties:defaults.afterInject). Default: No-op
+	 * - `{function}` - `beforeInject` - See [DSProvider.defaults.beforeInject](/documentation/api/angular-data/DSProvider.properties:defaults.beforeInject). Default: No-op
+	 * - `{function}` - `serialize` - See [DSProvider.defaults.serialize](/documentation/api/angular-data/DSProvider.properties:defaults.serialize). Default: No-op
+	 * - `{function}` - `deserialize` - See [DSProvider.defaults.deserialize](/documentation/api/angular-data/DSProvider.properties:defaults.deserialize). Default: No-op
 	 */
 	var defaults = this.defaults = new BaseConfig();
 
@@ -106,7 +475,6 @@ function DSProvider() {
 				$log.warn('DSCacheFactory is unavailable. Resorting to the lesser capabilities of $cacheFactory.');
 				cache = angular.injector(['ng']).get('$cacheFactory');
 			}
-
 
 			/**
 			 * @doc interface

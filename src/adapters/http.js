@@ -14,57 +14,9 @@ function DSHttpAdapterProvider() {
 	 *
 	 * Properties:
 	 *
-	 * - `{function}` - `serialize` - See [the guide](/documentation/guide/adapters/index). Default: No-op.
-	 * - `{function}` - `deserialize` - See [the guide](/documentation/guide/adapters/index). Default: No-op.
 	 * - `{function}` - `queryTransform` - See [the guide](/documentation/guide/adapters/index). Default: No-op.
 	 */
 	var defaults = this.defaults = {
-		/**
-		 * @doc property
-		 * @id DSHttpAdapterProvider.properties:defaults.serialize
-		 * @name defaults.serialize
-		 * @description
-		 * Your server might expect a custom request object rather than the plain POJO payload. Use `serialize` to
-		 * create your custom request object.
-		 *
-		 * ## Example:
-		 * ```js
-		 *  DSHttpAdapterProvider.defaults.serialize = function (data) {
-			 *      return {
-			 *          payload: data
-			 *      };
-			 *  };
-		 * ```
-		 *
-		 * @param {object} data Data to be sent to the server.
-		 * @returns {*} Returns `data` as-is.
-		 */
-		serialize: function (data) {
-			return data;
-		},
-
-		/**
-		 * @doc property
-		 * @id DSHttpAdapterProvider.properties:defaults.deserialize
-		 * @name defaults.deserialize
-		 * @description
-		 * Your server might return a custom response object instead of the plain POJO payload. Use `deserialize` to
-		 * pull the payload out of your response object so angular-data can use it.
-		 *
-		 * ## Example:
-		 * ```js
-		 *  DSHttpAdapterProvider.defaults.deserialize = function (data) {
-			 *      return data ? data.payload : data;
-			 *  };
-		 * ```
-		 *
-		 * @param {object} data Response object from `$http()`.
-		 * @returns {*} Returns `data.data`.
-		 */
-		deserialize: function (data) {
-			return data.data;
-		},
-
 		/**
 		 * @doc property
 		 * @id DSHttpAdapterProvider.properties:defaults.queryTransform
@@ -72,10 +24,11 @@ function DSHttpAdapterProvider() {
 		 * @description
 		 * Transform the angular-data query to something your server understands. You might just do this on the server instead.
 		 *
+		 * @param {string} resourceName The name of the resource.
 		 * @param {object} query Response object from `$http()`.
 		 * @returns {*} Returns `query` as-is.
 		 */
-		queryTransform: function (query) {
+		queryTransform: function (resourceName, query) {
 			return query;
 		}
 	};
@@ -361,7 +314,7 @@ function DSHttpAdapterProvider() {
 
 			return $http(config).then(function (data) {
 				$log.debug(data.config.method + ' request:' + data.config.url + ' Time taken: ' + (new Date().getTime() - start) + 'ms', arguments);
-				return defaults.deserialize(data);
+				return data;
 			});
 		}
 
@@ -399,54 +352,11 @@ function DSHttpAdapterProvider() {
 			}));
 		}
 
-		function find(resourceConfig, id, options) {
-			options = options || {};
-			return this.GET(
-				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
-				options
-			);
-		}
-
-		function findAll(resourceConfig, params, options) {
-			options = options || {};
-			options.params = options.params || {};
-			if (options.params.query) {
-				options.params.query = defaults.queryTransform(options.params.query);
-			}
-			DSUtils.deepMixIn(options, params);
-			return this.GET(
-				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint),
-				options
-			);
-		}
-
 		function create(resourceConfig, attrs, options) {
 			options = options || {};
 			return this.POST(
 				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint),
-				defaults.serialize(attrs),
-				options
-			);
-		}
-
-		function update(resourceConfig, id, attrs, options) {
-			return this.PUT(
-				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
-				defaults.serialize(attrs),
-				options
-			);
-		}
-
-		function updateAll(resourceConfig, attrs, params, options) {
-			options = options || {};
-			options.params = options.params || {};
-			if (options.params.query) {
-				options.params.query = defaults.queryTransform(options.params.query);
-			}
-			DSUtils.deepMixIn(options, params);
-			return this.PUT(
-				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint),
-				defaults.serialize(attrs),
+				attrs,
 				options
 			);
 		}
@@ -462,12 +372,56 @@ function DSHttpAdapterProvider() {
 		function destroyAll(resourceConfig, params, options) {
 			options = options || {};
 			options.params = options.params || {};
-			if (options.params.query) {
-				options.params.query = defaults.queryTransform(options.params.query);
+			if (params) {
+				params.query = params.query ? defaults.queryTransform(resourceConfig.name, params.query) : params.query;
+				DSUtils.deepMixIn(options.params, params);
 			}
-			DSUtils.deepMixIn(options, params);
 			return this.DEL(
 				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint),
+				options
+			);
+		}
+
+		function find(resourceConfig, id, options) {
+			options = options || {};
+			return this.GET(
+				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
+				options
+			);
+		}
+
+		function findAll(resourceConfig, params, options) {
+			options = options || {};
+			options.params = options.params || {};
+			if (params) {
+				params.query = params.query ? defaults.queryTransform(resourceConfig.name, params.query) : params.query;
+				DSUtils.deepMixIn(options.params, params);
+			}
+			return this.GET(
+				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint),
+				options
+			);
+		}
+
+		function update(resourceConfig, id, attrs, options) {
+			options = options || {};
+			return this.PUT(
+				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
+				attrs,
+				options
+			);
+		}
+
+		function updateAll(resourceConfig, attrs, params, options) {
+			options = options || {};
+			options.params = options.params || {};
+			if (params) {
+				params.query = params.query ? defaults.queryTransform(resourceConfig.name, params.query) : params.query;
+				DSUtils.deepMixIn(options.params, params);
+			}
+			return this.PUT(
+				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint),
+				attrs,
 				options
 			);
 		}

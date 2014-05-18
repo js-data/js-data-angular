@@ -72,14 +72,14 @@ function create(resourceName, attrs, options) {
 					return _this.$q.promisify(definition.beforeCreate)(resourceName, attrs);
 				})
 				.then(function (attrs) {
-					return _this.adapters[options.adapter || definition.defaultAdapter].create(definition, attrs, options);
+					return _this.adapters[options.adapter || definition.defaultAdapter].create(definition, definition.serialize(resourceName, attrs), options);
+				})
+				.then(function (res) {
+					return _this.$q.promisify(definition.afterCreate)(resourceName, definition.deserialize(resourceName, res));
 				})
 				.then(function (data) {
-					return _this.$q.promisify(definition.afterCreate)(resourceName, data);
-				})
-				.then(function (data) {
-					var created = _this.inject(definition.name, data),
-						id = created[definition.idAttribute];
+					var created = _this.inject(definition.name, data);
+					var id = created[definition.idAttribute];
 					resource.previousAttributes[id] = _this.utils.deepMixIn({}, created);
 					resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
 					return _this.get(definition.name, id);

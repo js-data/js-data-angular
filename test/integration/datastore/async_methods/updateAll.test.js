@@ -43,7 +43,7 @@ describe('DS.updateAll(resourceName, attrs, params[, options])', function () {
 		});
 	});
 	it('should update a collection of items', function () {
-		$httpBackend.expectPUT('http://test.angular-cache.com/posts').respond(200, [
+		$httpBackend.expectPUT('http://test.angular-cache.com/posts?query=%7B%22where%22:%7B%22age%22:%7B%22%3D%3D%22:33%7D%7D%7D').respond(200, [
 			{ author: 'Adam', age: 27, id: 8 },
 			{ author: 'Adam', age: 27, id: 9 }
 		]);
@@ -67,7 +67,7 @@ describe('DS.updateAll(resourceName, attrs, params[, options])', function () {
 		});
 
 		$httpBackend.flush();
-		$httpBackend.expectPUT('http://test.angular-cache.com/posts').respond(200, [
+		$httpBackend.expectPUT('http://test.angular-cache.com/posts?query=%7B%22where%22:%7B%22age%22:%7B%22%3D%3D%22:31%7D%7D%7D').respond(200, [
 			{ author: 'Jane', age: 5, id: 6 }
 		]);
 
@@ -86,5 +86,10 @@ describe('DS.updateAll(resourceName, attrs, params[, options])', function () {
 		});
 
 		$httpBackend.flush();
+
+		assert.equal(lifecycle.beforeInject.callCount, 5, 'beforeInject should have been called');
+		assert.equal(lifecycle.afterInject.callCount, 5, 'afterInject should have been called');
+		assert.equal(lifecycle.serialize.callCount, 2, 'serialize should have been called');
+		assert.equal(lifecycle.deserialize.callCount, 2, 'deserialize should have been called');
 	});
 });

@@ -105,6 +105,15 @@ The following asynchronous operations support a model lifecycle:
 - `destroy` - Implementation provided by adapter
 - `afterDestroy` - Default: `noop`
 
+### Additional hooks
+
+- `serialize` - Default: `noop` - Called before data is sent through adapters.
+- `deserialize` - Default: `noop` - Called after data is returned from adapters.
+- `beforeInject` - Default: `noop` - Called before data is injected into the data store.
+- `afterInject` - Default: `noop` - Called after data is injected into the data store.
+
+See the [DSProvider.defaults API](/documentation/api/angular-data/DSProvider.properties:defaults) for detailed information.
+
 ### Define lifecycle hooks
 All lifecycle hooks will be executed according to the following signature:
 ```js
