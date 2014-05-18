@@ -46,6 +46,7 @@
 		.factory('DSUtils', require('./utils'))
 		.factory('DSErrors', require('./errors'))
 		.provider('DSHttpAdapter', require('./adapters/http'))
+		.provider('DSLocalStorageAdapter', require('./adapters/localStorage'))
 		.provider('DS', require('./datastore'))
 		.config(['$provide', function ($provide) {
 			$provide.decorator('$q', ['$delegate', function ($delegate) {

@@ -11,3 +11,37 @@
 @id overview
 @name Overview of adapters
 @description
+
+Angular-data ships with a `DSHttpAdapter` and a `DSLocalStorageAdapter`. This is default adapter
+used for `DS.findAll`, `DS.update`, etc.
+
+Register a custom adapter:
+```js
+DS.adapters.myCustomAdapter = { ... };
+```
+
+Other available adapters:
+
+- [DSLocalStorageAdapter](https://github.com/jmdobry/angular-data/blob/master/src/adapters/localStorage.js)
+- [DSLocalForageAdapter](https://github.com/jmdobry/angular-data-localForage)
+
+The default adapter can be set globally:
+
+```js
+DSProvider.defaults.defaultAdapter = 'DSHttpAdapter';
+```
+
+per resource:
+
+```js
+DS.defineResource({
+	name: 'user',
+	defaultAdapter: 'DSLocalForageAdapter'
+});
+``
+
+per method
+
+```js
+DS.update('post', 45, { author: 'Sally' }, { adapter: 'DSLocalForageAdapter' });
+```

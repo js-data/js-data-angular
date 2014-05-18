@@ -1,5 +1,5 @@
 // Setup global test variables
-var $rootScope, $q, $log, DSProvider, DSHttpAdapterProvider, DS, DSHttpAdapter, app, $httpBackend, p1, p2, p3, p4, p5;
+var $rootScope, $q, $log, DSHttpAdapterProvider, DSProvider, DSLocalStorageAdapter, DS, DSUtils, DSHttpAdapter, app, $httpBackend, p1, p2, p3, p4, p5;
 
 var lifecycle = {};
 
@@ -86,8 +86,6 @@ beforeEach(function (done) {
 		return query;
 	};
 	module('app', function (_DSProvider_, _DSHttpAdapterProvider_) {
-		DSHttpAdapterProvider = _DSHttpAdapterProvider_;
-		DSHttpAdapterProvider.defaults.queryTransform = lifecycle.queryTransform;
 		DSProvider = _DSProvider_;
 		DSProvider.defaults.baseUrl = 'http://test.angular-cache.com';
 		DSProvider.defaults.beforeValidate = lifecycle.beforeValidate;
@@ -103,13 +101,19 @@ beforeEach(function (done) {
 		DSProvider.defaults.afterInject = lifecycle.afterInject;
 		DSProvider.defaults.serialize = lifecycle.serialize;
 		DSProvider.defaults.deserialize = lifecycle.deserialize;
+		DSHttpAdapterProvider = _DSHttpAdapterProvider_;
+		DSHttpAdapterProvider.defaults.queryTransform = lifecycle.queryTransform;
+
 	});
-	inject(function (_$rootScope_, _$q_, _$httpBackend_, _DS_, _$log_, _DSHttpAdapter_) {
+	inject(function (_$rootScope_, _$q_, _$httpBackend_, _DS_, _$log_, _DSUtils_, _DSHttpAdapter_, _DSLocalStorageAdapter_) {
 		// Setup global mocks
+		localStorage.clear();
 		$q = _$q_;
 		$rootScope = _$rootScope_;
 		DS = _DS_;
+		DSUtils = _DSUtils_;
 		DSHttpAdapter = _DSHttpAdapter_;
+		DSLocalStorageAdapter = _DSLocalStorageAdapter_;
 		$httpBackend = _$httpBackend_;
 		DS.defineResource({
 			name: 'post',

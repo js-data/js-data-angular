@@ -21,7 +21,7 @@ $scope.$watch(function () {
 	// Here we are watching the "lastModified" timestamp maintained by the data store for this particular document
 
 	return DS.lastModified('document', 45);
-}, function (lastModifiedTimestamp) {
+}, function () {
 	// When this callback is executed, it means that the data store thinks the item changed
 
 	// Retrieve the updated item from the data store's cache
@@ -35,7 +35,7 @@ To make things simpler, angular-data has some bind methods to help with this:
 DS.bindOne($scope, 'myDoc', 'document', 45');
 ```
 
-The above example shows how to bind an item in the data store to the stop. Whenever that item changes it will be updated
+The above example shows how to bind an item in the data store to the $scope. Whenever that item changes it will be updated
 on the $scope.
 
 When the app starts up, the calls to `lastModified()` and `get()` will both returned undefined, because the item isn't in
@@ -66,6 +66,6 @@ DS.eject('document', 45); // synchronously eject document from the store
 ```
 
 User #2 doesn't need to destroy document 45, because it's already been deleted on the server by user #1. User #2 just
-needs to kick document 45 out of the data store and be done with it.
+needs to kick document #45 out of the data store and be done with it.
 
-See the [API](/documentation/api/api/index) for more information.
+See the [DS API](/documentation/api/angular-data/DS) for more information.

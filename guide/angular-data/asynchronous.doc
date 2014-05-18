@@ -11,8 +11,10 @@ The asynchronous methods return Promises produced by Angular's `$q` service.
 Example:
 
 ```js
+// synchronous
 DS.get('document', 45); // undefined
 
+// asynchronous
 DS.find('document', 45).then(function (document) {
 	document; // { title: 'How to Cook', id: 45 }
 
@@ -40,4 +42,4 @@ DS.save('document', 45).then(function (document) {
 DS.get('document', 45); // { title: 'How to Cook', id: 45 }
 ```
 
-See the [API](/documentation/api/api/index) for more information.
+See the [DS API](/documentation/api/angular-data/DS) for more information.

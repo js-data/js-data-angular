@@ -4,8 +4,8 @@
 @description
 
 Angular-data is an in-browser data store for [Angular.js](http://angularjs.org).
-[Synchronous methods](/documentation/guide/synchronous/index) work only with data already in the data store, and
-[asynchronous methods](/documentation/guide/asynchronous/index) work with a persistence layer.
+[Synchronous methods](/documentation/guide/angular-data/synchronous) work only with data already in the data store, and
+[Asynchronous methods](/documentation/guide/angular-data/asynchronous) work with a persistence layer.
 
 <p>
     <img src="/resources/img/chart.png" width="940">
@@ -15,7 +15,7 @@ Angular-data is an in-browser data store for [Angular.js](http://angularjs.org).
 ```js
 angular.module('myApp', ['angular-data.DS'])
 	.config(function (DSProvider) {
-		DSProvider.defaults.baseUrl = 'https://example.com/api';
+		DSProvider.defaults.baseUrl = '/api';
 	})
 	.run(function (DS) {
 		DS.defineResource({
@@ -25,16 +25,21 @@ angular.module('myApp', ['angular-data.DS'])
 		});
 	})
 	.controller('PostCtrl', function ($scope, DS) {
-		var query = {
-                        query: {
-                            where: {
-                                author: 'John Anderson'
-                            }
-                        }
-                    };
+		var params = {
+            query: {
+                where: {
+                    author: {
+                        '==': 'John Anderson'
+                    }
+                }
+            }
+        };
 
-		DS.findAll('post', query);
+		DS.findAll('post', params);
 
+		DS.bindAll($scope', 'posts', 'post', params);
+
+		// Verbose way of doing the bindAll() above, but gives more control
 		$scope.$watch(function () {
 			return DS.lastModified('post');
 		}, function () {
@@ -54,7 +59,7 @@ $scope.posts;   //  [{ id: 1, author: 'John Anderson', title: 'How to cook' },
 
 You define _resources_ and register them with the data store. A _resource definition_ tells angular-data
 about a particular resource, like what its root endpoint is and which attribute refers to the primary key of the
-resource. A _resource definition_ can also specify validation functions to be executed during model lifecycle operations.
+resource. A _resource definition_ can also specify functions to be executed during model lifecycle operations.
 
 ```js
 DS.defineResource({
@@ -71,7 +76,7 @@ DS.defineResource({
 });
 ```
 
-`validate` will be executed at the beginning of the lifecycle initiated by a call to `DS.create` or `DS.save`.
+`validate` will be executed at the beginning of the lifecycle initiated by a calls to `DS.create`, `DS.save`, etc.
 ```js
 DS.create('post', { author: 'Sally', title: 'Angular gotchas' })
 	.then(function (post) {

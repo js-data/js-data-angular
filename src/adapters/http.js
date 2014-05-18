@@ -229,10 +229,6 @@ function DSHttpAdapterProvider() {
 			 */
 			create: create,
 
-			createMany: function () {
-				throw new Error('Not yet implemented!');
-			},
-
 			/**
 			 * @doc method
 			 * @id DSHttpAdapter.methods:update

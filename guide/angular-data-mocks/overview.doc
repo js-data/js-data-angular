@@ -3,9 +3,9 @@
 @name Overview
 @description
 
-Angular-data is a fake angular-data implementation suitable for unit testing angular applications that use the `angular-data.DS` module.
+Angular-data-mocks is a fake angular-data implementation suitable for unit testing angular applications that use the `angular-data.DS` module.
 
-__Version:__ 0.3.0
+__Version:__ 0.3.2
 
 __angular-data-mocks requires [sinon](http://sinonjs.org/) to be loaded in order to work.__
 

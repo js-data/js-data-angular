@@ -1432,10 +1432,6 @@ function DSHttpAdapterProvider() {
 			 */
 			create: create,
 
-			createMany: function () {
-				throw new Error('Not yet implemented!');
-			},
-
 			/**
 			 * @doc method
 			 * @id DSHttpAdapter.methods:update
@@ -1634,6 +1630,189 @@ function DSHttpAdapterProvider() {
 module.exports = DSHttpAdapterProvider;
 
 },{}],32:[function(require,module,exports){
+/**
+ * @doc function
+ * @id DSLocalStorageProvider
+ * @name DSLocalStorageProvider
+ */
+function DSLocalStorageProvider() {
+
+	this.$get = ['$q', 'DSUtils', function ($q, DSUtils) {
+
+		/**
+		 * @doc interface
+		 * @id DSLocalStorage
+		 * @name DSLocalStorage
+		 * @description
+		 * Default adapter used by angular-data. This adapter uses AJAX and JSON to send/retrieve data to/from a server.
+		 * Developers may provide custom adapters that implement the adapter interface.
+		 */
+		return {
+			/**
+			 * @doc method
+			 * @id DSLocalStorage.methods:find
+			 * @name find
+			 * @description
+			 * Retrieve a single entity from localStorage.
+			 *
+			 * Calls `localStorage.getItem(key)`.
+			 *
+			 * @param {object} resourceConfig Properties:
+			 * - `{string}` - `baseUrl` - Base url.
+			 * - `{string=}` - `namespace` - Namespace path for the resource.
+			 * @param {string|number} id The primary key of the entity to retrieve.
+			 * @returns {Promise} Promise.
+			 */
+			find: find,
+
+			/**
+			 * @doc method
+			 * @id DSLocalStorage.methods:findAll
+			 * @name findAll
+			 * @description
+			 * Not supported.
+			 */
+			findAll: function () {
+				throw new Error('Not supported!');
+			},
+
+			/**
+			 * @doc method
+			 * @id DSLocalStorage.methods:findAll
+			 * @name find
+			 * @description
+			 * Not supported.
+			 */
+			create: function () {
+				throw new Error('Not supported!');
+			},
+
+			/**
+			 * @doc method
+			 * @id DSLocalStorage.methods:update
+			 * @name update
+			 * @description
+			 * Update an entity in localStorage.
+			 *
+			 * Calls `localStorage.setItem(key, value)`.
+			 *
+			 * @param {object} resourceConfig Properties:
+			 * - `{string}` - `baseUrl` - Base url.
+			 * - `{string=}` - `namespace` - Namespace path for the resource.
+			 * @param {string|number} id The primary key of the entity to update.
+			 * @param {object} attrs The attributes with which to update the entity.
+			 * @returns {Promise} Promise.
+			 */
+			update: update,
+
+			/**
+			 * @doc method
+			 * @id DSLocalStorage.methods:updateAll
+			 * @name updateAll
+			 * @description
+			 * Not supported.
+			 */
+			updateAll: function () {
+				throw new Error('Not supported!');
+			},
+
+			/**
+			 * @doc method
+			 * @id DSLocalStorage.methods:destroy
+			 * @name destroy
+			 * @description
+			 * Destroy an entity from localStorage.
+			 *
+			 * Calls `localStorage.removeItem(key)`.
+			 *
+			 * @param {object} resourceConfig Properties:
+			 * - `{string}` - `baseUrl` - Base url.
+			 * - `{string=}` - `endpoint` - Endpoint path for the resource.
+			 * @param {string|number} id The primary key of the entity to destroy.
+			 * @returns {Promise} Promise.
+			 */
+			destroy: destroy,
+
+			/**
+			 * @doc method
+			 * @id DSLocalStorage.methods:destroyAll
+			 * @name destroyAll
+			 * @description
+			 * Not supported.
+			 */
+			destroyAll: function () {
+				throw new Error('Not supported!');
+			}
+		};
+
+		function GET(key) {
+			var deferred = $q.defer();
+			try {
+				var item = localStorage.getItem(key);
+				deferred.resolve(item ? angular.fromJson(item) : undefined);
+			} catch (err) {
+				deferred.reject(err);
+			}
+			return deferred.promise;
+		}
+
+		function PUT(key, value) {
+			var deferred = $q.defer();
+			try {
+				var item = localStorage.getItem(key);
+				if (item) {
+					item = angular.fromJson(item);
+					DSUtils.deepMixIn(item, value);
+					deferred.resolve(localStorage.setItem(key, angular.toJson(item)));
+				} else {
+					deferred.resolve(localStorage.setItem(key, angular.toJson(value)));
+				}
+			} catch (err) {
+				deferred.reject(err);
+			}
+			return deferred.promise;
+		}
+
+		function DEL(key) {
+			var deferred = $q.defer();
+			try {
+				deferred.resolve(localStorage.removeItem(key));
+			} catch (err) {
+				deferred.reject(err);
+			}
+			return deferred.promise;
+		}
+
+		function destroy(resourceConfig, id, options) {
+			options = options || {};
+			return DEL(
+				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
+				options
+			);
+		}
+
+		function find(resourceConfig, id, options) {
+			options = options || {};
+			return GET(
+				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
+				options
+			);
+		}
+
+		function update(resourceConfig, id, attrs, options) {
+			options = options || {};
+			return PUT(
+				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
+				attrs,
+				options
+			);
+		}
+	}];
+}
+
+module.exports = DSLocalStorageProvider;
+
+},{}],33:[function(require,module,exports){
 var errorPrefix = 'DS.create(resourceName, attrs[, options]): ';
 
 /**
@@ -1732,7 +1911,7 @@ function create(resourceName, attrs, options) {
 
 module.exports = create;
 
-},{}],33:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 var errorPrefix = 'DS.destroy(resourceName, id): ';
 
 /**
@@ -1819,7 +1998,7 @@ function destroy(resourceName, id, options) {
 
 module.exports = destroy;
 
-},{}],34:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 var errorPrefix = 'DS.destroyAll(resourceName, params[, options]): ';
 
 /**
@@ -1914,7 +2093,7 @@ function destroyAll(resourceName, params, options) {
 
 module.exports = destroyAll;
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 var errorPrefix = 'DS.find(resourceName, id[, options]): ';
 
 /**
@@ -2021,7 +2200,7 @@ function find(resourceName, id, options) {
 
 module.exports = find;
 
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 var errorPrefix = 'DS.findAll(resourceName, params[, options]): ';
 
 function processResults(utils, data, resourceName, queryHash) {
@@ -2181,7 +2360,7 @@ function findAll(resourceName, params, options) {
 
 module.exports = findAll;
 
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 module.exports = {
 	/**
 	 * @doc method
@@ -2274,7 +2453,7 @@ module.exports = {
 	updateAll: require('./updateAll')
 };
 
-},{"./create":32,"./destroy":33,"./destroyAll":34,"./find":35,"./findAll":36,"./refresh":38,"./save":39,"./update":40,"./updateAll":41}],38:[function(require,module,exports){
+},{"./create":33,"./destroy":34,"./destroyAll":35,"./find":36,"./findAll":37,"./refresh":39,"./save":40,"./update":41,"./updateAll":42}],39:[function(require,module,exports){
 var errorPrefix = 'DS.refresh(resourceName, id[, options]): ';
 
 /**
@@ -2348,7 +2527,7 @@ function refresh(resourceName, id, options) {
 
 module.exports = refresh;
 
-},{}],39:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 var errorPrefix = 'DS.save(resourceName, id[, options]): ';
 
 /**
@@ -2467,7 +2646,7 @@ function save(resourceName, id, options) {
 
 module.exports = save;
 
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 var errorPrefix = 'DS.update(resourceName, id, attrs[, options]): ';
 
 /**
@@ -2578,7 +2757,7 @@ function update(resourceName, id, attrs, options) {
 
 module.exports = update;
 
-},{}],41:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 var errorPrefix = 'DS.updateAll(resourceName, attrs, params[, options]): ';
 
 /**
@@ -2701,7 +2880,7 @@ function updateAll(resourceName, attrs, params, options) {
 
 module.exports = updateAll;
 
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 var utils = require('../utils')[0]();
 
 function lifecycleNoop(resourceName, attrs, cb) {
@@ -3165,8 +3344,8 @@ function DSProvider() {
 	var defaults = this.defaults = new BaseConfig();
 
 	this.$get = [
-		'$rootScope', '$log', '$q', 'DSHttpAdapter', 'DSUtils', 'DSErrors', 'DSCacheFactory',
-		function ($rootScope, $log, $q, DSHttpAdapter, DSUtils, DSErrors, DSCacheFactory) {
+		'$rootScope', '$log', '$q', 'DSHttpAdapter', 'DSLocalStorageAdapter', 'DSUtils', 'DSErrors', 'DSCacheFactory',
+		function ($rootScope, $log, $q, DSHttpAdapter, DSLocalStorageAdapter, DSUtils, DSErrors, DSCacheFactory) {
 
 			var syncMethods = require('./sync_methods'),
 				asyncMethods = require('./async_methods'),
@@ -3232,7 +3411,8 @@ function DSProvider() {
 				 * the name of the adapter and the value is the adapter itself.
 				 */
 				adapters: {
-					DSHttpAdapter: DSHttpAdapter
+					DSHttpAdapter: DSHttpAdapter,
+					DSLocalStorageAdapter: DSLocalStorageAdapter
 				},
 
 				/**
@@ -3279,7 +3459,7 @@ function DSProvider() {
 
 module.exports = DSProvider;
 
-},{"../utils":"K0yknU","./async_methods":37,"./sync_methods":53}],43:[function(require,module,exports){
+},{"../utils":"K0yknU","./async_methods":38,"./sync_methods":54}],44:[function(require,module,exports){
 var errorPrefix = 'DS.bindAll(scope, expr, resourceName, params): ';
 
 /**
@@ -3351,7 +3531,7 @@ function bindOne(scope, expr, resourceName, params) {
 
 module.exports = bindOne;
 
-},{}],44:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 var errorPrefix = 'DS.bindOne(scope, expr, resourceName, id): ';
 
 /**
@@ -3411,7 +3591,7 @@ function bindOne(scope, expr, resourceName, id) {
 
 module.exports = bindOne;
 
-},{}],45:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 var errorPrefix = 'DS.changes(resourceName, id): ';
 
 /**
@@ -3468,7 +3648,7 @@ function changes(resourceName, id) {
 
 module.exports = changes;
 
-},{}],46:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 /*jshint evil:true*/
 var errorPrefix = 'DS.defineResource(definition): ';
 
@@ -3609,7 +3789,7 @@ function defineResource(definition) {
 
 module.exports = defineResource;
 
-},{}],47:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 var observe = require('observejs');
 
 /**
@@ -3651,7 +3831,7 @@ function digest() {
 
 module.exports = digest;
 
-},{"observejs":"QYwGEY"}],48:[function(require,module,exports){
+},{"observejs":"QYwGEY"}],49:[function(require,module,exports){
 var errorPrefix = 'DS.eject(resourceName, id): ';
 
 function _eject(definition, resource, id) {
@@ -3734,7 +3914,7 @@ function eject(resourceName, id) {
 
 module.exports = eject;
 
-},{}],49:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 var errorPrefix = 'DS.ejectAll(resourceName[, params]): ';
 
 function _ejectAll(definition, resource, params) {
@@ -3838,7 +4018,7 @@ function ejectAll(resourceName, params) {
 
 module.exports = ejectAll;
 
-},{}],50:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 /* jshint loopfunc: true */
 var errorPrefix = 'DS.filter(resourceName, params[, options]): ';
 
@@ -3995,7 +4175,7 @@ function filter(resourceName, params, options) {
 
 module.exports = filter;
 
-},{}],51:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 var errorPrefix = 'DS.get(resourceName, id[, options]): ';
 
 /**
@@ -4058,7 +4238,7 @@ function get(resourceName, id, options) {
 
 module.exports = get;
 
-},{}],52:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 var errorPrefix = 'DS.hasChanges(resourceName, id): ';
 
 function diffIsEmpty(utils, diff) {
@@ -4121,7 +4301,7 @@ function hasChanges(resourceName, id) {
 
 module.exports = hasChanges;
 
-},{}],53:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 module.exports = {
 	/**
 	 * @doc method
@@ -4264,7 +4444,7 @@ module.exports = {
 	hasChanges: require('./hasChanges')
 };
 
-},{"./bindAll":43,"./bindOne":44,"./changes":45,"./defineResource":46,"./digest":47,"./eject":48,"./ejectAll":49,"./filter":50,"./get":51,"./hasChanges":52,"./inject":54,"./lastModified":55,"./lastSaved":56,"./previous":57}],54:[function(require,module,exports){
+},{"./bindAll":44,"./bindOne":45,"./changes":46,"./defineResource":47,"./digest":48,"./eject":49,"./ejectAll":50,"./filter":51,"./get":52,"./hasChanges":53,"./inject":55,"./lastModified":56,"./lastSaved":57,"./previous":58}],55:[function(require,module,exports){
 var observe = require('observejs'),
 	errorPrefix = 'DS.inject(resourceName, attrs[, options]): ';
 
@@ -4428,7 +4608,7 @@ function inject(resourceName, attrs, options) {
 
 module.exports = inject;
 
-},{"observejs":"QYwGEY"}],55:[function(require,module,exports){
+},{"observejs":"QYwGEY"}],56:[function(require,module,exports){
 var errorPrefix = 'DS.lastModified(resourceName[, id]): ';
 
 /**
@@ -4486,7 +4666,7 @@ function lastModified(resourceName, id) {
 
 module.exports = lastModified;
 
-},{}],56:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 var errorPrefix = 'DS.lastSaved(resourceName[, id]): ';
 
 /**
@@ -4547,7 +4727,7 @@ function lastSaved(resourceName, id) {
 
 module.exports = lastSaved;
 
-},{}],57:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 var errorPrefix = 'DS.previous(resourceName, id): ';
 
 /**
@@ -4775,7 +4955,7 @@ module.exports = [function () {
 	};
 }];
 
-},{}],60:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 (function (window, angular, undefined) {
 	'use strict';
 
@@ -4824,6 +5004,7 @@ module.exports = [function () {
 		.factory('DSUtils', require('./utils'))
 		.factory('DSErrors', require('./errors'))
 		.provider('DSHttpAdapter', require('./adapters/http'))
+		.provider('DSLocalStorageAdapter', require('./adapters/localStorage'))
 		.provider('DS', require('./datastore'))
 		.config(['$provide', function ($provide) {
 			$provide.decorator('$q', ['$delegate', function ($delegate) {
@@ -4857,7 +5038,7 @@ module.exports = [function () {
 
 })(window, window.angular);
 
-},{"./adapters/http":31,"./datastore":42,"./errors":"XIsZmp","./utils":"K0yknU"}],"K0yknU":[function(require,module,exports){
+},{"./adapters/http":31,"./adapters/localStorage":32,"./datastore":43,"./errors":"XIsZmp","./utils":"K0yknU"}],"K0yknU":[function(require,module,exports){
 module.exports = [function () {
 	return {
 		isString: angular.isString,
@@ -4941,4 +5122,4 @@ module.exports = [function () {
 
 },{"mout/array/contains":3,"mout/array/filter":4,"mout/array/slice":8,"mout/array/sort":9,"mout/array/toLookup":10,"mout/lang/isEmpty":15,"mout/object/deepMixIn":22,"mout/object/forOwn":24,"mout/object/pick":27,"mout/object/set":28,"mout/string/makePath":29,"mout/string/upperCase":30}],"utils":[function(require,module,exports){
 module.exports=require('K0yknU');
-},{}]},{},[60])
+},{}]},{},[61])
