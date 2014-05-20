@@ -1,4 +1,7 @@
 describe('DSHttpAdapter.destroy(resourceConfig, id, options)', function () {
+
+	beforeEach(startInjector);
+
 	it('should make a DELETE request', function () {
 		$httpBackend.expectDELETE('api/posts/1').respond(200, 1);
 

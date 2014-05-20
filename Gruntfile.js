@@ -97,24 +97,44 @@ module.exports = function (grunt) {
 			dev: {
 				browsers: ['Chrome'],
 				autoWatch: true,
-				singleRun: false
+				singleRun: false,
+				exclude: [
+					'test/integration/datastore/cacheFactory.test.js'
+				]
 			},
 			min: {
-				browsers: ['Chrome'],
-				autoWatch: false,
-				singleRun: true,
+				browsers: ['Firefox', 'PhantomJS'],
 				options: {
 					files: [
 						'bower_components/angular/angular.js',
 						'bower_components/angular-mocks/angular-mocks.js',
+						'bower_components/angular-cache/dist/angular-cache.js',
 						'dist/angular-data.min.js',
-						'test/integration/**/*.js',
-						'karma.start.js'
+						'karma.start.js',
+						'test/integration/**/*.js'
+					]
+				},
+				exclude: [
+					'test/integration/datastore/cacheFactory.test.js'
+				]
+			},
+			cacheFactory: {
+				browsers: ['Firefox', 'PhantomJS'],
+				options: {
+					files: [
+						'bower_components/angular/angular.js',
+						'bower_components/angular-mocks/angular-mocks.js',
+						'dist/angular-data.js',
+						'karma.start.js',
+						'test/integration/datastore/cacheFactory.test.js'
 					]
 				}
 			},
 			ci: {
-				browsers: ['Firefox', 'PhantomJS']
+				browsers: ['Firefox', 'PhantomJS'],
+				exclude: [
+					'test/integration/datastore/cacheFactory.test.js'
+				]
 			}
 		},
 		coveralls: {
@@ -375,5 +395,5 @@ module.exports = function (grunt) {
 	grunt.registerTask('default', ['build']);
 
 	// Used by TravisCI
-	grunt.registerTask('ci', ['build', 'karma:ci', 'coveralls', 'doc']);
+	grunt.registerTask('ci', ['build', 'karma:ci', 'karma:cacheFactory', 'karma:min', 'coveralls', 'doc']);
 };

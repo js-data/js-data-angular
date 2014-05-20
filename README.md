@@ -2,20 +2,18 @@
 
 __Data store for Angular.js.__
 
-__Current version:__ 0.9.0
+__Latest Release:__ [0.8.1](http://angular-data.codetrain.io/)
+__master:__ [0.9.0](http://angular-data-next.codetrain.io/)
 
 Angular-data is in a pre-1.0.0 development stage; the API is fluctuating, not a lot of tests yet, etc.
 
-Not for production use (yet). If you still want to develop with Angular-data, be prepared to keep a close eye on the changelog, as the API is very liable to change (a lot).
+Not for production use (yet). If you still want to develop with Angular-data, be prepared to keep a close eye on the changelog, as the API is still liable to change before 1.0.0.
 
-Pending:
-- A Solid Roadmap
+Roadmap:
 - Relations/Associations
 - Various Adapters
 - Schema Definition/Validation
 - Nested Resources
-- Website / documentation
-- 100% tested (whatever _that_ means)
 - See [issues](https://github.com/jmdobry/angular-data/issues?milestone=7&page=1&state=open) for what's in development
 - See [Design Doc](https://docs.google.com/document/d/1o069KLuBH4jpwm1FCLZFwKMgM73Xi8_1JyjhSxVpidM/edit?usp=sharing) for other juicy reading material
 

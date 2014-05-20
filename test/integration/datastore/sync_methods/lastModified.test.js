@@ -1,7 +1,9 @@
 describe('DS.lastModified(resourceName[, id])', function () {
 	var errorPrefix = 'DS.lastModified(resourceName[, id]): ';
 
-	it('should throw an error when method pre-conditions are not met', function (done) {
+	beforeEach(startInjector);
+
+	it('should throw an error when method pre-conditions are not met', function () {
 		assert.throws(function () {
 			DS.lastModified('does not exist', {});
 		}, DS.errors.RuntimeError, errorPrefix + 'does not exist is not a registered resource!');
@@ -13,10 +15,8 @@ describe('DS.lastModified(resourceName[, id])', function () {
 				}, DS.errors.IllegalArgumentError, errorPrefix + 'id: Must be a string or a number!');
 			}
 		});
-
-		done();
 	});
-	it('should lastModified an item into the store', function (done) {
+	it('should lastModified an item into the store', function () {
 
 		var collectionLastModified;
 
@@ -52,8 +52,6 @@ describe('DS.lastModified(resourceName[, id])', function () {
 
 		collectionLastModified = DS.lastModified('post');
 		assert.equal(DS.lastModified('post', 5), lastModified);
-
-		done();
 	});
 //	it('should lastModified an item into the store', function (done) {
 //

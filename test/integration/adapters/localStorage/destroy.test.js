@@ -1,4 +1,7 @@
 describe('DSLocalStorageAdapter.destroy(resourceConfig, id, options)', function () {
+
+	beforeEach(startInjector);
+
 	it('should destroy an item from localStorage', function (done) {
 		var path = DSUtils.makePath('api', 'posts', 1);
 

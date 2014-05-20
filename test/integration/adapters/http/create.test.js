@@ -1,4 +1,7 @@
 describe('DSHttpAdapter.create(resourceConfig, attrs, options)', function () {
+
+	beforeEach(startInjector);
+
 	it('should make a POST request', function () {
 		$httpBackend.expectPOST('api/posts', {
 			author: 'John',

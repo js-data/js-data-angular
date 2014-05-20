@@ -1,7 +1,9 @@
 describe('DS.lastSaved(resourceName[, id])', function () {
 	var errorPrefix = 'DS.lastSaved(resourceName[, id]): ';
 
-	it('should throw an error when method pre-conditions are not met', function (done) {
+	beforeEach(startInjector);
+
+	it('should throw an error when method pre-conditions are not met', function () {
 		assert.throws(function () {
 			DS.lastSaved('does not exist', {});
 		}, DS.errors.RuntimeError, errorPrefix + 'does not exist is not a registered resource!');
@@ -13,10 +15,8 @@ describe('DS.lastSaved(resourceName[, id])', function () {
 				}, DS.errors.IllegalArgumentError, errorPrefix + 'id: Must be a string or a number!');
 			}
 		});
-
-		done();
 	});
-	it('should lastSaved an item into the store', function (done) {
+	it('should lastSaved an item into the store', function () {
 
 		var lastSaved = DS.lastSaved('post', 5);
 		assert.equal(DS.lastSaved('post', 5), 0);
@@ -40,7 +40,5 @@ describe('DS.lastSaved(resourceName[, id])', function () {
 		$httpBackend.flush();
 
 		assert.notEqual(lastSaved, DS.lastSaved('post', 5));
-
-		done();
 	});
 });

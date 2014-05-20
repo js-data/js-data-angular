@@ -3,6 +3,8 @@ describe('DS.bindAll(scope, expr, resourceName, params)', function () {
 
 	var $rootScope, $scope;
 
+	beforeEach(startInjector);
+
 	beforeEach(function () {
 		inject(function (_$rootScope_) {
 			$rootScope = _$rootScope_;

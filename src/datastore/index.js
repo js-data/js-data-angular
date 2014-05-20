@@ -461,8 +461,8 @@ function DSProvider() {
 	var defaults = this.defaults = new BaseConfig();
 
 	this.$get = [
-		'$rootScope', '$log', '$q', 'DSHttpAdapter', 'DSLocalStorageAdapter', 'DSUtils', 'DSErrors', 'DSCacheFactory',
-		function ($rootScope, $log, $q, DSHttpAdapter, DSLocalStorageAdapter, DSUtils, DSErrors, DSCacheFactory) {
+		'$rootScope', '$log', '$q', 'DSHttpAdapter', 'DSLocalStorageAdapter', 'DSUtils', 'DSErrors',
+		function ($rootScope, $log, $q, DSHttpAdapter, DSLocalStorageAdapter, DSUtils, DSErrors) {
 
 			var syncMethods = require('./sync_methods'),
 				asyncMethods = require('./async_methods'),

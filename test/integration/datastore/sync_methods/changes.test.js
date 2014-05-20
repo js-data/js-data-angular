@@ -1,7 +1,9 @@
 describe('DS.changes(resourceName, id)', function () {
 	var errorPrefix = 'DS.changes(resourceName, id): ';
 
-	it('should throw an error when method pre-conditions are not met', function (done) {
+	beforeEach(startInjector);
+
+	it('should throw an error when method pre-conditions are not met', function () {
 		assert.throws(function () {
 			DS.changes('does not exist', {});
 		}, DS.errors.RuntimeError, errorPrefix + 'does not exist is not a registered resource!');
@@ -11,15 +13,11 @@ describe('DS.changes(resourceName, id)', function () {
 				DS.changes('post', key);
 			}, DS.errors.IllegalArgumentError, errorPrefix + 'id: Must be a string or a number!');
 		});
-
-		done();
 	});
-	it('should return false if the item is not in the store', function (done) {
-
+	it('should return false if the item is not in the store', function () {
 		assert.isUndefined(DS.changes('post', 5));
-		done();
 	});
-	it('should return the changes in an object', function (done) {
+	it('should return the changes in an object', function () {
 
 		DS.inject('post', p1);
 
@@ -33,7 +31,5 @@ describe('DS.changes(resourceName, id)', function () {
 		assert.deepEqual(DS.changes('post', 5), {added: {}, changed: {
 			author: 'Jake'
 		}, removed: {}});
-
-		done();
 	});
 });

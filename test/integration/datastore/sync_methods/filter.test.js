@@ -1,6 +1,8 @@
 describe('DS.filter(resourceName, params[, options])', function () {
 	var errorPrefix = 'DS.filter(resourceName, params[, options]): ';
 
+	beforeEach(startInjector);
+
 	it('should throw an error when method pre-conditions are not met', function () {
 		assert.throws(function () {
 			DS.filter('does not exist', {});

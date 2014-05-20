@@ -1,6 +1,8 @@
 describe('DS.defineResource(definition)', function () {
 	var errorPrefix = 'DS.defineResource(definition): ';
 
+	beforeEach(startInjector);
+
 	it('should throw an error when method pre-conditions are not met', function () {
 		angular.forEach(TYPES_EXCEPT_STRING_OR_OBJECT, function (key) {
 			if (!angular.isArray(key)) {

@@ -1,7 +1,9 @@
 describe('DS.destroyAll(resourceName, params[, options]): ', function () {
 	var errorPrefix = 'DS.destroyAll(resourceName, params[, options]): ';
 
-	it('should throw an error when method pre-conditions are not met', function (done) {
+	beforeEach(startInjector);
+
+	it('should throw an error when method pre-conditions are not met', function () {
 		DS.destroyAll('does not exist', {}).then(function () {
 			fail('should have rejected');
 		}, function (err) {
@@ -28,8 +30,6 @@ describe('DS.destroyAll(resourceName, params[, options]): ', function () {
 				});
 			}
 		});
-
-		done();
 	});
 	it('should query the server for a collection', function () {
 		$httpBackend.expectDELETE('http://test.angular-cache.com/posts?query=%7B%22where%22:%7B%22age%22:33%7D%7D').respond(200);

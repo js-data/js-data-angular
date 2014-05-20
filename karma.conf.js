@@ -12,7 +12,8 @@ module.exports = function (config) {
 			'karma-chrome-launcher',
 			'karma-phantomjs-launcher',
 			'karma-firefox-launcher',
-			'karma-coverage'
+			'karma-coverage',
+			'karma-spec-reporter'
 		],
 		autoWatch: false,
 		browsers: ['Chrome'],
@@ -23,11 +24,11 @@ module.exports = function (config) {
 			'bower_components/angular-mocks/angular-mocks.js',
 			'bower_components/angular-cache/dist/angular-cache.js',
 			'dist/angular-data.js',
-			'test/integration/**/*.js',
-			'karma.start.js'
+			'karma.start.js',
+			'test/integration/**/*.js'
 		],
 
-		reporters: ['progress', 'coverage'],
+		reporters: ['spec', 'coverage'],
 
 		preprocessors: {
 			'dist/angular-data.js': ['coverage']

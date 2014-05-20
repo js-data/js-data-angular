@@ -1,7 +1,9 @@
 describe('DS.ejectAll(resourceName[, params])', function () {
 	var errorPrefix = 'DS.ejectAll(resourceName[, params]): ';
 
-	it('should throw an error when method pre-conditions are not met', function (done) {
+	beforeEach(startInjector);
+
+	it('should throw an error when method pre-conditions are not met', function () {
 		assert.throws(function () {
 			DS.ejectAll('does not exist');
 		}, DS.errors.RuntimeError, errorPrefix + 'does not exist is not a registered resource!');
@@ -13,11 +15,8 @@ describe('DS.ejectAll(resourceName[, params])', function () {
 				}, DS.errors.IllegalArgumentError, errorPrefix + 'params: Must be an object!');
 			}
 		});
-
-		done();
 	});
-	it('should eject items that meet the criteria from the store', function (done) {
-
+	it('should eject items that meet the criteria from the store', function () {
 		DS.inject('post', p1);
 		DS.inject('post', p2);
 		DS.inject('post', p3);
@@ -31,17 +30,13 @@ describe('DS.ejectAll(resourceName[, params])', function () {
 		assert.isDefined(DS.get('post', 7));
 		assert.isUndefined(DS.get('post', 8));
 		assert.isUndefined(DS.get('post', 9));
-
-		done();
 	});
-	it('should eject items that meet the criteria from the store 2', function (done) {
-
+	it('should eject items that meet the criteria from the store 2', function () {
 		DS.inject('post', p1);
 		DS.inject('post', p2);
 		DS.inject('post', p3);
 		DS.inject('post', p4);
 		DS.inject('post', p5);
-
 		try {
 			DS.ejectAll('post', { query: { where: { age: 33 } } });
 		} catch (err) {
@@ -56,11 +51,8 @@ describe('DS.ejectAll(resourceName[, params])', function () {
 		assert.isDefined(DS.get('post', 7));
 		assert.isUndefined(DS.get('post', 8));
 		assert.isUndefined(DS.get('post', 9));
-
-		done();
 	});
-	it('should eject all items from the store', function (done) {
-
+	it('should eject all items from the store', function () {
 		DS.inject('post', p1);
 		DS.inject('post', p2);
 		DS.inject('post', p3);
@@ -79,7 +71,5 @@ describe('DS.ejectAll(resourceName[, params])', function () {
 		assert.isUndefined(DS.get('post', 6));
 		assert.isUndefined(DS.get('post', 7));
 		assert.isUndefined(DS.get('post', 8));
-
-		done();
 	});
 });

@@ -1,6 +1,8 @@
 describe('DS.previous(resourceName, id)', function () {
 	var errorPrefix = 'DS.previous(resourceName, id): ';
 
+	beforeEach(startInjector);
+
 	it('should throw an error when method pre-conditions are not met', function () {
 		assert.throws(function () {
 			DS.previous('does not exist', {});

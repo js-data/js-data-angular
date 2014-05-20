@@ -1,4 +1,7 @@
 describe('DSHttpAdapter.find(resourceConfig, id, options)', function () {
+
+	beforeEach(startInjector);
+
 	it('should make a GET request', function () {
 		$httpBackend.expectGET('api/posts/1').respond(200, p1);
 

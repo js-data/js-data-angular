@@ -1,4 +1,7 @@
 describe('DSLocalStorageAdapter.find(resourceConfig, id, options)', function () {
+
+	beforeEach(startInjector);
+
 	it('should retrieve an item from localStorage', function (done) {
 		var path = DSUtils.makePath('api', 'posts', 1);
 

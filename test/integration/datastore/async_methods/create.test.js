@@ -1,6 +1,8 @@
 describe('DS.create(resourceName, attrs[, options])', function () {
 	var errorPrefix = 'DS.create(resourceName, attrs[, options]): ';
 
+	beforeEach(startInjector);
+
 	it('should throw an error when method pre-conditions are not met', function () {
 		DS.create('does not exist', 5).then(function () {
 			fail('should have rejected');

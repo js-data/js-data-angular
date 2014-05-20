@@ -1,7 +1,9 @@
 describe('DS.get(resourceName, id[, options])', function () {
 	var errorPrefix = 'DS.get(resourceName, id[, options]): ';
 
-	it('should throw an error when method pre-conditions are not met', function (done) {
+	beforeEach(startInjector);
+
+	it('should throw an error when method pre-conditions are not met', function () {
 		assert.throws(function () {
 			DS.get('does not exist', {});
 		}, DS.errors.RuntimeError, errorPrefix + 'does not exist is not a registered resource!');
@@ -19,16 +21,11 @@ describe('DS.get(resourceName, id[, options])', function () {
 				}, DS.errors.IllegalArgumentError, errorPrefix + 'options: Must be an object!');
 			}
 		});
-
-		done();
 	});
-	it('should return undefined if the query has never been made before', function (done) {
-
+	it('should return undefined if the query has never been made before', function () {
 		assert.isUndefined(DS.get('post', 5), 'should be undefined');
-
-		done();
 	});
-	it('should return undefined and send the query to the server if the query has never been made before and loadFromServer is set to true', function (done) {
+	it('should return undefined and send the query to the server if the query has never been made before and loadFromServer is set to true', function () {
 		$httpBackend.expectGET('http://test.angular-cache.com/posts/5').respond(200, p1);
 
 		assert.isUndefined(DS.get('post', 5, { loadFromServer: true }), 'should be undefined');
@@ -41,7 +38,5 @@ describe('DS.get(resourceName, id[, options])', function () {
 		assert.deepEqual(DS.get('post', 5), p1, 'p1 should now be in the store');
 		assert.isNumber(DS.lastModified('post', 5));
 		assert.isNumber(DS.lastSaved('post', 5));
-
-		done();
 	});
 });

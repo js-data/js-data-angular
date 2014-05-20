@@ -1,4 +1,7 @@
 describe('DSHttpAdapter.update(resourceConfig, id, attrs, options)', function () {
+
+	beforeEach(startInjector);
+
 	it('should make a PUT request', function () {
 		$httpBackend.expectPUT('api/posts/1', {
 			author: 'John',

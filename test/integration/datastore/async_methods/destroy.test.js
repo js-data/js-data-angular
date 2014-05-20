@@ -1,7 +1,9 @@
 describe('DS.destroy(resourceName, id)', function () {
 	var errorPrefix = 'DS.destroy(resourceName, id): ';
 
-	it('should throw an error when method pre-conditions are not met', function (done) {
+	beforeEach(startInjector);
+
+	it('should throw an error when method pre-conditions are not met', function () {
 		DS.destroy('does not exist', 5).then(function () {
 			fail('should have rejected');
 		}, function (err) {
@@ -17,8 +19,6 @@ describe('DS.destroy(resourceName, id)', function () {
 				assert.equal(err.message, errorPrefix + 'id: Must be a string or a number!');
 			});
 		});
-
-		done();
 	});
 	it('should delete an item from the data store', function () {
 		$httpBackend.expectDELETE('http://test.angular-cache.com/posts/5').respond(200, 5);

@@ -1,6 +1,8 @@
 describe('DS.update(resourceName, id, attrs[, options])', function () {
 	var errorPrefix = 'DS.update(resourceName, id, attrs[, options]): ';
 
+	beforeEach(startInjector);
+
 	it('should throw an error when method pre-conditions are not met', function () {
 		DS.update('does not exist', 5).then(function () {
 			fail('should have rejected');

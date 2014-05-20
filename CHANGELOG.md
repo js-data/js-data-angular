@@ -5,7 +5,7 @@
 - #59, #62 - Make queryTransform() consistent with the rest of the API
 
 ###### Backwards compatible API changes
-- #30, #48 - DSCacheFactory integration
+- #30, #48, #66 - DSCacheFactory integration
 - #49 - DS.bindOne($scope, prop, resourceName, id)
 - #50 - DS.bindAll($scope, prop, resourceName, query)
 - #51 - Allow baseUrl to be overridable at the method level

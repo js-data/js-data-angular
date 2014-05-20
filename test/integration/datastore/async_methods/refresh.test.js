@@ -1,7 +1,9 @@
 describe('DS.refresh(resourceName, id[, options]): ', function () {
 	var errorPrefix = 'DS.refresh(resourceName, id[, options]): ';
 
-	it('should throw an error when method pre-conditions are not met', function (done) {
+	beforeEach(startInjector);
+
+	it('should throw an error when method pre-conditions are not met', function () {
 		assert.throws(function () {
 			DS.refresh('does not exist', 5);
 		}, DS.errors.RuntimeError, errorPrefix + 'does not exist is not a registered resource!');
@@ -19,10 +21,8 @@ describe('DS.refresh(resourceName, id[, options]): ', function () {
 				}, DS.errors.IllegalArgumentError, errorPrefix + 'options: Must be an object!');
 			}
 		});
-
-		done();
 	});
-	it('should get an item from the server', function (done) {
+	it('should get an item from the server', function () {
 
 		// Should do nothing because the data isn't in the store
 		assert.isFalse(DS.refresh('post', 5));
@@ -56,7 +56,5 @@ describe('DS.refresh(resourceName, id[, options]): ', function () {
 
 		assert.deepEqual(DS.get('post', 5), { author: 'John', age: 31, id: 5 }, 'The post has been refreshed');
 		assert.notEqual(DS.lastModified('post', 5), initialLastModified);
-
-		done();
 	});
 });

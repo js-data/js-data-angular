@@ -1,6 +1,8 @@
 describe('DS.findAll(resourceName, params[, options]): ', function () {
 	var errorPrefix = 'DS.findAll(resourceName, params[, options]): ';
 
+	beforeEach(startInjector);
+
 	it('should throw an error when method pre-conditions are not met', function () {
 		DS.findAll('does not exist', {}).then(function () {
 			fail('should have rejected');

@@ -27,10 +27,10 @@ var fail = function (msg) {
 	}],
 	TYPES_EXCEPT_FUNCTION = ['string', 123, 123.123, null, undefined, {}, [], true, false];
 
-angular.module('app', ['ng', 'angular-data.DS', 'angular-data.DSCacheFactory']);
+angular.module('app', ['ng', 'angular-data.DS']);
 
 // Setup before each test
-beforeEach(function (done) {
+beforeEach(function () {
 	lifecycle.beforeValidate = function (resourceName, attrs, cb) {
 		lifecycle.beforeValidate.callCount += 1;
 		cb(null, attrs);
@@ -103,10 +103,13 @@ beforeEach(function (done) {
 		DSProvider.defaults.deserialize = lifecycle.deserialize;
 		DSHttpAdapterProvider = _DSHttpAdapterProvider_;
 		DSHttpAdapterProvider.defaults.queryTransform = lifecycle.queryTransform;
-
 	});
+});
+
+function startInjector() {
 	inject(function (_$rootScope_, _$q_, _$httpBackend_, _DS_, _$log_, _DSUtils_, _DSHttpAdapter_, _DSLocalStorageAdapter_) {
 		// Setup global mocks
+
 		localStorage.clear();
 		$q = _$q_;
 		$rootScope = _$rootScope_;
@@ -141,10 +144,8 @@ beforeEach(function (done) {
 		p3 = { author: 'Mike', age: 32, id: 7 };
 		p4 = { author: 'Adam', age: 33, id: 8 };
 		p5 = { author: 'Adam', age: 33, id: 9 };
-
-		done();
 	});
-});
+}
 
 // Clean up after each test
 afterEach(function () {
