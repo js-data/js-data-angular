@@ -382,7 +382,7 @@ module.exports = function (grunt) {
 		grunt.file.write('dist/angular-data.js', file);
 	});
 
-	grunt.registerTask('test', ['clean:coverage', 'karma:dev']);
+	grunt.registerTask('test', ['build', 'karma:ci', 'karma:cacheFactory', 'karma:min']);
 	grunt.registerTask('doc', ['clean:doc', 'docular', 'concat', 'copy', 'clean:afterDoc', 'uglify:scripts']);
 	grunt.registerTask('build', [
 		'clean',
@@ -395,5 +395,5 @@ module.exports = function (grunt) {
 	grunt.registerTask('default', ['build']);
 
 	// Used by TravisCI
-	grunt.registerTask('ci', ['build', 'karma:ci', 'karma:cacheFactory', 'karma:min', 'coveralls', 'doc']);
+	grunt.registerTask('ci', ['test', 'doc']);
 };

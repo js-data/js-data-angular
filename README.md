@@ -31,15 +31,7 @@ Roadmap:
 
 [Design Doc](https://docs.google.com/document/d/1o069KLuBH4jpwm1FCLZFwKMgM73Xi8_1JyjhSxVpidM/edit?usp=sharing) - Design document for Angular-data.
 
-#### Contributing
-1. Fork the repo
-1. `$ git clone {{yourForkUrl}}`
-1. `$ npm install && bower install && npm test`
-1. Make your changes complete with any applicable tests
-1. `$ npm test` (make sure they pass ;-D)
-1. `$ git commit -am 'A useful commit message'`
-1. `$ git push`
-1. Create PR :-D Thanks!
+[Contributing Guide](https://github.com/jmdobry/angular-data/blob/master/CONTRIBUTING.md)
 
 ## Project Status
 
