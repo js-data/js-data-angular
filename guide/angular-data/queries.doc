@@ -1,0 +1,130 @@
+@doc overview
+@id queries
+@name Queries and Filtering
+@description
+
+Items injected into the data store are indexed by their primary key, but they're also stored in collections.
+
+`DS.findAll()` is used to asynchronously query a persistence layer for a collection of items. `DS.filter()` is used to
+synchronously query the items already in the data store. Here are some examples:
+
+Translates into a `GET` request to `/post`:
+```js
+DS.findAll('post', {}).then(function (posts) {
+	posts; // [ { ... }, { ... }, ... , { ... } ]
+
+	DS.filter('post', {}); // returns all posts in the data store
+}).catch(function (err) {
+	err; // reason why query failed
+});
+```
+
+Translates into a `GET` request to `/post?query={"where":{"author":{"==":"John Anderson"}}}'` (url encoded of course):
+```js
+var params = {
+    query: {
+        where: {
+            author: {
+                '==': 'John Anderson'
+            }
+        }
+    }
+};
+
+DS.findAll('post', params).then(function (posts) {
+	posts; // [ { ... }, { ... }, ... , { ... } ]
+
+	DS.filter('post', params); // filters the posts already in the data store
+}).catch(function (err) {
+	err; // reason why query failed
+});
+```
+
+Angular-data has a "query" language that it natively understands. To sync up how your API and the data store query
+collections you will need to do one of the following:
+
+##### Option A
+Configure your API to understand angular-data's query syntax, translating the query object into the appropriate database query.
+
+##### Option B
+Replace Angular-data's filter with your own filter that works the same way your API already works.
+
+Here's is angular-data's filter (it's pretty simple):
+
+```js
+function (resourceName, where, attrs) {
+	var keep = true;
+	utils.forOwn(where, function (clause, field) {
+		if (utils.isString(clause)) {
+			clause = {
+				'===': clause
+			};
+		} else if (utils.isNumber(clause)) {
+			clause = {
+				'==': clause
+			};
+		}
+		if ('==' in clause) {
+			keep = keep && (attrs[field] == clause['==']);
+		} else if ('===' in clause) {
+			keep = keep && (attrs[field] === clause['===']);
+		} else if ('!=' in clause) {
+			keep = keep && (attrs[field] != clause['!=']);
+		} else if ('>' in clause) {
+			keep = keep && (attrs[field] > clause['>']);
+		} else if ('>=' in clause) {
+			keep = keep && (attrs[field] >= clause['>=']);
+		} else if ('<' in clause) {
+			keep = keep && (attrs[field] < clause['<']);
+		} else if ('<=' in clause) {
+			keep = keep && (attrs[field] <= clause['<=']);
+		} else if ('in' in clause) {
+			keep = keep && utils.contains(clause['in'], attrs[field]);
+		}
+	});
+	return keep;
+}
+```
+
+If the following `params` argument is passed to `DS.filter`:
+
+```js
+var params = {
+    query: {
+        where: {
+            author: {
+                '==': 'John Anderson'
+            }
+        }
+    }
+};
+
+DS.filter('post', params);
+```
+
+Then `DS.filter` will return the posts (already in the data store) where `post.author == 'John Anderson'` is true.
+
+Here's how to replace Angular-data's filter:
+
+```js
+DSProvider.defaults.filter = function (resourceName, where, attrs) {
+	// custom filter
+	// this will be called on every item in the collection
+	// return true to keep `attrs` in the result set
+	// return false to exclude `attrs` from the result set
+});
+```
+
+You can even override the filter per-resource:
+
+```js
+DS.defineResource({
+	name: 'post',
+	filter: function (resourceName, where, attrs) {
+		// custom filter for posts
+		// this will be called on every item in the collection
+		// return true to keep `attrs` in the result set
+		// return false to exclude `attrs` from the result set
+	}
+});
+```

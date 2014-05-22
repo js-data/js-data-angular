@@ -236,17 +236,19 @@ module.exports = function (grunt) {
 								'guide/angular-data/index.doc',
 								'guide/angular-data/overview.doc',
 								'guide/angular-data/resources.doc',
-								'guide/angular-data/synchronous.doc',
 								'guide/angular-data/asynchronous.doc',
+								'guide/angular-data/synchronous.doc',
+								'guide/angular-data/queries.doc',
 								'guide/angular-data/how.doc'
 							],
 							rank: {
 								index: 1,
 								overview: 2,
 								resources: 3,
-								synchronous: 4,
-								asynchronous: 5,
-								how: 6
+								asynchronous: 4,
+								synchronous: 5,
+								queries: 6,
+								how: 7
 							}
 						},
 						{
@@ -283,15 +285,6 @@ module.exports = function (grunt) {
 								advanced: 4,
 								lifecycle: 5,
 								custom: 6
-							}
-						},
-						{
-							id: 'angular-data-queries',
-							title: 'Queries',
-							docs: ['guide/angular-data/queries/'],
-							rank: {
-								index: 1,
-								overview: 2
 							}
 						},
 						{
@@ -393,7 +386,4 @@ module.exports = function (grunt) {
 	]);
 	grunt.registerTask('go', ['build', 'watch']);
 	grunt.registerTask('default', ['build']);
-
-	// Used by TravisCI
-	grunt.registerTask('ci', ['test', 'doc']);
 };
