@@ -7,7 +7,7 @@
 *
 * @overview Data store for Angular.js.
 */
-require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"QYwGEY":[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function (global){
 // Copyright 2012 Google Inc.
 //
@@ -490,9 +490,7 @@ require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof requ
 })((exports.Number = { isNaN: window.isNaN }) ? exports : exports);
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],"observejs":[function(require,module,exports){
-module.exports=require('QYwGEY');
-},{}],3:[function(require,module,exports){
+},{}],2:[function(require,module,exports){
 var indexOf = require('./indexOf');
 
     /**
@@ -504,7 +502,7 @@ var indexOf = require('./indexOf');
     module.exports = contains;
 
 
-},{"./indexOf":6}],4:[function(require,module,exports){
+},{"./indexOf":5}],3:[function(require,module,exports){
 var makeIterator = require('../function/makeIterator_');
 
     /**
@@ -532,7 +530,7 @@ var makeIterator = require('../function/makeIterator_');
 
 
 
-},{"../function/makeIterator_":12}],5:[function(require,module,exports){
+},{"../function/makeIterator_":11}],4:[function(require,module,exports){
 
 
     /**
@@ -557,7 +555,7 @@ var makeIterator = require('../function/makeIterator_');
 
 
 
-},{}],6:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 
 
     /**
@@ -587,7 +585,7 @@ var makeIterator = require('../function/makeIterator_');
     module.exports = indexOf;
 
 
-},{}],7:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 var filter = require('./filter');
 
     function isValidString(val) {
@@ -606,7 +604,7 @@ var filter = require('./filter');
     module.exports = join;
 
 
-},{"./filter":4}],8:[function(require,module,exports){
+},{"./filter":3}],7:[function(require,module,exports){
 
 
     /**
@@ -643,7 +641,7 @@ var filter = require('./filter');
 
 
 
-},{}],9:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 
 
     /**
@@ -700,7 +698,7 @@ var filter = require('./filter');
 
 
 
-},{}],10:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 var isFunction = require('../lang/isFunction');
 
     /**
@@ -730,7 +728,7 @@ var isFunction = require('../lang/isFunction');
     module.exports = toLookup;
 
 
-},{"../lang/isFunction":16}],11:[function(require,module,exports){
+},{"../lang/isFunction":15}],10:[function(require,module,exports){
 
 
     /**
@@ -744,7 +742,7 @@ var isFunction = require('../lang/isFunction');
 
 
 
-},{}],12:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 var identity = require('./identity');
 var prop = require('./prop');
 var deepMatches = require('../object/deepMatches');
@@ -780,7 +778,7 @@ var deepMatches = require('../object/deepMatches');
 
 
 
-},{"../object/deepMatches":21,"./identity":11,"./prop":13}],13:[function(require,module,exports){
+},{"../object/deepMatches":20,"./identity":10,"./prop":12}],12:[function(require,module,exports){
 
 
     /**
@@ -796,7 +794,7 @@ var deepMatches = require('../object/deepMatches');
 
 
 
-},{}],14:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 var isKind = require('./isKind');
     /**
      */
@@ -806,7 +804,7 @@ var isKind = require('./isKind');
     module.exports = isArray;
 
 
-},{"./isKind":17}],15:[function(require,module,exports){
+},{"./isKind":16}],14:[function(require,module,exports){
 var forOwn = require('../object/forOwn');
 var isArray = require('./isArray');
 
@@ -832,7 +830,7 @@ var isArray = require('./isArray');
 
 
 
-},{"../object/forOwn":24,"./isArray":14}],16:[function(require,module,exports){
+},{"../object/forOwn":23,"./isArray":13}],15:[function(require,module,exports){
 var isKind = require('./isKind');
     /**
      */
@@ -842,7 +840,7 @@ var isKind = require('./isKind');
     module.exports = isFunction;
 
 
-},{"./isKind":17}],17:[function(require,module,exports){
+},{"./isKind":16}],16:[function(require,module,exports){
 var kindOf = require('./kindOf');
     /**
      * Check if value is from a specific "kind".
@@ -853,7 +851,7 @@ var kindOf = require('./kindOf');
     module.exports = isKind;
 
 
-},{"./kindOf":19}],18:[function(require,module,exports){
+},{"./kindOf":18}],17:[function(require,module,exports){
 
 
     /**
@@ -868,7 +866,7 @@ var kindOf = require('./kindOf');
 
 
 
-},{}],19:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 
 
     var _rKind = /^\[object (.*)\]$/,
@@ -890,7 +888,7 @@ var kindOf = require('./kindOf');
     module.exports = kindOf;
 
 
-},{}],20:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 
 
     /**
@@ -905,7 +903,7 @@ var kindOf = require('./kindOf');
 
 
 
-},{}],21:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 var forOwn = require('./forOwn');
 var isArray = require('../lang/isArray');
 
@@ -962,7 +960,7 @@ var isArray = require('../lang/isArray');
 
 
 
-},{"../lang/isArray":14,"./forOwn":24}],22:[function(require,module,exports){
+},{"../lang/isArray":13,"./forOwn":23}],21:[function(require,module,exports){
 var forOwn = require('./forOwn');
 var isPlainObject = require('../lang/isPlainObject');
 
@@ -998,7 +996,7 @@ var isPlainObject = require('../lang/isPlainObject');
 
 
 
-},{"../lang/isPlainObject":18,"./forOwn":24}],23:[function(require,module,exports){
+},{"../lang/isPlainObject":17,"./forOwn":23}],22:[function(require,module,exports){
 var hasOwn = require('./hasOwn');
 
     var _hasDontEnumBug,
@@ -1076,7 +1074,7 @@ var hasOwn = require('./hasOwn');
 
 
 
-},{"./hasOwn":25}],24:[function(require,module,exports){
+},{"./hasOwn":24}],23:[function(require,module,exports){
 var hasOwn = require('./hasOwn');
 var forIn = require('./forIn');
 
@@ -1097,7 +1095,7 @@ var forIn = require('./forIn');
 
 
 
-},{"./forIn":23,"./hasOwn":25}],25:[function(require,module,exports){
+},{"./forIn":22,"./hasOwn":24}],24:[function(require,module,exports){
 
 
     /**
@@ -1111,7 +1109,7 @@ var forIn = require('./forIn');
 
 
 
-},{}],26:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 var forEach = require('../array/forEach');
 
     /**
@@ -1132,7 +1130,7 @@ var forEach = require('../array/forEach');
 
 
 
-},{"../array/forEach":5}],27:[function(require,module,exports){
+},{"../array/forEach":4}],26:[function(require,module,exports){
 var slice = require('../array/slice');
 
     /**
@@ -1152,7 +1150,7 @@ var slice = require('../array/slice');
 
 
 
-},{"../array/slice":8}],28:[function(require,module,exports){
+},{"../array/slice":7}],27:[function(require,module,exports){
 var namespace = require('./namespace');
 
     /**
@@ -1171,7 +1169,7 @@ var namespace = require('./namespace');
 
 
 
-},{"./namespace":26}],29:[function(require,module,exports){
+},{"./namespace":25}],28:[function(require,module,exports){
 var join = require('../array/join');
 var slice = require('../array/slice');
 
@@ -1188,7 +1186,7 @@ var slice = require('../array/slice');
     module.exports = makePath;
 
 
-},{"../array/join":7,"../array/slice":8}],30:[function(require,module,exports){
+},{"../array/join":6,"../array/slice":7}],29:[function(require,module,exports){
 var toString = require('../lang/toString');
     /**
      * "Safer" String.toUpperCase()
@@ -1200,7 +1198,7 @@ var toString = require('../lang/toString');
     module.exports = upperCase;
 
 
-},{"../lang/toString":20}],31:[function(require,module,exports){
+},{"../lang/toString":19}],30:[function(require,module,exports){
 /**
  * @doc function
  * @id DSHttpAdapterProvider
@@ -1629,7 +1627,7 @@ function DSHttpAdapterProvider() {
 
 module.exports = DSHttpAdapterProvider;
 
-},{}],32:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 /**
  * @doc function
  * @id DSLocalStorageProvider
@@ -1814,7 +1812,7 @@ function DSLocalStorageProvider() {
 
 module.exports = DSLocalStorageProvider;
 
-},{}],33:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 var errorPrefix = 'DS.create(resourceName, attrs[, options]): ';
 
 /**
@@ -1913,7 +1911,7 @@ function create(resourceName, attrs, options) {
 
 module.exports = create;
 
-},{}],34:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 var errorPrefix = 'DS.destroy(resourceName, id): ';
 
 /**
@@ -2000,7 +1998,7 @@ function destroy(resourceName, id, options) {
 
 module.exports = destroy;
 
-},{}],35:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 var errorPrefix = 'DS.destroyAll(resourceName, params[, options]): ';
 
 /**
@@ -2095,7 +2093,7 @@ function destroyAll(resourceName, params, options) {
 
 module.exports = destroyAll;
 
-},{}],36:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 var errorPrefix = 'DS.find(resourceName, id[, options]): ';
 
 /**
@@ -2202,7 +2200,7 @@ function find(resourceName, id, options) {
 
 module.exports = find;
 
-},{}],37:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 var errorPrefix = 'DS.findAll(resourceName, params[, options]): ';
 
 function processResults(utils, data, resourceName, queryHash) {
@@ -2362,7 +2360,7 @@ function findAll(resourceName, params, options) {
 
 module.exports = findAll;
 
-},{}],38:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 module.exports = {
 	/**
 	 * @doc method
@@ -2455,7 +2453,7 @@ module.exports = {
 	updateAll: require('./updateAll')
 };
 
-},{"./create":33,"./destroy":34,"./destroyAll":35,"./find":36,"./findAll":37,"./refresh":39,"./save":40,"./update":41,"./updateAll":42}],39:[function(require,module,exports){
+},{"./create":32,"./destroy":33,"./destroyAll":34,"./find":35,"./findAll":36,"./refresh":38,"./save":39,"./update":40,"./updateAll":41}],38:[function(require,module,exports){
 var errorPrefix = 'DS.refresh(resourceName, id[, options]): ';
 
 /**
@@ -2529,7 +2527,7 @@ function refresh(resourceName, id, options) {
 
 module.exports = refresh;
 
-},{}],40:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 var errorPrefix = 'DS.save(resourceName, id[, options]): ';
 
 /**
@@ -2648,7 +2646,7 @@ function save(resourceName, id, options) {
 
 module.exports = save;
 
-},{}],41:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 var errorPrefix = 'DS.update(resourceName, id, attrs[, options]): ';
 
 /**
@@ -2759,7 +2757,7 @@ function update(resourceName, id, attrs, options) {
 
 module.exports = update;
 
-},{}],42:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 var errorPrefix = 'DS.updateAll(resourceName, attrs, params[, options]): ';
 
 /**
@@ -2882,7 +2880,7 @@ function updateAll(resourceName, attrs, params, options) {
 
 module.exports = updateAll;
 
-},{}],43:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 var utils = require('../utils')[0]();
 
 function lifecycleNoop(resourceName, attrs, cb) {
@@ -3461,7 +3459,7 @@ function DSProvider() {
 
 module.exports = DSProvider;
 
-},{"../utils":"K0yknU","./async_methods":38,"./sync_methods":54}],44:[function(require,module,exports){
+},{"../utils":60,"./async_methods":37,"./sync_methods":53}],43:[function(require,module,exports){
 var errorPrefix = 'DS.bindAll(scope, expr, resourceName, params): ';
 
 /**
@@ -3533,7 +3531,7 @@ function bindOne(scope, expr, resourceName, params) {
 
 module.exports = bindOne;
 
-},{}],45:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 var errorPrefix = 'DS.bindOne(scope, expr, resourceName, id): ';
 
 /**
@@ -3593,7 +3591,7 @@ function bindOne(scope, expr, resourceName, id) {
 
 module.exports = bindOne;
 
-},{}],46:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 var errorPrefix = 'DS.changes(resourceName, id): ';
 
 /**
@@ -3650,7 +3648,7 @@ function changes(resourceName, id) {
 
 module.exports = changes;
 
-},{}],47:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 /*jshint evil:true*/
 var errorPrefix = 'DS.defineResource(definition): ';
 
@@ -3792,8 +3790,8 @@ function defineResource(definition) {
 
 module.exports = defineResource;
 
-},{}],48:[function(require,module,exports){
-var observe = require('observejs');
+},{}],47:[function(require,module,exports){
+var observe = require('../../../lib/observe-js/observe-js');
 
 /**
  * @doc method
@@ -3834,7 +3832,7 @@ function digest() {
 
 module.exports = digest;
 
-},{"observejs":"QYwGEY"}],49:[function(require,module,exports){
+},{"../../../lib/observe-js/observe-js":1}],48:[function(require,module,exports){
 var errorPrefix = 'DS.eject(resourceName, id): ';
 
 function _eject(definition, resource, id) {
@@ -3917,7 +3915,7 @@ function eject(resourceName, id) {
 
 module.exports = eject;
 
-},{}],50:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 var errorPrefix = 'DS.ejectAll(resourceName[, params]): ';
 
 function _ejectAll(definition, resource, params) {
@@ -4021,7 +4019,7 @@ function ejectAll(resourceName, params) {
 
 module.exports = ejectAll;
 
-},{}],51:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 /* jshint loopfunc: true */
 var errorPrefix = 'DS.filter(resourceName, params[, options]): ';
 
@@ -4178,7 +4176,7 @@ function filter(resourceName, params, options) {
 
 module.exports = filter;
 
-},{}],52:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 var errorPrefix = 'DS.get(resourceName, id[, options]): ';
 
 /**
@@ -4241,7 +4239,7 @@ function get(resourceName, id, options) {
 
 module.exports = get;
 
-},{}],53:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 var errorPrefix = 'DS.hasChanges(resourceName, id): ';
 
 function diffIsEmpty(utils, diff) {
@@ -4304,7 +4302,7 @@ function hasChanges(resourceName, id) {
 
 module.exports = hasChanges;
 
-},{}],54:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 module.exports = {
 	/**
 	 * @doc method
@@ -4447,8 +4445,8 @@ module.exports = {
 	hasChanges: require('./hasChanges')
 };
 
-},{"./bindAll":44,"./bindOne":45,"./changes":46,"./defineResource":47,"./digest":48,"./eject":49,"./ejectAll":50,"./filter":51,"./get":52,"./hasChanges":53,"./inject":55,"./lastModified":56,"./lastSaved":57,"./previous":58}],55:[function(require,module,exports){
-var observe = require('observejs'),
+},{"./bindAll":43,"./bindOne":44,"./changes":45,"./defineResource":46,"./digest":47,"./eject":48,"./ejectAll":49,"./filter":50,"./get":51,"./hasChanges":52,"./inject":54,"./lastModified":55,"./lastSaved":56,"./previous":57}],54:[function(require,module,exports){
+var observe = require('../../../lib/observe-js/observe-js'),
 	errorPrefix = 'DS.inject(resourceName, attrs[, options]): ';
 
 function _inject(definition, resource, attrs) {
@@ -4611,7 +4609,7 @@ function inject(resourceName, attrs, options) {
 
 module.exports = inject;
 
-},{"observejs":"QYwGEY"}],56:[function(require,module,exports){
+},{"../../../lib/observe-js/observe-js":1}],55:[function(require,module,exports){
 var errorPrefix = 'DS.lastModified(resourceName[, id]): ';
 
 /**
@@ -4669,7 +4667,7 @@ function lastModified(resourceName, id) {
 
 module.exports = lastModified;
 
-},{}],57:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 var errorPrefix = 'DS.lastSaved(resourceName[, id]): ';
 
 /**
@@ -4730,7 +4728,7 @@ function lastSaved(resourceName, id) {
 
 module.exports = lastSaved;
 
-},{}],58:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 var errorPrefix = 'DS.previous(resourceName, id): ';
 
 /**
@@ -4785,9 +4783,7 @@ function previous(resourceName, id) {
 
 module.exports = previous;
 
-},{}],"errors":[function(require,module,exports){
-module.exports=require('XIsZmp');
-},{}],"XIsZmp":[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 /**
  * @doc function
  * @id errors.types:UnhandledError
@@ -4958,7 +4954,7 @@ module.exports = [function () {
 	};
 }];
 
-},{}],61:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 (function (window, angular, undefined) {
 	'use strict';
 
@@ -5041,7 +5037,7 @@ module.exports = [function () {
 
 })(window, window.angular);
 
-},{"./adapters/http":31,"./adapters/localStorage":32,"./datastore":43,"./errors":"XIsZmp","./utils":"K0yknU"}],"K0yknU":[function(require,module,exports){
+},{"./adapters/http":30,"./adapters/localStorage":31,"./datastore":42,"./errors":58,"./utils":60}],60:[function(require,module,exports){
 module.exports = [function () {
 	return {
 		isString: angular.isString,
@@ -5123,6 +5119,4 @@ module.exports = [function () {
 	};
 }];
 
-},{"mout/array/contains":3,"mout/array/filter":4,"mout/array/slice":8,"mout/array/sort":9,"mout/array/toLookup":10,"mout/lang/isEmpty":15,"mout/object/deepMixIn":22,"mout/object/forOwn":24,"mout/object/pick":27,"mout/object/set":28,"mout/string/makePath":29,"mout/string/upperCase":30}],"utils":[function(require,module,exports){
-module.exports=require('K0yknU');
-},{}]},{},[61])
+},{"mout/array/contains":2,"mout/array/filter":3,"mout/array/slice":7,"mout/array/sort":8,"mout/array/toLookup":9,"mout/lang/isEmpty":14,"mout/object/deepMixIn":21,"mout/object/forOwn":23,"mout/object/pick":26,"mout/object/set":27,"mout/string/makePath":28,"mout/string/upperCase":29}]},{},[59])

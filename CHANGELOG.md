@@ -1,4 +1,4 @@
-##### 0.9.0 - xx May 2014
+##### 0.9.0 - 22 May 2014
 
 ###### Breaking API changes
 - #61 - Make custom serializers/deserializers more valuable

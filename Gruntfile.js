@@ -74,11 +74,6 @@ module.exports = function (grunt) {
 					'dist/angular-data.js': ['src/index.js']
 				},
 				options: {
-					alias: [
-						'lib/observe-js/observe-js.js:observejs',
-						'src/errors.js:errors',
-						'src/utils.js:utils'
-					],
 					// TODO: There's got to be a better way to consume observe-js without it polluting the global space
 					postBundleCB: function (err, src, next) {
 						if (err) {
