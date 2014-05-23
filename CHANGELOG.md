@@ -1,8 +1,44 @@
 ##### 0.9.0 - xx May 2014
 
-###### Breading API changes
+###### Breaking API changes
 - #61 - Make custom serializers/deserializers more valuable
 - #59, #62 - Make queryTransform() consistent with the rest of the API
+
+__Before:__
+
+```js
+DSHttpAdapterProvider.defaults.serialize = function (data) { ... };
+```
+
+__After:__
+
+```js
+DSProvider.defaults.serialize = function (resourceName, data) { ... };
+```
+
+__Before:__
+
+```js
+DSHttpAdapterProvider.defaults.deserialize = function (data) { ... };
+```
+
+__After:__
+
+```js
+DSProvider.defaults.deserialize = function (resourceName, data) { ... };
+```
+
+__Before:__
+
+```js
+DSHttpAdapterProvider.defaults.queryTransform = function (query) { ... };
+```
+
+__After:__
+
+```js
+DSHttpAdapterProvider.defaults.queryTransform = function (resourceName, query) { ... };
+```
 
 ###### Backwards compatible API changes
 - #30, #48, #66 - DSCacheFactory integration

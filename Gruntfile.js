@@ -239,6 +239,7 @@ module.exports = function (grunt) {
 								'guide/angular-data/asynchronous.doc',
 								'guide/angular-data/synchronous.doc',
 								'guide/angular-data/queries.doc',
+								'guide/angular-data/adapters.doc',
 								'guide/angular-data/how.doc'
 							],
 							rank: {
@@ -248,7 +249,8 @@ module.exports = function (grunt) {
 								asynchronous: 4,
 								synchronous: 5,
 								queries: 6,
-								how: 7
+								adapters: 7,
+								how: 8
 							}
 						},
 						{
@@ -285,15 +287,6 @@ module.exports = function (grunt) {
 								advanced: 4,
 								lifecycle: 5,
 								custom: 6
-							}
-						},
-						{
-							id: 'angular-data-adapters',
-							title: 'Adapters',
-							docs: ['guide/angular-data/adapters/'],
-							rank: {
-								index: 1,
-								overview: 2
 							}
 						}
 					]
