@@ -2182,7 +2182,7 @@ function find(resourceName, id, options) {
 							}
 						}, function (err) {
 							delete resource.pendingQueries[id];
-							return err;
+							return _this.$q.reject(err);
 						});
 				}
 
@@ -2243,14 +2243,14 @@ function _findAll(utils, resourceName, params, options) {
 						try {
 							return processResults.apply(_this, [utils, data, resourceName, queryHash]);
 						} catch (err) {
-							throw new _this.errors.UnhandledError(err);
+							return _this.$q.reject(_this.errors.UnhandledError(err));
 						}
 					} else {
 						return data;
 					}
 				}, function (err) {
 					delete resource.pendingQueries[queryHash];
-					return err;
+					return _this.$q.reject(err);
 				});
 		}
 
@@ -4220,13 +4220,14 @@ function get(resourceName, id, options) {
 	} else if (!this.utils.isObject(options)) {
 		throw new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
 	}
+	var _this = this;
 
 	try {
 		// cache miss, request resource from server
 		var item = this.store[resourceName].index.get(id);
 		if (!item && options.loadFromServer) {
 			this.find(resourceName, id).then(null, function (err) {
-				throw err;
+				return _this.$q.reject(err);
 			});
 		}
 
@@ -4963,7 +4964,7 @@ module.exports = [function () {
 	 * @id angular-data
 	 * @name angular-data
 	 * @description
-	 * __Version:__ 0.9.0
+	 * __Version:__ 0.9.1
 	 *
 	 * ## Install
 	 *

@@ -86,7 +86,7 @@ function find(resourceName, id, options) {
 							}
 						}, function (err) {
 							delete resource.pendingQueries[id];
-							return err;
+							return _this.$q.reject(err);
 						});
 				}
 

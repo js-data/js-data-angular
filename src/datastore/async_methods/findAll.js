@@ -40,14 +40,14 @@ function _findAll(utils, resourceName, params, options) {
 						try {
 							return processResults.apply(_this, [utils, data, resourceName, queryHash]);
 						} catch (err) {
-							throw new _this.errors.UnhandledError(err);
+							return _this.$q.reject(_this.errors.UnhandledError(err));
 						}
 					} else {
 						return data;
 					}
 				}, function (err) {
 					delete resource.pendingQueries[queryHash];
-					return err;
+					return _this.$q.reject(err);
 				});
 		}
 

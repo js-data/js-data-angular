@@ -100,4 +100,15 @@ describe('DS.find(resourceName, id[, options]): ', function () {
 		assert.equal(lifecycle.serialize.callCount, 0, 'serialize should have been called');
 		assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
 	});
+	it('should correctly propagate errors', function () {
+		$httpBackend.expectGET('http://test.angular-cache.com/posts/5').respond(404, 'Not Found');
+
+		DS.find('post', 5).then(function () {
+			fail('Should not have succeeded!');
+		}, function (err) {
+			assert.equal(err.data, 'Not Found');
+		});
+
+		$httpBackend.flush();
+	});
 });
