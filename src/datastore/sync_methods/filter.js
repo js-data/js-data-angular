@@ -26,7 +26,7 @@ var errorPrefix = 'DS.filter(resourceName, params[, options]): ';
  * - `{UnhandledError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
- * @param {object} params Parameter object that is serialized into the query string. Properties:
+ * @param {object=} params Parameter object that is serialized into the query string. Properties:
  *
  * - `{object=}` - `query` - The query object by which to filter items of the type specified by `resourceName`. Properties:
  *      - `{object=}` - `where` - Where clause.
@@ -43,7 +43,7 @@ function filter(resourceName, params, options) {
 
 	if (!this.definitions[resourceName]) {
 		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (!this.utils.isObject(params)) {
+	} else if (params && !this.utils.isObject(params)) {
 		throw new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!', { params: { actual: typeof params, expected: 'object' } });
 	} else if (!this.utils.isObject(options)) {
 		throw new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
@@ -55,7 +55,7 @@ function filter(resourceName, params, options) {
 			_this = this;
 
 		// Protect against null
-		params.query = params.query || {};
+		params = params || {};
 
 		var queryHash = this.utils.toJson(params);
 
@@ -68,6 +68,7 @@ function filter(resourceName, params, options) {
 			}
 		}
 
+		params.query = params.query || {};
 		// The query has been completed, so hit the cache with the query
 		var filtered = this.utils.filter(resource.collection, function (attrs) {
 			var keep = true,

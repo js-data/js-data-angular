@@ -12,12 +12,14 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
 		});
 
 		angular.forEach(TYPES_EXCEPT_OBJECT, function (key) {
-			DS.findAll('post', key).then(function () {
-				fail('should have rejected');
-			}, function (err) {
-				assert.isTrue(err instanceof DS.errors.IllegalArgumentError);
-				assert.equal(err.message, errorPrefix + 'params: Must be an object!');
-			});
+			if (key) {
+				DS.findAll('post', key, { cacheResponse: false }).then(function () {
+					fail('should have rejected');
+				}, function (err) {
+					assert.isTrue(err instanceof DS.errors.IllegalArgumentError);
+					assert.equal(err.message, errorPrefix + 'params: Must be an object!');
+				});
+			}
 		});
 
 		angular.forEach(TYPES_EXCEPT_OBJECT, function (key) {
@@ -111,5 +113,24 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
 		});
 
 		$httpBackend.flush();
+	});
+	it('"params" argument is optional', function () {
+		$httpBackend.expectGET(/http:\/\/test\.angular-cache\.com\/posts\??/).respond(200, [p1, p2, p3, p4]);
+
+		DS.findAll('post').then(function (data) {
+			assert.deepEqual(data, [p1, p2, p3, p4]);
+		}, function (err) {
+			console.error(err.message);
+			fail('Should not have rejected!');
+		});
+
+		$httpBackend.flush();
+
+		assert.deepEqual(DS.filter('post', {}), [p1, p2, p3, p4], 'The posts are now in the store');
+
+		assert.equal(lifecycle.beforeInject.callCount, 4, 'beforeInject should have been called');
+		assert.equal(lifecycle.afterInject.callCount, 4, 'afterInject should have been called');
+		assert.equal(lifecycle.serialize.callCount, 0, 'serialize should have been called');
+		assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
 	});
 });

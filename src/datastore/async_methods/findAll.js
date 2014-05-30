@@ -99,7 +99,7 @@ function _findAll(utils, resourceName, params, options) {
  * ```
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
- * @param {object} params Parameter object that is serialized into the query string. Properties:
+ * @param {object=} params Parameter object that is serialized into the query string. Properties:
  *
  * - `{object=}` - `query` - The query object by which to filter items of the type specified by `resourceName`. Properties:
  *      - `{object=}` - `where` - Where clause.
@@ -129,6 +129,7 @@ function findAll(resourceName, params, options) {
 		_this = this;
 
 	options = options || {};
+	params = params || {};
 
 	if (!this.definitions[resourceName]) {
 		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));

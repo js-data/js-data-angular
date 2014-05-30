@@ -5,19 +5,15 @@ describe('DS.filter(resourceName, params[, options])', function () {
 
 	it('should throw an error when method pre-conditions are not met', function () {
 		assert.throws(function () {
-			DS.filter('does not exist', {});
+			DS.filter('does not exist');
 		}, DS.errors.RuntimeError, errorPrefix + 'does not exist is not a registered resource!');
 
 		angular.forEach(TYPES_EXCEPT_OBJECT, function (key) {
-			assert.throws(function () {
-				DS.filter('post', key);
-			}, DS.errors.IllegalArgumentError, errorPrefix + 'params: Must be an object!');
-		});
-
-		angular.forEach(TYPES_EXCEPT_OBJECT, function (key) {
-			assert.throws(function () {
-				DS.filter('post', key);
-			}, DS.errors.IllegalArgumentError, errorPrefix + 'params: Must be an object!');
+			if (key) {
+				assert.throws(function () {
+					DS.filter('post', key);
+				}, DS.errors.IllegalArgumentError, errorPrefix + 'params: Must be an object!');
+			}
 		});
 
 		DS.inject('post', p1);
@@ -66,7 +62,7 @@ describe('DS.filter(resourceName, params[, options])', function () {
 			}
 		});
 
-		DS.filter('post', {});
+		DS.filter('post');
 	});
 	it('should return an empty array if the query has never been made before', function () {
 		$httpBackend.expectGET('http://test.angular-cache.com/posts?query=%7B%22where%22:%7B%22author%22:%7B%22%3D%3D%22:%22John%22%7D%7D%7D').respond(200, [p1]);

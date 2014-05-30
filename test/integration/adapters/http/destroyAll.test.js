@@ -8,7 +8,7 @@ describe('DSHttpAdapter.destroyAll(resourceConfig, params, options)', function (
 		DSHttpAdapter.destroyAll({
 			baseUrl: 'api',
 			endpoint: 'posts'
-		}).then(function (data) {
+		}, {}).then(function (data) {
 				assert.isUndefined(data.data, 'posts should have been found');
 			}, function (err) {
 				console.error(err.stack);

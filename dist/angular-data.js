@@ -1,7 +1,7 @@
 /**
 * @author Jason Dobry <jason.dobry@gmail.com>
 * @file angular-data.js
-* @version 0.9.0 - Homepage <http://angular-data.codetrain.io/>
+* @version 0.9.1 - Homepage <http://angular-data.codetrain.io/>
 * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>
 * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
 *
@@ -1570,7 +1570,9 @@ function DSHttpAdapterProvider() {
 			options = options || {};
 			options.params = options.params || {};
 			if (params) {
-				params.query = params.query ? defaults.queryTransform(resourceConfig.name, params.query) : params.query;
+				if (params.query) {
+					params.query = defaults.queryTransform(resourceConfig.name, params.query);
+				}
 				DSUtils.deepMixIn(options.params, params);
 			}
 			return this.DEL(
@@ -1591,7 +1593,9 @@ function DSHttpAdapterProvider() {
 			options = options || {};
 			options.params = options.params || {};
 			if (params) {
-				params.query = params.query ? defaults.queryTransform(resourceConfig.name, params.query) : params.query;
+				if (params.query) {
+					params.query = defaults.queryTransform(resourceConfig.name, params.query);
+				}
 				DSUtils.deepMixIn(options.params, params);
 			}
 			return this.GET(
@@ -1613,7 +1617,9 @@ function DSHttpAdapterProvider() {
 			options = options || {};
 			options.params = options.params || {};
 			if (params) {
-				params.query = params.query ? defaults.queryTransform(resourceConfig.name, params.query) : params.query;
+				if (params.query) {
+					params.query = defaults.queryTransform(resourceConfig.name, params.query);
+				}
 				DSUtils.deepMixIn(options.params, params);
 			}
 			return this.PUT(
@@ -2302,7 +2308,7 @@ function _findAll(utils, resourceName, params, options) {
  * ```
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
- * @param {object} params Parameter object that is serialized into the query string. Properties:
+ * @param {object=} params Parameter object that is serialized into the query string. Properties:
  *
  * - `{object=}` - `query` - The query object by which to filter items of the type specified by `resourceName`. Properties:
  *      - `{object=}` - `where` - Where clause.
@@ -2332,6 +2338,7 @@ function findAll(resourceName, params, options) {
 		_this = this;
 
 	options = options || {};
+	params = params || {};
 
 	if (!this.definitions[resourceName]) {
 		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
@@ -4048,7 +4055,7 @@ var errorPrefix = 'DS.filter(resourceName, params[, options]): ';
  * - `{UnhandledError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
- * @param {object} params Parameter object that is serialized into the query string. Properties:
+ * @param {object=} params Parameter object that is serialized into the query string. Properties:
  *
  * - `{object=}` - `query` - The query object by which to filter items of the type specified by `resourceName`. Properties:
  *      - `{object=}` - `where` - Where clause.
@@ -4065,7 +4072,7 @@ function filter(resourceName, params, options) {
 
 	if (!this.definitions[resourceName]) {
 		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (!this.utils.isObject(params)) {
+	} else if (params && !this.utils.isObject(params)) {
 		throw new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!', { params: { actual: typeof params, expected: 'object' } });
 	} else if (!this.utils.isObject(options)) {
 		throw new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
@@ -4077,7 +4084,7 @@ function filter(resourceName, params, options) {
 			_this = this;
 
 		// Protect against null
-		params.query = params.query || {};
+		params = params || {};
 
 		var queryHash = this.utils.toJson(params);
 
@@ -4090,6 +4097,7 @@ function filter(resourceName, params, options) {
 			}
 		}
 
+		params.query = params.query || {};
 		// The query has been completed, so hit the cache with the query
 		var filtered = this.utils.filter(resource.collection, function (attrs) {
 			var keep = true,
