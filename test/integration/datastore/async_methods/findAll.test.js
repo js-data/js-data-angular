@@ -133,4 +133,51 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
 		assert.equal(lifecycle.serialize.callCount, 0, 'serialize should have been called');
 		assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
 	});
+	it('should return already injected items', function () {
+		var u1 = {
+				id: 1,
+				name: 'John'
+			},
+			u2 = {
+				id: 2,
+				name: 'Sally'
+			};
+
+		DS.defineResource({
+			name: 'user',
+			endpoint: 'users',
+			methods: {
+				fullName: function () {
+					return this.first + ' ' + this.last;
+				}
+			}
+		});
+
+		$httpBackend.expectGET(/http:\/\/test\.angular-cache\.com\/users\??/).respond(200, [u1, u2]);
+
+		DS.findAll('user').then(function (data) {
+			assert.deepEqual(data, [
+				DSUtils.deepMixIn(new DS.definitions.user[DS.definitions.user.class](), u1),
+				DSUtils.deepMixIn(new DS.definitions.user[DS.definitions.user.class](), u2)
+			]);
+			angular.forEach(data, function (user) {
+				assert.isTrue(user instanceof DS.definitions.user[DS.definitions.user.class], 'should be an instance of User');
+			});
+		}, function (err) {
+			console.error(err.message);
+			fail('Should not have rejected!');
+		});
+
+		$httpBackend.flush();
+
+		assert.deepEqual(DS.filter('user'), [
+			DSUtils.deepMixIn(new DS.definitions.user[DS.definitions.user.class](), u1),
+			DSUtils.deepMixIn(new DS.definitions.user[DS.definitions.user.class](), u2)
+		], 'The users are now in the store');
+
+		assert.equal(lifecycle.beforeInject.callCount, 2, 'beforeInject should have been called');
+		assert.equal(lifecycle.afterInject.callCount, 2, 'afterInject should have been called');
+		assert.equal(lifecycle.serialize.callCount, 0, 'serialize should have been called');
+		assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
+	});
 });

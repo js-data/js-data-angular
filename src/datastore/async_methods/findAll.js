@@ -9,12 +9,11 @@ function processResults(utils, data, resourceName, queryHash) {
 	delete resource.pendingQueries[queryHash];
 	resource.completedQueries[queryHash] = new Date().getTime();
 
-	// Merge the new values into the cache
-	this.inject(resourceName, data);
-
 	// Update modified timestamp of collection
 	resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
-	return data;
+
+	// Merge the new values into the cache
+	return this.inject(resourceName, data);
 }
 
 function _findAll(utils, resourceName, params, options) {

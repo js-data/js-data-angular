@@ -1,6 +1,7 @@
 ##### 0.9.1 - xx May 2014
 
 ###### Backwards compatible bug fixes
+- #68 - Async methods should honor methods on a resource definition.
 - #69 - Failed requests should throw an error, not just return it
 - #70 - Make `params` and `params.query` optional
 

@@ -22,9 +22,11 @@ function _inject(definition, resource, attrs) {
 		}
 	}
 
+	var injected;
 	if (_this.utils.isArray(attrs)) {
+		injected = [];
 		for (var i = 0; i < attrs.length; i++) {
-			_inject.call(_this, definition, resource, attrs[i]);
+			injected.push(_inject.call(_this, definition, resource, attrs[i]));
 		}
 	} else {
 		if (!(definition.idAttribute in attrs)) {
@@ -69,12 +71,14 @@ function _inject(definition, resource, attrs) {
 				}
 				resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
 				definition.afterInject(definition.name, item);
+				injected = item;
 			} catch (err) {
 				$log.error(err);
 				$log.error('inject failed!', definition.name, attrs);
 			}
 		}
 	}
+	return injected;
 }
 
 /**
@@ -138,18 +142,15 @@ function inject(resourceName, attrs, options) {
 		_this = this;
 
 	try {
+		var injected;
 		if (!this.$rootScope.$$phase) {
 			this.$rootScope.$apply(function () {
-				_inject.apply(_this, [definition, resource, attrs]);
+				injected = _inject.apply(_this, [definition, resource, attrs]);
 			});
 		} else {
-			_inject.apply(_this, [definition, resource, attrs]);
+			injected = _inject.apply(_this, [definition, resource, attrs]);
 		}
-		if (_this.utils.isArray(attrs)) {
-			return attrs;
-		} else {
-			return this.get(resourceName, attrs[definition.idAttribute]);
-		}
+		return injected;
 	} catch (err) {
 		if (!(err instanceof this.errors.RuntimeError)) {
 			throw new this.errors.UnhandledError(err);
