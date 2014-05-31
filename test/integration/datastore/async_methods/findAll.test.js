@@ -12,12 +12,14 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
 		});
 
 		angular.forEach(TYPES_EXCEPT_OBJECT, function (key) {
-			DS.findAll('post', key).then(function () {
-				fail('should have rejected');
-			}, function (err) {
-				assert.isTrue(err instanceof DS.errors.IllegalArgumentError);
-				assert.equal(err.message, errorPrefix + 'params: Must be an object!');
-			});
+			if (key) {
+				DS.findAll('post', key, { cacheResponse: false }).then(function () {
+					fail('should have rejected');
+				}, function (err) {
+					assert.isTrue(err instanceof DS.errors.IllegalArgumentError);
+					assert.equal(err.message, errorPrefix + 'params: Must be an object!');
+				});
+			}
 		});
 
 		angular.forEach(TYPES_EXCEPT_OBJECT, function (key) {
@@ -98,6 +100,83 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
 
 		assert.equal(lifecycle.beforeInject.callCount, 0, 'beforeInject should have been called');
 		assert.equal(lifecycle.afterInject.callCount, 0, 'afterInject should have been called');
+		assert.equal(lifecycle.serialize.callCount, 0, 'serialize should have been called');
+		assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
+	});
+	it('should correctly propagate errors', function () {
+		$httpBackend.expectGET(/http:\/\/test\.angular-cache\.com\/posts\??/).respond(404, 'Not Found');
+
+		DS.findAll('post', {}).then(function () {
+			fail('Should not have succeeded!');
+		}, function (err) {
+			assert.equal(err.data, 'Not Found');
+		});
+
+		$httpBackend.flush();
+	});
+	it('"params" argument is optional', function () {
+		$httpBackend.expectGET(/http:\/\/test\.angular-cache\.com\/posts\??/).respond(200, [p1, p2, p3, p4]);
+
+		DS.findAll('post').then(function (data) {
+			assert.deepEqual(data, [p1, p2, p3, p4]);
+		}, function (err) {
+			console.error(err.message);
+			fail('Should not have rejected!');
+		});
+
+		$httpBackend.flush();
+
+		assert.deepEqual(DS.filter('post', {}), [p1, p2, p3, p4], 'The posts are now in the store');
+
+		assert.equal(lifecycle.beforeInject.callCount, 4, 'beforeInject should have been called');
+		assert.equal(lifecycle.afterInject.callCount, 4, 'afterInject should have been called');
+		assert.equal(lifecycle.serialize.callCount, 0, 'serialize should have been called');
+		assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
+	});
+	it('should return already injected items', function () {
+		var u1 = {
+				id: 1,
+				name: 'John'
+			},
+			u2 = {
+				id: 2,
+				name: 'Sally'
+			};
+
+		DS.defineResource({
+			name: 'user',
+			endpoint: 'users',
+			methods: {
+				fullName: function () {
+					return this.first + ' ' + this.last;
+				}
+			}
+		});
+
+		$httpBackend.expectGET(/http:\/\/test\.angular-cache\.com\/users\??/).respond(200, [u1, u2]);
+
+		DS.findAll('user').then(function (data) {
+			assert.deepEqual(data, [
+				DSUtils.deepMixIn(new DS.definitions.user[DS.definitions.user.class](), u1),
+				DSUtils.deepMixIn(new DS.definitions.user[DS.definitions.user.class](), u2)
+			]);
+			angular.forEach(data, function (user) {
+				assert.isTrue(user instanceof DS.definitions.user[DS.definitions.user.class], 'should be an instance of User');
+			});
+		}, function (err) {
+			console.error(err.message);
+			fail('Should not have rejected!');
+		});
+
+		$httpBackend.flush();
+
+		assert.deepEqual(DS.filter('user'), [
+			DSUtils.deepMixIn(new DS.definitions.user[DS.definitions.user.class](), u1),
+			DSUtils.deepMixIn(new DS.definitions.user[DS.definitions.user.class](), u2)
+		], 'The users are now in the store');
+
+		assert.equal(lifecycle.beforeInject.callCount, 2, 'beforeInject should have been called');
+		assert.equal(lifecycle.afterInject.callCount, 2, 'afterInject should have been called');
 		assert.equal(lifecycle.serialize.callCount, 0, 'serialize should have been called');
 		assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
 	});

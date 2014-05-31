@@ -8,7 +8,7 @@ describe('DSHttpAdapter.findAll(resourceConfig, params, options)', function () {
 		DSHttpAdapter.findAll({
 			baseUrl: 'api',
 			endpoint: 'posts'
-		}).then(function (data) {
+		}, {}).then(function (data) {
 				assert.deepEqual(data.data, [p1], 'posts should have been found');
 			}, function (err) {
 				console.error(err.stack);

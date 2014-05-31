@@ -369,7 +369,9 @@ function DSHttpAdapterProvider() {
 			options = options || {};
 			options.params = options.params || {};
 			if (params) {
-				params.query = params.query ? defaults.queryTransform(resourceConfig.name, params.query) : params.query;
+				if (params.query) {
+					params.query = defaults.queryTransform(resourceConfig.name, params.query);
+				}
 				DSUtils.deepMixIn(options.params, params);
 			}
 			return this.DEL(
@@ -390,7 +392,9 @@ function DSHttpAdapterProvider() {
 			options = options || {};
 			options.params = options.params || {};
 			if (params) {
-				params.query = params.query ? defaults.queryTransform(resourceConfig.name, params.query) : params.query;
+				if (params.query) {
+					params.query = defaults.queryTransform(resourceConfig.name, params.query);
+				}
 				DSUtils.deepMixIn(options.params, params);
 			}
 			return this.GET(
@@ -412,7 +416,9 @@ function DSHttpAdapterProvider() {
 			options = options || {};
 			options.params = options.params || {};
 			if (params) {
-				params.query = params.query ? defaults.queryTransform(resourceConfig.name, params.query) : params.query;
+				if (params.query) {
+					params.query = defaults.queryTransform(resourceConfig.name, params.query);
+				}
 				DSUtils.deepMixIn(options.params, params);
 			}
 			return this.PUT(

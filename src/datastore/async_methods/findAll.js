@@ -9,12 +9,11 @@ function processResults(utils, data, resourceName, queryHash) {
 	delete resource.pendingQueries[queryHash];
 	resource.completedQueries[queryHash] = new Date().getTime();
 
-	// Merge the new values into the cache
-	this.inject(resourceName, data);
-
 	// Update modified timestamp of collection
 	resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
-	return data;
+
+	// Merge the new values into the cache
+	return this.inject(resourceName, data);
 }
 
 function _findAll(utils, resourceName, params, options) {
@@ -40,14 +39,14 @@ function _findAll(utils, resourceName, params, options) {
 						try {
 							return processResults.apply(_this, [utils, data, resourceName, queryHash]);
 						} catch (err) {
-							throw new _this.errors.UnhandledError(err);
+							return _this.$q.reject(_this.errors.UnhandledError(err));
 						}
 					} else {
 						return data;
 					}
 				}, function (err) {
 					delete resource.pendingQueries[queryHash];
-					return err;
+					return _this.$q.reject(err);
 				});
 		}
 
@@ -99,7 +98,7 @@ function _findAll(utils, resourceName, params, options) {
  * ```
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
- * @param {object} params Parameter object that is serialized into the query string. Properties:
+ * @param {object=} params Parameter object that is serialized into the query string. Properties:
  *
  * - `{object=}` - `query` - The query object by which to filter items of the type specified by `resourceName`. Properties:
  *      - `{object=}` - `where` - Where clause.
@@ -129,6 +128,7 @@ function findAll(resourceName, params, options) {
 		_this = this;
 
 	options = options || {};
+	params = params || {};
 
 	if (!this.definitions[resourceName]) {
 		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));

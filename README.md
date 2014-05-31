@@ -2,8 +2,8 @@
 
 __Data store for Angular.js.__
 
-__Latest Release:__ [0.8.1](http://angular-data.codetrain.io/)
-__master:__ [0.9.0](http://angular-data-next.codetrain.io/)
+__Latest Release:__ [0.9.1](http://angular-data.codetrain.io/)
+__master:__ [0.9.1](http://angular-data-next.codetrain.io/)
 
 Angular-data is in a pre-1.0.0 development stage; the API is fluctuating, not a lot of tests yet, etc.
 

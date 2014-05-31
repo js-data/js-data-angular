@@ -41,13 +41,14 @@ function get(resourceName, id, options) {
 	} else if (!this.utils.isObject(options)) {
 		throw new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
 	}
+	var _this = this;
 
 	try {
 		// cache miss, request resource from server
 		var item = this.store[resourceName].index.get(id);
 		if (!item && options.loadFromServer) {
 			this.find(resourceName, id).then(null, function (err) {
-				throw err;
+				return _this.$q.reject(err);
 			});
 		}
 
