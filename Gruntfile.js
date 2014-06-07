@@ -11,7 +11,7 @@ module.exports = function (grunt) {
 	require('load-grunt-tasks')(grunt);
 	require('time-grunt')(grunt);
 
-	var dev = process.cwd().indexOf('/home/codetrain/angular-data') === -1,
+	var dev = process.cwd().indexOf('/home/jdobry/angular-data') === -1,
 		pkg = grunt.file.readJSON('package.json');
 
 	// Project configuration.
@@ -51,7 +51,7 @@ module.exports = function (grunt) {
 					banner: '/**\n' +
 						'* @author Jason Dobry <jason.dobry@gmail.com>\n' +
 						'* @file angular-data.min.js\n' +
-						'* @version <%= pkg.version %> - Homepage <http://angular-data.codetrain.io/>\n' +
+						'* @version <%= pkg.version %> - Homepage <http://angular-data.pseudobry.com/>\n' +
 						'* @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>\n' +
 						'* @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>\n' +
 						'*\n' +
@@ -326,12 +326,12 @@ module.exports = function (grunt) {
 			docular_partial_navigation: 'guide/nav.html',
 			docular_partial_footer: 'guide/footer.html',
 			analytics: {
-				account: 'UA-46792694-5',
-				domainName: 'angular-data.codetrain.io'
+				account: 'UA-34445126-2',
+				domainName: 'angular-data.pseudobry.com'
 			},
 			discussions: {
 				shortName: 'angular-data',
-				url: 'http://angular-data.codetrain.io',
+				url: 'http://angular-data.pseudobry.com',
 				dev: dev
 			}
 		}
@@ -351,7 +351,7 @@ module.exports = function (grunt) {
 		var banner = '/**\n' +
 			'* @author Jason Dobry <jason.dobry@gmail.com>\n' +
 			'* @file angular-data.js\n' +
-			'* @version ' + pkg.version + ' - Homepage <http://angular-data.codetrain.io/>\n' +
+			'* @version ' + pkg.version + ' - Homepage <http://angular-data.pseudobry.com/>\n' +
 			'* @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>\n' +
 			'* @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>\n' +
 			'*\n' +
