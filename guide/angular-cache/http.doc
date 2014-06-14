@@ -20,7 +20,7 @@ app.run(function ($http, DSCacheFactory) {
     $http.defaults.cache = DSCacheFactory.get('defaultCache');
 });
 
-app.service('myService', function ($http) {
+app.service('myService', function ($http, $q) {
     return {
         getDataById: function (id) {
             var deferred = $q.defer(),
@@ -52,7 +52,7 @@ app.controller('myCtrl', function (myService) {
 
 Tell `$http` to use a cache created by `DSCacheFactory` for a specific request:
 ```javascript
-app.service('myService', function ($http, DSCacheFactory) {
+app.service('myService', function ($q, $http, DSCacheFactory) {
 
     DSCacheFactory('dataCache', {
         maxAge: 90000, // Items added to this cache expire after 15 minutes.
@@ -91,7 +91,7 @@ app.controller('myCtrl', function (myService) {
 
 Do your own caching while using the $http service:
 ```javascript
-app.service('myService', function ($http, DSCacheFactory) {
+app.service('myService', function ($q, $http, DSCacheFactory) {
 
     DSCacheFactory('dataCache', {
         maxAge: 900000, // Items added to this cache expire after 15 minutes.
