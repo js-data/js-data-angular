@@ -114,6 +114,7 @@ app.service('myService', function ($http, DSCacheFactory) {
             } else {
                 $http.get('api/data/' + id).success(function (data) {
                         console.log('time taken for request: ' + (new Date().getTime() - start) + 'ms');
+                        dataCache.put(id, data);
                         deferred.resolve(data);
                     });
             }
