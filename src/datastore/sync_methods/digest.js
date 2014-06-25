@@ -24,17 +24,17 @@ var observe = require('../../../lib/observe-js/observe-js');
  * - `{UnhandledError}`
  */
 function digest() {
-	try {
-		if (!this.$rootScope.$$phase) {
-			this.$rootScope.$apply(function () {
-				observe.Platform.performMicrotaskCheckpoint();
-			});
-		} else {
-			observe.Platform.performMicrotaskCheckpoint();
-		}
-	} catch (err) {
-		throw new this.errors.UnhandledError(err);
-	}
+  try {
+    if (!this.$rootScope.$$phase) {
+      this.$rootScope.$apply(function () {
+        observe.Platform.performMicrotaskCheckpoint();
+      });
+    } else {
+      observe.Platform.performMicrotaskCheckpoint();
+    }
+  } catch (err) {
+    throw new this.errors.UnhandledError(err);
+  }
 }
 
 module.exports = digest;

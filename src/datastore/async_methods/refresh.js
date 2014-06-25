@@ -50,23 +50,23 @@ var errorPrefix = 'DS.refresh(resourceName, id[, options]): ';
  * - `{UnhandledError}`
  */
 function refresh(resourceName, id, options) {
-	options = options || {};
+  options = options || {};
 
-	if (!this.definitions[resourceName]) {
-		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
-	} else if (!this.utils.isObject(options)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
-	} else {
-		options.bypassCache = true;
+  if (!this.definitions[resourceName]) {
+    throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+  } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+    throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+  } else if (!this.utils.isObject(options)) {
+    throw new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
+  } else {
+    options.bypassCache = true;
 
-		if (this.get(resourceName, id)) {
-			return this.find(resourceName, id, options);
-		} else {
-			return false;
-		}
-	}
+    if (this.get(resourceName, id)) {
+      return this.find(resourceName, id, options);
+    } else {
+      return false;
+    }
+  }
 }
 
 module.exports = refresh;

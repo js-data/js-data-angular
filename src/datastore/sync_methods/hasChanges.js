@@ -1,9 +1,9 @@
 var errorPrefix = 'DS.hasChanges(resourceName, id): ';
 
 function diffIsEmpty(utils, diff) {
-	return !(utils.isEmpty(diff.added) &&
-		utils.isEmpty(diff.removed) &&
-		utils.isEmpty(diff.changed));
+  return !(utils.isEmpty(diff.added) &&
+    utils.isEmpty(diff.removed) &&
+    utils.isEmpty(diff.changed));
 }
 
 /**
@@ -40,22 +40,22 @@ function diffIsEmpty(utils, diff) {
  * @returns {boolean} Whether the item of the type specified by `resourceName` with the primary key specified by `id` has changes.
  */
 function hasChanges(resourceName, id) {
-	if (!this.definitions[resourceName]) {
-		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
-	}
+  if (!this.definitions[resourceName]) {
+    throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+  } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+    throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+  }
 
-	try {
-		// return resource from cache
-		if (this.get(resourceName, id)) {
-			return diffIsEmpty(this.utils, this.changes(resourceName, id));
-		} else {
-			return false;
-		}
-	} catch (err) {
-		throw new this.errors.UnhandledError(err);
-	}
+  try {
+    // return resource from cache
+    if (this.get(resourceName, id)) {
+      return diffIsEmpty(this.utils, this.changes(resourceName, id));
+    } else {
+      return false;
+    }
+  } catch (err) {
+    throw new this.errors.UnhandledError(err);
+  }
 }
 
 module.exports = hasChanges;

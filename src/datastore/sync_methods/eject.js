@@ -1,23 +1,23 @@
 var errorPrefix = 'DS.eject(resourceName, id): ';
 
 function _eject(definition, resource, id) {
-	var found = false;
-	for (var i = 0; i < resource.collection.length; i++) {
-		if (resource.collection[i][definition.idAttribute] == id) {
-			found = true;
-			break;
-		}
-	}
-	if (found) {
-		resource.collection.splice(i, 1);
-		resource.observers[id].close();
-		delete resource.observers[id];
+  var found = false;
+  for (var i = 0; i < resource.collection.length; i++) {
+    if (resource.collection[i][definition.idAttribute] == id) {
+      found = true;
+      break;
+    }
+  }
+  if (found) {
+    resource.collection.splice(i, 1);
+    resource.observers[id].close();
+    delete resource.observers[id];
 
-		resource.index.remove(id);
-		delete resource.previousAttributes[id];
-		delete resource.modified[id];
-		delete resource.saved[id];
-	}
+    resource.index.remove(id);
+    delete resource.previousAttributes[id];
+    delete resource.modified[id];
+    delete resource.saved[id];
+  }
 }
 
 /**
@@ -53,29 +53,29 @@ function _eject(definition, resource, id) {
  * @param {string|number} id The primary key of the item to eject.
  */
 function eject(resourceName, id) {
-	if (!this.definitions[resourceName]) {
-		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
-	}
+  if (!this.definitions[resourceName]) {
+    throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+  } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+    throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+  }
 
-	var resource = this.store[resourceName],
-		_this = this;
+  var resource = this.store[resourceName],
+    _this = this;
 
-	try {
-		if (!this.$rootScope.$$phase) {
-			this.$rootScope.$apply(function () {
-				_eject(_this.definitions[resourceName], resource, id);
-				resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
-			});
-		} else {
-			_eject(_this.definitions[resourceName], resource, id);
-			resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
-		}
-		delete this.store[resourceName].completedQueries[id];
-	} catch (err) {
-		throw new this.errors.UnhandledError(err);
-	}
+  try {
+    if (!this.$rootScope.$$phase) {
+      this.$rootScope.$apply(function () {
+        _eject(_this.definitions[resourceName], resource, id);
+        resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
+      });
+    } else {
+      _eject(_this.definitions[resourceName], resource, id);
+      resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
+    }
+    delete this.store[resourceName].completedQueries[id];
+  } catch (err) {
+    throw new this.errors.UnhandledError(err);
+  }
 }
 
 module.exports = eject;

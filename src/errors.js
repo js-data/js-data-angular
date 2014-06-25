@@ -7,49 +7,49 @@
  * @returns {UnhandledError} A new instance of `UnhandledError`.
  */
 function UnhandledError(error) {
-	Error.call(this);
-	if (typeof Error.captureStackTrace === 'function') {
-		Error.captureStackTrace(this, this.constructor);
-	}
+  Error.call(this);
+  if (typeof Error.captureStackTrace === 'function') {
+    Error.captureStackTrace(this, this.constructor);
+  }
 
-	error = error || {};
+  error = error || {};
 
-	/**
-	 * @doc property
-	 * @id errors.types:UnhandledError.type
-	 * @name type
-	 * @propertyOf errors.types:UnhandledError
-	 * @description Name of error type. Default: `"UnhandledError"`.
-	 */
-	this.type = this.constructor.name;
+  /**
+   * @doc property
+   * @id errors.types:UnhandledError.type
+   * @name type
+   * @propertyOf errors.types:UnhandledError
+   * @description Name of error type. Default: `"UnhandledError"`.
+   */
+  this.type = this.constructor.name;
 
-	/**
-	 * @doc property
-	 * @id errors.types:UnhandledError.originalError
-	 * @name originalError
-	 * @propertyOf errors.types:UnhandledError
-	 * @description A reference to the original error that was thrown.
-	 */
-	this.originalError = error;
+  /**
+   * @doc property
+   * @id errors.types:UnhandledError.originalError
+   * @name originalError
+   * @propertyOf errors.types:UnhandledError
+   * @description A reference to the original error that was thrown.
+   */
+  this.originalError = error;
 
-	/**
-	 * @doc property
-	 * @id errors.types:UnhandledError.message
-	 * @name message
-	 * @propertyOf errors.types:UnhandledError
-	 * @description Message and stack trace. Same as `UnhandledError#stack`.
-	 */
-	this.message = 'UnhandledError: This is an uncaught exception. Please consider submitting an issue at https://github.com/jmdobry/angular-data/issues.\n\n' +
-		'Original Uncaught Exception:\n' + (error.stack ? error.stack.toString() : error.stack);
+  /**
+   * @doc property
+   * @id errors.types:UnhandledError.message
+   * @name message
+   * @propertyOf errors.types:UnhandledError
+   * @description Message and stack trace. Same as `UnhandledError#stack`.
+   */
+  this.message = 'UnhandledError: This is an uncaught exception. Please consider submitting an issue at https://github.com/jmdobry/angular-data/issues.\n\n' +
+    'Original Uncaught Exception:\n' + (error.stack ? error.stack.toString() : error.stack);
 
-	/**
-	 * @doc property
-	 * @id errors.types:UnhandledError.stack
-	 * @name stack
-	 * @propertyOf errors.types:UnhandledError
-	 * @description Message and stack trace. Same as `UnhandledError#message`.
-	 */
-	this.stack = this.message;
+  /**
+   * @doc property
+   * @id errors.types:UnhandledError.stack
+   * @name stack
+   * @propertyOf errors.types:UnhandledError
+   * @description Message and stack trace. Same as `UnhandledError#message`.
+   */
+  this.stack = this.message;
 }
 
 UnhandledError.prototype = Object.create(Error.prototype);
@@ -65,37 +65,37 @@ UnhandledError.prototype.constructor = UnhandledError;
  * @returns {IllegalArgumentError} A new instance of `IllegalArgumentError`.
  */
 function IllegalArgumentError(message, errors) {
-	Error.call(this);
-	if (typeof Error.captureStackTrace === 'function') {
-		Error.captureStackTrace(this, this.constructor);
-	}
+  Error.call(this);
+  if (typeof Error.captureStackTrace === 'function') {
+    Error.captureStackTrace(this, this.constructor);
+  }
 
-	/**
-	 * @doc property
-	 * @id errors.types:IllegalArgumentError.type
-	 * @name type
-	 * @propertyOf errors.types:IllegalArgumentError
-	 * @description Name of error type. Default: `"IllegalArgumentError"`.
-	 */
-	this.type = this.constructor.name;
+  /**
+   * @doc property
+   * @id errors.types:IllegalArgumentError.type
+   * @name type
+   * @propertyOf errors.types:IllegalArgumentError
+   * @description Name of error type. Default: `"IllegalArgumentError"`.
+   */
+  this.type = this.constructor.name;
 
-	/**
-	 * @doc property
-	 * @id errors.types:IllegalArgumentError.errors
-	 * @name errors
-	 * @propertyOf errors.types:IllegalArgumentError
-	 * @description Object containing information about the error.
-	 */
-	this.errors = errors || {};
+  /**
+   * @doc property
+   * @id errors.types:IllegalArgumentError.errors
+   * @name errors
+   * @propertyOf errors.types:IllegalArgumentError
+   * @description Object containing information about the error.
+   */
+  this.errors = errors || {};
 
-	/**
-	 * @doc property
-	 * @id errors.types:IllegalArgumentError.message
-	 * @name message
-	 * @propertyOf errors.types:IllegalArgumentError
-	 * @description Error message. Default: `"Illegal Argument!"`.
-	 */
-	this.message = message || 'Illegal Argument!';
+  /**
+   * @doc property
+   * @id errors.types:IllegalArgumentError.message
+   * @name message
+   * @propertyOf errors.types:IllegalArgumentError
+   * @description Error message. Default: `"Illegal Argument!"`.
+   */
+  this.message = message || 'Illegal Argument!';
 }
 
 IllegalArgumentError.prototype = Object.create(Error.prototype);
@@ -111,37 +111,37 @@ IllegalArgumentError.prototype.constructor = IllegalArgumentError;
  * @returns {RuntimeError} A new instance of `RuntimeError`.
  */
 function RuntimeError(message, errors) {
-	Error.call(this);
-	if (typeof Error.captureStackTrace === 'function') {
-		Error.captureStackTrace(this, this.constructor);
-	}
+  Error.call(this);
+  if (typeof Error.captureStackTrace === 'function') {
+    Error.captureStackTrace(this, this.constructor);
+  }
 
-	/**
-	 * @doc property
-	 * @id errors.types:RuntimeError.type
-	 * @name type
-	 * @propertyOf errors.types:RuntimeError
-	 * @description Name of error type. Default: `"RuntimeError"`.
-	 */
-	this.type = this.constructor.name;
+  /**
+   * @doc property
+   * @id errors.types:RuntimeError.type
+   * @name type
+   * @propertyOf errors.types:RuntimeError
+   * @description Name of error type. Default: `"RuntimeError"`.
+   */
+  this.type = this.constructor.name;
 
-	/**
-	 * @doc property
-	 * @id errors.types:RuntimeError.errors
-	 * @name errors
-	 * @propertyOf errors.types:RuntimeError
-	 * @description Object containing information about the error.
-	 */
-	this.errors = errors || {};
+  /**
+   * @doc property
+   * @id errors.types:RuntimeError.errors
+   * @name errors
+   * @propertyOf errors.types:RuntimeError
+   * @description Object containing information about the error.
+   */
+  this.errors = errors || {};
 
-	/**
-	 * @doc property
-	 * @id errors.types:RuntimeError.message
-	 * @name message
-	 * @propertyOf errors.types:RuntimeError
-	 * @description Error message. Default: `"Runtime Error!"`.
-	 */
-	this.message = message || 'RuntimeError Error!';
+  /**
+   * @doc property
+   * @id errors.types:RuntimeError.message
+   * @name message
+   * @propertyOf errors.types:RuntimeError
+   * @description Error message. Default: `"Runtime Error!"`.
+   */
+  this.message = message || 'RuntimeError Error!';
 }
 
 RuntimeError.prototype = Object.create(Error.prototype);
@@ -161,9 +161,9 @@ RuntimeError.prototype.constructor = RuntimeError;
  * References to the constructor functions of these errors can be found in `DS.errors`.
  */
 module.exports = [function () {
-	return {
-		UnhandledError: UnhandledError,
-		IllegalArgumentError: IllegalArgumentError,
-		RuntimeError: RuntimeError
-	};
+  return {
+    UnhandledError: UnhandledError,
+    IllegalArgumentError: IllegalArgumentError,
+    RuntimeError: RuntimeError
+  };
 }];

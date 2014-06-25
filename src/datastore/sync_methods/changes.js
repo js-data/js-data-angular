@@ -35,21 +35,21 @@ var errorPrefix = 'DS.changes(resourceName, id): ';
  * @returns {object} The changes of the item of the type specified by `resourceName` with the primary key specified by `id`.
  */
 function changes(resourceName, id) {
-	if (!this.definitions[resourceName]) {
-		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
-	}
+  if (!this.definitions[resourceName]) {
+    throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+  } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+    throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+  }
 
-	try {
-		var item = this.get(resourceName, id);
-		if (item) {
-			this.store[resourceName].observers[id].deliver();
-			return this.utils.diffObjectFromOldObject(item, this.store[resourceName].previousAttributes[id]);
-		}
-	} catch (err) {
-		throw new this.errors.UnhandledError(err);
-	}
+  try {
+    var item = this.get(resourceName, id);
+    if (item) {
+      this.store[resourceName].observers[id].deliver();
+      return this.utils.diffObjectFromOldObject(item, this.store[resourceName].previousAttributes[id]);
+    }
+  } catch (err) {
+    throw new this.errors.UnhandledError(err);
+  }
 }
 
 module.exports = changes;

@@ -43,75 +43,75 @@ var errorPrefix = 'DS.save(resourceName, id[, options]): ';
  * - `{UnhandledError}`
  */
 function save(resourceName, id, options) {
-	var deferred = this.$q.defer(),
-		promise = deferred.promise;
+  var deferred = this.$q.defer(),
+    promise = deferred.promise;
 
-	options = options || {};
+  options = options || {};
 
-	if (!this.definitions[resourceName]) {
-		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
-	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
-	} else if (!this.utils.isObject(options)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
-	} else {
-		var item = this.get(resourceName, id);
-		if (!item) {
-			deferred.reject(new this.errors.RuntimeError(errorPrefix + 'id: "' + id + '" not found!'));
-		} else {
-			var definition = this.definitions[resourceName],
-				resource = this.store[resourceName],
-				_this = this;
+  if (!this.definitions[resourceName]) {
+    deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
+  } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
+  } else if (!this.utils.isObject(options)) {
+    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
+  } else {
+    var item = this.get(resourceName, id);
+    if (!item) {
+      deferred.reject(new this.errors.RuntimeError(errorPrefix + 'id: "' + id + '" not found!'));
+    } else {
+      var definition = this.definitions[resourceName],
+        resource = this.store[resourceName],
+        _this = this;
 
-			promise = promise
-				.then(function (attrs) {
-					return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
-				})
-				.then(function (attrs) {
-					return _this.$q.promisify(definition.validate)(resourceName, attrs);
-				})
-				.then(function (attrs) {
-					return _this.$q.promisify(definition.afterValidate)(resourceName, attrs);
-				})
-				.then(function (attrs) {
-					return _this.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
-				})
-				.then(function (attrs) {
-					if (options.changesOnly) {
-						resource.observers[id].deliver();
-						var toKeep = [],
-							changes = _this.changes(resourceName, id);
+      promise = promise
+        .then(function (attrs) {
+          return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
+        })
+        .then(function (attrs) {
+          return _this.$q.promisify(definition.validate)(resourceName, attrs);
+        })
+        .then(function (attrs) {
+          return _this.$q.promisify(definition.afterValidate)(resourceName, attrs);
+        })
+        .then(function (attrs) {
+          return _this.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
+        })
+        .then(function (attrs) {
+          if (options.changesOnly) {
+            resource.observers[id].deliver();
+            var toKeep = [],
+              changes = _this.changes(resourceName, id);
 
-						for (var key in changes.added) {
-							toKeep.push(key);
-						}
-						for (key in changes.changed) {
-							toKeep.push(key);
-						}
-						changes = _this.utils.pick(attrs, toKeep);
-						if (_this.utils.isEmpty(changes)) {
-							// no changes, return
-							return attrs;
-						} else {
-							attrs = changes;
-						}
-					}
-					return _this.adapters[options.adapter || definition.defaultAdapter].update(definition, id, definition.serialize(resourceName, attrs), options);
-				})
-				.then(function (res) {
-					return _this.$q.promisify(definition.afterUpdate)(resourceName, definition.deserialize(resourceName, res));
-				})
-				.then(function (data) {
-					_this.inject(definition.name, data, options);
-					resource.previousAttributes[id] = _this.utils.deepMixIn({}, data);
-					resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
-					return _this.get(resourceName, id);
-				});
+            for (var key in changes.added) {
+              toKeep.push(key);
+            }
+            for (key in changes.changed) {
+              toKeep.push(key);
+            }
+            changes = _this.utils.pick(attrs, toKeep);
+            if (_this.utils.isEmpty(changes)) {
+              // no changes, return
+              return attrs;
+            } else {
+              attrs = changes;
+            }
+          }
+          return _this.adapters[options.adapter || definition.defaultAdapter].update(definition, id, definition.serialize(resourceName, attrs), options);
+        })
+        .then(function (res) {
+          return _this.$q.promisify(definition.afterUpdate)(resourceName, definition.deserialize(resourceName, res));
+        })
+        .then(function (data) {
+          _this.inject(definition.name, data, options);
+          resource.previousAttributes[id] = _this.utils.deepMixIn({}, data);
+          resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
+          return _this.get(resourceName, id);
+        });
 
-			deferred.resolve(item);
-		}
-	}
-	return promise;
+      deferred.resolve(item);
+    }
+  }
+  return promise;
 }
 
 module.exports = save;

@@ -35,22 +35,22 @@ var errorPrefix = 'DS.lastModified(resourceName[, id]): ';
  * `resourceName` with the given primary key was modified.
  */
 function lastModified(resourceName, id) {
-	if (!this.definitions[resourceName]) {
-		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (id && !this.utils.isString(id) && !this.utils.isNumber(id)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
-	}
-	try {
-		if (id) {
-			if (!(id in this.store[resourceName].modified)) {
-				this.store[resourceName].modified[id] = 0;
-			}
-			return this.store[resourceName].modified[id];
-		}
-		return this.store[resourceName].collectionModified;
-	} catch (err) {
-		throw new this.errors.UnhandledError(err);
-	}
+  if (!this.definitions[resourceName]) {
+    throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+  } else if (id && !this.utils.isString(id) && !this.utils.isNumber(id)) {
+    throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+  }
+  try {
+    if (id) {
+      if (!(id in this.store[resourceName].modified)) {
+        this.store[resourceName].modified[id] = 0;
+      }
+      return this.store[resourceName].modified[id];
+    }
+    return this.store[resourceName].collectionModified;
+  } catch (err) {
+    throw new this.errors.UnhandledError(err);
+  }
 }
 
 module.exports = lastModified;

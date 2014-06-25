@@ -41,19 +41,19 @@ var errorPrefix = 'DS.lastSaved(resourceName[, id]): ';
  * @returns {number} The timestamp of the last time the item of type `resourceName` with the given primary key was saved.
  */
 function lastSaved(resourceName, id) {
-	if (!this.definitions[resourceName]) {
-		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
-	}
-	try {
-		if (!(id in this.store[resourceName].saved)) {
-			this.store[resourceName].saved[id] = 0;
-		}
-		return this.store[resourceName].saved[id];
-	} catch (err) {
-		throw new this.errors.UnhandledError(err);
-	}
+  if (!this.definitions[resourceName]) {
+    throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+  } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+    throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+  }
+  try {
+    if (!(id in this.store[resourceName].saved)) {
+      this.store[resourceName].saved[id] = 0;
+    }
+    return this.store[resourceName].saved[id];
+  } catch (err) {
+    throw new this.errors.UnhandledError(err);
+  }
 }
 
 module.exports = lastSaved;

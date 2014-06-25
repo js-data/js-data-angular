@@ -45,61 +45,61 @@ var errorPrefix = 'DS.find(resourceName, id[, options]): ';
  * - `{UnhandledError}`
  */
 function find(resourceName, id, options) {
-	var deferred = this.$q.defer(),
-		promise = deferred.promise;
+  var deferred = this.$q.defer(),
+    promise = deferred.promise;
 
-	options = options || {};
+  options = options || {};
 
-	if (!this.definitions[resourceName]) {
-		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
-	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
-	} else if (!this.utils.isObject(options)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
-	} else {
-		if (!('cacheResponse' in options)) {
-			options.cacheResponse = true;
-		} else {
-			options.cacheResponse = !!options.cacheResponse;
-		}
-		try {
-			var definition = this.definitions[resourceName],
-				resource = this.store[resourceName],
-				_this = this;
+  if (!this.definitions[resourceName]) {
+    deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
+  } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
+  } else if (!this.utils.isObject(options)) {
+    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
+  } else {
+    if (!('cacheResponse' in options)) {
+      options.cacheResponse = true;
+    } else {
+      options.cacheResponse = !!options.cacheResponse;
+    }
+    try {
+      var definition = this.definitions[resourceName],
+        resource = this.store[resourceName],
+        _this = this;
 
-			if (options.bypassCache) {
-				delete resource.completedQueries[id];
-			}
+      if (options.bypassCache) {
+        delete resource.completedQueries[id];
+      }
 
-			if (!(id in resource.completedQueries)) {
-				if (!(id in resource.pendingQueries)) {
-					promise = resource.pendingQueries[id] = _this.adapters[options.adapter || definition.defaultAdapter].find(definition, id, options)
-						.then(function (res) {
-							var data = definition.deserialize(resourceName, res);
-							if (options.cacheResponse) {
-								// Query is no longer pending
-								delete resource.pendingQueries[id];
-								resource.completedQueries[id] = new Date().getTime();
-								return _this.inject(resourceName, data);
-							} else {
-								return data;
-							}
-						}, function (err) {
-							delete resource.pendingQueries[id];
-							return _this.$q.reject(err);
-						});
-				}
+      if (!(id in resource.completedQueries)) {
+        if (!(id in resource.pendingQueries)) {
+          promise = resource.pendingQueries[id] = _this.adapters[options.adapter || definition.defaultAdapter].find(definition, id, options)
+            .then(function (res) {
+              var data = definition.deserialize(resourceName, res);
+              if (options.cacheResponse) {
+                // Query is no longer pending
+                delete resource.pendingQueries[id];
+                resource.completedQueries[id] = new Date().getTime();
+                return _this.inject(resourceName, data);
+              } else {
+                return data;
+              }
+            }, function (err) {
+              delete resource.pendingQueries[id];
+              return _this.$q.reject(err);
+            });
+        }
 
-				return resource.pendingQueries[id];
-			} else {
-				deferred.resolve(_this.get(resourceName, id));
-			}
-		} catch (err) {
-			deferred.reject(err);
-		}
-	}
+        return resource.pendingQueries[id];
+      } else {
+        deferred.resolve(_this.get(resourceName, id));
+      }
+    } catch (err) {
+      deferred.reject(err);
+    }
+  }
 
-	return promise;
+  return promise;
 }
 
 module.exports = find;

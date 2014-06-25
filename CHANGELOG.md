@@ -1,3 +1,8 @@
+##### 0.10.0 - 24 June 2014
+
+###### Breaking API changes
+- #76 - Queries and filtering. See [TRANSITION.md](https://github.com/jmdobry/angular-data/blob/master/TRANSITION.md).
+
 ##### 0.9.1 - 30 May 2014
 
 ###### Backwards compatible bug fixes
