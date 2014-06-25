@@ -14,38 +14,36 @@ Angular-data is an in-browser data store for [Angular.js](http://angularjs.org).
 ## Example:
 ```js
 angular.module('myApp', ['angular-data.DS'])
-	.config(function (DSProvider) {
-		DSProvider.defaults.baseUrl = '/api';
-	})
-	.run(function (DS) {
-		DS.defineResource({
-			name: 'post',
-			endpoint: 'posts',
-			idAttribute: '_id'
-		});
-	})
-	.controller('PostCtrl', function ($scope, DS) {
-		var params = {
-            query: {
-                where: {
-                    author: {
-                        '==': 'John Anderson'
-                    }
-                }
-            }
-        };
+  .config(function (DSProvider) {
+    DSProvider.defaults.baseUrl = '/api';
+  })
+  .run(function (DS) {
+    DS.defineResource({
+      name: 'post',
+      endpoint: 'posts',
+      idAttribute: '_id'
+    });
+  })
+  .controller('PostCtrl', function ($scope, DS) {
+    var params = {
+      where: {
+        author: {
+          '==': 'John Anderson'
+        }
+      }
+    };
 
-		DS.findAll('post', params);
+    DS.findAll('post', params);
 
-		DS.bindAll($scope', 'posts', 'post', params);
+    DS.bindAll($scope', 'posts', 'post', params);
 
-		// Verbose way of doing the bindAll() above, but gives more control
-		$scope.$watch(function () {
-			return DS.lastModified('post');
-		}, function () {
-			$scope.posts = DS.filter('post', query);
-		});
-	});
+    // Verbose way of doing the bindAll() above, but gives more control
+    $scope.$watch(function () {
+      return DS.lastModified('post');
+    }, function () {
+      $scope.posts = DS.filter('post', params);
+    });
+  });
 ```
 
 Angular-data does not decorate your data in any way–your data maintains the pure POJO representation common to Angular

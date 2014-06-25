@@ -6,7 +6,7 @@
    * @id angular-data
    * @name angular-data
    * @description
-   * __Version:__ 0.9.1
+   * __Version:__ 0.10.0
    *
    * ## Install
    *

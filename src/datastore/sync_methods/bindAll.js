@@ -1,4 +1,4 @@
-var errorPrefix = 'DS.bindAll(scope, expr, resourceName, params): ';
+var errorPrefix = 'DS.bindAll(scope, expr, resourceName, params[, cb]): ';
 
 /**
  * @doc method
@@ -9,7 +9,7 @@ var errorPrefix = 'DS.bindAll(scope, expr, resourceName, params): ';
  *
  * ## Signature:
  * ```js
- * DS.bindAll(scope, expr, resourceName, params)
+ * DS.bindAll(scope, expr, resourceName, params[, cb])
  * ```
  *
  * ## Example:
@@ -40,9 +40,11 @@ var errorPrefix = 'DS.bindAll(scope, expr, resourceName, params): ';
  *  - `{number=}` - `offset` - Same as skip.
  *  - `{string|array=}` - `orderBy` - OrderBy clause.
  *
+ * @param {function=} cb Optional callback executed on change. Signature: `cb(err, items)`.
+ *
  * @returns {function} Scope $watch deregistration function.
  */
-function bindOne(scope, expr, resourceName, params) {
+function bindOne(scope, expr, resourceName, params, cb) {
   if (!this.utils.isObject(scope)) {
     throw new this.errors.IllegalArgumentError(errorPrefix + 'scope: Must be an object!');
   } else if (!this.utils.isString(expr)) {
@@ -59,10 +61,18 @@ function bindOne(scope, expr, resourceName, params) {
     return scope.$watch(function () {
       return _this.lastModified(resourceName);
     }, function () {
-      _this.utils.set(scope, expr, _this.filter(resourceName, params));
+      var items = _this.filter(resourceName, params);
+      _this.utils.set(scope, expr, items);
+      if (cb) {
+        cb(null, items);
+      }
     });
   } catch (err) {
-    throw new this.errors.UnhandledError(err);
+    if (cb) {
+      cb(new this.errors.UnhandledError(err));
+    } else {
+      throw new this.errors.UnhandledError(err);
+    }
   }
 }
 

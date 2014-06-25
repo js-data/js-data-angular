@@ -530,7 +530,7 @@ var makeIterator = require('../function/makeIterator_');
 
 
 
-},{"../function/makeIterator_":12}],4:[function(require,module,exports){
+},{"../function/makeIterator_":11}],4:[function(require,module,exports){
 
 
     /**
@@ -605,30 +605,6 @@ var filter = require('./filter');
 
 
 },{"./filter":3}],7:[function(require,module,exports){
-var makeIterator = require('../function/makeIterator_');
-
-    /**
-     * Array map
-     */
-    function map(arr, callback, thisObj) {
-        callback = makeIterator(callback, thisObj);
-        var results = [];
-        if (arr == null){
-            return results;
-        }
-
-        var i = -1, len = arr.length;
-        while (++i < len) {
-            results[i] = callback(arr[i], i, arr);
-        }
-
-        return results;
-    }
-
-     module.exports = map;
-
-
-},{"../function/makeIterator_":12}],8:[function(require,module,exports){
 
 
     /**
@@ -665,7 +641,7 @@ var makeIterator = require('../function/makeIterator_');
 
 
 
-},{}],9:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 
 
     /**
@@ -722,7 +698,7 @@ var makeIterator = require('../function/makeIterator_');
 
 
 
-},{}],10:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 var isFunction = require('../lang/isFunction');
 
     /**
@@ -752,7 +728,7 @@ var isFunction = require('../lang/isFunction');
     module.exports = toLookup;
 
 
-},{"../lang/isFunction":16}],11:[function(require,module,exports){
+},{"../lang/isFunction":15}],10:[function(require,module,exports){
 
 
     /**
@@ -766,7 +742,7 @@ var isFunction = require('../lang/isFunction');
 
 
 
-},{}],12:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 var identity = require('./identity');
 var prop = require('./prop');
 var deepMatches = require('../object/deepMatches');
@@ -802,7 +778,7 @@ var deepMatches = require('../object/deepMatches');
 
 
 
-},{"../object/deepMatches":21,"./identity":11,"./prop":13}],13:[function(require,module,exports){
+},{"../object/deepMatches":20,"./identity":10,"./prop":12}],12:[function(require,module,exports){
 
 
     /**
@@ -818,7 +794,7 @@ var deepMatches = require('../object/deepMatches');
 
 
 
-},{}],14:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 var isKind = require('./isKind');
     /**
      */
@@ -828,7 +804,7 @@ var isKind = require('./isKind');
     module.exports = isArray;
 
 
-},{"./isKind":17}],15:[function(require,module,exports){
+},{"./isKind":16}],14:[function(require,module,exports){
 var forOwn = require('../object/forOwn');
 var isArray = require('./isArray');
 
@@ -854,7 +830,7 @@ var isArray = require('./isArray');
 
 
 
-},{"../object/forOwn":24,"./isArray":14}],16:[function(require,module,exports){
+},{"../object/forOwn":23,"./isArray":13}],15:[function(require,module,exports){
 var isKind = require('./isKind');
     /**
      */
@@ -864,7 +840,7 @@ var isKind = require('./isKind');
     module.exports = isFunction;
 
 
-},{"./isKind":17}],17:[function(require,module,exports){
+},{"./isKind":16}],16:[function(require,module,exports){
 var kindOf = require('./kindOf');
     /**
      * Check if value is from a specific "kind".
@@ -875,7 +851,7 @@ var kindOf = require('./kindOf');
     module.exports = isKind;
 
 
-},{"./kindOf":19}],18:[function(require,module,exports){
+},{"./kindOf":18}],17:[function(require,module,exports){
 
 
     /**
@@ -890,7 +866,7 @@ var kindOf = require('./kindOf');
 
 
 
-},{}],19:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 
 
     var _rKind = /^\[object (.*)\]$/,
@@ -912,7 +888,7 @@ var kindOf = require('./kindOf');
     module.exports = kindOf;
 
 
-},{}],20:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 
 
     /**
@@ -927,7 +903,7 @@ var kindOf = require('./kindOf');
 
 
 
-},{}],21:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 var forOwn = require('./forOwn');
 var isArray = require('../lang/isArray');
 
@@ -984,7 +960,7 @@ var isArray = require('../lang/isArray');
 
 
 
-},{"../lang/isArray":14,"./forOwn":24}],22:[function(require,module,exports){
+},{"../lang/isArray":13,"./forOwn":23}],21:[function(require,module,exports){
 var forOwn = require('./forOwn');
 var isPlainObject = require('../lang/isPlainObject');
 
@@ -1020,7 +996,7 @@ var isPlainObject = require('../lang/isPlainObject');
 
 
 
-},{"../lang/isPlainObject":18,"./forOwn":24}],23:[function(require,module,exports){
+},{"../lang/isPlainObject":17,"./forOwn":23}],22:[function(require,module,exports){
 var hasOwn = require('./hasOwn');
 
     var _hasDontEnumBug,
@@ -1098,7 +1074,7 @@ var hasOwn = require('./hasOwn');
 
 
 
-},{"./hasOwn":25}],24:[function(require,module,exports){
+},{"./hasOwn":24}],23:[function(require,module,exports){
 var hasOwn = require('./hasOwn');
 var forIn = require('./forIn');
 
@@ -1119,7 +1095,7 @@ var forIn = require('./forIn');
 
 
 
-},{"./forIn":23,"./hasOwn":25}],25:[function(require,module,exports){
+},{"./forIn":22,"./hasOwn":24}],24:[function(require,module,exports){
 
 
     /**
@@ -1133,7 +1109,7 @@ var forIn = require('./forIn');
 
 
 
-},{}],26:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 var forEach = require('../array/forEach');
 
     /**
@@ -1154,7 +1130,7 @@ var forEach = require('../array/forEach');
 
 
 
-},{"../array/forEach":4}],27:[function(require,module,exports){
+},{"../array/forEach":4}],26:[function(require,module,exports){
 var slice = require('../array/slice');
 
     /**
@@ -1174,7 +1150,7 @@ var slice = require('../array/slice');
 
 
 
-},{"../array/slice":8}],28:[function(require,module,exports){
+},{"../array/slice":7}],27:[function(require,module,exports){
 var namespace = require('./namespace');
 
     /**
@@ -1193,7 +1169,7 @@ var namespace = require('./namespace');
 
 
 
-},{"./namespace":26}],29:[function(require,module,exports){
+},{"./namespace":25}],28:[function(require,module,exports){
 var join = require('../array/join');
 var slice = require('../array/slice');
 
@@ -1210,7 +1186,7 @@ var slice = require('../array/slice');
     module.exports = makePath;
 
 
-},{"../array/join":6,"../array/slice":8}],30:[function(require,module,exports){
+},{"../array/join":6,"../array/slice":7}],29:[function(require,module,exports){
 var toString = require('../lang/toString');
     /**
      * "Safer" String.toUpperCase()
@@ -1222,7 +1198,7 @@ var toString = require('../lang/toString');
     module.exports = upperCase;
 
 
-},{"../lang/toString":20}],31:[function(require,module,exports){
+},{"../lang/toString":19}],30:[function(require,module,exports){
 /**
  * @doc function
  * @id DSHttpAdapterProvider
@@ -1651,7 +1627,7 @@ function DSHttpAdapterProvider() {
 
 module.exports = DSHttpAdapterProvider;
 
-},{}],32:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 /**
  * @doc function
  * @id DSLocalStorageProvider
@@ -1836,7 +1812,7 @@ function DSLocalStorageProvider() {
 
 module.exports = DSLocalStorageProvider;
 
-},{}],33:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 var errorPrefix = 'DS.create(resourceName, attrs[, options]): ';
 
 /**
@@ -1935,7 +1911,7 @@ function create(resourceName, attrs, options) {
 
 module.exports = create;
 
-},{}],34:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 var errorPrefix = 'DS.destroy(resourceName, id): ';
 
 /**
@@ -2022,7 +1998,7 @@ function destroy(resourceName, id, options) {
 
 module.exports = destroy;
 
-},{}],35:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 var errorPrefix = 'DS.destroyAll(resourceName, params[, options]): ';
 
 /**
@@ -2113,7 +2089,7 @@ function destroyAll(resourceName, params, options) {
 
 module.exports = destroyAll;
 
-},{}],36:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 var errorPrefix = 'DS.find(resourceName, id[, options]): ';
 
 /**
@@ -2220,7 +2196,7 @@ function find(resourceName, id, options) {
 
 module.exports = find;
 
-},{}],37:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 var errorPrefix = 'DS.findAll(resourceName, params[, options]): ';
 
 function processResults(utils, data, resourceName, queryHash) {
@@ -2376,7 +2352,7 @@ function findAll(resourceName, params, options) {
 
 module.exports = findAll;
 
-},{}],38:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 module.exports = {
   /**
    * @doc method
@@ -2469,7 +2445,7 @@ module.exports = {
   updateAll: require('./updateAll')
 };
 
-},{"./create":33,"./destroy":34,"./destroyAll":35,"./find":36,"./findAll":37,"./refresh":39,"./save":40,"./update":41,"./updateAll":42}],39:[function(require,module,exports){
+},{"./create":32,"./destroy":33,"./destroyAll":34,"./find":35,"./findAll":36,"./refresh":38,"./save":39,"./update":40,"./updateAll":41}],38:[function(require,module,exports){
 var errorPrefix = 'DS.refresh(resourceName, id[, options]): ';
 
 /**
@@ -2543,7 +2519,7 @@ function refresh(resourceName, id, options) {
 
 module.exports = refresh;
 
-},{}],40:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 var errorPrefix = 'DS.save(resourceName, id[, options]): ';
 
 /**
@@ -2662,7 +2638,7 @@ function save(resourceName, id, options) {
 
 module.exports = save;
 
-},{}],41:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 var errorPrefix = 'DS.update(resourceName, id, attrs[, options]): ';
 
 /**
@@ -2773,7 +2749,7 @@ function update(resourceName, id, attrs, options) {
 
 module.exports = update;
 
-},{}],42:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 var errorPrefix = 'DS.updateAll(resourceName, attrs, params[, options]): ';
 
 /**
@@ -2894,7 +2870,7 @@ function updateAll(resourceName, attrs, params, options) {
 
 module.exports = updateAll;
 
-},{}],43:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 var utils = require('../utils')[0]();
 
 function lifecycleNoop(resourceName, attrs, cb) {
@@ -2906,41 +2882,98 @@ function BaseConfig() {
 
 BaseConfig.prototype.idAttribute = 'id';
 BaseConfig.prototype.defaultAdapter = 'DSHttpAdapter';
-BaseConfig.prototype.filter = function (collection, resourceName, params) {
+BaseConfig.prototype.filter = function (collection, resourceName, params, options) {
   var _this = this;
   var filtered = collection;
   var where = null;
+  var reserved = {
+    skip: '',
+    offset: '',
+    where: '',
+    limit: '',
+    orderBy: '',
+    sort: ''
+  };
 
   if (this.utils.isObject(params.where)) {
     where = params.where;
+  } else {
+    where = {};
+  }
+
+  if (options.allowSimpleWhere) {
+    this.utils.forOwn(params, function (value, key) {
+      if (!(key in reserved) && !(key in where)) {
+        where[key] = {
+          '==': value
+        };
+      }
+    });
+  }
+
+  if (this.utils.isEmpty(where)) {
+    where = null;
+  }
+
+  if (where) {
     filtered = this.utils.filter(filtered, function (attrs) {
+//      console.log(attrs);
+      var first = true;
       var keep = true;
-      utils.forOwn(where, function (clause, field) {
-        if (utils.isString(clause)) {
+      _this.utils.forOwn(where, function (clause, field) {
+//        console.log(clause, field);
+        if (_this.utils.isString(clause)) {
           clause = {
             '===': clause
           };
-        } else if (utils.isNumber(clause)) {
+        } else if (_this.utils.isNumber(clause)) {
           clause = {
             '==': clause
           };
         }
-        if ('==' in clause) {
-          keep = keep && (attrs[field] == clause['==']);
-        } else if ('===' in clause) {
-          keep = keep && (attrs[field] === clause['===']);
-        } else if ('!=' in clause) {
-          keep = keep && (attrs[field] != clause['!=']);
-        } else if ('>' in clause) {
-          keep = keep && (attrs[field] > clause['>']);
-        } else if ('>=' in clause) {
-          keep = keep && (attrs[field] >= clause['>=']);
-        } else if ('<' in clause) {
-          keep = keep && (attrs[field] < clause['<']);
-        } else if ('<=' in clause) {
-          keep = keep && (attrs[field] <= clause['<=']);
-        } else if ('in' in clause) {
-          keep = keep && utils.contains(clause['in'], attrs[field]);
+        if (_this.utils.isObject(clause)) {
+          _this.utils.forOwn(clause, function (val, op) {
+//            console.log(op, val);
+            if (op === '==') {
+              keep = first ? (attrs[field] == val) : keep && (attrs[field] == val);
+            } else if (op === '===') {
+              keep = first ? (attrs[field] === val) : keep && (attrs[field] === val);
+            } else if (op === '!=') {
+              keep = first ? (attrs[field] != val) : keep && (attrs[field] != val);
+            }  else if (op === '!==') {
+              keep = first ? (attrs[field] !== val) : keep && (attrs[field] !== val);
+            } else if (op === '>') {
+              keep = first ? (attrs[field] > val) : keep && (attrs[field] > val);
+            } else if (op === '>=') {
+              keep = first ? (attrs[field] >= val) : keep && (attrs[field] >= val);
+            } else if (op === '<') {
+              keep = first ? (attrs[field] < val) : keep && (attrs[field] < val);
+            } else if (op === '<=') {
+              keep = first ? (attrs[field] <= val) : keep && (attrs[field] <= val);
+            } else if (op === 'in') {
+              keep = first ? _this.utils.contains(val, attrs[field]) : keep && _this.utils.contains(val, attrs[field]);
+            } else if (op === '|==') {
+              keep = first ? (attrs[field] == val) : keep || (attrs[field] == val);
+            } else if (op === '|===') {
+              keep = first ? (attrs[field] === val) : keep || (attrs[field] === val);
+            } else if (op === '|!=') {
+              keep = first ? (attrs[field] != val) : keep || (attrs[field] != val);
+            } else if (op === '|!==') {
+              keep = first ? (attrs[field] !== val) : keep || (attrs[field] !== val);
+            } else if (op === '|>') {
+              keep = first ? (attrs[field] > val) : keep || (attrs[field] > val);
+            } else if (op === '|>=') {
+              keep = first ? (attrs[field] >= val) : keep || (attrs[field] >= val);
+            } else if (op === '|<') {
+              keep = first ? (attrs[field] < val) : keep || (attrs[field] < val);
+            } else if (op === '|<=') {
+              keep = first ? (attrs[field] <= val) : keep || (attrs[field] <= val);
+            } else if (op === '|in') {
+              keep = first ? _this.utils.contains(val, attrs[field]) : keep || _this.utils.contains(val, attrs[field]);
+            }
+            first = false;
+//            console.log(keep, first);
+          });
         }
       });
       return keep;
@@ -3561,8 +3594,8 @@ function DSProvider() {
 
 module.exports = DSProvider;
 
-},{"../utils":61,"./async_methods":38,"./sync_methods":54}],44:[function(require,module,exports){
-var errorPrefix = 'DS.bindAll(scope, expr, resourceName, params): ';
+},{"../utils":60,"./async_methods":37,"./sync_methods":53}],43:[function(require,module,exports){
+var errorPrefix = 'DS.bindAll(scope, expr, resourceName, params[, cb]): ';
 
 /**
  * @doc method
@@ -3573,7 +3606,7 @@ var errorPrefix = 'DS.bindAll(scope, expr, resourceName, params): ';
  *
  * ## Signature:
  * ```js
- * DS.bindAll(scope, expr, resourceName, params)
+ * DS.bindAll(scope, expr, resourceName, params[, cb])
  * ```
  *
  * ## Example:
@@ -3604,9 +3637,11 @@ var errorPrefix = 'DS.bindAll(scope, expr, resourceName, params): ';
  *  - `{number=}` - `offset` - Same as skip.
  *  - `{string|array=}` - `orderBy` - OrderBy clause.
  *
+ * @param {function=} cb Optional callback executed on change. Signature: `cb(err, items)`.
+ *
  * @returns {function} Scope $watch deregistration function.
  */
-function bindOne(scope, expr, resourceName, params) {
+function bindOne(scope, expr, resourceName, params, cb) {
   if (!this.utils.isObject(scope)) {
     throw new this.errors.IllegalArgumentError(errorPrefix + 'scope: Must be an object!');
   } else if (!this.utils.isString(expr)) {
@@ -3623,17 +3658,25 @@ function bindOne(scope, expr, resourceName, params) {
     return scope.$watch(function () {
       return _this.lastModified(resourceName);
     }, function () {
-      _this.utils.set(scope, expr, _this.filter(resourceName, params));
+      var items = _this.filter(resourceName, params);
+      _this.utils.set(scope, expr, items);
+      if (cb) {
+        cb(null, items);
+      }
     });
   } catch (err) {
-    throw new this.errors.UnhandledError(err);
+    if (cb) {
+      cb(new this.errors.UnhandledError(err));
+    } else {
+      throw new this.errors.UnhandledError(err);
+    }
   }
 }
 
 module.exports = bindOne;
 
-},{}],45:[function(require,module,exports){
-var errorPrefix = 'DS.bindOne(scope, expr, resourceName, id): ';
+},{}],44:[function(require,module,exports){
+var errorPrefix = 'DS.bindOne(scope, expr, resourceName, id[, cb]): ';
 
 /**
  * @doc method
@@ -3644,7 +3687,7 @@ var errorPrefix = 'DS.bindOne(scope, expr, resourceName, id): ';
  *
  * ## Signature:
  * ```js
- * DS.bindOne(scope, expr, resourceName, id)
+ * DS.bindOne(scope, expr, resourceName, id[, cb])
  * ```
  *
  * ## Example:
@@ -3664,9 +3707,10 @@ var errorPrefix = 'DS.bindOne(scope, expr, resourceName, id): ';
  * @param {string} expr An expression used to bind to the scope. Can be used to set nested keys, i.e. `"user.profile"`.
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to bind.
+ * @param {function=} cb Optional callback executed on change. Signature: `cb(err, item)`.
  * @returns {function} Scope $watch deregistration function.
  */
-function bindOne(scope, expr, resourceName, id) {
+function bindOne(scope, expr, resourceName, id, cb) {
   if (!this.utils.isObject(scope)) {
     throw new this.errors.IllegalArgumentError(errorPrefix + 'scope: Must be an object!');
   } else if (!this.utils.isString(expr)) {
@@ -3683,16 +3727,24 @@ function bindOne(scope, expr, resourceName, id) {
     return scope.$watch(function () {
       return _this.lastModified(resourceName, id);
     }, function () {
-      _this.utils.set(scope, expr, _this.get(resourceName, id));
+      var item = _this.get(resourceName, id);
+      _this.utils.set(scope, expr, item);
+      if (cb) {
+        cb(null, item);
+      }
     });
   } catch (err) {
-    throw new this.errors.UnhandledError(err);
+    if (cb) {
+      cb(new this.errors.UnhandledError(err));
+    } else {
+      throw new this.errors.UnhandledError(err);
+    }
   }
 }
 
 module.exports = bindOne;
 
-},{}],46:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 var errorPrefix = 'DS.changes(resourceName, id): ';
 
 /**
@@ -3749,7 +3801,7 @@ function changes(resourceName, id) {
 
 module.exports = changes;
 
-},{}],47:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 /*jshint evil:true*/
 var errorPrefix = 'DS.defineResource(definition): ';
 
@@ -3891,7 +3943,7 @@ function defineResource(definition) {
 
 module.exports = defineResource;
 
-},{}],48:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 var observe = require('../../../lib/observe-js/observe-js');
 
 /**
@@ -3933,7 +3985,7 @@ function digest() {
 
 module.exports = digest;
 
-},{"../../../lib/observe-js/observe-js":1}],49:[function(require,module,exports){
+},{"../../../lib/observe-js/observe-js":1}],48:[function(require,module,exports){
 var errorPrefix = 'DS.eject(resourceName, id): ';
 
 function _eject(definition, resource, id) {
@@ -4016,7 +4068,7 @@ function eject(resourceName, id) {
 
 module.exports = eject;
 
-},{}],50:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 var errorPrefix = 'DS.ejectAll(resourceName[, params]): ';
 
 function _ejectAll(definition, resource, params) {
@@ -4122,7 +4174,7 @@ function ejectAll(resourceName, params) {
 
 module.exports = ejectAll;
 
-},{}],51:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 /* jshint loopfunc: true */
 var errorPrefix = 'DS.filter(resourceName[, params][, options]): ';
 
@@ -4161,6 +4213,7 @@ var errorPrefix = 'DS.filter(resourceName[, params][, options]): ';
  *
  * @param {object=} options Optional configuration. Properties:
  * - `{boolean=}` - `loadFromServer` - Send the query to server if it has not been sent yet. Default: `false`.
+ * - `{boolean=}` - `allowSimpleWhere` - Treat top-level fields on the `params` argument as simple "where" equality clauses. Default: `true`.
  * @returns {array} The filtered collection of items of the type specified by `resourceName`.
  */
 function filter(resourceName, params, options) {
@@ -4180,6 +4233,12 @@ function filter(resourceName, params, options) {
 
     // Protect against null
     params = params || {};
+
+    if ('allowSimpleWhere' in options) {
+      options.allowSimpleWhere = !!options.allowSimpleWhere;
+    } else {
+      options.allowSimpleWhere = true;
+    }
 
     var queryHash = this.utils.toJson(params);
 
@@ -4204,7 +4263,7 @@ function filter(resourceName, params, options) {
 
 module.exports = filter;
 
-},{}],52:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 var errorPrefix = 'DS.get(resourceName, id[, options]): ';
 
 /**
@@ -4268,7 +4327,7 @@ function get(resourceName, id, options) {
 
 module.exports = get;
 
-},{}],53:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 var errorPrefix = 'DS.hasChanges(resourceName, id): ';
 
 function diffIsEmpty(utils, diff) {
@@ -4331,7 +4390,7 @@ function hasChanges(resourceName, id) {
 
 module.exports = hasChanges;
 
-},{}],54:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 module.exports = {
   /**
    * @doc method
@@ -4474,7 +4533,7 @@ module.exports = {
   hasChanges: require('./hasChanges')
 };
 
-},{"./bindAll":44,"./bindOne":45,"./changes":46,"./defineResource":47,"./digest":48,"./eject":49,"./ejectAll":50,"./filter":51,"./get":52,"./hasChanges":53,"./inject":55,"./lastModified":56,"./lastSaved":57,"./previous":58}],55:[function(require,module,exports){
+},{"./bindAll":43,"./bindOne":44,"./changes":45,"./defineResource":46,"./digest":47,"./eject":48,"./ejectAll":49,"./filter":50,"./get":51,"./hasChanges":52,"./inject":54,"./lastModified":55,"./lastSaved":56,"./previous":57}],54:[function(require,module,exports){
 var observe = require('../../../lib/observe-js/observe-js'),
   errorPrefix = 'DS.inject(resourceName, attrs[, options]): ';
 
@@ -4639,7 +4698,7 @@ function inject(resourceName, attrs, options) {
 
 module.exports = inject;
 
-},{"../../../lib/observe-js/observe-js":1}],56:[function(require,module,exports){
+},{"../../../lib/observe-js/observe-js":1}],55:[function(require,module,exports){
 var errorPrefix = 'DS.lastModified(resourceName[, id]): ';
 
 /**
@@ -4697,7 +4756,7 @@ function lastModified(resourceName, id) {
 
 module.exports = lastModified;
 
-},{}],57:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 var errorPrefix = 'DS.lastSaved(resourceName[, id]): ';
 
 /**
@@ -4758,7 +4817,7 @@ function lastSaved(resourceName, id) {
 
 module.exports = lastSaved;
 
-},{}],58:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 var errorPrefix = 'DS.previous(resourceName, id): ';
 
 /**
@@ -4813,7 +4872,7 @@ function previous(resourceName, id) {
 
 module.exports = previous;
 
-},{}],59:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 /**
  * @doc function
  * @id errors.types:UnhandledError
@@ -4984,7 +5043,7 @@ module.exports = [function () {
   };
 }];
 
-},{}],60:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 (function (window, angular, undefined) {
   'use strict';
 
@@ -4993,7 +5052,7 @@ module.exports = [function () {
    * @id angular-data
    * @name angular-data
    * @description
-   * __Version:__ 0.9.1
+   * __Version:__ 0.10.0
    *
    * ## Install
    *
@@ -5067,7 +5126,7 @@ module.exports = [function () {
 
 })(window, window.angular);
 
-},{"./adapters/http":31,"./adapters/localStorage":32,"./datastore":43,"./errors":59,"./utils":61}],61:[function(require,module,exports){
+},{"./adapters/http":30,"./adapters/localStorage":31,"./datastore":42,"./errors":58,"./utils":60}],60:[function(require,module,exports){
 module.exports = [function () {
   return {
     isString: angular.isString,
@@ -5086,7 +5145,6 @@ module.exports = [function () {
     contains: require('mout/array/contains'),
     filter: require('mout/array/filter'),
     toLookup: require('mout/array/toLookup'),
-    map: require('mout/array/map'),
     slice: require('mout/array/slice'),
     sort: require('mout/array/sort'),
     updateTimestamp: function (timestamp) {
@@ -5150,4 +5208,4 @@ module.exports = [function () {
   };
 }];
 
-},{"mout/array/contains":2,"mout/array/filter":3,"mout/array/map":7,"mout/array/slice":8,"mout/array/sort":9,"mout/array/toLookup":10,"mout/lang/isEmpty":15,"mout/object/deepMixIn":22,"mout/object/forOwn":24,"mout/object/pick":27,"mout/object/set":28,"mout/string/makePath":29,"mout/string/upperCase":30}]},{},[60])
+},{"mout/array/contains":2,"mout/array/filter":3,"mout/array/slice":7,"mout/array/sort":8,"mout/array/toLookup":9,"mout/lang/isEmpty":14,"mout/object/deepMixIn":21,"mout/object/forOwn":23,"mout/object/pick":26,"mout/object/set":27,"mout/string/makePath":28,"mout/string/upperCase":29}]},{},[59])

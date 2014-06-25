@@ -9,41 +9,98 @@ function BaseConfig() {
 
 BaseConfig.prototype.idAttribute = 'id';
 BaseConfig.prototype.defaultAdapter = 'DSHttpAdapter';
-BaseConfig.prototype.filter = function (collection, resourceName, params) {
+BaseConfig.prototype.filter = function (collection, resourceName, params, options) {
   var _this = this;
   var filtered = collection;
   var where = null;
+  var reserved = {
+    skip: '',
+    offset: '',
+    where: '',
+    limit: '',
+    orderBy: '',
+    sort: ''
+  };
 
   if (this.utils.isObject(params.where)) {
     where = params.where;
+  } else {
+    where = {};
+  }
+
+  if (options.allowSimpleWhere) {
+    this.utils.forOwn(params, function (value, key) {
+      if (!(key in reserved) && !(key in where)) {
+        where[key] = {
+          '==': value
+        };
+      }
+    });
+  }
+
+  if (this.utils.isEmpty(where)) {
+    where = null;
+  }
+
+  if (where) {
     filtered = this.utils.filter(filtered, function (attrs) {
+//      console.log(attrs);
+      var first = true;
       var keep = true;
-      utils.forOwn(where, function (clause, field) {
-        if (utils.isString(clause)) {
+      _this.utils.forOwn(where, function (clause, field) {
+//        console.log(clause, field);
+        if (_this.utils.isString(clause)) {
           clause = {
             '===': clause
           };
-        } else if (utils.isNumber(clause)) {
+        } else if (_this.utils.isNumber(clause)) {
           clause = {
             '==': clause
           };
         }
-        if ('==' in clause) {
-          keep = keep && (attrs[field] == clause['==']);
-        } else if ('===' in clause) {
-          keep = keep && (attrs[field] === clause['===']);
-        } else if ('!=' in clause) {
-          keep = keep && (attrs[field] != clause['!=']);
-        } else if ('>' in clause) {
-          keep = keep && (attrs[field] > clause['>']);
-        } else if ('>=' in clause) {
-          keep = keep && (attrs[field] >= clause['>=']);
-        } else if ('<' in clause) {
-          keep = keep && (attrs[field] < clause['<']);
-        } else if ('<=' in clause) {
-          keep = keep && (attrs[field] <= clause['<=']);
-        } else if ('in' in clause) {
-          keep = keep && utils.contains(clause['in'], attrs[field]);
+        if (_this.utils.isObject(clause)) {
+          _this.utils.forOwn(clause, function (val, op) {
+//            console.log(op, val);
+            if (op === '==') {
+              keep = first ? (attrs[field] == val) : keep && (attrs[field] == val);
+            } else if (op === '===') {
+              keep = first ? (attrs[field] === val) : keep && (attrs[field] === val);
+            } else if (op === '!=') {
+              keep = first ? (attrs[field] != val) : keep && (attrs[field] != val);
+            }  else if (op === '!==') {
+              keep = first ? (attrs[field] !== val) : keep && (attrs[field] !== val);
+            } else if (op === '>') {
+              keep = first ? (attrs[field] > val) : keep && (attrs[field] > val);
+            } else if (op === '>=') {
+              keep = first ? (attrs[field] >= val) : keep && (attrs[field] >= val);
+            } else if (op === '<') {
+              keep = first ? (attrs[field] < val) : keep && (attrs[field] < val);
+            } else if (op === '<=') {
+              keep = first ? (attrs[field] <= val) : keep && (attrs[field] <= val);
+            } else if (op === 'in') {
+              keep = first ? _this.utils.contains(val, attrs[field]) : keep && _this.utils.contains(val, attrs[field]);
+            } else if (op === '|==') {
+              keep = first ? (attrs[field] == val) : keep || (attrs[field] == val);
+            } else if (op === '|===') {
+              keep = first ? (attrs[field] === val) : keep || (attrs[field] === val);
+            } else if (op === '|!=') {
+              keep = first ? (attrs[field] != val) : keep || (attrs[field] != val);
+            } else if (op === '|!==') {
+              keep = first ? (attrs[field] !== val) : keep || (attrs[field] !== val);
+            } else if (op === '|>') {
+              keep = first ? (attrs[field] > val) : keep || (attrs[field] > val);
+            } else if (op === '|>=') {
+              keep = first ? (attrs[field] >= val) : keep || (attrs[field] >= val);
+            } else if (op === '|<') {
+              keep = first ? (attrs[field] < val) : keep || (attrs[field] < val);
+            } else if (op === '|<=') {
+              keep = first ? (attrs[field] <= val) : keep || (attrs[field] <= val);
+            } else if (op === '|in') {
+              keep = first ? _this.utils.contains(val, attrs[field]) : keep || _this.utils.contains(val, attrs[field]);
+            }
+            first = false;
+//            console.log(keep, first);
+          });
         }
       });
       return keep;

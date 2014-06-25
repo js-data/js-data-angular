@@ -1,4 +1,4 @@
-var errorPrefix = 'DS.bindOne(scope, expr, resourceName, id): ';
+var errorPrefix = 'DS.bindOne(scope, expr, resourceName, id[, cb]): ';
 
 /**
  * @doc method
@@ -9,7 +9,7 @@ var errorPrefix = 'DS.bindOne(scope, expr, resourceName, id): ';
  *
  * ## Signature:
  * ```js
- * DS.bindOne(scope, expr, resourceName, id)
+ * DS.bindOne(scope, expr, resourceName, id[, cb])
  * ```
  *
  * ## Example:
@@ -29,9 +29,10 @@ var errorPrefix = 'DS.bindOne(scope, expr, resourceName, id): ';
  * @param {string} expr An expression used to bind to the scope. Can be used to set nested keys, i.e. `"user.profile"`.
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to bind.
+ * @param {function=} cb Optional callback executed on change. Signature: `cb(err, item)`.
  * @returns {function} Scope $watch deregistration function.
  */
-function bindOne(scope, expr, resourceName, id) {
+function bindOne(scope, expr, resourceName, id, cb) {
   if (!this.utils.isObject(scope)) {
     throw new this.errors.IllegalArgumentError(errorPrefix + 'scope: Must be an object!');
   } else if (!this.utils.isString(expr)) {
@@ -48,10 +49,18 @@ function bindOne(scope, expr, resourceName, id) {
     return scope.$watch(function () {
       return _this.lastModified(resourceName, id);
     }, function () {
-      _this.utils.set(scope, expr, _this.get(resourceName, id));
+      var item = _this.get(resourceName, id);
+      _this.utils.set(scope, expr, item);
+      if (cb) {
+        cb(null, item);
+      }
     });
   } catch (err) {
-    throw new this.errors.UnhandledError(err);
+    if (cb) {
+      cb(new this.errors.UnhandledError(err));
+    } else {
+      throw new this.errors.UnhandledError(err);
+    }
   }
 }
 

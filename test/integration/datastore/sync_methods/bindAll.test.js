@@ -1,5 +1,5 @@
-describe('DS.bindAll(scope, expr, resourceName, params)', function () {
-  var errorPrefix = 'DS.bindAll(scope, expr, resourceName, params): ';
+describe('DS.bindAll(scope, expr, resourceName, params[, cb])', function () {
+  var errorPrefix = 'DS.bindAll(scope, expr, resourceName, params[, cb]): ';
 
   var $rootScope, $scope;
 
@@ -60,5 +60,34 @@ describe('DS.bindAll(scope, expr, resourceName, params)', function () {
     $rootScope.$apply();
 
     assert.deepEqual($scope.posts, [p3, p5]);
+  });
+  it('should execute a callback if given', function () {
+
+    var cb = sinon.spy();
+    DS.inject('post', p1);
+    DS.inject('post', p2);
+    DS.inject('post', p3);
+    DS.inject('post', p4);
+    DS.inject('post', p5);
+
+    DS.bindAll($scope, 'posts', 'post', {
+      where: {
+        age: {
+          '>': 31
+        }
+      }
+    }, cb);
+
+    $rootScope.$apply();
+
+    assert.deepEqual($scope.posts, [p3, p4, p5]);
+    assert.equal(cb.callCount, 1);
+
+    DS.eject('post', 8);
+
+    $rootScope.$apply(function () {
+      assert.deepEqual($scope.posts, [p3, p5]);
+      assert.equal(cb.callCount, 2);
+    });
   });
 });

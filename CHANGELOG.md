@@ -3,6 +3,10 @@
 ###### Breaking API changes
 - #76 - Queries and filtering. See [TRANSITION.md](https://github.com/jmdobry/angular-data/blob/master/TRANSITION.md).
 
+###### Backwards compatible API changes
+- #17 - Where predicates should be able to handle OR, not just AND
+- #78 - Added optional callback to `bindOne` and `bindAll`
+
 ##### 0.9.1 - 30 May 2014
 
 ###### Backwards compatible bug fixes

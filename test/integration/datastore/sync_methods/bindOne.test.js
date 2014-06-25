@@ -1,5 +1,5 @@
-describe('DS.bindOne(scope, expr, resourceName, id)', function () {
-  var errorPrefix = 'DS.bindOne(scope, expr, resourceName, id): ';
+describe('DS.bindOne(scope, expr, resourceName, id[, cb])', function () {
+  var errorPrefix = 'DS.bindOne(scope, expr, resourceName, id[, cb]): ';
 
   var $rootScope, $scope;
 
@@ -40,8 +40,8 @@ describe('DS.bindOne(scope, expr, resourceName, id)', function () {
     DS.inject('post', p1);
     DS.inject('post', p2);
 
-    var post = DS.get('post', 5),
-      post2 = DS.get('post', 6);
+    var post = DS.get('post', 5);
+    var post2 = DS.get('post', 6);
 
     DS.bindOne($scope, 'post', 'post', 5);
     DS.bindOne($scope, 'other.post', 'post', 6);
@@ -61,5 +61,29 @@ describe('DS.bindOne(scope, expr, resourceName, id)', function () {
     assert.deepEqual($scope.post, post);
     assert.deepEqual($scope.other.post, post2);
     assert.isUndefined($scope.post2);
+  });
+  it('should execute a callback if given', function () {
+
+    var cb = sinon.spy();
+    DS.inject('post', p1);
+
+    var post = DS.get('post', 5);
+
+    DS.bindOne($scope, 'post', 'post', 5, cb);
+
+    $rootScope.$apply();
+
+    assert.equal(cb.callCount, 1);
+    assert.deepEqual($scope.post, post);
+
+    post.author = 'Jason';
+
+    DS.digest();
+
+    $rootScope.$apply(function () {
+      assert.equal(cb.callCount, 2);
+      assert.equal($scope.post.author, 'Jason');
+      assert.deepEqual($scope.post, post);
+    });
   });
 });

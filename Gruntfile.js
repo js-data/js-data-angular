@@ -228,14 +228,14 @@ module.exports = function (grunt) {
 							id: 'angular-data',
 							title: 'angular-data',
 							docs: [
-								'guide/angular-data/index.doc',
-								'guide/angular-data/overview.doc',
-								'guide/angular-data/resources.doc',
-								'guide/angular-data/asynchronous.doc',
-								'guide/angular-data/synchronous.doc',
-								'guide/angular-data/queries.doc',
-								'guide/angular-data/adapters.doc',
-								'guide/angular-data/how.doc'
+								'guide/angular-data/index.md',
+								'guide/angular-data/overview.md',
+								'guide/angular-data/resources.md',
+								'guide/angular-data/asynchronous.md',
+								'guide/angular-data/synchronous.md',
+								'guide/angular-data/queries.md',
+								'guide/angular-data/adapters.md',
+								'guide/angular-data/how.md'
 							],
 							rank: {
 								index: 1,

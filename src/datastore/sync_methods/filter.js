@@ -36,6 +36,7 @@ var errorPrefix = 'DS.filter(resourceName[, params][, options]): ';
  *
  * @param {object=} options Optional configuration. Properties:
  * - `{boolean=}` - `loadFromServer` - Send the query to server if it has not been sent yet. Default: `false`.
+ * - `{boolean=}` - `allowSimpleWhere` - Treat top-level fields on the `params` argument as simple "where" equality clauses. Default: `true`.
  * @returns {array} The filtered collection of items of the type specified by `resourceName`.
  */
 function filter(resourceName, params, options) {
@@ -55,6 +56,12 @@ function filter(resourceName, params, options) {
 
     // Protect against null
     params = params || {};
+
+    if ('allowSimpleWhere' in options) {
+      options.allowSimpleWhere = !!options.allowSimpleWhere;
+    } else {
+      options.allowSimpleWhere = true;
+    }
 
     var queryHash = this.utils.toJson(params);
 

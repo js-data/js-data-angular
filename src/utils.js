@@ -16,7 +16,6 @@ module.exports = [function () {
     contains: require('mout/array/contains'),
     filter: require('mout/array/filter'),
     toLookup: require('mout/array/toLookup'),
-    map: require('mout/array/map'),
     slice: require('mout/array/slice'),
     sort: require('mout/array/sort'),
     updateTimestamp: function (timestamp) {

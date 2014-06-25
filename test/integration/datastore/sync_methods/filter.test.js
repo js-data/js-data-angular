@@ -65,12 +65,26 @@ describe('DS.filter(resourceName[, params][, options])', function () {
       DS.inject('post', p2);
       DS.inject('post', p3);
       DS.inject('post', p4);
+      DS.inject('post', p5);
     }, Error, 'should not throw an error');
 
-    assert.equal(lifecycle.beforeInject.callCount, 4);
-    assert.equal(lifecycle.afterInject.callCount, 4);
+    assert.equal(lifecycle.beforeInject.callCount, 5);
+    assert.equal(lifecycle.afterInject.callCount, 5);
 
     var params = {
+      author: 'John'
+    };
+
+    assert.deepEqual(DS.filter('post', params), [p1], 'should default a string to "=="');
+
+    params = {
+      author: 'Adam',
+      id: 9
+    };
+
+    assert.deepEqual(DS.filter('post', params), [p5], 'should default a string to "=="');
+
+    params = {
       where: {
         author: 'John'
       }
@@ -94,7 +108,7 @@ describe('DS.filter(resourceName[, params][, options])', function () {
       '!=': 'John'
     };
 
-    assert.deepEqual(DS.filter('post', params), [p2, p3, p4], 'should accept normal "!=" clause');
+    assert.deepEqual(DS.filter('post', params), [p2, p3, p4, p5], 'should accept normal "!=" clause');
 
     params.where = {
       age: {
@@ -102,7 +116,7 @@ describe('DS.filter(resourceName[, params][, options])', function () {
       }
     };
 
-    assert.deepEqual(DS.filter('post', params), [p3, p4], 'should accept normal ">" clause');
+    assert.deepEqual(DS.filter('post', params), [p3, p4, p5], 'should accept normal ">" clause');
 
     params.where = {
       age: {
@@ -110,7 +124,7 @@ describe('DS.filter(resourceName[, params][, options])', function () {
       }
     };
 
-    assert.deepEqual(DS.filter('post', params), [p2, p3, p4], 'should accept normal ">=" clause');
+    assert.deepEqual(DS.filter('post', params), [p2, p3, p4, p5], 'should accept normal ">=" clause');
 
     params.where = {
       age: {
@@ -119,6 +133,35 @@ describe('DS.filter(resourceName[, params][, options])', function () {
     };
 
     assert.deepEqual(DS.filter('post', params), [p1], 'should accept normal "<" clause');
+
+    params.where = {
+      age: {
+        '>': 30,
+        '<': 33
+      }
+    };
+
+    assert.deepEqual(DS.filter('post', params), [p2, p3], 'should accept dual "<" and ">" clause');
+
+    params.where = {
+      age: {
+        '|>': 30,
+        '|<': 33
+      }
+    };
+
+    assert.deepEqual(DS.filter('post', params), [p1, p2, p3, p4, p5], 'should accept or "<" and ">" clause');
+
+    params.where = {
+      age: {
+        '|<=': 31
+      },
+      author: {
+        '|==': 'Adam'
+      }
+    };
+
+    assert.deepEqual(DS.filter('post', params), [p1, p2, p4, p5], 'should accept or "<=" and "==" clause');
 
     params.where = {
       age: {
@@ -137,11 +180,22 @@ describe('DS.filter(resourceName[, params][, options])', function () {
       }
     };
 
-    assert.deepEqual(DS.filter('post', params), [p1, p4], 'should accept normal "in" clause');
+    assert.deepEqual(DS.filter('post', params), [p1, p4, p5], 'should accept normal "in" clause');
+
+    params.where = {
+      age: {
+        '|in': [31]
+      },
+      id: {
+        '|in': [8]
+      }
+    };
+
+    assert.deepEqual(DS.filter('post', params), [p2, p4], 'should accept and/or clause');
 
     params.where = { age: { garbage: 'should have no effect' } };
 
-    assert.deepEqual(DS.filter('post', params), [p1, p2, p3, p4], 'should return all elements');
+    assert.deepEqual(DS.filter('post', params), [p1, p2, p3, p4, p5], 'should return all elements');
   });
   it('should correctly apply "orderBy" predicates', function () {
     assert.doesNotThrow(function () {
