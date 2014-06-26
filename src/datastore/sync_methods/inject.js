@@ -2,8 +2,8 @@ var observe = require('../../../lib/observe-js/observe-js'),
   errorPrefix = 'DS.inject(resourceName, attrs[, options]): ';
 
 function _inject(definition, resource, attrs) {
-  var _this = this,
-    $log = _this.$log;
+  var _this = this;
+  var $log = _this.$log;
 
   function _react(added, removed, changed, getOldValueFn) {
     try {
@@ -81,6 +81,21 @@ function _inject(definition, resource, attrs) {
   return injected;
 }
 
+function _injectRelations(definition, injected) {
+  var _this = this;
+  _this.utils.forOwn(definition.relations, function (relation, type) {
+    _this.utils.forOwn(relation, function (def, relationName) {
+      if (_this.definitions[relationName] && injected[def.localField]) {
+        try {
+          injected[def.localField] = _this.inject(relationName, injected[def.localField]);
+        } catch (err) {
+          _this.$log.error(errorPrefix + 'Failed to inject ' + type + ' relation: "' + relationName + '"!', err);
+        }
+      }
+    });
+  });
+}
+
 /**
  * @doc method
  * @id DS.sync_methods:inject
@@ -137,19 +152,23 @@ function inject(resourceName, attrs, options) {
     throw new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
   }
 
-  var definition = this.definitions[resourceName],
-    resource = this.store[resourceName],
-    _this = this;
+  var definition = this.definitions[resourceName];
+  var resource = this.store[resourceName];
+  var _this = this;
 
   try {
     var injected;
     if (!this.$rootScope.$$phase) {
       this.$rootScope.$apply(function () {
-        injected = _inject.apply(_this, [definition, resource, attrs]);
+        injected = _inject.call(_this, definition, resource, attrs);
       });
     } else {
-      injected = _inject.apply(_this, [definition, resource, attrs]);
+      injected = _inject.call(_this, definition, resource, attrs);
     }
+    if (definition.relations) {
+      _injectRelations.call(_this, definition, injected);
+    }
+
     return injected;
   } catch (err) {
     if (!(err instanceof this.errors.RuntimeError)) {

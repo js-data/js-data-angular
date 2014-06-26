@@ -93,6 +93,8 @@ module.exports = function (grunt) {
 				browsers: ['Chrome'],
 				autoWatch: true,
 				singleRun: false,
+        reporters: ['spec'],
+        preprocessors: {},
 				exclude: [
 					'test/integration/datastore/cacheFactory.test.js'
 				]

@@ -65,4 +65,46 @@ describe('DS.inject(resourceName, attrs[, options])', function () {
     assert.deepEqual(DS.get('post', 7), p3);
     assert.deepEqual(DS.get('post', 8), p4);
   });
+  it.only('should inject relations', function () {
+    // can inject items without relations
+    DS.inject('user', user1);
+    DS.inject('organization', organization2);
+    DS.inject('comment', comment3);
+    DS.inject('profile', profile4);
+
+    assert.deepEqual(DS.get('user', 1), user1);
+    assert.deepEqual(DS.get('organization', 2), organization2);
+    assert.deepEqual(DS.get('comment', 3), comment3);
+    assert.deepEqual(DS.get('profile', 4), profile4);
+
+    // can inject items with relations
+    DS.inject('user', user10);
+    DS.inject('organization', organization15);
+    DS.inject('comment', comment19);
+    DS.inject('profile', profile21);
+
+    // originals
+    assert.deepEqual(DS.get('user', 10), user10);
+    assert.deepEqual(DS.get('organization', 15), organization15);
+    assert.deepEqual(DS.get('comment', 19), comment19);
+    assert.deepEqual(DS.get('profile', 21), profile21);
+
+    // user10 relations
+    assert.deepEqual(DS.get('comment', 11), comment11);
+    assert.deepEqual(DS.get('comment', 12), comment12);
+    assert.deepEqual(DS.get('comment', 13), comment13);
+    assert.deepEqual(DS.get('organization', 14), organization14);
+    assert.deepEqual(DS.get('profile', 15), profile15);
+
+    // organization15 relations
+    assert.deepEqual(DS.get('user', 16), user16);
+    assert.deepEqual(DS.get('user', 17), user17);
+    assert.deepEqual(DS.get('user', 18), user18);
+
+    // comment19 relations
+    assert.deepEqual(DS.get('user', 20), user20);
+
+    // profile21 relations
+    assert.deepEqual(DS.get('user', 22), user22);
+  });
 });
