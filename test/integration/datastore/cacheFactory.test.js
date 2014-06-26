@@ -4,13 +4,13 @@ describe('$cacheFactory integration', function () {
 
   it('should use $cacheFactory when DSCacheFactory is not available', function (done) {
     DS.defineResource({
-      name: 'comment',
+      name: 'Comment',
       endpoint: '/comments',
       deleteOnExpire: 'passive',
       maxAge: 20
     });
 
-    var cache = DS.cacheFactory.get('DS.comment');
+    var cache = DS.cacheFactory.get('DS.Comment');
 
     assert.equal(typeof DS.cacheFactory.touch, 'undefined', 'should not be using DSCacheFactory');
 
@@ -19,7 +19,7 @@ describe('$cacheFactory integration', function () {
       text: 'test'
     });
 
-    DS.find('comment', 5).then(function (comment) {
+    DS.find('Comment', 5).then(function (comment) {
       assert.deepEqual(comment, {
         id: 5,
         text: 'test'
@@ -32,12 +32,12 @@ describe('$cacheFactory integration', function () {
 
     $httpBackend.flush();
 
-    assert.deepEqual(DS.get('comment', 5), {
+    assert.deepEqual(DS.get('Comment', 5), {
       id: 5,
       text: 'test'
     }, 'The comment is now in the store');
-    assert.isNumber(DS.lastModified('comment', 5));
-    assert.isNumber(DS.lastSaved('comment', 5));
+    assert.isNumber(DS.lastModified('Comment', 5));
+    assert.isNumber(DS.lastSaved('Comment', 5));
 
     setTimeout(function () {
       assert.deepEqual(cache.get(5), {

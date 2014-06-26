@@ -8,7 +8,7 @@ describe('DSCacheFactory integration', function () {
 
   it('should get an item from the server and delete when using DSCacheFactory in passive mode', function (done) {
     DS.defineResource({
-      name: 'comment',
+      name: 'Comment',
       endpoint: '/comments',
       deleteOnExpire: 'passive',
       maxAge: 20
@@ -19,7 +19,7 @@ describe('DSCacheFactory integration', function () {
       text: 'test'
     });
 
-    DS.find('comment', 5).then(function (comment) {
+    DS.find('Comment', 5).then(function (comment) {
       assert.deepEqual(comment, {
         id: 5,
         text: 'test'
@@ -31,15 +31,15 @@ describe('DSCacheFactory integration', function () {
 
     $httpBackend.flush();
 
-    assert.deepEqual(DS.get('comment', 5), {
+    assert.deepEqual(DS.get('Comment', 5), {
       id: 5,
       text: 'test'
     }, 'The comment is now in the store');
-    assert.isNumber(DS.lastModified('comment', 5));
-    assert.isNumber(DS.lastSaved('comment', 5));
+    assert.isNumber(DS.lastModified('Comment', 5));
+    assert.isNumber(DS.lastSaved('Comment', 5));
 
     setTimeout(function () {
-      assert.isUndefined(DS.get('comment', 5));
+      assert.isUndefined(DS.get('Comment', 5));
 
       assert.equal(lifecycle.beforeInject.callCount, 1, 'beforeInject should have been called');
       assert.equal(lifecycle.afterInject.callCount, 1, 'afterInject should have been called');
@@ -51,7 +51,7 @@ describe('DSCacheFactory integration', function () {
   });
   it('should get an item from the server and delete when using DSCacheFactory in aggressive mode', function (done) {
     DS.defineResource({
-      name: 'comment',
+      name: 'Comment',
       endpoint: '/comments',
       deleteOnExpire: 'aggressive',
       recycleFreq: 10,
@@ -63,7 +63,7 @@ describe('DSCacheFactory integration', function () {
       text: 'test'
     });
 
-    DS.find('comment', 5).then(function (comment) {
+    DS.find('Comment', 5).then(function (comment) {
       assert.deepEqual(comment, {
         id: 5,
         text: 'test'
@@ -75,15 +75,15 @@ describe('DSCacheFactory integration', function () {
 
     $httpBackend.flush();
 
-    assert.deepEqual(DS.get('comment', 5), {
+    assert.deepEqual(DS.get('Comment', 5), {
       id: 5,
       text: 'test'
     }, 'The comment is now in the store');
-    assert.isNumber(DS.lastModified('comment', 5));
-    assert.isNumber(DS.lastSaved('comment', 5));
+    assert.isNumber(DS.lastModified('Comment', 5));
+    assert.isNumber(DS.lastSaved('Comment', 5));
 
     setTimeout(function () {
-      assert.isUndefined(DS.get('comment', 5));
+      assert.isUndefined(DS.get('Comment', 5));
 
       assert.equal(lifecycle.beforeInject.callCount, 1, 'beforeInject should have been called');
       assert.equal(lifecycle.afterInject.callCount, 1, 'afterInject should have been called');

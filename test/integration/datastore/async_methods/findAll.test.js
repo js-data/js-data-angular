@@ -175,7 +175,7 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
       };
 
     DS.defineResource({
-      name: 'user',
+      name: 'person',
       endpoint: 'users',
       methods: {
         fullName: function () {
@@ -186,13 +186,13 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
 
     $httpBackend.expectGET(/http:\/\/test\.angular-cache\.com\/users\??/).respond(200, [u1, u2]);
 
-    DS.findAll('user').then(function (data) {
+    DS.findAll('person').then(function (data) {
       assert.deepEqual(data, [
-        DSUtils.deepMixIn(new DS.definitions.user[DS.definitions.user.class](), u1),
-        DSUtils.deepMixIn(new DS.definitions.user[DS.definitions.user.class](), u2)
+        DSUtils.deepMixIn(new DS.definitions.person[DS.definitions.person.class](), u1),
+        DSUtils.deepMixIn(new DS.definitions.person[DS.definitions.person.class](), u2)
       ]);
-      angular.forEach(data, function (user) {
-        assert.isTrue(user instanceof DS.definitions.user[DS.definitions.user.class], 'should be an instance of User');
+      angular.forEach(data, function (person) {
+        assert.isTrue(person instanceof DS.definitions.person[DS.definitions.person.class], 'should be an instance of User');
       });
     }, function (err) {
       console.error(err.message);
@@ -201,9 +201,9 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
 
     $httpBackend.flush();
 
-    assert.deepEqual(DS.filter('user'), [
-      DSUtils.deepMixIn(new DS.definitions.user[DS.definitions.user.class](), u1),
-      DSUtils.deepMixIn(new DS.definitions.user[DS.definitions.user.class](), u2)
+    assert.deepEqual(DS.filter('person'), [
+      DSUtils.deepMixIn(new DS.definitions.person[DS.definitions.person.class](), u1),
+      DSUtils.deepMixIn(new DS.definitions.person[DS.definitions.person.class](), u2)
     ], 'The users are now in the store');
 
     assert.equal(lifecycle.beforeInject.callCount, 2, 'beforeInject should have been called');

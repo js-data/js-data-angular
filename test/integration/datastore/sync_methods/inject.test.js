@@ -65,7 +65,7 @@ describe('DS.inject(resourceName, attrs[, options])', function () {
     assert.deepEqual(DS.get('post', 7), p3);
     assert.deepEqual(DS.get('post', 8), p4);
   });
-  it.only('should inject relations', function () {
+  it('should inject relations', function () {
     // can inject items without relations
     DS.inject('user', user1);
     DS.inject('organization', organization2);
