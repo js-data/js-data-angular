@@ -4154,10 +4154,17 @@ function ejectAll(resourceName, params) {
     throw new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!', { params: { actual: typeof params, expected: 'object' } });
   }
 
-  var resource = this.store[resourceName];
-  var _this = this;
-
   try {
+    var _this = this;
+    var resource = this.store[resourceName];
+    var queryHash = this.utils.toJson(params);
+
+    delete resource.completedQueries[queryHash];
+
+    if (this.utils.isEmpty(params)) {
+      resource.completedQueries = {};
+    }
+
     if (!this.$rootScope.$$phase) {
       this.$rootScope.$apply(function () {
         _ejectAll.apply(_this, [_this.definitions[resourceName], resource, params]);

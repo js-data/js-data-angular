@@ -63,10 +63,13 @@ describe('DS.ejectAll(resourceName[, params])', function () {
     assert.deepEqual(DS.get('post', 7), p3);
     assert.deepEqual(DS.get('post', 8), p4);
 
+    DS.store.post.completedQueries.test = 'stuff';
+
     assert.doesNotThrow(function () {
       DS.ejectAll('post');
     });
 
+    assert.deepEqual(DS.store.post.completedQueries, {});
     assert.isUndefined(DS.get('post', 5));
     assert.isUndefined(DS.get('post', 6));
     assert.isUndefined(DS.get('post', 7));

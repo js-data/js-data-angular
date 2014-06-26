@@ -1,4 +1,4 @@
-##### 0.10.0 - 24 June 2014
+##### 0.10.0 - 25 June 2014
 
 ###### Breaking API changes
 - #76 - Queries and filtering. See [TRANSITION.md](https://github.com/jmdobry/angular-data/blob/master/TRANSITION.md).
@@ -6,6 +6,7 @@
 ###### Backwards compatible API changes
 - #17 - Where predicates should be able to handle OR, not just AND
 - #78 - Added optional callback to `bindOne` and `bindAll`
+- #79 - `ejectAll` should clear matching completed queries
 
 ##### 0.9.1 - 30 May 2014
 
