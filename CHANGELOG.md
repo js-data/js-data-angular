@@ -8,6 +8,7 @@
 - #17 - Where predicates should be able to handle OR, not just AND
 - #78 - Added optional callback to `bindOne` and `bindAll`
 - #79 - `ejectAll` should clear matching completed queries
+- #83 - Implement `DS.loadRelations(resourceName, instance(Id), relations[, options])`
 
 ##### 0.9.1 - 30 May 2014
 

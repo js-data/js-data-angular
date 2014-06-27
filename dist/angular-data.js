@@ -2405,6 +2405,16 @@ module.exports = {
 
   /**
    * @doc method
+   * @id DS.async_methods:loadRelations
+   * @name loadRelations
+   * @methodOf DS
+   * @description
+   * See [DS.loadRelations](/documentation/api/api/DS.async_methods:loadRelations).
+   */
+  loadRelations: require('./loadRelations'),
+
+  /**
+   * @doc method
    * @id DS.async_methods:refresh
    * @name refresh
    * @methodOf DS
@@ -2444,7 +2454,122 @@ module.exports = {
   updateAll: require('./updateAll')
 };
 
-},{"./create":32,"./destroy":33,"./destroyAll":34,"./find":35,"./findAll":36,"./refresh":38,"./save":39,"./update":40,"./updateAll":41}],38:[function(require,module,exports){
+},{"./create":32,"./destroy":33,"./destroyAll":34,"./find":35,"./findAll":36,"./loadRelations":38,"./refresh":39,"./save":40,"./update":41,"./updateAll":42}],38:[function(require,module,exports){
+var errorPrefix = 'DS.loadRelations(resourceName, instance(Id), relations[, options]): ';
+
+/**
+ * @doc method
+ * @id DS.async_methods:loadRelations
+ * @name loadRelations
+ * @description
+ * Asynchronously load the indicates relations of the given instance.
+ *
+ * ## Signature:
+ * ```js
+ * DS.loadRelations(resourceName, instance(Id), relations[, options])
+ * ```
+ *
+ * ## Example:
+ *
+ * ```js
+ * ```
+ *
+ * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
+ * @param {string|number|object} instance The instance or the id of the instance for which relations are to be loaded.
+ * @param {string|array=} relations The relation(s) to load.
+ * @param {object=} options Optional configuration that is passed to the `find` and `findAll` methods that may be called.
+ *
+ * @returns {Promise} Promise produced by the `$q` service.
+ *
+ * ## Resolves with:
+ *
+ * - `{object}` - `item` - The instance with its loaded relations.
+ *
+ * ## Rejects with:
+ *
+ * - `{IllegalArgumentError}`
+ * - `{NonexistentResourceError}`
+ */
+function loadRelations(resourceName, instance, relations, options) {
+  var deferred = this.$q.defer();
+  var promise = deferred.promise;
+  var IA = this.errors.IA;
+
+  options = options || {};
+
+  if (angular.isString(instance) || angular.isNumber(instance)) {
+    instance = this.get(resourceName, instance);
+  }
+
+  if (angular.isString(relations)) {
+    relations = [relations];
+  }
+
+  try {
+    if (!this.definitions[resourceName]) {
+      throw new this.errors.NER(errorPrefix + resourceName);
+    } else if (!this.utils.isObject(instance)) {
+      throw new IA(errorPrefix + 'instance(Id): Must be a string, number or object!');
+    } else if (!this.utils.isArray(relations)) {
+      throw new IA(errorPrefix + 'relations: Must be a string or an array!');
+    } else if (!this.utils.isObject(options)) {
+      throw new IA(errorPrefix + 'options: Must be an object!');
+    }
+
+    var definition = this.definitions[resourceName];
+    var _this = this;
+    var tasks = [];
+    var fields = [];
+
+    _this.utils.forOwn(definition.relations, function (relation, type) {
+      _this.utils.forOwn(relation, function (def, relationName) {
+        if (_this.utils.contains(relations, relationName)) {
+          var task;
+          var params = {};
+          params[def.foreignKey] = instance[definition.idAttribute];
+
+          if (type === 'hasMany') {
+            task = _this.findAll(relationName, params, options);
+          } else if (type === 'hasOne') {
+            if (def.localKey && instance[def.localKey]) {
+              task = _this.find(relationName, instance[def.localKey], options);
+            } else if (def.foreignKey) {
+              task = _this.findAll(relationName, params, options);
+            }
+          } else {
+            task = _this.find(relationName, instance[def.localKey], options);
+          }
+
+          if (task) {
+            tasks.push(task);
+            fields.push(def.localField);
+          }
+        }
+      });
+    });
+
+    promise = promise
+      .then(function () {
+        return _this.$q.all(tasks);
+      })
+      .then(function (loadedRelations) {
+        angular.forEach(fields, function (field, index) {
+          instance[field] = loadedRelations[index];
+        });
+        return instance;
+      });
+
+    deferred.resolve();
+  } catch (err) {
+    deferred.reject(err);
+  }
+
+  return promise;
+}
+
+module.exports = loadRelations;
+
+},{}],39:[function(require,module,exports){
 var errorPrefix = 'DS.refresh(resourceName, id[, options]): ';
 
 /**
@@ -2517,7 +2642,7 @@ function refresh(resourceName, id, options) {
 
 module.exports = refresh;
 
-},{}],39:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 var errorPrefix = 'DS.save(resourceName, id[, options]): ';
 
 /**
@@ -2636,7 +2761,7 @@ function save(resourceName, id, options) {
 
 module.exports = save;
 
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 var errorPrefix = 'DS.update(resourceName, id, attrs[, options]): ';
 
 /**
@@ -2746,7 +2871,7 @@ function update(resourceName, id, attrs, options) {
 
 module.exports = update;
 
-},{}],41:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 var errorPrefix = 'DS.updateAll(resourceName, attrs, params[, options]): ';
 
 /**
@@ -2865,7 +2990,7 @@ function updateAll(resourceName, attrs, params, options) {
 
 module.exports = updateAll;
 
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 var utils = require('../utils')[0]();
 
 function lifecycleNoop(resourceName, attrs, cb) {
@@ -3590,7 +3715,7 @@ function DSProvider() {
 
 module.exports = DSProvider;
 
-},{"../utils":60,"./async_methods":37,"./sync_methods":53}],43:[function(require,module,exports){
+},{"../utils":61,"./async_methods":37,"./sync_methods":54}],44:[function(require,module,exports){
 var errorPrefix = 'DS.bindAll(scope, expr, resourceName, params[, cb]): ';
 
 /**
@@ -3670,7 +3795,7 @@ function bindOne(scope, expr, resourceName, params, cb) {
 
 module.exports = bindOne;
 
-},{}],44:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 var errorPrefix = 'DS.bindOne(scope, expr, resourceName, id[, cb]): ';
 
 /**
@@ -3738,7 +3863,7 @@ function bindOne(scope, expr, resourceName, id, cb) {
 
 module.exports = bindOne;
 
-},{}],45:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 var errorPrefix = 'DS.changes(resourceName, id): ';
 
 /**
@@ -3790,7 +3915,7 @@ function changes(resourceName, id) {
 
 module.exports = changes;
 
-},{}],46:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 /*jshint evil:true*/
 var errorPrefix = 'DS.defineResource(definition): ';
 
@@ -3931,7 +4056,7 @@ function defineResource(definition) {
 
 module.exports = defineResource;
 
-},{}],47:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 var observe = require('../../../lib/observe-js/observe-js');
 
 /**
@@ -3966,7 +4091,7 @@ function digest() {
 
 module.exports = digest;
 
-},{"../../../lib/observe-js/observe-js":1}],48:[function(require,module,exports){
+},{"../../../lib/observe-js/observe-js":1}],49:[function(require,module,exports){
 var errorPrefix = 'DS.eject(resourceName, id): ';
 
 function _eject(definition, resource, id) {
@@ -4044,7 +4169,7 @@ function eject(resourceName, id) {
 
 module.exports = eject;
 
-},{}],49:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 var errorPrefix = 'DS.ejectAll(resourceName[, params]): ';
 
 function _ejectAll(definition, resource, params) {
@@ -4152,7 +4277,7 @@ function ejectAll(resourceName, params) {
 
 module.exports = ejectAll;
 
-},{}],50:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 var errorPrefix = 'DS.filter(resourceName[, params][, options]): ';
 
 /**
@@ -4231,7 +4356,7 @@ function filter(resourceName, params, options) {
 
 module.exports = filter;
 
-},{}],51:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 var errorPrefix = 'DS.get(resourceName, id[, options]): ';
 
 /**
@@ -4290,7 +4415,7 @@ function get(resourceName, id, options) {
 
 module.exports = get;
 
-},{}],52:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 var errorPrefix = 'DS.hasChanges(resourceName, id): ';
 
 function diffIsEmpty(utils, diff) {
@@ -4348,7 +4473,7 @@ function hasChanges(resourceName, id) {
 
 module.exports = hasChanges;
 
-},{}],53:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 module.exports = {
   /**
    * @doc method
@@ -4491,7 +4616,7 @@ module.exports = {
   hasChanges: require('./hasChanges')
 };
 
-},{"./bindAll":43,"./bindOne":44,"./changes":45,"./defineResource":46,"./digest":47,"./eject":48,"./ejectAll":49,"./filter":50,"./get":51,"./hasChanges":52,"./inject":54,"./lastModified":55,"./lastSaved":56,"./previous":57}],54:[function(require,module,exports){
+},{"./bindAll":44,"./bindOne":45,"./changes":46,"./defineResource":47,"./digest":48,"./eject":49,"./ejectAll":50,"./filter":51,"./get":52,"./hasChanges":53,"./inject":55,"./lastModified":56,"./lastSaved":57,"./previous":58}],55:[function(require,module,exports){
 var observe = require('../../../lib/observe-js/observe-js');
 var errorPrefix = 'DS.inject(resourceName, attrs[, options]): ';
 
@@ -4663,7 +4788,7 @@ function inject(resourceName, attrs, options) {
 
 module.exports = inject;
 
-},{"../../../lib/observe-js/observe-js":1}],55:[function(require,module,exports){
+},{"../../../lib/observe-js/observe-js":1}],56:[function(require,module,exports){
 var errorPrefix = 'DS.lastModified(resourceName[, id]): ';
 
 /**
@@ -4716,7 +4841,7 @@ function lastModified(resourceName, id) {
 
 module.exports = lastModified;
 
-},{}],56:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 var errorPrefix = 'DS.lastSaved(resourceName[, id]): ';
 
 /**
@@ -4772,7 +4897,7 @@ function lastSaved(resourceName, id) {
 
 module.exports = lastSaved;
 
-},{}],57:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 var errorPrefix = 'DS.previous(resourceName, id): ';
 
 /**
@@ -4822,7 +4947,7 @@ function previous(resourceName, id) {
 
 module.exports = previous;
 
-},{}],58:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 /**
  * @doc function
  * @id errors.types:IllegalArgumentError
@@ -4955,7 +5080,7 @@ module.exports = [function () {
   };
 }];
 
-},{}],59:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 (function (window, angular, undefined) {
   'use strict';
 
@@ -5038,7 +5163,7 @@ module.exports = [function () {
 
 })(window, window.angular);
 
-},{"./adapters/http":30,"./adapters/localStorage":31,"./datastore":42,"./errors":58,"./utils":60}],60:[function(require,module,exports){
+},{"./adapters/http":30,"./adapters/localStorage":31,"./datastore":43,"./errors":59,"./utils":61}],61:[function(require,module,exports){
 module.exports = [function () {
   return {
     isString: angular.isString,
@@ -5120,4 +5245,4 @@ module.exports = [function () {
   };
 }];
 
-},{"mout/array/contains":2,"mout/array/filter":3,"mout/array/slice":7,"mout/array/sort":8,"mout/array/toLookup":9,"mout/lang/isEmpty":14,"mout/object/deepMixIn":21,"mout/object/forOwn":23,"mout/object/pick":26,"mout/object/set":27,"mout/string/makePath":28,"mout/string/upperCase":29}]},{},[59])
+},{"mout/array/contains":2,"mout/array/filter":3,"mout/array/slice":7,"mout/array/sort":8,"mout/array/toLookup":9,"mout/lang/isEmpty":14,"mout/object/deepMixIn":21,"mout/object/forOwn":23,"mout/object/pick":26,"mout/object/set":27,"mout/string/makePath":28,"mout/string/upperCase":29}]},{},[60])

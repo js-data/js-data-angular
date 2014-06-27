@@ -8,13 +8,19 @@ var lifecycle = {};
 
 // Helper globals
 var fail = function (msg) {
-    assert.equal('should not reach this!: ' + msg, 'failure');
+    if (msg instanceof Error) {
+      console.log(msg.stack);
+    } else {
+      assert.equal('should not reach this!: ' + msg, 'failure');
+    }
   },
   TYPES_EXCEPT_STRING = [123, 123.123, null, undefined, {}, [], true, false, function () {
   }],
   TYPES_EXCEPT_STRING_OR_ARRAY = [123, 123.123, null, undefined, {}, true, false, function () {
   }],
   TYPES_EXCEPT_STRING_OR_OBJECT = [123, 123.123, null, undefined, [], true, false, function () {
+  }],
+  TYPES_EXCEPT_STRING_OR_NUMBER_OBJECT = [null, undefined, [], true, false, function () {
   }],
   TYPES_EXCEPT_ARRAY = ['string', 123, 123.123, null, undefined, {}, true, false, function () {
   }],
