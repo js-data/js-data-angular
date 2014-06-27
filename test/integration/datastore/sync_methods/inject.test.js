@@ -6,7 +6,7 @@ describe('DS.inject(resourceName, attrs[, options])', function () {
   it('should throw an error when method pre-conditions are not met', function () {
     assert.throws(function () {
       DS.inject('does not exist', {});
-    }, DS.errors.RuntimeError, errorPrefix + 'does not exist is not a registered resource!');
+    }, DS.errors.NonexistentResourceError, errorPrefix + 'does not exist is not a registered resource!');
 
     angular.forEach(TYPES_EXCEPT_OBJECT, function (key) {
       assert.throws(function () {

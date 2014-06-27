@@ -40,28 +40,28 @@ var errorPrefix = 'DS.save(resourceName, id[, options]): ';
  *
  * - `{IllegalArgumentError}`
  * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  */
 function save(resourceName, id, options) {
-  var deferred = this.$q.defer(),
-    promise = deferred.promise;
+  var deferred = this.$q.defer();
+  var promise = deferred.promise;
 
   options = options || {};
 
   if (!this.definitions[resourceName]) {
-    deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
+    deferred.reject(new this.errors.NER(errorPrefix + resourceName));
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
+    deferred.reject(new this.errors.IA(errorPrefix + 'id: Must be a string or a number!'));
   } else if (!this.utils.isObject(options)) {
-    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
+    deferred.reject(new this.errors.IA(errorPrefix + 'options: Must be an object!'));
   } else {
     var item = this.get(resourceName, id);
     if (!item) {
-      deferred.reject(new this.errors.RuntimeError(errorPrefix + 'id: "' + id + '" not found!'));
+      deferred.reject(new this.errors.R(errorPrefix + 'id: "' + id + '" not found!'));
     } else {
-      var definition = this.definitions[resourceName],
-        resource = this.store[resourceName],
-        _this = this;
+      var definition = this.definitions[resourceName];
+      var resource = this.store[resourceName];
+      var _this = this;
 
       promise = promise
         .then(function (attrs) {

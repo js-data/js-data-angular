@@ -4,11 +4,11 @@ describe('DS.create(resourceName, attrs[, options])', function () {
   beforeEach(startInjector);
 
   it('should throw an error when method pre-conditions are not met', function () {
-    DS.create('does not exist', 5).then(function () {
+    DS.create('fruit loops', 5).then(function () {
       fail('should have rejected');
     }, function (err) {
-      assert.isTrue(err instanceof DS.errors.RuntimeError);
-      assert.equal(err.message, errorPrefix + 'does not exist is not a registered resource!');
+      assert.isTrue(err instanceof DS.errors.NonexistentResourceError);
+      assert.equal(err.message, errorPrefix + 'fruit loops is not a registered resource!');
     });
 
     angular.forEach(TYPES_EXCEPT_OBJECT, function (key) {

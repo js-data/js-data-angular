@@ -19,21 +19,14 @@ var observe = require('../../../lib/observe-js/observe-js');
  * Works like $scope.$apply()
  * ```
  *
- * ## Throws
- *
- * - `{UnhandledError}`
  */
 function digest() {
-  try {
-    if (!this.$rootScope.$$phase) {
-      this.$rootScope.$apply(function () {
-        observe.Platform.performMicrotaskCheckpoint();
-      });
-    } else {
+  if (!this.$rootScope.$$phase) {
+    this.$rootScope.$apply(function () {
       observe.Platform.performMicrotaskCheckpoint();
-    }
-  } catch (err) {
-    throw new this.errors.UnhandledError(err);
+    });
+  } else {
+    observe.Platform.performMicrotaskCheckpoint();
   }
 }
 

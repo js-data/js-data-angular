@@ -39,7 +39,7 @@ function _findAll(utils, resourceName, params, options) {
             try {
               return processResults.apply(_this, [utils, data, resourceName, queryHash]);
             } catch (err) {
-              return _this.$q.reject(_this.errors.UnhandledError(err));
+              return _this.$q.reject(err);
             }
           } else {
             return data;
@@ -115,23 +115,22 @@ function _findAll(utils, resourceName, params, options) {
  * ## Rejects with:
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  */
 function findAll(resourceName, params, options) {
-  var deferred = this.$q.defer(),
-    promise = deferred.promise,
-    _this = this;
+  var deferred = this.$q.defer();
+  var promise = deferred.promise;
+  var _this = this;
 
   options = options || {};
   params = params || {};
 
   if (!this.definitions[resourceName]) {
-    deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
+    deferred.reject(new this.errors.NER(errorPrefix + resourceName));
   } else if (!this.utils.isObject(params)) {
-    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!'));
+    deferred.reject(new this.errors.IA(errorPrefix + 'params: Must be an object!'));
   } else if (!this.utils.isObject(options)) {
-    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!'));
+    deferred.reject(new this.errors.IA(errorPrefix + 'options: Must be an object!'));
   } else {
     if (!('cacheResponse' in options)) {
       options.cacheResponse = true;
@@ -144,7 +143,7 @@ function findAll(resourceName, params, options) {
       });
       deferred.resolve();
     } catch (err) {
-      deferred.reject(new this.errors.UnhandledError(err));
+      deferred.reject(err);
     }
   }
 

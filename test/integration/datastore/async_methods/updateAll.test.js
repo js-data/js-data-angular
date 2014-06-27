@@ -7,7 +7,7 @@ describe('DS.updateAll(resourceName, attrs, params[, options])', function () {
     DS.updateAll('does not exist').then(function () {
       fail('should have rejected');
     }, function (err) {
-      assert.isTrue(err instanceof DS.errors.RuntimeError);
+      assert.isTrue(err instanceof DS.errors.NonexistentResourceError);
       assert.equal(err.message, errorPrefix + 'does not exist is not a registered resource!');
     });
 

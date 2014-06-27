@@ -46,36 +46,31 @@ function _eject(definition, resource, id) {
  * ## Throws
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to eject.
  */
 function eject(resourceName, id) {
   if (!this.definitions[resourceName]) {
-    throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+    throw new this.errors.NER(errorPrefix + resourceName);
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
   }
 
-  var resource = this.store[resourceName],
-    _this = this;
+  var resource = this.store[resourceName];
+  var _this = this;
 
-  try {
-    if (!this.$rootScope.$$phase) {
-      this.$rootScope.$apply(function () {
-        _eject(_this.definitions[resourceName], resource, id);
-        resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
-      });
-    } else {
+  if (!this.$rootScope.$$phase) {
+    this.$rootScope.$apply(function () {
       _eject(_this.definitions[resourceName], resource, id);
       resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
-    }
-    delete this.store[resourceName].completedQueries[id];
-  } catch (err) {
-    throw new this.errors.UnhandledError(err);
+    });
+  } else {
+    _eject(_this.definitions[resourceName], resource, id);
+    resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
   }
+  delete this.store[resourceName].completedQueries[id];
 }
 
 module.exports = eject;

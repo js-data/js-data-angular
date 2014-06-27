@@ -1,24 +1,20 @@
-var observe = require('../../../lib/observe-js/observe-js'),
-  errorPrefix = 'DS.inject(resourceName, attrs[, options]): ';
+var observe = require('../../../lib/observe-js/observe-js');
+var errorPrefix = 'DS.inject(resourceName, attrs[, options]): ';
 
 function _inject(definition, resource, attrs) {
   var _this = this;
   var $log = _this.$log;
 
   function _react(added, removed, changed, getOldValueFn) {
-    try {
-      var innerId = getOldValueFn(definition.idAttribute);
+    var innerId = getOldValueFn(definition.idAttribute);
 
-      resource.modified[innerId] = _this.utils.updateTimestamp(resource.modified[innerId]);
-      resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
+    resource.modified[innerId] = _this.utils.updateTimestamp(resource.modified[innerId]);
+    resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
 
-      if (definition.idAttribute in changed) {
-        $log.error('Doh! You just changed the primary key of an object! ' +
-          'I don\'t know how to handle this yet, so your data for the "' + definition.name +
-          '" resource is now in an undefined (probably broken) state.');
-      }
-    } catch (err) {
-      throw new _this.errors.UnhandledError(err);
+    if (definition.idAttribute in changed) {
+      $log.error('Doh! You just changed the primary key of an object! ' +
+        'I don\'t know how to handle this yet, so your data for the "' + definition.name +
+        '" resource is now in an undefined (probably broken) state.');
     }
   }
 
@@ -30,7 +26,7 @@ function _inject(definition, resource, attrs) {
     }
   } else {
     if (!(definition.idAttribute in attrs)) {
-      throw new _this.errors.RuntimeError(errorPrefix + 'attrs: Must contain the property specified by `idAttribute`!');
+      throw new _this.errors.R(errorPrefix + 'attrs: Must contain the property specified by `idAttribute`!');
     } else {
       try {
         definition.beforeInject(definition.name, attrs);
@@ -133,7 +129,7 @@ function _injectRelations(definition, injected) {
  *
  * - `{IllegalArgumentError}`
  * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {object|array} attrs The item or collection of items to inject into the data store.
@@ -145,38 +141,30 @@ function inject(resourceName, attrs, options) {
   options = options || {};
 
   if (!this.definitions[resourceName]) {
-    throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+    throw new this.errors.NER(errorPrefix + resourceName);
   } else if (!this.utils.isObject(attrs) && !this.utils.isArray(attrs)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'attrs: Must be an object or an array!', { attrs: { actual: typeof attrs, expected: 'object|array' } });
+    throw new this.errors.IA(errorPrefix + 'attrs: Must be an object or an array!');
   } else if (!this.utils.isObject(options)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
+    throw new this.errors.IA(errorPrefix + 'options: Must be an object!');
   }
 
   var definition = this.definitions[resourceName];
   var resource = this.store[resourceName];
   var _this = this;
 
-  try {
-    var injected;
-    if (!this.$rootScope.$$phase) {
-      this.$rootScope.$apply(function () {
-        injected = _inject.call(_this, definition, resource, attrs);
-      });
-    } else {
+  var injected;
+  if (!this.$rootScope.$$phase) {
+    this.$rootScope.$apply(function () {
       injected = _inject.call(_this, definition, resource, attrs);
-    }
-    if (definition.relations) {
-      _injectRelations.call(_this, definition, injected);
-    }
-
-    return injected;
-  } catch (err) {
-    if (!(err instanceof this.errors.RuntimeError)) {
-      throw new this.errors.UnhandledError(err);
-    } else {
-      throw err;
-    }
+    });
+  } else {
+    injected = _inject.call(_this, definition, resource, attrs);
   }
+  if (definition.relations) {
+    _injectRelations.call(_this, definition, injected);
+  }
+
+  return injected;
 }
 
 module.exports = inject;

@@ -26,8 +26,7 @@ var errorPrefix = 'DS.lastModified(resourceName[, id]): ';
  * ## Throws
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number=} id The primary key of the item to remove.
@@ -36,21 +35,17 @@ var errorPrefix = 'DS.lastModified(resourceName[, id]): ';
  */
 function lastModified(resourceName, id) {
   if (!this.definitions[resourceName]) {
-    throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+    throw new this.errors.NER(errorPrefix + resourceName);
   } else if (id && !this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
   }
-  try {
-    if (id) {
-      if (!(id in this.store[resourceName].modified)) {
-        this.store[resourceName].modified[id] = 0;
-      }
-      return this.store[resourceName].modified[id];
+  if (id) {
+    if (!(id in this.store[resourceName].modified)) {
+      this.store[resourceName].modified[id] = 0;
     }
-    return this.store[resourceName].collectionModified;
-  } catch (err) {
-    throw new this.errors.UnhandledError(err);
+    return this.store[resourceName].modified[id];
   }
+  return this.store[resourceName].collectionModified;
 }
 
 module.exports = lastModified;

@@ -27,7 +27,7 @@ describe('DS.bindOne(scope, expr, resourceName, id[, cb])', function () {
 
     assert.throws(function () {
       DS.bindOne($scope, 'post', 'does not exist', {});
-    }, DS.errors.RuntimeError, errorPrefix + 'does not exist is not a registered resource!');
+    }, DS.errors.NonexistentResourceError, errorPrefix + 'does not exist is not a registered resource!');
 
     angular.forEach(TYPES_EXCEPT_STRING_OR_NUMBER, function (key) {
       assert.throws(function () {

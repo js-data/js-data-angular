@@ -6,7 +6,7 @@ describe('DS.lastSaved(resourceName[, id])', function () {
   it('should throw an error when method pre-conditions are not met', function () {
     assert.throws(function () {
       DS.lastSaved('does not exist', {});
-    }, DS.errors.RuntimeError, errorPrefix + 'does not exist is not a registered resource!');
+    }, DS.errors.NonexistentResourceError, errorPrefix + 'does not exist is not a registered resource!');
 
     angular.forEach(TYPES_EXCEPT_STRING_OR_NUMBER, function (key) {
       if (key) {

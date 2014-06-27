@@ -22,8 +22,7 @@ var errorPrefix = 'DS.get(resourceName, id[, options]): ';
  * ## Throws
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to retrieve.
@@ -35,28 +34,24 @@ function get(resourceName, id, options) {
   options = options || {};
 
   if (!this.definitions[resourceName]) {
-    throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+    throw new this.errors.NER(errorPrefix + resourceName);
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
   } else if (!this.utils.isObject(options)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
+    throw new this.errors.IA(errorPrefix + 'options: Must be an object!');
   }
   var _this = this;
 
-  try {
-    // cache miss, request resource from server
-    var item = this.store[resourceName].index.get(id);
-    if (!item && options.loadFromServer) {
-      this.find(resourceName, id).then(null, function (err) {
-        return _this.$q.reject(err);
-      });
-    }
-
-    // return resource from cache
-    return item;
-  } catch (err) {
-    throw new this.errors.UnhandledError(err);
+  // cache miss, request resource from server
+  var item = this.store[resourceName].index.get(id);
+  if (!item && options.loadFromServer) {
+    this.find(resourceName, id).then(null, function (err) {
+      return _this.$q.reject(err);
+    });
   }
+
+  // return resource from cache
+  return item;
 }
 
 module.exports = get;

@@ -39,24 +39,23 @@ var errorPrefix = 'DS.create(resourceName, attrs[, options]): ';
  * ## Rejects with:
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  */
 function create(resourceName, attrs, options) {
-  var deferred = this.$q.defer(),
-    promise = deferred.promise;
+  var deferred = this.$q.defer();
+  var promise = deferred.promise;
 
   options = options || {};
 
   if (!this.definitions[resourceName]) {
-    deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
+    deferred.reject(new this.errors.NER(errorPrefix + resourceName));
   } else if (!this.utils.isObject(attrs)) {
-    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'attrs: Must be an object!', { attrs: { actual: typeof attrs, expected: 'object' } }));
+    deferred.reject(new this.errors.IA(errorPrefix + 'attrs: Must be an object!'));
   } else {
     try {
-      var definition = this.definitions[resourceName],
-        resource = this.store[resourceName],
-        _this = this;
+      var definition = this.definitions[resourceName];
+      var resource = this.store[resourceName];
+      var _this = this;
 
       promise = promise
         .then(function (attrs) {
@@ -87,7 +86,7 @@ function create(resourceName, attrs, options) {
 
       deferred.resolve(attrs);
     } catch (err) {
-      deferred.reject(new this.errors.UnhandledError(err));
+      deferred.reject(err);
     }
   }
 

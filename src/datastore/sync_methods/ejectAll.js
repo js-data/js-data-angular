@@ -62,8 +62,7 @@ function _ejectAll(definition, resource, params) {
  * ## Throws
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {object} params Parameter object that is serialized into the query string. Properties:
@@ -78,33 +77,29 @@ function ejectAll(resourceName, params) {
   params = params || {};
 
   if (!this.definitions[resourceName]) {
-    throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+    throw new this.errors.NER(errorPrefix + resourceName);
   } else if (!this.utils.isObject(params)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!', { params: { actual: typeof params, expected: 'object' } });
+    throw new this.errors.IA(errorPrefix + 'params: Must be an object!');
   }
 
-  try {
-    var _this = this;
-    var resource = this.store[resourceName];
-    var queryHash = this.utils.toJson(params);
+  var _this = this;
+  var resource = this.store[resourceName];
+  var queryHash = this.utils.toJson(params);
 
-    delete resource.completedQueries[queryHash];
+  delete resource.completedQueries[queryHash];
 
-    if (this.utils.isEmpty(params)) {
-      resource.completedQueries = {};
-    }
+  if (this.utils.isEmpty(params)) {
+    resource.completedQueries = {};
+  }
 
-    if (!this.$rootScope.$$phase) {
-      this.$rootScope.$apply(function () {
-        _ejectAll.apply(_this, [_this.definitions[resourceName], resource, params]);
-        resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
-      });
-    } else {
+  if (!this.$rootScope.$$phase) {
+    this.$rootScope.$apply(function () {
       _ejectAll.apply(_this, [_this.definitions[resourceName], resource, params]);
-      resource.collectionModified = this.utils.updateTimestamp(resource.collectionModified);
-    }
-  } catch (err) {
-    throw new this.errors.UnhandledError(err);
+      resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
+    });
+  } else {
+    _ejectAll.apply(_this, [_this.definitions[resourceName], resource, params]);
+    resource.collectionModified = this.utils.updateTimestamp(resource.collectionModified);
   }
 }
 

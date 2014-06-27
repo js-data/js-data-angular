@@ -1,4 +1,3 @@
-/* jshint loopfunc: true */
 var errorPrefix = 'DS.filter(resourceName[, params][, options]): ';
 
 /**
@@ -22,8 +21,7 @@ var errorPrefix = 'DS.filter(resourceName[, params][, options]): ';
  * ## Throws
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {object=} params Parameter object that is serialized into the query string. Properties:
@@ -43,45 +41,37 @@ function filter(resourceName, params, options) {
   options = options || {};
 
   if (!this.definitions[resourceName]) {
-    throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+    throw new this.errors.NER(errorPrefix + resourceName);
   } else if (params && !this.utils.isObject(params)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!', { params: { actual: typeof params, expected: 'object' } });
+    throw new this.errors.IA(errorPrefix + 'params: Must be an object!');
   } else if (!this.utils.isObject(options)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
+    throw new this.errors.IA(errorPrefix + 'options: Must be an object!');
   }
 
-  try {
-    var definition = this.definitions[resourceName];
-    var resource = this.store[resourceName];
+  var definition = this.definitions[resourceName];
+  var resource = this.store[resourceName];
 
-    // Protect against null
-    params = params || {};
+  // Protect against null
+  params = params || {};
 
-    if ('allowSimpleWhere' in options) {
-      options.allowSimpleWhere = !!options.allowSimpleWhere;
-    } else {
-      options.allowSimpleWhere = true;
-    }
+  if ('allowSimpleWhere' in options) {
+    options.allowSimpleWhere = !!options.allowSimpleWhere;
+  } else {
+    options.allowSimpleWhere = true;
+  }
 
-    var queryHash = this.utils.toJson(params);
+  var queryHash = this.utils.toJson(params);
 
-    if (!(queryHash in resource.completedQueries) && options.loadFromServer) {
-      // This particular query has never been completed
+  if (!(queryHash in resource.completedQueries) && options.loadFromServer) {
+    // This particular query has never been completed
 
-      if (!resource.pendingQueries[queryHash]) {
-        // This particular query has never even been started
-        this.findAll(resourceName, params, options);
-      }
-    }
-
-    return definition.filter.call(this, resource.collection, resourceName, params, options);
-  } catch (err) {
-    if (err instanceof this.errors.IllegalArgumentError) {
-      throw err;
-    } else {
-      throw new this.errors.UnhandledError(err);
+    if (!resource.pendingQueries[queryHash]) {
+      // This particular query has never even been started
+      this.findAll(resourceName, params, options);
     }
   }
+
+  return definition.filter.call(this, resource.collection, resourceName, params, options);
 }
 
 module.exports = filter;

@@ -1854,24 +1854,23 @@ var errorPrefix = 'DS.create(resourceName, attrs[, options]): ';
  * ## Rejects with:
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  */
 function create(resourceName, attrs, options) {
-  var deferred = this.$q.defer(),
-    promise = deferred.promise;
+  var deferred = this.$q.defer();
+  var promise = deferred.promise;
 
   options = options || {};
 
   if (!this.definitions[resourceName]) {
-    deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
+    deferred.reject(new this.errors.NER(errorPrefix + resourceName));
   } else if (!this.utils.isObject(attrs)) {
-    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'attrs: Must be an object!', { attrs: { actual: typeof attrs, expected: 'object' } }));
+    deferred.reject(new this.errors.IA(errorPrefix + 'attrs: Must be an object!'));
   } else {
     try {
-      var definition = this.definitions[resourceName],
-        resource = this.store[resourceName],
-        _this = this;
+      var definition = this.definitions[resourceName];
+      var resource = this.store[resourceName];
+      var _this = this;
 
       promise = promise
         .then(function (attrs) {
@@ -1902,7 +1901,7 @@ function create(resourceName, attrs, options) {
 
       deferred.resolve(attrs);
     } catch (err) {
-      deferred.reject(new this.errors.UnhandledError(err));
+      deferred.reject(err);
     }
   }
 
@@ -1954,42 +1953,45 @@ var errorPrefix = 'DS.destroy(resourceName, id): ';
  *
  * - `{IllegalArgumentError}`
  * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  */
 function destroy(resourceName, id, options) {
-  var deferred = this.$q.defer(),
-    promise = deferred.promise;
+  var deferred = this.$q.defer();
+  var promise = deferred.promise;
 
   options = options || {};
 
   if (!this.definitions[resourceName]) {
-    deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
+    deferred.reject(new this.errors.NER(errorPrefix + resourceName));
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
+    deferred.reject(new this.errors.IA(errorPrefix + 'id: Must be a string or a number!'));
   } else {
     var item = this.get(resourceName, id);
     if (!item) {
-      deferred.reject(new this.errors.RuntimeError(errorPrefix + 'id: "' + id + '" not found!'));
+      deferred.reject(new this.errors.R(errorPrefix + 'id: "' + id + '" not found!'));
     } else {
-      var definition = this.definitions[resourceName],
-        resource = this.store[resourceName],
-        _this = this;
+      try {
+        var definition = this.definitions[resourceName];
+        var _this = this;
 
-      promise = promise
-        .then(function (attrs) {
-          return _this.$q.promisify(definition.beforeDestroy)(resourceName, attrs);
-        })
-        .then(function () {
-          return _this.adapters[options.adapter || definition.defaultAdapter].destroy(definition, id, options);
-        })
-        .then(function () {
-          return _this.$q.promisify(definition.afterDestroy)(resourceName, item);
-        })
-        .then(function () {
-          _this.eject(resourceName, id);
-          return id;
-        });
-      deferred.resolve(item);
+        promise = promise
+          .then(function (attrs) {
+            return _this.$q.promisify(definition.beforeDestroy)(resourceName, attrs);
+          })
+          .then(function () {
+            return _this.adapters[options.adapter || definition.defaultAdapter].destroy(definition, id, options);
+          })
+          .then(function () {
+            return _this.$q.promisify(definition.afterDestroy)(resourceName, item);
+          })
+          .then(function () {
+            _this.eject(resourceName, id);
+            return id;
+          });
+        deferred.resolve(item);
+      } catch (err) {
+        deferred.reject(err);
+      }
     }
   }
 
@@ -2051,22 +2053,21 @@ var errorPrefix = 'DS.destroyAll(resourceName, params[, options]): ';
  * ## Rejects with:
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  */
 function destroyAll(resourceName, params, options) {
-  var deferred = this.$q.defer(),
-    promise = deferred.promise,
-    _this = this;
+  var deferred = this.$q.defer();
+  var promise = deferred.promise;
+  var _this = this;
 
   options = options || {};
 
   if (!this.definitions[resourceName]) {
-    deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
+    deferred.reject(new this.errors.NER(errorPrefix + resourceName));
   } else if (!this.utils.isObject(params)) {
-    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!'));
+    deferred.reject(new this.errors.IA(errorPrefix + 'params: Must be an object!'));
   } else if (!this.utils.isObject(options)) {
-    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!'));
+    deferred.reject(new this.errors.IA(errorPrefix + 'options: Must be an object!'));
   } else {
     try {
       var definition = this.definitions[resourceName];
@@ -2080,7 +2081,7 @@ function destroyAll(resourceName, params, options) {
         });
       deferred.resolve();
     } catch (err) {
-      deferred.reject(new this.errors.UnhandledError(err));
+      deferred.reject(err);
     }
   }
 
@@ -2133,21 +2134,20 @@ var errorPrefix = 'DS.find(resourceName, id[, options]): ';
  * ## Rejects with:
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  */
 function find(resourceName, id, options) {
-  var deferred = this.$q.defer(),
-    promise = deferred.promise;
+  var deferred = this.$q.defer();
+  var promise = deferred.promise;
 
   options = options || {};
 
   if (!this.definitions[resourceName]) {
-    deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
+    deferred.reject(new this.errors.NER(errorPrefix + resourceName));
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
+    deferred.reject(new this.errors.IA(errorPrefix + 'id: Must be a string or a number!'));
   } else if (!this.utils.isObject(options)) {
-    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
+    deferred.reject(new this.errors.IA(errorPrefix + 'options: Must be an object!'));
   } else {
     if (!('cacheResponse' in options)) {
       options.cacheResponse = true;
@@ -2155,9 +2155,9 @@ function find(resourceName, id, options) {
       options.cacheResponse = !!options.cacheResponse;
     }
     try {
-      var definition = this.definitions[resourceName],
-        resource = this.store[resourceName],
-        _this = this;
+      var definition = this.definitions[resourceName];
+      var resource = this.store[resourceName];
+      var _this = this;
 
       if (options.bypassCache) {
         delete resource.completedQueries[id];
@@ -2238,7 +2238,7 @@ function _findAll(utils, resourceName, params, options) {
             try {
               return processResults.apply(_this, [utils, data, resourceName, queryHash]);
             } catch (err) {
-              return _this.$q.reject(_this.errors.UnhandledError(err));
+              return _this.$q.reject(err);
             }
           } else {
             return data;
@@ -2314,23 +2314,22 @@ function _findAll(utils, resourceName, params, options) {
  * ## Rejects with:
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  */
 function findAll(resourceName, params, options) {
-  var deferred = this.$q.defer(),
-    promise = deferred.promise,
-    _this = this;
+  var deferred = this.$q.defer();
+  var promise = deferred.promise;
+  var _this = this;
 
   options = options || {};
   params = params || {};
 
   if (!this.definitions[resourceName]) {
-    deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
+    deferred.reject(new this.errors.NER(errorPrefix + resourceName));
   } else if (!this.utils.isObject(params)) {
-    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!'));
+    deferred.reject(new this.errors.IA(errorPrefix + 'params: Must be an object!'));
   } else if (!this.utils.isObject(options)) {
-    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!'));
+    deferred.reject(new this.errors.IA(errorPrefix + 'options: Must be an object!'));
   } else {
     if (!('cacheResponse' in options)) {
       options.cacheResponse = true;
@@ -2343,7 +2342,7 @@ function findAll(resourceName, params, options) {
       });
       deferred.resolve();
     } catch (err) {
-      deferred.reject(new this.errors.UnhandledError(err));
+      deferred.reject(err);
     }
   }
 
@@ -2479,7 +2478,7 @@ var errorPrefix = 'DS.refresh(resourceName, id[, options]): ';
  * ## Throws
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to refresh from the server.
@@ -2494,18 +2493,17 @@ var errorPrefix = 'DS.refresh(resourceName, id[, options]): ';
  * ## Rejects with:
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  */
 function refresh(resourceName, id, options) {
   options = options || {};
 
   if (!this.definitions[resourceName]) {
-    throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+    throw new this.errors.NER(errorPrefix + resourceName);
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
   } else if (!this.utils.isObject(options)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
+    throw new this.errors.IA(errorPrefix + 'options: Must be an object!');
   } else {
     options.bypassCache = true;
 
@@ -2562,28 +2560,28 @@ var errorPrefix = 'DS.save(resourceName, id[, options]): ';
  *
  * - `{IllegalArgumentError}`
  * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  */
 function save(resourceName, id, options) {
-  var deferred = this.$q.defer(),
-    promise = deferred.promise;
+  var deferred = this.$q.defer();
+  var promise = deferred.promise;
 
   options = options || {};
 
   if (!this.definitions[resourceName]) {
-    deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
+    deferred.reject(new this.errors.NER(errorPrefix + resourceName));
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
+    deferred.reject(new this.errors.IA(errorPrefix + 'id: Must be a string or a number!'));
   } else if (!this.utils.isObject(options)) {
-    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
+    deferred.reject(new this.errors.IA(errorPrefix + 'options: Must be an object!'));
   } else {
     var item = this.get(resourceName, id);
     if (!item) {
-      deferred.reject(new this.errors.RuntimeError(errorPrefix + 'id: "' + id + '" not found!'));
+      deferred.reject(new this.errors.R(errorPrefix + 'id: "' + id + '" not found!'));
     } else {
-      var definition = this.definitions[resourceName],
-        resource = this.store[resourceName],
-        _this = this;
+      var definition = this.definitions[resourceName];
+      var resource = this.store[resourceName];
+      var _this = this;
 
       promise = promise
         .then(function (attrs) {
@@ -2683,27 +2681,26 @@ var errorPrefix = 'DS.update(resourceName, id, attrs[, options]): ';
  * ## Rejects with:
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  */
 function update(resourceName, id, attrs, options) {
-  var deferred = this.$q.defer(),
-    promise = deferred.promise;
+  var deferred = this.$q.defer();
+  var promise = deferred.promise;
 
   options = options || {};
 
   if (!this.definitions[resourceName]) {
-    deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
+    deferred.reject(new this.errors.NER(errorPrefix + resourceName));
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!'));
+    deferred.reject(new this.errors.IA(errorPrefix + 'id: Must be a string or a number!'));
   } else if (!this.utils.isObject(attrs)) {
-    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'attrs: Must be an object!'));
+    deferred.reject(new this.errors.IA(errorPrefix + 'attrs: Must be an object!'));
   } else if (!this.utils.isObject(options)) {
-    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!'));
+    deferred.reject(new this.errors.IA(errorPrefix + 'options: Must be an object!'));
   } else {
-    var definition = this.definitions[resourceName],
-      resource = this.store[resourceName],
-      _this = this;
+    var definition = this.definitions[resourceName];
+    var resource = this.store[resourceName];
+    var _this = this;
 
     if (!('cacheResponse' in options)) {
       options.cacheResponse = true;
@@ -2808,27 +2805,25 @@ var errorPrefix = 'DS.updateAll(resourceName, attrs, params[, options]): ';
  * ## Rejects with:
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  */
 function updateAll(resourceName, attrs, params, options) {
-  var deferred = this.$q.defer(),
-    promise = deferred.promise;
+  var deferred = this.$q.defer();
+  var promise = deferred.promise;
 
   options = options || {};
 
   if (!this.definitions[resourceName]) {
-    deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
+    deferred.reject(new this.errors.NER(errorPrefix + resourceName));
   } else if (!this.utils.isObject(attrs)) {
-    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'attrs: Must be an object!'));
+    deferred.reject(new this.errors.IA(errorPrefix + 'attrs: Must be an object!'));
   } else if (!this.utils.isObject(params)) {
-    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!'));
+    deferred.reject(new this.errors.IA(errorPrefix + 'params: Must be an object!'));
   } else if (!this.utils.isObject(options)) {
-    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!'));
+    deferred.reject(new this.errors.IA(errorPrefix + 'options: Must be an object!'));
   } else {
-    var definition = this.definitions[resourceName],
-      resource = this.store[resourceName],
-      _this = this;
+    var definition = this.definitions[resourceName];
+    var _this = this;
 
     if (!('cacheResponse' in options)) {
       options.cacheResponse = true;
@@ -2877,12 +2872,12 @@ function lifecycleNoop(resourceName, attrs, cb) {
   cb(null, attrs);
 }
 
-function BaseConfig() {
+function Defaults() {
 }
 
-BaseConfig.prototype.idAttribute = 'id';
-BaseConfig.prototype.defaultAdapter = 'DSHttpAdapter';
-BaseConfig.prototype.filter = function (collection, resourceName, params, options) {
+Defaults.prototype.idAttribute = 'id';
+Defaults.prototype.defaultAdapter = 'DSHttpAdapter';
+Defaults.prototype.filter = function (collection, resourceName, params, options) {
   var _this = this;
   var filtered = collection;
   var where = null;
@@ -2940,7 +2935,7 @@ BaseConfig.prototype.filter = function (collection, resourceName, params, option
               keep = first ? (attrs[field] === val) : keep && (attrs[field] === val);
             } else if (op === '!=') {
               keep = first ? (attrs[field] != val) : keep && (attrs[field] != val);
-            }  else if (op === '!==') {
+            } else if (op === '!==') {
               keep = first ? (attrs[field] !== val) : keep && (attrs[field] !== val);
             } else if (op === '>') {
               keep = first ? (attrs[field] > val) : keep && (attrs[field] > val);
@@ -3059,8 +3054,8 @@ BaseConfig.prototype.filter = function (collection, resourceName, params, option
 
   return filtered;
 };
-BaseConfig.prototype.baseUrl = '';
-BaseConfig.prototype.endpoint = '';
+Defaults.prototype.baseUrl = '';
+Defaults.prototype.endpoint = '';
 /**
  * @doc property
  * @id DSProvider.properties:defaults.beforeValidate
@@ -3091,7 +3086,7 @@ BaseConfig.prototype.endpoint = '';
  * @param {string} resourceName The name of the resource moving through the lifecycle.
  * @param {object} attrs Attributes of the item moving through the lifecycle.
  */
-BaseConfig.prototype.beforeValidate = lifecycleNoop;
+Defaults.prototype.beforeValidate = lifecycleNoop;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.validate
@@ -3122,7 +3117,7 @@ BaseConfig.prototype.beforeValidate = lifecycleNoop;
  * @param {string} resourceName The name of the resource moving through the lifecycle.
  * @param {object} attrs Attributes of the item moving through the lifecycle.
  */
-BaseConfig.prototype.validate = lifecycleNoop;
+Defaults.prototype.validate = lifecycleNoop;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.afterValidate
@@ -3153,7 +3148,7 @@ BaseConfig.prototype.validate = lifecycleNoop;
  * @param {string} resourceName The name of the resource moving through the lifecycle.
  * @param {object} attrs Attributes of the item moving through the lifecycle.
  */
-BaseConfig.prototype.afterValidate = lifecycleNoop;
+Defaults.prototype.afterValidate = lifecycleNoop;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.beforeCreate
@@ -3184,7 +3179,7 @@ BaseConfig.prototype.afterValidate = lifecycleNoop;
  * @param {string} resourceName The name of the resource moving through the lifecycle.
  * @param {object} attrs Attributes of the item moving through the lifecycle.
  */
-BaseConfig.prototype.beforeCreate = lifecycleNoop;
+Defaults.prototype.beforeCreate = lifecycleNoop;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.afterCreate
@@ -3215,7 +3210,7 @@ BaseConfig.prototype.beforeCreate = lifecycleNoop;
  * @param {string} resourceName The name of the resource moving through the lifecycle.
  * @param {object} attrs Attributes of the item moving through the lifecycle.
  */
-BaseConfig.prototype.afterCreate = lifecycleNoop;
+Defaults.prototype.afterCreate = lifecycleNoop;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.beforeUpdate
@@ -3246,7 +3241,7 @@ BaseConfig.prototype.afterCreate = lifecycleNoop;
  * @param {string} resourceName The name of the resource moving through the lifecycle.
  * @param {object} attrs Attributes of the item moving through the lifecycle.
  */
-BaseConfig.prototype.beforeUpdate = lifecycleNoop;
+Defaults.prototype.beforeUpdate = lifecycleNoop;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.afterUpdate
@@ -3277,7 +3272,7 @@ BaseConfig.prototype.beforeUpdate = lifecycleNoop;
  * @param {string} resourceName The name of the resource moving through the lifecycle.
  * @param {object} attrs Attributes of the item moving through the lifecycle.
  */
-BaseConfig.prototype.afterUpdate = lifecycleNoop;
+Defaults.prototype.afterUpdate = lifecycleNoop;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.beforeDestroy
@@ -3308,7 +3303,7 @@ BaseConfig.prototype.afterUpdate = lifecycleNoop;
  * @param {string} resourceName The name of the resource moving through the lifecycle.
  * @param {object} attrs Attributes of the item moving through the lifecycle.
  */
-BaseConfig.prototype.beforeDestroy = lifecycleNoop;
+Defaults.prototype.beforeDestroy = lifecycleNoop;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.afterDestroy
@@ -3339,7 +3334,7 @@ BaseConfig.prototype.beforeDestroy = lifecycleNoop;
  * @param {string} resourceName The name of the resource moving through the lifecycle.
  * @param {object} attrs Attributes of the item moving through the lifecycle.
  */
-BaseConfig.prototype.afterDestroy = lifecycleNoop;
+Defaults.prototype.afterDestroy = lifecycleNoop;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.beforeInject
@@ -3364,7 +3359,7 @@ BaseConfig.prototype.afterDestroy = lifecycleNoop;
  * @param {string} resourceName The name of the resource moving through the lifecycle.
  * @param {object} attrs Attributes of the item moving through the lifecycle.
  */
-BaseConfig.prototype.beforeInject = function (resourceName, attrs) {
+Defaults.prototype.beforeInject = function (resourceName, attrs) {
   return attrs;
 };
 /**
@@ -3391,7 +3386,7 @@ BaseConfig.prototype.beforeInject = function (resourceName, attrs) {
  * @param {string} resourceName The name of the resource moving through the lifecycle.
  * @param {object} attrs Attributes of the item moving through the lifecycle.
  */
-BaseConfig.prototype.afterInject = function (resourceName, attrs) {
+Defaults.prototype.afterInject = function (resourceName, attrs) {
   return attrs;
 };
 /**
@@ -3415,7 +3410,7 @@ BaseConfig.prototype.afterInject = function (resourceName, attrs) {
  * @param {object} data Data to be sent to the server.
  * @returns {*} By default returns `data` as-is.
  */
-BaseConfig.prototype.serialize = function (resourceName, data) {
+Defaults.prototype.serialize = function (resourceName, data) {
   return data;
 };
 
@@ -3438,7 +3433,7 @@ BaseConfig.prototype.serialize = function (resourceName, data) {
  * @param {object} data Response object from `$http()`.
  * @returns {*} By default returns `data.data`.
  */
-BaseConfig.prototype.deserialize = function (resourceName, data) {
+Defaults.prototype.deserialize = function (resourceName, data) {
   return data.data;
 };
 
@@ -3476,7 +3471,7 @@ function DSProvider() {
    * - `{function}` - `serialize` - See [DSProvider.defaults.serialize](/documentation/api/angular-data/DSProvider.properties:defaults.serialize). Default: No-op
    * - `{function}` - `deserialize` - See [DSProvider.defaults.deserialize](/documentation/api/angular-data/DSProvider.properties:defaults.deserialize). Default: No-op
    */
-  var defaults = this.defaults = new BaseConfig();
+  var defaults = this.defaults = new Defaults();
 
   this.$get = [
     '$rootScope', '$log', '$q', 'DSHttpAdapter', 'DSLocalStorageAdapter', 'DSUtils', 'DSErrors',
@@ -3589,7 +3584,8 @@ function DSProvider() {
       });
 
       return DS;
-    }];
+    }
+  ];
 }
 
 module.exports = DSProvider;
@@ -3623,8 +3619,7 @@ var errorPrefix = 'DS.bindAll(scope, expr, resourceName, params[, cb]): ';
  * ## Throws
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {object} scope The scope to bind to.
  * @param {string} expr An expression used to bind to the scope. Can be used to set nested keys, i.e. `"user.comments"`.
@@ -3643,13 +3638,13 @@ var errorPrefix = 'DS.bindAll(scope, expr, resourceName, params[, cb]): ';
  */
 function bindOne(scope, expr, resourceName, params, cb) {
   if (!this.utils.isObject(scope)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'scope: Must be an object!');
+    throw new this.errors.IA(errorPrefix + 'scope: Must be an object!');
   } else if (!this.utils.isString(expr)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'expr: Must be a string!');
+    throw new this.errors.IA(errorPrefix + 'expr: Must be a string!');
   } else if (!this.definitions[resourceName]) {
-    throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+    throw new this.errors.NER(errorPrefix + resourceName);
   } else if (!this.utils.isObject(params)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!');
+    throw new this.errors.IA(errorPrefix + 'params: Must be an object!');
   }
 
   var _this = this;
@@ -3666,9 +3661,9 @@ function bindOne(scope, expr, resourceName, params, cb) {
     });
   } catch (err) {
     if (cb) {
-      cb(new this.errors.UnhandledError(err));
+      cb(err);
     } else {
-      throw new this.errors.UnhandledError(err);
+      throw err;
     }
   }
 }
@@ -3700,8 +3695,7 @@ var errorPrefix = 'DS.bindOne(scope, expr, resourceName, id[, cb]): ';
  * ## Throws
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {object} scope The scope to bind to.
  * @param {string} expr An expression used to bind to the scope. Can be used to set nested keys, i.e. `"user.profile"`.
@@ -3712,13 +3706,13 @@ var errorPrefix = 'DS.bindOne(scope, expr, resourceName, id[, cb]): ';
  */
 function bindOne(scope, expr, resourceName, id, cb) {
   if (!this.utils.isObject(scope)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'scope: Must be an object!');
+    throw new this.errors.IA(errorPrefix + 'scope: Must be an object!');
   } else if (!this.utils.isString(expr)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'expr: Must be a string!');
+    throw new this.errors.IA(errorPrefix + 'expr: Must be a string!');
   } else if (!this.definitions[resourceName]) {
-    throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+    throw new this.errors.NER(errorPrefix + resourceName);
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!');
+    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
   }
 
   var _this = this;
@@ -3735,9 +3729,9 @@ function bindOne(scope, expr, resourceName, id, cb) {
     });
   } catch (err) {
     if (cb) {
-      cb(new this.errors.UnhandledError(err));
+      cb(err);
     } else {
-      throw new this.errors.UnhandledError(err);
+      throw err;
     }
   }
 }
@@ -3774,8 +3768,7 @@ var errorPrefix = 'DS.changes(resourceName, id): ';
  * ## Throws
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item of the changes to retrieve.
@@ -3783,19 +3776,15 @@ var errorPrefix = 'DS.changes(resourceName, id): ';
  */
 function changes(resourceName, id) {
   if (!this.definitions[resourceName]) {
-    throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+    throw new this.errors.NER(errorPrefix + resourceName);
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
   }
 
-  try {
-    var item = this.get(resourceName, id);
-    if (item) {
-      this.store[resourceName].observers[id].deliver();
-      return this.utils.diffObjectFromOldObject(item, this.store[resourceName].previousAttributes[id]);
-    }
-  } catch (err) {
-    throw new this.errors.UnhandledError(err);
+  var item = this.get(resourceName, id);
+  if (item) {
+    this.store[resourceName].observers[id].deliver();
+    return this.utils.diffObjectFromOldObject(item, this.store[resourceName].previousAttributes[id]);
   }
 }
 
@@ -3847,7 +3836,6 @@ function Resource(utils, options) {
  *
  * - `{IllegalArgumentError}`
  * - `{RuntimeError}`
- * - `{UnhandledError}`
  *
  * @param {string|object} definition Name of resource or resource definition object: Properties:
  *
@@ -3883,23 +3871,23 @@ function defineResource(definition) {
     };
   }
   if (!this.utils.isObject(definition)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'definition: Must be an object!', { definition: { actual: typeof definition, expected: 'object' } });
+    throw new this.errors.IA(errorPrefix + 'definition: Must be an object!');
   } else if (!this.utils.isString(definition.name)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'definition.name: Must be a string!', { definition: { name: { actual: typeof definition.name, expected: 'string' } } });
+    throw new this.errors.IA(errorPrefix + 'definition.name: Must be a string!');
   } else if (definition.idAttribute && !this.utils.isString(definition.idAttribute)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'definition.idAttribute: Must be a string!', { definition: { idAttribute: { actual: typeof definition.idAttribute, expected: 'string' } } });
+    throw new this.errors.IA(errorPrefix + 'definition.idAttribute: Must be a string!');
   } else if (definition.endpoint && !this.utils.isString(definition.endpoint)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'definition.endpoint: Must be a string!', { definition: { endpoint: { actual: typeof definition.endpoint, expected: 'string' } } });
+    throw new this.errors.IA(errorPrefix + 'definition.endpoint: Must be a string!');
   } else if (this.store[definition.name]) {
-    throw new this.errors.RuntimeError(errorPrefix + definition.name + ' is already registered!');
+    throw new this.errors.R(errorPrefix + definition.name + ' is already registered!');
   }
 
   try {
     Resource.prototype = this.defaults;
     this.definitions[definition.name] = new Resource(this.utils, definition);
 
-    var _this = this,
-      def = this.definitions[definition.name];
+    var _this = this;
+    var def = this.definitions[definition.name];
 
     var cache = this.cacheFactory('DS.' + def.name, {
       maxAge: def.maxAge || null,
@@ -3937,7 +3925,7 @@ function defineResource(definition) {
   } catch (err) {
     delete this.definitions[definition.name];
     delete this.store[definition.name];
-    throw new this.errors.UnhandledError(err);
+    throw err;
   }
 }
 
@@ -3965,21 +3953,14 @@ var observe = require('../../../lib/observe-js/observe-js');
  * Works like $scope.$apply()
  * ```
  *
- * ## Throws
- *
- * - `{UnhandledError}`
  */
 function digest() {
-  try {
-    if (!this.$rootScope.$$phase) {
-      this.$rootScope.$apply(function () {
-        observe.Platform.performMicrotaskCheckpoint();
-      });
-    } else {
+  if (!this.$rootScope.$$phase) {
+    this.$rootScope.$apply(function () {
       observe.Platform.performMicrotaskCheckpoint();
-    }
-  } catch (err) {
-    throw new this.errors.UnhandledError(err);
+    });
+  } else {
+    observe.Platform.performMicrotaskCheckpoint();
   }
 }
 
@@ -4034,36 +4015,31 @@ function _eject(definition, resource, id) {
  * ## Throws
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to eject.
  */
 function eject(resourceName, id) {
   if (!this.definitions[resourceName]) {
-    throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+    throw new this.errors.NER(errorPrefix + resourceName);
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
   }
 
-  var resource = this.store[resourceName],
-    _this = this;
+  var resource = this.store[resourceName];
+  var _this = this;
 
-  try {
-    if (!this.$rootScope.$$phase) {
-      this.$rootScope.$apply(function () {
-        _eject(_this.definitions[resourceName], resource, id);
-        resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
-      });
-    } else {
+  if (!this.$rootScope.$$phase) {
+    this.$rootScope.$apply(function () {
       _eject(_this.definitions[resourceName], resource, id);
       resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
-    }
-    delete this.store[resourceName].completedQueries[id];
-  } catch (err) {
-    throw new this.errors.UnhandledError(err);
+    });
+  } else {
+    _eject(_this.definitions[resourceName], resource, id);
+    resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
   }
+  delete this.store[resourceName].completedQueries[id];
 }
 
 module.exports = eject;
@@ -4133,8 +4109,7 @@ function _ejectAll(definition, resource, params) {
  * ## Throws
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {object} params Parameter object that is serialized into the query string. Properties:
@@ -4149,40 +4124,35 @@ function ejectAll(resourceName, params) {
   params = params || {};
 
   if (!this.definitions[resourceName]) {
-    throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+    throw new this.errors.NER(errorPrefix + resourceName);
   } else if (!this.utils.isObject(params)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!', { params: { actual: typeof params, expected: 'object' } });
+    throw new this.errors.IA(errorPrefix + 'params: Must be an object!');
   }
 
-  try {
-    var _this = this;
-    var resource = this.store[resourceName];
-    var queryHash = this.utils.toJson(params);
+  var _this = this;
+  var resource = this.store[resourceName];
+  var queryHash = this.utils.toJson(params);
 
-    delete resource.completedQueries[queryHash];
+  delete resource.completedQueries[queryHash];
 
-    if (this.utils.isEmpty(params)) {
-      resource.completedQueries = {};
-    }
+  if (this.utils.isEmpty(params)) {
+    resource.completedQueries = {};
+  }
 
-    if (!this.$rootScope.$$phase) {
-      this.$rootScope.$apply(function () {
-        _ejectAll.apply(_this, [_this.definitions[resourceName], resource, params]);
-        resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
-      });
-    } else {
+  if (!this.$rootScope.$$phase) {
+    this.$rootScope.$apply(function () {
       _ejectAll.apply(_this, [_this.definitions[resourceName], resource, params]);
-      resource.collectionModified = this.utils.updateTimestamp(resource.collectionModified);
-    }
-  } catch (err) {
-    throw new this.errors.UnhandledError(err);
+      resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
+    });
+  } else {
+    _ejectAll.apply(_this, [_this.definitions[resourceName], resource, params]);
+    resource.collectionModified = this.utils.updateTimestamp(resource.collectionModified);
   }
 }
 
 module.exports = ejectAll;
 
 },{}],50:[function(require,module,exports){
-/* jshint loopfunc: true */
 var errorPrefix = 'DS.filter(resourceName[, params][, options]): ';
 
 /**
@@ -4206,8 +4176,7 @@ var errorPrefix = 'DS.filter(resourceName[, params][, options]): ';
  * ## Throws
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {object=} params Parameter object that is serialized into the query string. Properties:
@@ -4227,45 +4196,37 @@ function filter(resourceName, params, options) {
   options = options || {};
 
   if (!this.definitions[resourceName]) {
-    throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+    throw new this.errors.NER(errorPrefix + resourceName);
   } else if (params && !this.utils.isObject(params)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!', { params: { actual: typeof params, expected: 'object' } });
+    throw new this.errors.IA(errorPrefix + 'params: Must be an object!');
   } else if (!this.utils.isObject(options)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
+    throw new this.errors.IA(errorPrefix + 'options: Must be an object!');
   }
 
-  try {
-    var definition = this.definitions[resourceName];
-    var resource = this.store[resourceName];
+  var definition = this.definitions[resourceName];
+  var resource = this.store[resourceName];
 
-    // Protect against null
-    params = params || {};
+  // Protect against null
+  params = params || {};
 
-    if ('allowSimpleWhere' in options) {
-      options.allowSimpleWhere = !!options.allowSimpleWhere;
-    } else {
-      options.allowSimpleWhere = true;
-    }
+  if ('allowSimpleWhere' in options) {
+    options.allowSimpleWhere = !!options.allowSimpleWhere;
+  } else {
+    options.allowSimpleWhere = true;
+  }
 
-    var queryHash = this.utils.toJson(params);
+  var queryHash = this.utils.toJson(params);
 
-    if (!(queryHash in resource.completedQueries) && options.loadFromServer) {
-      // This particular query has never been completed
+  if (!(queryHash in resource.completedQueries) && options.loadFromServer) {
+    // This particular query has never been completed
 
-      if (!resource.pendingQueries[queryHash]) {
-        // This particular query has never even been started
-        this.findAll(resourceName, params, options);
-      }
-    }
-
-    return definition.filter.call(this, resource.collection, resourceName, params, options);
-  } catch (err) {
-    if (err instanceof this.errors.IllegalArgumentError) {
-      throw err;
-    } else {
-      throw new this.errors.UnhandledError(err);
+    if (!resource.pendingQueries[queryHash]) {
+      // This particular query has never even been started
+      this.findAll(resourceName, params, options);
     }
   }
+
+  return definition.filter.call(this, resource.collection, resourceName, params, options);
 }
 
 module.exports = filter;
@@ -4295,8 +4256,7 @@ var errorPrefix = 'DS.get(resourceName, id[, options]): ';
  * ## Throws
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to retrieve.
@@ -4308,28 +4268,24 @@ function get(resourceName, id, options) {
   options = options || {};
 
   if (!this.definitions[resourceName]) {
-    throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+    throw new this.errors.NER(errorPrefix + resourceName);
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
   } else if (!this.utils.isObject(options)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
+    throw new this.errors.IA(errorPrefix + 'options: Must be an object!');
   }
   var _this = this;
 
-  try {
-    // cache miss, request resource from server
-    var item = this.store[resourceName].index.get(id);
-    if (!item && options.loadFromServer) {
-      this.find(resourceName, id).then(null, function (err) {
-        return _this.$q.reject(err);
-      });
-    }
-
-    // return resource from cache
-    return item;
-  } catch (err) {
-    throw new this.errors.UnhandledError(err);
+  // cache miss, request resource from server
+  var item = this.store[resourceName].index.get(id);
+  if (!item && options.loadFromServer) {
+    this.find(resourceName, id).then(null, function (err) {
+      return _this.$q.reject(err);
+    });
   }
+
+  // return resource from cache
+  return item;
 }
 
 module.exports = get;
@@ -4369,8 +4325,7 @@ function diffIsEmpty(utils, diff) {
  * ## Throws
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item.
@@ -4378,20 +4333,16 @@ function diffIsEmpty(utils, diff) {
  */
 function hasChanges(resourceName, id) {
   if (!this.definitions[resourceName]) {
-    throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+    throw new this.errors.NER(errorPrefix + resourceName);
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
   }
 
-  try {
-    // return resource from cache
-    if (this.get(resourceName, id)) {
-      return diffIsEmpty(this.utils, this.changes(resourceName, id));
-    } else {
-      return false;
-    }
-  } catch (err) {
-    throw new this.errors.UnhandledError(err);
+  // return resource from cache
+  if (this.get(resourceName, id)) {
+    return diffIsEmpty(this.utils, this.changes(resourceName, id));
+  } else {
+    return false;
   }
 }
 
@@ -4541,27 +4492,23 @@ module.exports = {
 };
 
 },{"./bindAll":43,"./bindOne":44,"./changes":45,"./defineResource":46,"./digest":47,"./eject":48,"./ejectAll":49,"./filter":50,"./get":51,"./hasChanges":52,"./inject":54,"./lastModified":55,"./lastSaved":56,"./previous":57}],54:[function(require,module,exports){
-var observe = require('../../../lib/observe-js/observe-js'),
-  errorPrefix = 'DS.inject(resourceName, attrs[, options]): ';
+var observe = require('../../../lib/observe-js/observe-js');
+var errorPrefix = 'DS.inject(resourceName, attrs[, options]): ';
 
 function _inject(definition, resource, attrs) {
   var _this = this;
   var $log = _this.$log;
 
   function _react(added, removed, changed, getOldValueFn) {
-    try {
-      var innerId = getOldValueFn(definition.idAttribute);
+    var innerId = getOldValueFn(definition.idAttribute);
 
-      resource.modified[innerId] = _this.utils.updateTimestamp(resource.modified[innerId]);
-      resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
+    resource.modified[innerId] = _this.utils.updateTimestamp(resource.modified[innerId]);
+    resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
 
-      if (definition.idAttribute in changed) {
-        $log.error('Doh! You just changed the primary key of an object! ' +
-          'I don\'t know how to handle this yet, so your data for the "' + definition.name +
-          '" resource is now in an undefined (probably broken) state.');
-      }
-    } catch (err) {
-      throw new _this.errors.UnhandledError(err);
+    if (definition.idAttribute in changed) {
+      $log.error('Doh! You just changed the primary key of an object! ' +
+        'I don\'t know how to handle this yet, so your data for the "' + definition.name +
+        '" resource is now in an undefined (probably broken) state.');
     }
   }
 
@@ -4573,7 +4520,7 @@ function _inject(definition, resource, attrs) {
     }
   } else {
     if (!(definition.idAttribute in attrs)) {
-      throw new _this.errors.RuntimeError(errorPrefix + 'attrs: Must contain the property specified by `idAttribute`!');
+      throw new _this.errors.R(errorPrefix + 'attrs: Must contain the property specified by `idAttribute`!');
     } else {
       try {
         definition.beforeInject(definition.name, attrs);
@@ -4676,7 +4623,7 @@ function _injectRelations(definition, injected) {
  *
  * - `{IllegalArgumentError}`
  * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {object|array} attrs The item or collection of items to inject into the data store.
@@ -4688,38 +4635,30 @@ function inject(resourceName, attrs, options) {
   options = options || {};
 
   if (!this.definitions[resourceName]) {
-    throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+    throw new this.errors.NER(errorPrefix + resourceName);
   } else if (!this.utils.isObject(attrs) && !this.utils.isArray(attrs)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'attrs: Must be an object or an array!', { attrs: { actual: typeof attrs, expected: 'object|array' } });
+    throw new this.errors.IA(errorPrefix + 'attrs: Must be an object or an array!');
   } else if (!this.utils.isObject(options)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
+    throw new this.errors.IA(errorPrefix + 'options: Must be an object!');
   }
 
   var definition = this.definitions[resourceName];
   var resource = this.store[resourceName];
   var _this = this;
 
-  try {
-    var injected;
-    if (!this.$rootScope.$$phase) {
-      this.$rootScope.$apply(function () {
-        injected = _inject.call(_this, definition, resource, attrs);
-      });
-    } else {
+  var injected;
+  if (!this.$rootScope.$$phase) {
+    this.$rootScope.$apply(function () {
       injected = _inject.call(_this, definition, resource, attrs);
-    }
-    if (definition.relations) {
-      _injectRelations.call(_this, definition, injected);
-    }
-
-    return injected;
-  } catch (err) {
-    if (!(err instanceof this.errors.RuntimeError)) {
-      throw new this.errors.UnhandledError(err);
-    } else {
-      throw err;
-    }
+    });
+  } else {
+    injected = _inject.call(_this, definition, resource, attrs);
   }
+  if (definition.relations) {
+    _injectRelations.call(_this, definition, injected);
+  }
+
+  return injected;
 }
 
 module.exports = inject;
@@ -4753,8 +4692,7 @@ var errorPrefix = 'DS.lastModified(resourceName[, id]): ';
  * ## Throws
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number=} id The primary key of the item to remove.
@@ -4763,21 +4701,17 @@ var errorPrefix = 'DS.lastModified(resourceName[, id]): ';
  */
 function lastModified(resourceName, id) {
   if (!this.definitions[resourceName]) {
-    throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+    throw new this.errors.NER(errorPrefix + resourceName);
   } else if (id && !this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
   }
-  try {
-    if (id) {
-      if (!(id in this.store[resourceName].modified)) {
-        this.store[resourceName].modified[id] = 0;
-      }
-      return this.store[resourceName].modified[id];
+  if (id) {
+    if (!(id in this.store[resourceName].modified)) {
+      this.store[resourceName].modified[id] = 0;
     }
-    return this.store[resourceName].collectionModified;
-  } catch (err) {
-    throw new this.errors.UnhandledError(err);
+    return this.store[resourceName].modified[id];
   }
+  return this.store[resourceName].collectionModified;
 }
 
 module.exports = lastModified;
@@ -4818,8 +4752,7 @@ var errorPrefix = 'DS.lastSaved(resourceName[, id]): ';
  * ## Throws
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item for which to retrieve the lastSaved timestamp.
@@ -4827,18 +4760,14 @@ var errorPrefix = 'DS.lastSaved(resourceName[, id]): ';
  */
 function lastSaved(resourceName, id) {
   if (!this.definitions[resourceName]) {
-    throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+    throw new this.errors.NER(errorPrefix + resourceName);
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
   }
-  try {
-    if (!(id in this.store[resourceName].saved)) {
-      this.store[resourceName].saved[id] = 0;
-    }
-    return this.store[resourceName].saved[id];
-  } catch (err) {
-    throw new this.errors.UnhandledError(err);
+  if (!(id in this.store[resourceName].saved)) {
+    this.store[resourceName].saved[id] = 0;
   }
+  return this.store[resourceName].saved[id];
 }
 
 module.exports = lastSaved;
@@ -4874,8 +4803,7 @@ var errorPrefix = 'DS.previous(resourceName, id): ';
  * ## Throws
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item whose previous attributes are to be retrieved.
@@ -4883,17 +4811,13 @@ var errorPrefix = 'DS.previous(resourceName, id): ';
  */
 function previous(resourceName, id) {
   if (!this.definitions[resourceName]) {
-    throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+    throw new this.errors.NER(errorPrefix + resourceName);
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
   }
 
-  try {
-    // return resource from cache
-    return angular.copy(this.store[resourceName].previousAttributes[id]);
-  } catch (err) {
-    throw new this.errors.UnhandledError(err);
-  }
+  // return resource from cache
+  return angular.copy(this.store[resourceName].previousAttributes[id]);
 }
 
 module.exports = previous;
@@ -4901,71 +4825,13 @@ module.exports = previous;
 },{}],58:[function(require,module,exports){
 /**
  * @doc function
- * @id errors.types:UnhandledError
- * @name UnhandledError
- * @description Error that is thrown/returned when Reheat encounters an uncaught/unknown exception.
- * @param {Error} error The originally thrown error.
- * @returns {UnhandledError} A new instance of `UnhandledError`.
- */
-function UnhandledError(error) {
-  Error.call(this);
-  if (typeof Error.captureStackTrace === 'function') {
-    Error.captureStackTrace(this, this.constructor);
-  }
-
-  error = error || {};
-
-  /**
-   * @doc property
-   * @id errors.types:UnhandledError.type
-   * @name type
-   * @propertyOf errors.types:UnhandledError
-   * @description Name of error type. Default: `"UnhandledError"`.
-   */
-  this.type = this.constructor.name;
-
-  /**
-   * @doc property
-   * @id errors.types:UnhandledError.originalError
-   * @name originalError
-   * @propertyOf errors.types:UnhandledError
-   * @description A reference to the original error that was thrown.
-   */
-  this.originalError = error;
-
-  /**
-   * @doc property
-   * @id errors.types:UnhandledError.message
-   * @name message
-   * @propertyOf errors.types:UnhandledError
-   * @description Message and stack trace. Same as `UnhandledError#stack`.
-   */
-  this.message = 'UnhandledError: This is an uncaught exception. Please consider submitting an issue at https://github.com/jmdobry/angular-data/issues.\n\n' +
-    'Original Uncaught Exception:\n' + (error.stack ? error.stack.toString() : error.stack);
-
-  /**
-   * @doc property
-   * @id errors.types:UnhandledError.stack
-   * @name stack
-   * @propertyOf errors.types:UnhandledError
-   * @description Message and stack trace. Same as `UnhandledError#message`.
-   */
-  this.stack = this.message;
-}
-
-UnhandledError.prototype = Object.create(Error.prototype);
-UnhandledError.prototype.constructor = UnhandledError;
-
-/**
- * @doc function
  * @id errors.types:IllegalArgumentError
  * @name IllegalArgumentError
  * @description Error that is thrown/returned when a caller does not honor the pre-conditions of a method/function.
  * @param {string=} message Error message. Default: `"Illegal Argument!"`.
- * @param {object=} errors Object containing information about the error.
  * @returns {IllegalArgumentError} A new instance of `IllegalArgumentError`.
  */
-function IllegalArgumentError(message, errors) {
+function IllegalArgumentError(message) {
   Error.call(this);
   if (typeof Error.captureStackTrace === 'function') {
     Error.captureStackTrace(this, this.constructor);
@@ -4979,15 +4845,6 @@ function IllegalArgumentError(message, errors) {
    * @description Name of error type. Default: `"IllegalArgumentError"`.
    */
   this.type = this.constructor.name;
-
-  /**
-   * @doc property
-   * @id errors.types:IllegalArgumentError.errors
-   * @name errors
-   * @propertyOf errors.types:IllegalArgumentError
-   * @description Object containing information about the error.
-   */
-  this.errors = errors || {};
 
   /**
    * @doc property
@@ -5008,10 +4865,9 @@ IllegalArgumentError.prototype.constructor = IllegalArgumentError;
  * @name RuntimeError
  * @description Error that is thrown/returned for invalid state during runtime.
  * @param {string=} message Error message. Default: `"Runtime Error!"`.
- * @param {object=} errors Object containing information about the error.
  * @returns {RuntimeError} A new instance of `RuntimeError`.
  */
-function RuntimeError(message, errors) {
+function RuntimeError(message) {
   Error.call(this);
   if (typeof Error.captureStackTrace === 'function') {
     Error.captureStackTrace(this, this.constructor);
@@ -5028,15 +4884,6 @@ function RuntimeError(message, errors) {
 
   /**
    * @doc property
-   * @id errors.types:RuntimeError.errors
-   * @name errors
-   * @propertyOf errors.types:RuntimeError
-   * @description Object containing information about the error.
-   */
-  this.errors = errors || {};
-
-  /**
-   * @doc property
    * @id errors.types:RuntimeError.message
    * @name message
    * @propertyOf errors.types:RuntimeError
@@ -5049,23 +4896,62 @@ RuntimeError.prototype = Object.create(Error.prototype);
 RuntimeError.prototype.constructor = RuntimeError;
 
 /**
+ * @doc function
+ * @id errors.types:NonexistentResourceError
+ * @name NonexistentResourceError
+ * @description Error that is thrown/returned when trying to access a resource that does not exist.
+ * @param {string=} resourceName Name of non-existent resource.
+ * @returns {NonexistentResourceError} A new instance of `NonexistentResourceError`.
+ */
+function NonexistentResourceError(resourceName) {
+  Error.call(this);
+  if (typeof Error.captureStackTrace === 'function') {
+    Error.captureStackTrace(this, this.constructor);
+  }
+
+  /**
+   * @doc property
+   * @id errors.types:NonexistentResourceError.type
+   * @name type
+   * @propertyOf errors.types:NonexistentResourceError
+   * @description Name of error type. Default: `"NonexistentResourceError"`.
+   */
+  this.type = this.constructor.name;
+
+  /**
+   * @doc property
+   * @id errors.types:NonexistentResourceError.message
+   * @name message
+   * @propertyOf errors.types:NonexistentResourceError
+   * @description Error message. Default: `"Runtime Error!"`.
+   */
+  this.message = (resourceName || '') + ' is not a registered resource!';
+}
+
+NonexistentResourceError.prototype = Object.create(Error.prototype);
+NonexistentResourceError.prototype.constructor = NonexistentResourceError;
+
+/**
  * @doc interface
  * @id errors
  * @name angular-data error types
  * @description
  * Various error types that may be thrown by angular-data.
  *
- * - [UnhandledError](/documentation/api/api/errors.types:UnhandledError)
  * - [IllegalArgumentError](/documentation/api/api/errors.types:IllegalArgumentError)
  * - [RuntimeError](/documentation/api/api/errors.types:RuntimeError)
+ * - [NonexistentResourceError](/documentation/api/api/errors.types:NonexistentResourceError)
  *
  * References to the constructor functions of these errors can be found in `DS.errors`.
  */
 module.exports = [function () {
   return {
-    UnhandledError: UnhandledError,
     IllegalArgumentError: IllegalArgumentError,
-    RuntimeError: RuntimeError
+    IA: IllegalArgumentError,
+    RuntimeError: RuntimeError,
+    R: RuntimeError,
+    NonexistentResourceError: NonexistentResourceError,
+    NER: NonexistentResourceError
   };
 }];
 

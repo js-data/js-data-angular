@@ -50,22 +50,21 @@ var errorPrefix = 'DS.destroyAll(resourceName, params[, options]): ';
  * ## Rejects with:
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  */
 function destroyAll(resourceName, params, options) {
-  var deferred = this.$q.defer(),
-    promise = deferred.promise,
-    _this = this;
+  var deferred = this.$q.defer();
+  var promise = deferred.promise;
+  var _this = this;
 
   options = options || {};
 
   if (!this.definitions[resourceName]) {
-    deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
+    deferred.reject(new this.errors.NER(errorPrefix + resourceName));
   } else if (!this.utils.isObject(params)) {
-    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!'));
+    deferred.reject(new this.errors.IA(errorPrefix + 'params: Must be an object!'));
   } else if (!this.utils.isObject(options)) {
-    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!'));
+    deferred.reject(new this.errors.IA(errorPrefix + 'options: Must be an object!'));
   } else {
     try {
       var definition = this.definitions[resourceName];
@@ -79,7 +78,7 @@ function destroyAll(resourceName, params, options) {
         });
       deferred.resolve();
     } catch (err) {
-      deferred.reject(new this.errors.UnhandledError(err));
+      deferred.reject(err);
     }
   }
 
