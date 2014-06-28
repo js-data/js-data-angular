@@ -32,14 +32,16 @@ var errorPrefix = 'DS.bindOne(scope, expr, resourceName, id[, cb]): ';
  * @returns {function} Scope $watch deregistration function.
  */
 function bindOne(scope, expr, resourceName, id, cb) {
+  var IA = this.errors.IA;
+
   if (!this.utils.isObject(scope)) {
-    throw new this.errors.IA(errorPrefix + 'scope: Must be an object!');
+    throw new IA(errorPrefix + 'scope: Must be an object!');
   } else if (!this.utils.isString(expr)) {
-    throw new this.errors.IA(errorPrefix + 'expr: Must be a string!');
+    throw new IA(errorPrefix + 'expr: Must be a string!');
   } else if (!this.definitions[resourceName]) {
     throw new this.errors.NER(errorPrefix + resourceName);
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
+    throw new IA(errorPrefix + 'id: Must be a string or a number!');
   }
 
   var _this = this;

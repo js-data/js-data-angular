@@ -45,49 +45,48 @@ function create(resourceName, attrs, options) {
   var deferred = this.$q.defer();
   var promise = deferred.promise;
 
-  options = options || {};
+  try {
+    options = options || {};
 
-  if (!this.definitions[resourceName]) {
-    deferred.reject(new this.errors.NER(errorPrefix + resourceName));
-  } else if (!this.utils.isObject(attrs)) {
-    deferred.reject(new this.errors.IA(errorPrefix + 'attrs: Must be an object!'));
-  } else {
-    try {
-      var definition = this.definitions[resourceName];
-      var resource = this.store[resourceName];
-      var _this = this;
-
-      promise = promise
-        .then(function (attrs) {
-          return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
-        })
-        .then(function (attrs) {
-          return _this.$q.promisify(definition.validate)(resourceName, attrs);
-        })
-        .then(function (attrs) {
-          return _this.$q.promisify(definition.afterValidate)(resourceName, attrs);
-        })
-        .then(function (attrs) {
-          return _this.$q.promisify(definition.beforeCreate)(resourceName, attrs);
-        })
-        .then(function (attrs) {
-          return _this.adapters[options.adapter || definition.defaultAdapter].create(definition, definition.serialize(resourceName, attrs), options);
-        })
-        .then(function (res) {
-          return _this.$q.promisify(definition.afterCreate)(resourceName, definition.deserialize(resourceName, res));
-        })
-        .then(function (data) {
-          var created = _this.inject(definition.name, data);
-          var id = created[definition.idAttribute];
-          resource.previousAttributes[id] = _this.utils.deepMixIn({}, created);
-          resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
-          return _this.get(definition.name, id);
-        });
-
-      deferred.resolve(attrs);
-    } catch (err) {
-      deferred.reject(err);
+    if (!this.definitions[resourceName]) {
+      throw new this.errors.NER(errorPrefix + resourceName);
+    } else if (!this.utils.isObject(attrs)) {
+      throw new this.errors.IA(errorPrefix + 'attrs: Must be an object!');
     }
+    var definition = this.definitions[resourceName];
+    var resource = this.store[resourceName];
+    var _this = this;
+
+    promise = promise
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
+      })
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.validate)(resourceName, attrs);
+      })
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.afterValidate)(resourceName, attrs);
+      })
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.beforeCreate)(resourceName, attrs);
+      })
+      .then(function (attrs) {
+        return _this.adapters[options.adapter || definition.defaultAdapter].create(definition, definition.serialize(resourceName, attrs), options);
+      })
+      .then(function (res) {
+        return _this.$q.promisify(definition.afterCreate)(resourceName, definition.deserialize(resourceName, res));
+      })
+      .then(function (data) {
+        var created = _this.inject(definition.name, data);
+        var id = created[definition.idAttribute];
+        resource.previousAttributes[id] = _this.utils.deepMixIn({}, created);
+        resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
+        return _this.get(definition.name, id);
+      });
+
+    deferred.resolve(attrs);
+  } catch (err) {
+    deferred.reject(err);
   }
 
   return promise;

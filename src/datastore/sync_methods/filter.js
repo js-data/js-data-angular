@@ -38,14 +38,16 @@ var errorPrefix = 'DS.filter(resourceName[, params][, options]): ';
  * @returns {array} The filtered collection of items of the type specified by `resourceName`.
  */
 function filter(resourceName, params, options) {
+  var IA = this.errors.IA;
+
   options = options || {};
 
   if (!this.definitions[resourceName]) {
     throw new this.errors.NER(errorPrefix + resourceName);
   } else if (params && !this.utils.isObject(params)) {
-    throw new this.errors.IA(errorPrefix + 'params: Must be an object!');
+    throw new IA(errorPrefix + 'params: Must be an object!');
   } else if (!this.utils.isObject(options)) {
-    throw new this.errors.IA(errorPrefix + 'options: Must be an object!');
+    throw new IA(errorPrefix + 'options: Must be an object!');
   }
 
   var definition = this.definitions[resourceName];

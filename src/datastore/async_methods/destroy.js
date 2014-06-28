@@ -46,40 +46,40 @@ function destroy(resourceName, id, options) {
   var deferred = this.$q.defer();
   var promise = deferred.promise;
 
-  options = options || {};
+  try {
+    options = options || {};
 
-  if (!this.definitions[resourceName]) {
-    deferred.reject(new this.errors.NER(errorPrefix + resourceName));
-  } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    deferred.reject(new this.errors.IA(errorPrefix + 'id: Must be a string or a number!'));
-  } else {
+    if (!this.definitions[resourceName]) {
+      throw new this.errors.NER(errorPrefix + resourceName);
+    } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+      throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
+    }
+
     var item = this.get(resourceName, id);
     if (!item) {
-      deferred.reject(new this.errors.R(errorPrefix + 'id: "' + id + '" not found!'));
-    } else {
-      try {
-        var definition = this.definitions[resourceName];
-        var _this = this;
-
-        promise = promise
-          .then(function (attrs) {
-            return _this.$q.promisify(definition.beforeDestroy)(resourceName, attrs);
-          })
-          .then(function () {
-            return _this.adapters[options.adapter || definition.defaultAdapter].destroy(definition, id, options);
-          })
-          .then(function () {
-            return _this.$q.promisify(definition.afterDestroy)(resourceName, item);
-          })
-          .then(function () {
-            _this.eject(resourceName, id);
-            return id;
-          });
-        deferred.resolve(item);
-      } catch (err) {
-        deferred.reject(err);
-      }
+      throw new this.errors.R(errorPrefix + 'id: "' + id + '" not found!');
     }
+
+    var definition = this.definitions[resourceName];
+    var _this = this;
+
+    promise = promise
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.beforeDestroy)(resourceName, attrs);
+      })
+      .then(function () {
+        return _this.adapters[options.adapter || definition.defaultAdapter].destroy(definition, id, options);
+      })
+      .then(function () {
+        return _this.$q.promisify(definition.afterDestroy)(resourceName, item);
+      })
+      .then(function () {
+        _this.eject(resourceName, id);
+        return id;
+      });
+    deferred.resolve(item);
+  } catch (err) {
+    deferred.reject(err);
   }
 
   return promise;

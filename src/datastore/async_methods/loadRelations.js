@@ -36,19 +36,20 @@ var errorPrefix = 'DS.loadRelations(resourceName, instance(Id), relations[, opti
 function loadRelations(resourceName, instance, relations, options) {
   var deferred = this.$q.defer();
   var promise = deferred.promise;
-  var IA = this.errors.IA;
-
-  options = options || {};
-
-  if (angular.isString(instance) || angular.isNumber(instance)) {
-    instance = this.get(resourceName, instance);
-  }
-
-  if (angular.isString(relations)) {
-    relations = [relations];
-  }
 
   try {
+    var IA = this.errors.IA;
+
+    options = options || {};
+
+    if (angular.isString(instance) || angular.isNumber(instance)) {
+      instance = this.get(resourceName, instance);
+    }
+
+    if (angular.isString(relations)) {
+      relations = [relations];
+    }
+
     if (!this.definitions[resourceName]) {
       throw new this.errors.NER(errorPrefix + resourceName);
     } else if (!this.utils.isObject(instance)) {

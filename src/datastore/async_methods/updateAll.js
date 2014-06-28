@@ -62,17 +62,21 @@ function updateAll(resourceName, attrs, params, options) {
   var deferred = this.$q.defer();
   var promise = deferred.promise;
 
-  options = options || {};
+  try {
+    var IA = this.errors.IA;
 
-  if (!this.definitions[resourceName]) {
-    deferred.reject(new this.errors.NER(errorPrefix + resourceName));
-  } else if (!this.utils.isObject(attrs)) {
-    deferred.reject(new this.errors.IA(errorPrefix + 'attrs: Must be an object!'));
-  } else if (!this.utils.isObject(params)) {
-    deferred.reject(new this.errors.IA(errorPrefix + 'params: Must be an object!'));
-  } else if (!this.utils.isObject(options)) {
-    deferred.reject(new this.errors.IA(errorPrefix + 'options: Must be an object!'));
-  } else {
+    options = options || {};
+
+    if (!this.definitions[resourceName]) {
+      throw new this.errors.NER(errorPrefix + resourceName);
+    } else if (!this.utils.isObject(attrs)) {
+      throw new IA(errorPrefix + 'attrs: Must be an object!');
+    } else if (!this.utils.isObject(params)) {
+      throw new IA(errorPrefix + 'params: Must be an object!');
+    } else if (!this.utils.isObject(options)) {
+      throw new IA(errorPrefix + 'options: Must be an object!');
+    }
+
     var definition = this.definitions[resourceName];
     var _this = this;
 
@@ -110,7 +114,10 @@ function updateAll(resourceName, attrs, params, options) {
       });
 
     deferred.resolve(attrs);
+  } catch (err) {
+    deferred.reject(err);
   }
+
   return promise;
 }
 

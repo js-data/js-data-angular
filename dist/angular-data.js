@@ -1860,49 +1860,48 @@ function create(resourceName, attrs, options) {
   var deferred = this.$q.defer();
   var promise = deferred.promise;
 
-  options = options || {};
+  try {
+    options = options || {};
 
-  if (!this.definitions[resourceName]) {
-    deferred.reject(new this.errors.NER(errorPrefix + resourceName));
-  } else if (!this.utils.isObject(attrs)) {
-    deferred.reject(new this.errors.IA(errorPrefix + 'attrs: Must be an object!'));
-  } else {
-    try {
-      var definition = this.definitions[resourceName];
-      var resource = this.store[resourceName];
-      var _this = this;
-
-      promise = promise
-        .then(function (attrs) {
-          return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
-        })
-        .then(function (attrs) {
-          return _this.$q.promisify(definition.validate)(resourceName, attrs);
-        })
-        .then(function (attrs) {
-          return _this.$q.promisify(definition.afterValidate)(resourceName, attrs);
-        })
-        .then(function (attrs) {
-          return _this.$q.promisify(definition.beforeCreate)(resourceName, attrs);
-        })
-        .then(function (attrs) {
-          return _this.adapters[options.adapter || definition.defaultAdapter].create(definition, definition.serialize(resourceName, attrs), options);
-        })
-        .then(function (res) {
-          return _this.$q.promisify(definition.afterCreate)(resourceName, definition.deserialize(resourceName, res));
-        })
-        .then(function (data) {
-          var created = _this.inject(definition.name, data);
-          var id = created[definition.idAttribute];
-          resource.previousAttributes[id] = _this.utils.deepMixIn({}, created);
-          resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
-          return _this.get(definition.name, id);
-        });
-
-      deferred.resolve(attrs);
-    } catch (err) {
-      deferred.reject(err);
+    if (!this.definitions[resourceName]) {
+      throw new this.errors.NER(errorPrefix + resourceName);
+    } else if (!this.utils.isObject(attrs)) {
+      throw new this.errors.IA(errorPrefix + 'attrs: Must be an object!');
     }
+    var definition = this.definitions[resourceName];
+    var resource = this.store[resourceName];
+    var _this = this;
+
+    promise = promise
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
+      })
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.validate)(resourceName, attrs);
+      })
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.afterValidate)(resourceName, attrs);
+      })
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.beforeCreate)(resourceName, attrs);
+      })
+      .then(function (attrs) {
+        return _this.adapters[options.adapter || definition.defaultAdapter].create(definition, definition.serialize(resourceName, attrs), options);
+      })
+      .then(function (res) {
+        return _this.$q.promisify(definition.afterCreate)(resourceName, definition.deserialize(resourceName, res));
+      })
+      .then(function (data) {
+        var created = _this.inject(definition.name, data);
+        var id = created[definition.idAttribute];
+        resource.previousAttributes[id] = _this.utils.deepMixIn({}, created);
+        resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
+        return _this.get(definition.name, id);
+      });
+
+    deferred.resolve(attrs);
+  } catch (err) {
+    deferred.reject(err);
   }
 
   return promise;
@@ -1959,40 +1958,40 @@ function destroy(resourceName, id, options) {
   var deferred = this.$q.defer();
   var promise = deferred.promise;
 
-  options = options || {};
+  try {
+    options = options || {};
 
-  if (!this.definitions[resourceName]) {
-    deferred.reject(new this.errors.NER(errorPrefix + resourceName));
-  } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    deferred.reject(new this.errors.IA(errorPrefix + 'id: Must be a string or a number!'));
-  } else {
+    if (!this.definitions[resourceName]) {
+      throw new this.errors.NER(errorPrefix + resourceName);
+    } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+      throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
+    }
+
     var item = this.get(resourceName, id);
     if (!item) {
-      deferred.reject(new this.errors.R(errorPrefix + 'id: "' + id + '" not found!'));
-    } else {
-      try {
-        var definition = this.definitions[resourceName];
-        var _this = this;
-
-        promise = promise
-          .then(function (attrs) {
-            return _this.$q.promisify(definition.beforeDestroy)(resourceName, attrs);
-          })
-          .then(function () {
-            return _this.adapters[options.adapter || definition.defaultAdapter].destroy(definition, id, options);
-          })
-          .then(function () {
-            return _this.$q.promisify(definition.afterDestroy)(resourceName, item);
-          })
-          .then(function () {
-            _this.eject(resourceName, id);
-            return id;
-          });
-        deferred.resolve(item);
-      } catch (err) {
-        deferred.reject(err);
-      }
+      throw new this.errors.R(errorPrefix + 'id: "' + id + '" not found!');
     }
+
+    var definition = this.definitions[resourceName];
+    var _this = this;
+
+    promise = promise
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.beforeDestroy)(resourceName, attrs);
+      })
+      .then(function () {
+        return _this.adapters[options.adapter || definition.defaultAdapter].destroy(definition, id, options);
+      })
+      .then(function () {
+        return _this.$q.promisify(definition.afterDestroy)(resourceName, item);
+      })
+      .then(function () {
+        _this.eject(resourceName, id);
+        return id;
+      });
+    deferred.resolve(item);
+  } catch (err) {
+    deferred.reject(err);
   }
 
   return promise;
@@ -2058,31 +2057,33 @@ var errorPrefix = 'DS.destroyAll(resourceName, params[, options]): ';
 function destroyAll(resourceName, params, options) {
   var deferred = this.$q.defer();
   var promise = deferred.promise;
-  var _this = this;
 
-  options = options || {};
+  try {
+    var _this = this;
+    var IA = this.errors.IA;
 
-  if (!this.definitions[resourceName]) {
-    deferred.reject(new this.errors.NER(errorPrefix + resourceName));
-  } else if (!this.utils.isObject(params)) {
-    deferred.reject(new this.errors.IA(errorPrefix + 'params: Must be an object!'));
-  } else if (!this.utils.isObject(options)) {
-    deferred.reject(new this.errors.IA(errorPrefix + 'options: Must be an object!'));
-  } else {
-    try {
-      var definition = this.definitions[resourceName];
+    options = options || {};
 
-      promise = promise
-        .then(function () {
-          return _this.adapters[options.adapter || definition.defaultAdapter].destroyAll(definition, params, options);
-        })
-        .then(function () {
-          return _this.ejectAll(resourceName, params);
-        });
-      deferred.resolve();
-    } catch (err) {
-      deferred.reject(err);
+    if (!this.definitions[resourceName]) {
+      throw new this.errors.NER(errorPrefix + resourceName);
+    } else if (!this.utils.isObject(params)) {
+      throw new IA(errorPrefix + 'params: Must be an object!');
+    } else if (!this.utils.isObject(options)) {
+      throw new IA(errorPrefix + 'options: Must be an object!');
     }
+
+    var definition = this.definitions[resourceName];
+
+    promise = promise
+      .then(function () {
+        return _this.adapters[options.adapter || definition.defaultAdapter].destroyAll(definition, params, options);
+      })
+      .then(function () {
+        return _this.ejectAll(resourceName, params);
+      });
+    deferred.resolve();
+  } catch (err) {
+    deferred.reject(err);
   }
 
   return promise;
@@ -2140,55 +2141,58 @@ function find(resourceName, id, options) {
   var deferred = this.$q.defer();
   var promise = deferred.promise;
 
-  options = options || {};
+  try {
+    var IA = this.errors.IA;
 
-  if (!this.definitions[resourceName]) {
-    deferred.reject(new this.errors.NER(errorPrefix + resourceName));
-  } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    deferred.reject(new this.errors.IA(errorPrefix + 'id: Must be a string or a number!'));
-  } else if (!this.utils.isObject(options)) {
-    deferred.reject(new this.errors.IA(errorPrefix + 'options: Must be an object!'));
-  } else {
+    options = options || {};
+
+    if (!this.definitions[resourceName]) {
+      throw new this.errors.NER(errorPrefix + resourceName);
+    } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+      throw new IA(errorPrefix + 'id: Must be a string or a number!');
+    } else if (!this.utils.isObject(options)) {
+      throw new IA(errorPrefix + 'options: Must be an object!');
+    }
+
     if (!('cacheResponse' in options)) {
       options.cacheResponse = true;
     } else {
       options.cacheResponse = !!options.cacheResponse;
     }
-    try {
-      var definition = this.definitions[resourceName];
-      var resource = this.store[resourceName];
-      var _this = this;
 
-      if (options.bypassCache) {
-        delete resource.completedQueries[id];
-      }
+    var definition = this.definitions[resourceName];
+    var resource = this.store[resourceName];
+    var _this = this;
 
-      if (!(id in resource.completedQueries)) {
-        if (!(id in resource.pendingQueries)) {
-          promise = resource.pendingQueries[id] = _this.adapters[options.adapter || definition.defaultAdapter].find(definition, id, options)
-            .then(function (res) {
-              var data = definition.deserialize(resourceName, res);
-              if (options.cacheResponse) {
-                // Query is no longer pending
-                delete resource.pendingQueries[id];
-                resource.completedQueries[id] = new Date().getTime();
-                return _this.inject(resourceName, data);
-              } else {
-                return data;
-              }
-            }, function (err) {
-              delete resource.pendingQueries[id];
-              return _this.$q.reject(err);
-            });
-        }
-
-        return resource.pendingQueries[id];
-      } else {
-        deferred.resolve(_this.get(resourceName, id));
-      }
-    } catch (err) {
-      deferred.reject(err);
+    if (options.bypassCache) {
+      delete resource.completedQueries[id];
     }
+
+    if (!(id in resource.completedQueries)) {
+      if (!(id in resource.pendingQueries)) {
+        promise = resource.pendingQueries[id] = _this.adapters[options.adapter || definition.defaultAdapter].find(definition, id, options)
+          .then(function (res) {
+            var data = definition.deserialize(resourceName, res);
+            if (options.cacheResponse) {
+              // Query is no longer pending
+              delete resource.pendingQueries[id];
+              resource.completedQueries[id] = new Date().getTime();
+              return _this.inject(resourceName, data);
+            } else {
+              return data;
+            }
+          }, function (err) {
+            delete resource.pendingQueries[id];
+            return _this.$q.reject(err);
+          });
+      }
+
+      return resource.pendingQueries[id];
+    } else {
+      deferred.resolve(_this.get(resourceName, id));
+    }
+  } catch (err) {
+    deferred.reject(err);
   }
 
   return promise;
@@ -2319,31 +2323,34 @@ function _findAll(utils, resourceName, params, options) {
 function findAll(resourceName, params, options) {
   var deferred = this.$q.defer();
   var promise = deferred.promise;
-  var _this = this;
 
-  options = options || {};
-  params = params || {};
+  try {
+    var IA = this.errors.IA;
+    var _this = this;
 
-  if (!this.definitions[resourceName]) {
-    deferred.reject(new this.errors.NER(errorPrefix + resourceName));
-  } else if (!this.utils.isObject(params)) {
-    deferred.reject(new this.errors.IA(errorPrefix + 'params: Must be an object!'));
-  } else if (!this.utils.isObject(options)) {
-    deferred.reject(new this.errors.IA(errorPrefix + 'options: Must be an object!'));
-  } else {
+    options = options || {};
+    params = params || {};
+
+    if (!this.definitions[resourceName]) {
+      throw new this.errors.NER(errorPrefix + resourceName);
+    } else if (!this.utils.isObject(params)) {
+      throw new IA(errorPrefix + 'params: Must be an object!');
+    } else if (!this.utils.isObject(options)) {
+      throw new IA(errorPrefix + 'options: Must be an object!');
+    }
+
     if (!('cacheResponse' in options)) {
       options.cacheResponse = true;
     } else {
       options.cacheResponse = !!options.cacheResponse;
     }
-    try {
-      promise = promise.then(function () {
-        return _findAll.apply(_this, [_this.utils, resourceName, params, options]);
-      });
-      deferred.resolve();
-    } catch (err) {
-      deferred.reject(err);
-    }
+
+    promise = promise.then(function () {
+      return _findAll.apply(_this, [_this.utils, resourceName, params, options]);
+    });
+    deferred.resolve();
+  } catch (err) {
+    deferred.reject(err);
   }
 
   return promise;
@@ -2493,19 +2500,20 @@ var errorPrefix = 'DS.loadRelations(resourceName, instance(Id), relations[, opti
 function loadRelations(resourceName, instance, relations, options) {
   var deferred = this.$q.defer();
   var promise = deferred.promise;
-  var IA = this.errors.IA;
-
-  options = options || {};
-
-  if (angular.isString(instance) || angular.isNumber(instance)) {
-    instance = this.get(resourceName, instance);
-  }
-
-  if (angular.isString(relations)) {
-    relations = [relations];
-  }
 
   try {
+    var IA = this.errors.IA;
+
+    options = options || {};
+
+    if (angular.isString(instance) || angular.isNumber(instance)) {
+      instance = this.get(resourceName, instance);
+    }
+
+    if (angular.isString(relations)) {
+      relations = [relations];
+    }
+
     if (!this.definitions[resourceName]) {
       throw new this.errors.NER(errorPrefix + resourceName);
     } else if (!this.utils.isObject(instance)) {
@@ -2621,14 +2629,16 @@ var errorPrefix = 'DS.refresh(resourceName, id[, options]): ';
  * - `{NonexistentResourceError}`
  */
 function refresh(resourceName, id, options) {
+  var IA = this.errors.IA;
+
   options = options || {};
 
   if (!this.definitions[resourceName]) {
     throw new this.errors.NER(errorPrefix + resourceName);
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
+    throw new IA(errorPrefix + 'id: Must be a string or a number!');
   } else if (!this.utils.isObject(options)) {
-    throw new this.errors.IA(errorPrefix + 'options: Must be an object!');
+    throw new IA(errorPrefix + 'options: Must be an object!');
   } else {
     options.bypassCache = true;
 
@@ -2691,71 +2701,78 @@ function save(resourceName, id, options) {
   var deferred = this.$q.defer();
   var promise = deferred.promise;
 
-  options = options || {};
+  try {
+    var IA = this.errors.IA;
 
-  if (!this.definitions[resourceName]) {
-    deferred.reject(new this.errors.NER(errorPrefix + resourceName));
-  } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    deferred.reject(new this.errors.IA(errorPrefix + 'id: Must be a string or a number!'));
-  } else if (!this.utils.isObject(options)) {
-    deferred.reject(new this.errors.IA(errorPrefix + 'options: Must be an object!'));
-  } else {
+    options = options || {};
+
+    if (!this.definitions[resourceName]) {
+      throw new this.errors.NER(errorPrefix + resourceName);
+    } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+      throw new IA(errorPrefix + 'id: Must be a string or a number!');
+    } else if (!this.utils.isObject(options)) {
+      throw new IA(errorPrefix + 'options: Must be an object!');
+    }
+
     var item = this.get(resourceName, id);
     if (!item) {
-      deferred.reject(new this.errors.R(errorPrefix + 'id: "' + id + '" not found!'));
-    } else {
-      var definition = this.definitions[resourceName];
-      var resource = this.store[resourceName];
-      var _this = this;
-
-      promise = promise
-        .then(function (attrs) {
-          return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
-        })
-        .then(function (attrs) {
-          return _this.$q.promisify(definition.validate)(resourceName, attrs);
-        })
-        .then(function (attrs) {
-          return _this.$q.promisify(definition.afterValidate)(resourceName, attrs);
-        })
-        .then(function (attrs) {
-          return _this.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
-        })
-        .then(function (attrs) {
-          if (options.changesOnly) {
-            resource.observers[id].deliver();
-            var toKeep = [],
-              changes = _this.changes(resourceName, id);
-
-            for (var key in changes.added) {
-              toKeep.push(key);
-            }
-            for (key in changes.changed) {
-              toKeep.push(key);
-            }
-            changes = _this.utils.pick(attrs, toKeep);
-            if (_this.utils.isEmpty(changes)) {
-              // no changes, return
-              return attrs;
-            } else {
-              attrs = changes;
-            }
-          }
-          return _this.adapters[options.adapter || definition.defaultAdapter].update(definition, id, definition.serialize(resourceName, attrs), options);
-        })
-        .then(function (res) {
-          return _this.$q.promisify(definition.afterUpdate)(resourceName, definition.deserialize(resourceName, res));
-        })
-        .then(function (data) {
-          _this.inject(definition.name, data, options);
-          resource.previousAttributes[id] = _this.utils.deepMixIn({}, data);
-          resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
-          return _this.get(resourceName, id);
-        });
-
-      deferred.resolve(item);
+      throw new this.errors.R(errorPrefix + 'id: "' + id + '" not found!');
     }
+
+    var definition = this.definitions[resourceName];
+    var resource = this.store[resourceName];
+    var _this = this;
+
+    promise = promise
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
+      })
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.validate)(resourceName, attrs);
+      })
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.afterValidate)(resourceName, attrs);
+      })
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
+      })
+      .then(function (attrs) {
+        if (options.changesOnly) {
+          resource.observers[id].deliver();
+          var toKeep = [],
+            changes = _this.changes(resourceName, id);
+
+          for (var key in changes.added) {
+            toKeep.push(key);
+          }
+          for (key in changes.changed) {
+            toKeep.push(key);
+          }
+          changes = _this.utils.pick(attrs, toKeep);
+          if (_this.utils.isEmpty(changes)) {
+            // no changes, return
+            return attrs;
+          } else {
+            attrs = changes;
+          }
+        }
+        return _this.adapters[options.adapter || definition.defaultAdapter].update(definition, id, definition.serialize(resourceName, attrs), options);
+      })
+      .then(function (res) {
+        return _this.$q.promisify(definition.afterUpdate)(resourceName, definition.deserialize(resourceName, res));
+      })
+      .then(function (data) {
+        _this.inject(definition.name, data, options);
+        resource.previousAttributes[id] = _this.utils.deepMixIn({}, data);
+        resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
+        return _this.get(resourceName, id);
+      });
+
+    deferred.resolve(item);
+  } catch (err) {
+    deferred.reject(err);
   }
+
   return promise;
 }
 
@@ -2812,17 +2829,21 @@ function update(resourceName, id, attrs, options) {
   var deferred = this.$q.defer();
   var promise = deferred.promise;
 
-  options = options || {};
+  try {
+    var IA = this.errors.IA;
 
-  if (!this.definitions[resourceName]) {
-    deferred.reject(new this.errors.NER(errorPrefix + resourceName));
-  } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    deferred.reject(new this.errors.IA(errorPrefix + 'id: Must be a string or a number!'));
-  } else if (!this.utils.isObject(attrs)) {
-    deferred.reject(new this.errors.IA(errorPrefix + 'attrs: Must be an object!'));
-  } else if (!this.utils.isObject(options)) {
-    deferred.reject(new this.errors.IA(errorPrefix + 'options: Must be an object!'));
-  } else {
+    options = options || {};
+
+    if (!this.definitions[resourceName]) {
+      throw new this.errors.NER(errorPrefix + resourceName);
+    } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+      throw new IA(errorPrefix + 'id: Must be a string or a number!');
+    } else if (!this.utils.isObject(attrs)) {
+      throw new IA(errorPrefix + 'attrs: Must be an object!');
+    } else if (!this.utils.isObject(options)) {
+      throw new IA(errorPrefix + 'options: Must be an object!');
+    }
+
     var definition = this.definitions[resourceName];
     var resource = this.store[resourceName];
     var _this = this;
@@ -2865,7 +2886,10 @@ function update(resourceName, id, attrs, options) {
       });
 
     deferred.resolve(attrs);
+  } catch (err) {
+    deferred.reject(err);
   }
+
   return promise;
 }
 
@@ -2936,17 +2960,21 @@ function updateAll(resourceName, attrs, params, options) {
   var deferred = this.$q.defer();
   var promise = deferred.promise;
 
-  options = options || {};
+  try {
+    var IA = this.errors.IA;
 
-  if (!this.definitions[resourceName]) {
-    deferred.reject(new this.errors.NER(errorPrefix + resourceName));
-  } else if (!this.utils.isObject(attrs)) {
-    deferred.reject(new this.errors.IA(errorPrefix + 'attrs: Must be an object!'));
-  } else if (!this.utils.isObject(params)) {
-    deferred.reject(new this.errors.IA(errorPrefix + 'params: Must be an object!'));
-  } else if (!this.utils.isObject(options)) {
-    deferred.reject(new this.errors.IA(errorPrefix + 'options: Must be an object!'));
-  } else {
+    options = options || {};
+
+    if (!this.definitions[resourceName]) {
+      throw new this.errors.NER(errorPrefix + resourceName);
+    } else if (!this.utils.isObject(attrs)) {
+      throw new IA(errorPrefix + 'attrs: Must be an object!');
+    } else if (!this.utils.isObject(params)) {
+      throw new IA(errorPrefix + 'params: Must be an object!');
+    } else if (!this.utils.isObject(options)) {
+      throw new IA(errorPrefix + 'options: Must be an object!');
+    }
+
     var definition = this.definitions[resourceName];
     var _this = this;
 
@@ -2984,7 +3012,10 @@ function updateAll(resourceName, attrs, params, options) {
       });
 
     deferred.resolve(attrs);
+  } catch (err) {
+    deferred.reject(err);
   }
+
   return promise;
 }
 
@@ -3762,14 +3793,16 @@ var errorPrefix = 'DS.bindAll(scope, expr, resourceName, params[, cb]): ';
  * @returns {function} Scope $watch deregistration function.
  */
 function bindOne(scope, expr, resourceName, params, cb) {
+  var IA = this.errors.IA;
+
   if (!this.utils.isObject(scope)) {
-    throw new this.errors.IA(errorPrefix + 'scope: Must be an object!');
+    throw new IA(errorPrefix + 'scope: Must be an object!');
   } else if (!this.utils.isString(expr)) {
-    throw new this.errors.IA(errorPrefix + 'expr: Must be a string!');
+    throw new IA(errorPrefix + 'expr: Must be a string!');
   } else if (!this.definitions[resourceName]) {
     throw new this.errors.NER(errorPrefix + resourceName);
   } else if (!this.utils.isObject(params)) {
-    throw new this.errors.IA(errorPrefix + 'params: Must be an object!');
+    throw new IA(errorPrefix + 'params: Must be an object!');
   }
 
   var _this = this;
@@ -3830,14 +3863,16 @@ var errorPrefix = 'DS.bindOne(scope, expr, resourceName, id[, cb]): ';
  * @returns {function} Scope $watch deregistration function.
  */
 function bindOne(scope, expr, resourceName, id, cb) {
+  var IA = this.errors.IA;
+
   if (!this.utils.isObject(scope)) {
-    throw new this.errors.IA(errorPrefix + 'scope: Must be an object!');
+    throw new IA(errorPrefix + 'scope: Must be an object!');
   } else if (!this.utils.isString(expr)) {
-    throw new this.errors.IA(errorPrefix + 'expr: Must be a string!');
+    throw new IA(errorPrefix + 'expr: Must be a string!');
   } else if (!this.definitions[resourceName]) {
     throw new this.errors.NER(errorPrefix + resourceName);
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
+    throw new IA(errorPrefix + 'id: Must be a string or a number!');
   }
 
   var _this = this;
@@ -3990,19 +4025,21 @@ function Resource(utils, options) {
  * See [DSProvider.defaults](/documentation/api/angular-data/DSProvider.properties:defaults).
  */
 function defineResource(definition) {
+  var IA = this.errors.IA;
+
   if (this.utils.isString(definition)) {
     definition = {
       name: definition
     };
   }
   if (!this.utils.isObject(definition)) {
-    throw new this.errors.IA(errorPrefix + 'definition: Must be an object!');
+    throw new IA(errorPrefix + 'definition: Must be an object!');
   } else if (!this.utils.isString(definition.name)) {
-    throw new this.errors.IA(errorPrefix + 'definition.name: Must be a string!');
+    throw new IA(errorPrefix + 'definition.name: Must be a string!');
   } else if (definition.idAttribute && !this.utils.isString(definition.idAttribute)) {
-    throw new this.errors.IA(errorPrefix + 'definition.idAttribute: Must be a string!');
+    throw new IA(errorPrefix + 'definition.idAttribute: Must be a string!');
   } else if (definition.endpoint && !this.utils.isString(definition.endpoint)) {
-    throw new this.errors.IA(errorPrefix + 'definition.endpoint: Must be a string!');
+    throw new IA(errorPrefix + 'definition.endpoint: Must be a string!');
   } else if (this.store[definition.name]) {
     throw new this.errors.R(errorPrefix + definition.name + ' is already registered!');
   }
@@ -4318,14 +4355,16 @@ var errorPrefix = 'DS.filter(resourceName[, params][, options]): ';
  * @returns {array} The filtered collection of items of the type specified by `resourceName`.
  */
 function filter(resourceName, params, options) {
+  var IA = this.errors.IA;
+
   options = options || {};
 
   if (!this.definitions[resourceName]) {
     throw new this.errors.NER(errorPrefix + resourceName);
   } else if (params && !this.utils.isObject(params)) {
-    throw new this.errors.IA(errorPrefix + 'params: Must be an object!');
+    throw new IA(errorPrefix + 'params: Must be an object!');
   } else if (!this.utils.isObject(options)) {
-    throw new this.errors.IA(errorPrefix + 'options: Must be an object!');
+    throw new IA(errorPrefix + 'options: Must be an object!');
   }
 
   var definition = this.definitions[resourceName];
@@ -4390,14 +4429,16 @@ var errorPrefix = 'DS.get(resourceName, id[, options]): ';
  * @returns {object} The item of the type specified by `resourceName` with the primary key specified by `id`.
  */
 function get(resourceName, id, options) {
+  var IA = this.errors.IA;
+
   options = options || {};
 
   if (!this.definitions[resourceName]) {
     throw new this.errors.NER(errorPrefix + resourceName);
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
+    throw new IA(errorPrefix + 'id: Must be a string or a number!');
   } else if (!this.utils.isObject(options)) {
-    throw new this.errors.IA(errorPrefix + 'options: Must be an object!');
+    throw new IA(errorPrefix + 'options: Must be an object!');
   }
   var _this = this;
 
@@ -4757,14 +4798,16 @@ function _injectRelations(definition, injected) {
  * the items that were injected into the data store.
  */
 function inject(resourceName, attrs, options) {
+  var IA = this.errors.IA;
+
   options = options || {};
 
   if (!this.definitions[resourceName]) {
     throw new this.errors.NER(errorPrefix + resourceName);
   } else if (!this.utils.isObject(attrs) && !this.utils.isArray(attrs)) {
-    throw new this.errors.IA(errorPrefix + 'attrs: Must be an object or an array!');
+    throw new IA(errorPrefix + 'attrs: Must be an object or an array!');
   } else if (!this.utils.isObject(options)) {
-    throw new this.errors.IA(errorPrefix + 'options: Must be an object!');
+    throw new IA(errorPrefix + 'options: Must be an object!');
   }
 
   var definition = this.definitions[resourceName];

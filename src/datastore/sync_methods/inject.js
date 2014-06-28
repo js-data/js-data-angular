@@ -138,14 +138,16 @@ function _injectRelations(definition, injected) {
  * the items that were injected into the data store.
  */
 function inject(resourceName, attrs, options) {
+  var IA = this.errors.IA;
+
   options = options || {};
 
   if (!this.definitions[resourceName]) {
     throw new this.errors.NER(errorPrefix + resourceName);
   } else if (!this.utils.isObject(attrs) && !this.utils.isArray(attrs)) {
-    throw new this.errors.IA(errorPrefix + 'attrs: Must be an object or an array!');
+    throw new IA(errorPrefix + 'attrs: Must be an object or an array!');
   } else if (!this.utils.isObject(options)) {
-    throw new this.errors.IA(errorPrefix + 'options: Must be an object!');
+    throw new IA(errorPrefix + 'options: Must be an object!');
   }
 
   var definition = this.definitions[resourceName];

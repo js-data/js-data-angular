@@ -49,14 +49,16 @@ var errorPrefix = 'DS.refresh(resourceName, id[, options]): ';
  * - `{NonexistentResourceError}`
  */
 function refresh(resourceName, id, options) {
+  var IA = this.errors.IA;
+
   options = options || {};
 
   if (!this.definitions[resourceName]) {
     throw new this.errors.NER(errorPrefix + resourceName);
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
+    throw new IA(errorPrefix + 'id: Must be a string or a number!');
   } else if (!this.utils.isObject(options)) {
-    throw new this.errors.IA(errorPrefix + 'options: Must be an object!');
+    throw new IA(errorPrefix + 'options: Must be an object!');
   } else {
     options.bypassCache = true;
 

@@ -47,55 +47,58 @@ function find(resourceName, id, options) {
   var deferred = this.$q.defer();
   var promise = deferred.promise;
 
-  options = options || {};
+  try {
+    var IA = this.errors.IA;
 
-  if (!this.definitions[resourceName]) {
-    deferred.reject(new this.errors.NER(errorPrefix + resourceName));
-  } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    deferred.reject(new this.errors.IA(errorPrefix + 'id: Must be a string or a number!'));
-  } else if (!this.utils.isObject(options)) {
-    deferred.reject(new this.errors.IA(errorPrefix + 'options: Must be an object!'));
-  } else {
+    options = options || {};
+
+    if (!this.definitions[resourceName]) {
+      throw new this.errors.NER(errorPrefix + resourceName);
+    } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+      throw new IA(errorPrefix + 'id: Must be a string or a number!');
+    } else if (!this.utils.isObject(options)) {
+      throw new IA(errorPrefix + 'options: Must be an object!');
+    }
+
     if (!('cacheResponse' in options)) {
       options.cacheResponse = true;
     } else {
       options.cacheResponse = !!options.cacheResponse;
     }
-    try {
-      var definition = this.definitions[resourceName];
-      var resource = this.store[resourceName];
-      var _this = this;
 
-      if (options.bypassCache) {
-        delete resource.completedQueries[id];
-      }
+    var definition = this.definitions[resourceName];
+    var resource = this.store[resourceName];
+    var _this = this;
 
-      if (!(id in resource.completedQueries)) {
-        if (!(id in resource.pendingQueries)) {
-          promise = resource.pendingQueries[id] = _this.adapters[options.adapter || definition.defaultAdapter].find(definition, id, options)
-            .then(function (res) {
-              var data = definition.deserialize(resourceName, res);
-              if (options.cacheResponse) {
-                // Query is no longer pending
-                delete resource.pendingQueries[id];
-                resource.completedQueries[id] = new Date().getTime();
-                return _this.inject(resourceName, data);
-              } else {
-                return data;
-              }
-            }, function (err) {
-              delete resource.pendingQueries[id];
-              return _this.$q.reject(err);
-            });
-        }
-
-        return resource.pendingQueries[id];
-      } else {
-        deferred.resolve(_this.get(resourceName, id));
-      }
-    } catch (err) {
-      deferred.reject(err);
+    if (options.bypassCache) {
+      delete resource.completedQueries[id];
     }
+
+    if (!(id in resource.completedQueries)) {
+      if (!(id in resource.pendingQueries)) {
+        promise = resource.pendingQueries[id] = _this.adapters[options.adapter || definition.defaultAdapter].find(definition, id, options)
+          .then(function (res) {
+            var data = definition.deserialize(resourceName, res);
+            if (options.cacheResponse) {
+              // Query is no longer pending
+              delete resource.pendingQueries[id];
+              resource.completedQueries[id] = new Date().getTime();
+              return _this.inject(resourceName, data);
+            } else {
+              return data;
+            }
+          }, function (err) {
+            delete resource.pendingQueries[id];
+            return _this.$q.reject(err);
+          });
+      }
+
+      return resource.pendingQueries[id];
+    } else {
+      deferred.resolve(_this.get(resourceName, id));
+    }
+  } catch (err) {
+    deferred.reject(err);
   }
 
   return promise;
