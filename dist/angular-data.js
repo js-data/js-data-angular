@@ -2469,16 +2469,36 @@ var errorPrefix = 'DS.loadRelations(resourceName, instance(Id), relations[, opti
  * @id DS.async_methods:loadRelations
  * @name loadRelations
  * @description
- * Asynchronously load the indicates relations of the given instance.
+ * Asynchronously load the indicated relations of the given instance.
  *
  * ## Signature:
  * ```js
  * DS.loadRelations(resourceName, instance(Id), relations[, options])
  * ```
  *
- * ## Example:
+ * ## Examples:
  *
  * ```js
+ * DS.loadRelations('user', 10, ['profile']).then(function (user) {
+ *   user.profile; // object
+ *   assert.deepEqual(user.profile, DS.filter('profile', { userId: 10 })[0]);
+ * });
+ * ```
+ *
+ * ```js
+ * var user = DS.get('user', 10);
+ *
+ * DS.loadRelations('user', user, ['profile']).then(function (user) {
+ *   user.profile; // object
+ *   assert.deepEqual(user.profile, DS.filter('profile', { userId: 10 })[0]);
+ * });
+ * ```
+ *
+ * ```js
+ * DS.loadRelations('user', 10, ['profile'], { cacheResponse: false }).then(function (user) {
+ *   user.profile; // object
+ *   assert.equal(DS.filter('profile', { userId: 10 }).length, 0);
+ * });
  * ```
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.

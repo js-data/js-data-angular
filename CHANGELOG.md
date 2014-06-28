@@ -3,6 +3,7 @@
 ###### Breaking API changes
 - #76 - Queries and filtering. See [TRANSITION.md](https://github.com/jmdobry/angular-data/blob/master/TRANSITION.md).
 - #82 - Simplify error handling. Reduced size of angular-data.min.js by 4kb.
+- #42 - Relations/Associations. `DS.inject` now looks for relations and injects them as well.
 
 ###### Backwards compatible API changes
 - #17 - Where predicates should be able to handle OR, not just AND
