@@ -1,58 +1,58 @@
 describe('DS.lastModified(resourceName[, id])', function () {
-	var errorPrefix = 'DS.lastModified(resourceName[, id]): ';
+  var errorPrefix = 'DS.lastModified(resourceName[, id]): ';
 
-	beforeEach(startInjector);
+  beforeEach(startInjector);
 
-	it('should throw an error when method pre-conditions are not met', function () {
-		assert.throws(function () {
-			DS.lastModified('does not exist', {});
-		}, DS.errors.RuntimeError, errorPrefix + 'does not exist is not a registered resource!');
+  it('should throw an error when method pre-conditions are not met', function () {
+    assert.throws(function () {
+      DS.lastModified('does not exist', {});
+    }, DS.errors.NonexistentResourceError, errorPrefix + 'does not exist is not a registered resource!');
 
-		angular.forEach(TYPES_EXCEPT_STRING_OR_NUMBER, function (key) {
-			if (key) {
-				assert.throws(function () {
-					DS.lastModified('post', key);
-				}, DS.errors.IllegalArgumentError, errorPrefix + 'id: Must be a string or a number!');
-			}
-		});
-	});
-	it('should lastModified an item into the store', function () {
+    angular.forEach(TYPES_EXCEPT_STRING_OR_NUMBER, function (key) {
+      if (key) {
+        assert.throws(function () {
+          DS.lastModified('post', key);
+        }, DS.errors.IllegalArgumentError, errorPrefix + 'id: Must be a string or a number!');
+      }
+    });
+  });
+  it('should lastModified an item into the store', function () {
 
-		var collectionLastModified;
+    var collectionLastModified;
 
-		assert.equal(DS.lastModified('post', 5), 0);
-		assert.equal(DS.lastModified('post'), 0);
+    assert.equal(DS.lastModified('post', 5), 0);
+    assert.equal(DS.lastModified('post'), 0);
 
-		collectionLastModified = DS.lastModified('post');
+    collectionLastModified = DS.lastModified('post');
 
-		assert.doesNotThrow(function () {
-			DS.inject('post', p1);
-		});
+    assert.doesNotThrow(function () {
+      DS.inject('post', p1);
+    });
 
-		assert.notEqual(DS.lastModified('post'), collectionLastModified);
-		collectionLastModified = DS.lastModified('post');
-		assert.notEqual(DS.lastModified('post', 5), 0);
-		var lastModified = DS.lastModified('post', 5);
-		assert.isNumber(lastModified);
+    assert.notEqual(DS.lastModified('post'), collectionLastModified);
+    collectionLastModified = DS.lastModified('post');
+    assert.notEqual(DS.lastModified('post', 5), 0);
+    var lastModified = DS.lastModified('post', 5);
+    assert.isNumber(lastModified);
 
-		assert.doesNotThrow(function () {
-			DS.inject('post', p2);
-		});
+    assert.doesNotThrow(function () {
+      DS.inject('post', p2);
+    });
 
-		assert.notEqual(DS.lastModified('post'), collectionLastModified);
+    assert.notEqual(DS.lastModified('post'), collectionLastModified);
 
-		collectionLastModified = DS.lastModified('post');
-		assert.equal(DS.lastModified('post', 5), lastModified);
+    collectionLastModified = DS.lastModified('post');
+    assert.equal(DS.lastModified('post', 5), lastModified);
 
-		assert.doesNotThrow(function () {
-			DS.inject('post', p3);
-		});
+    assert.doesNotThrow(function () {
+      DS.inject('post', p3);
+    });
 
-		assert.notEqual(DS.lastModified('post'), collectionLastModified);
+    assert.notEqual(DS.lastModified('post'), collectionLastModified);
 
-		collectionLastModified = DS.lastModified('post');
-		assert.equal(DS.lastModified('post', 5), lastModified);
-	});
+    collectionLastModified = DS.lastModified('post');
+    assert.equal(DS.lastModified('post', 5), lastModified);
+  });
 //	it('should lastModified an item into the store', function (done) {
 //
 //		assert.equal(DS.lastModified('post', 5), 0);

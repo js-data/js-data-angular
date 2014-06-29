@@ -1,8 +1,8 @@
 {
   "name": "angular-data",
   "description": "Data store for Angular.js.",
-  "version": "0.9.1",
-  "homepage": "http://angular-data.codetrain.io",
+  "version": "0.10.0",
+  "homepage": "http://angular-data.pseudobry.com",
   "repository": {
     "type": "git",
     "url": "git://github.com/jmdobry/angular-data.git"

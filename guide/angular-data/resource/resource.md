@@ -211,3 +211,237 @@ user.fullName(); // "John Anderson"
 
 user.constructor; // function User() { ... }
 ```
+
+@doc overview
+@id relations
+@name Defining Relations
+@description
+
+Angular-data supports relations to some extent. If `GET /user/10` returns:
+
+```js
+{
+  id: 10,
+  name: 'John Anderson',
+  profile: {
+    email: 'John Anderson',
+    id: 18,
+    userId: 10
+  }
+}
+```
+
+then only the user object is injected into the store. If you've defined the `hasOne` relationship of users to profiles, 
+not only will the user be injected into the store, but the profile as well. Example:
+
+Without defining relations:
+```js
+var userJson = {
+  id: 10,
+  name: 'John Anderson',
+  profile: {
+    email: 'John Anderson',
+    id: 18,
+    userId: 10
+  }
+};
+
+DS.inject('user', userJson);
+
+assert.deepEqual(DS.get('user', 10), userJson);
+assert.isUndefined(DS.get('profile', 18));
+```
+
+With relations defined:
+```js
+var userJson = {
+  id: 10,
+  name: 'John Anderson',
+  profile: {
+    email: 'John Anderson',
+    id: 18,
+    userId: 10
+  }
+};
+
+DS.inject('user', userJson);
+
+assert.deepEqual(DS.get('user', 10), userJson);
+assert.deepEqual(DS.get('profile', 18), userJson.profile);
+assert.deepEqual(DS.get('profile', 18), DS.get('user', 10).profile);
+```
+
+## Defining relations:
+```js
+DS.defineResource({
+  name: 'user',
+  relations: {
+    hasMany: {
+      comment: {
+        localField: 'comments',
+        foreignKey: 'userId'
+      }
+    },
+    hasOne: {
+      profile: {
+        localField: 'profile',
+        foreignKey: 'userId'
+      }
+    },
+    belongsTo: {
+      organization: {
+        localKey: 'organizationId',
+        localField: 'organization'
+      }
+    }
+  }
+});
+
+DS.defineResource({
+  name: 'organization',
+  relations: {
+    hasMany: {
+      user: {
+        localField: 'users',
+        foreignKey: 'organizationId'
+      }
+    }
+  }
+});
+
+DS.defineResource({
+  name: 'profile',
+  relations: {
+    belongsTo: {
+      user: {
+        localField: 'user',
+        localKey: 'userId'
+      }
+    }
+  }
+});
+
+DS.defineResource({
+  name: 'comment',
+  relations: {
+    belongsTo: {
+      user: {
+        localField: 'user',
+        localKey: 'userId'
+      }
+    }
+  }
+});
+```
+
+`DS.inject` can be called by you, and is also used internally by `find`, `findAll`, `create`, `update`, `updateAll`, `save` and `refresh`.
+
+## Loading relations
+
+#### Lazy
+```js
+DS.find('user', 10).then(function (user) {
+  // let's assume the server only returned the user
+  user.comments; // undefined
+  user.profile; // undefined
+  
+  DS.loadRelations('user', user, ['comment', 'profile']).then(function (user) {
+    user.comments; // array
+    user.profile; // object
+  });
+});
+```
+
+#### Direct (requires server-side support)
+
+When you call `DS.find` you can pass `params` to the http adapter like so:
+```js
+DS.find('user', 10, {
+  // will be serialized to the query string
+  params: {...}
+});
+```
+
+For `findAll` it works like this:
+```js
+var params = {...}; // will be serialized to the query string
+DS.findAll('user', params);
+```
+
+You could, for example, configure your server to look for a query string parameter called `with` or something, which tells
+the server which relations to include with the response, for example:
+
+```js
+DS.find('user', 10, {
+  params: {
+    with: ['comment', 'organization']
+  }
+});
+```
+
+With default settings (and using the http adapter) this will produce `GET /user/10with=comment&with=organization`.
+
+You can configure your server to also return the `comment` and `organization` relations in the response:
+
+```js
+{
+  id: 10,
+  name: 'John Anderson',
+  organizationId: 15,
+  comments: [...],
+  organization: {...}
+}
+```
+
+If you've told angular-data about the relations, then the comments and organization will be injected into the data store in addition to the user.
+
+@doc overview
+@id computed
+@name Computed Properties
+@description
+
+Angular-data supports computed properties. When you define a computed property you also define the fields that it depends on.
+The computed property will only be updated when one of those fields changes.
+
+## Example
+```js
+DS.defineResource('user', {
+  computed: {
+    // each function's argument list defines the fields
+    // that the computed property depends on
+    fullName: function (first, last) {
+      return first + ' ' + last;
+    }
+  }
+});
+
+var user = DS.inject('user', {
+  id: 1,
+  first: 'John',
+  last: 'Anderson'
+});
+
+user.fullName; // "John Anderson"
+
+user.first = 'Fred';
+
+// angular-data relies on dirty-checking, so the
+// computed property hasn't been updated yet
+user.fullName; // "John Anderson"
+
+DS.digest();
+
+user.fullName; // "Fred Anderson"
+
+user.first = 'George';
+  
+$timeout(function () {
+  user.fullName; // "George Anderson"
+});
+
+user.first = 'William';
+  
+$scope.$apply(function () {
+  user.fullName; // "William Anderson"
+});
+```

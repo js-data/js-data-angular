@@ -1,7 +1,7 @@
 /**
 * @author Jason Dobry <jason.dobry@gmail.com>
 * @file angular-data.js
-* @version 0.9.1 - Homepage <http://angular-data.pseudobry.com/>
+* @version 0.10.0 - Homepage <http://angular-data.pseudobry.com/>
 * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>
 * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
 *
@@ -1206,429 +1206,423 @@ var toString = require('../lang/toString');
  */
 function DSHttpAdapterProvider() {
 
-	/**
-	 * @doc property
-	 * @id DSHttpAdapterProvider.properties:defaults
-	 * @name defaults
-	 * @description
-	 * Default configuration for this adapter.
-	 *
-	 * Properties:
-	 *
-	 * - `{function}` - `queryTransform` - See [the guide](/documentation/guide/adapters/index). Default: No-op.
-	 */
-	var defaults = this.defaults = {
-		/**
-		 * @doc property
-		 * @id DSHttpAdapterProvider.properties:defaults.queryTransform
-		 * @name defaults.queryTransform
-		 * @description
-		 * Transform the angular-data query to something your server understands. You might just do this on the server instead.
-		 *
-		 * @param {string} resourceName The name of the resource.
-		 * @param {object} query Response object from `$http()`.
-		 * @returns {*} Returns `query` as-is.
-		 */
-		queryTransform: function (resourceName, query) {
-			return query;
-		}
-	};
+  /**
+   * @doc property
+   * @id DSHttpAdapterProvider.properties:defaults
+   * @name defaults
+   * @description
+   * Default configuration for this adapter.
+   *
+   * Properties:
+   *
+   * - `{function}` - `queryTransform` - See [the guide](/documentation/guide/adapters/index). Default: No-op.
+   */
+  var defaults = this.defaults = {
+    /**
+     * @doc property
+     * @id DSHttpAdapterProvider.properties:defaults.queryTransform
+     * @name defaults.queryTransform
+     * @description
+     * Transform the angular-data query to something your server understands. You might just do this on the server instead.
+     *
+     * @param {string} resourceName The name of the resource.
+     * @param {object} params Params sent through from `$http()`.
+     * @returns {*} Returns `params` as-is.
+     */
+    queryTransform: function (resourceName, params) {
+      return params;
+    }
+  };
 
-	this.$get = ['$http', '$log', 'DSUtils', function ($http, $log, DSUtils) {
+  this.$get = ['$http', '$log', 'DSUtils', function ($http, $log, DSUtils) {
 
-		/**
-		 * @doc interface
-		 * @id DSHttpAdapter
-		 * @name DSHttpAdapter
-		 * @description
-		 * Default adapter used by angular-data. This adapter uses AJAX and JSON to send/retrieve data to/from a server.
-		 * Developers may provide custom adapters that implement the adapter interface.
-		 */
-		return {
-			/**
-			 * @doc property
-			 * @id DSHttpAdapter.properties:defaults
-			 * @name defaults
-			 * @description
-			 * Reference to [DSHttpAdapterProvider.defaults](/documentation/api/api/DSHttpAdapterProvider.properties:defaults).
-			 */
-			defaults: defaults,
+    /**
+     * @doc interface
+     * @id DSHttpAdapter
+     * @name DSHttpAdapter
+     * @description
+     * Default adapter used by angular-data. This adapter uses AJAX and JSON to send/retrieve data to/from a server.
+     * Developers may provide custom adapters that implement the adapter interface.
+     */
+    return {
+      /**
+       * @doc property
+       * @id DSHttpAdapter.properties:defaults
+       * @name defaults
+       * @description
+       * Reference to [DSHttpAdapterProvider.defaults](/documentation/api/api/DSHttpAdapterProvider.properties:defaults).
+       */
+      defaults: defaults,
 
-			/**
-			 * @doc method
-			 * @id DSHttpAdapter.methods:HTTP
-			 * @name HTTP
-			 * @description
-			 * Wrapper for `$http()`.
-			 *
-			 * ## Signature:
-			 * ```js
-			 * DS.HTTP(config)
-			 * ```
-			 *
-			 * ## Example:
-			 *
-			 * ```js
-			 * works the same as $http()
-			 * ```
-			 *
-			 * @param {object} config Configuration for the request.
-			 * @returns {Promise} Promise produced by the `$q` service.
-			 */
-			HTTP: HTTP,
+      /**
+       * @doc method
+       * @id DSHttpAdapter.methods:HTTP
+       * @name HTTP
+       * @description
+       * Wrapper for `$http()`.
+       *
+       * ## Signature:
+       * ```js
+       * DS.HTTP(config)
+       * ```
+       *
+       * ## Example:
+       *
+       * ```js
+       * works the same as $http()
+       * ```
+       *
+       * @param {object} config Configuration for the request.
+       * @returns {Promise} Promise produced by the `$q` service.
+       */
+      HTTP: HTTP,
 
-			/**
-			 * @doc method
-			 * @id DSHttpAdapter.methods:GET
-			 * @name GET
-			 * @description
-			 * Wrapper for `$http.get()`.
-			 *
-			 * ## Signature:
-			 * ```js
-			 * DS.GET(url[, config])
-			 * ```
-			 *
-			 * ## Example:
-			 *
-			 * ```js
-			 * Works the same as $http.get()
-			 * ```
-			 *
-			 * @param {string} url The url of the request.
-			 * @param {object=} config Configuration for the request.
-			 * @returns {Promise} Promise produced by the `$q` service.
-			 */
-			GET: GET,
+      /**
+       * @doc method
+       * @id DSHttpAdapter.methods:GET
+       * @name GET
+       * @description
+       * Wrapper for `$http.get()`.
+       *
+       * ## Signature:
+       * ```js
+       * DS.GET(url[, config])
+       * ```
+       *
+       * ## Example:
+       *
+       * ```js
+       * Works the same as $http.get()
+       * ```
+       *
+       * @param {string} url The url of the request.
+       * @param {object=} config Configuration for the request.
+       * @returns {Promise} Promise produced by the `$q` service.
+       */
+      GET: GET,
 
-			/**
-			 * @doc method
-			 * @id DSHttpAdapter.methods:POST
-			 * @name POST
-			 * @description
-			 * Wrapper for `$http.post()`.
-			 *
-			 * ## Signature:
-			 * ```js
-			 * DS.POST(url[, attrs][, config])
-			 * ```
-			 *
-			 * ## Example:
-			 *
-			 * ```js
-			 * Works the same as $http.post()
-			 * ```
-			 *
-			 * @param {string} url The url of the request.
-			 * @param {object=} attrs Request payload.
-			 * @param {object=} config Configuration for the request.
-			 * @returns {Promise} Promise produced by the `$q` service.
-			 */
-			POST: POST,
+      /**
+       * @doc method
+       * @id DSHttpAdapter.methods:POST
+       * @name POST
+       * @description
+       * Wrapper for `$http.post()`.
+       *
+       * ## Signature:
+       * ```js
+       * DS.POST(url[, attrs][, config])
+       * ```
+       *
+       * ## Example:
+       *
+       * ```js
+       * Works the same as $http.post()
+       * ```
+       *
+       * @param {string} url The url of the request.
+       * @param {object=} attrs Request payload.
+       * @param {object=} config Configuration for the request.
+       * @returns {Promise} Promise produced by the `$q` service.
+       */
+      POST: POST,
 
-			/**
-			 * @doc method
-			 * @id DSHttpAdapter.methods:PUT
-			 * @name PUT
-			 * @description
-			 * Wrapper for `$http.put()`.
-			 *
-			 * ## Signature:
-			 * ```js
-			 * DS.PUT(url[, attrs][, config])
-			 * ```
-			 *
-			 * ## Example:
-			 *
-			 * ```js
-			 * Works the same as $http.put()
-			 * ```
-			 *
-			 * @param {string} url The url of the request.
-			 * @param {object=} attrs Request payload.
-			 * @param {object=} config Configuration for the request.
-			 * @returns {Promise} Promise produced by the `$q` service.
-			 */
-			PUT: PUT,
+      /**
+       * @doc method
+       * @id DSHttpAdapter.methods:PUT
+       * @name PUT
+       * @description
+       * Wrapper for `$http.put()`.
+       *
+       * ## Signature:
+       * ```js
+       * DS.PUT(url[, attrs][, config])
+       * ```
+       *
+       * ## Example:
+       *
+       * ```js
+       * Works the same as $http.put()
+       * ```
+       *
+       * @param {string} url The url of the request.
+       * @param {object=} attrs Request payload.
+       * @param {object=} config Configuration for the request.
+       * @returns {Promise} Promise produced by the `$q` service.
+       */
+      PUT: PUT,
 
-			/**
-			 * @doc method
-			 * @id DSHttpAdapter.methods:DEL
-			 * @name DEL
-			 * @description
-			 * Wrapper for `$http.delete()`.
-			 *
-			 * ## Signature:
-			 * ```js
-			 * DS.DEL(url[, config])
-			 * ```
-			 *
-			 * ## Example:
-			 *
-			 * ```js
-			 * Works the same as $http.delete
-			 * ```
-			 *
-			 * @param {string} url The url of the request.
-			 * @param {object} config Configuration for the request.
-			 * @returns {Promise} Promise produced by the `$q` service.
-			 */
-			DEL: DEL,
+      /**
+       * @doc method
+       * @id DSHttpAdapter.methods:DEL
+       * @name DEL
+       * @description
+       * Wrapper for `$http.delete()`.
+       *
+       * ## Signature:
+       * ```js
+       * DS.DEL(url[, config])
+       * ```
+       *
+       * ## Example:
+       *
+       * ```js
+       * Works the same as $http.delete
+       * ```
+       *
+       * @param {string} url The url of the request.
+       * @param {object} config Configuration for the request.
+       * @returns {Promise} Promise produced by the `$q` service.
+       */
+      DEL: DEL,
 
-			/**
-			 * @doc method
-			 * @id DSHttpAdapter.methods:find
-			 * @name find
-			 * @description
-			 * Retrieve a single entity from the server.
-			 *
-			 * Sends a `GET` request to `:baseUrl/:endpoint/:id`.
-			 *
-			 * @param {object} resourceConfig Properties:
-			 * - `{string}` - `baseUrl` - Base url.
-			 * - `{string=}` - `endpoint` - Endpoint path for the resource.
-			 * @param {string|number} id The primary key of the entity to retrieve.
-			 * @param {object=} options Optional configuration. Refer to the documentation for `$http.get`.
-			 * @returns {Promise} Promise.
-			 */
-			find: find,
+      /**
+       * @doc method
+       * @id DSHttpAdapter.methods:find
+       * @name find
+       * @description
+       * Retrieve a single entity from the server.
+       *
+       * Sends a `GET` request to `:baseUrl/:endpoint/:id`.
+       *
+       * @param {object} resourceConfig Properties:
+       * - `{string}` - `baseUrl` - Base url.
+       * - `{string=}` - `endpoint` - Endpoint path for the resource.
+       * @param {string|number} id The primary key of the entity to retrieve.
+       * @param {object=} options Optional configuration. Refer to the documentation for `$http.get`.
+       * @returns {Promise} Promise.
+       */
+      find: find,
 
-			/**
-			 * @doc method
-			 * @id DSHttpAdapter.methods:findAll
-			 * @name findAll
-			 * @description
-			 * Retrieve a collection of entities from the server.
-			 *
-			 * Sends a `GET` request to `:baseUrl/:endpoint`.
-			 *
-			 *
-			 * @param {object} resourceConfig Properties:
-			 * - `{string}` - `baseUrl` - Base url.
-			 * - `{string=}` - `endpoint` - Endpoint path for the resource.
-			 * @param {object=} params Search query parameters. See the [query guide](/documentation/guide/queries/index).
-			 * @param {object=} options Optional configuration. Refer to the documentation for `$http.get`.
-			 * @returns {Promise} Promise.
-			 */
-			findAll: findAll,
+      /**
+       * @doc method
+       * @id DSHttpAdapter.methods:findAll
+       * @name findAll
+       * @description
+       * Retrieve a collection of entities from the server.
+       *
+       * Sends a `GET` request to `:baseUrl/:endpoint`.
+       *
+       *
+       * @param {object} resourceConfig Properties:
+       * - `{string}` - `baseUrl` - Base url.
+       * - `{string=}` - `endpoint` - Endpoint path for the resource.
+       * @param {object=} params Search query parameters. See the [query guide](/documentation/guide/queries/index).
+       * @param {object=} options Optional configuration. Refer to the documentation for `$http.get`.
+       * @returns {Promise} Promise.
+       */
+      findAll: findAll,
 
-			/**
-			 * @doc method
-			 * @id DSHttpAdapter.methods:findAll
-			 * @name find
-			 * @description
-			 * Create a new entity on the server.
-			 *
-			 * Sends a `POST` request to `:baseUrl/:endpoint`.
-			 *
-			 * @param {object} resourceConfig Properties:
-			 * - `{string}` - `baseUrl` - Base url.
-			 * - `{string=}` - `endpoint` - Endpoint path for the resource.
-			 * @param {object=} params Search query parameters. See the [query guide](/documentation/guide/queries/index).
-			 * @param {object=} options Optional configuration. Refer to the documentation for `$http.post`.
-			 * @returns {Promise} Promise.
-			 */
-			create: create,
+      /**
+       * @doc method
+       * @id DSHttpAdapter.methods:findAll
+       * @name find
+       * @description
+       * Create a new entity on the server.
+       *
+       * Sends a `POST` request to `:baseUrl/:endpoint`.
+       *
+       * @param {object} resourceConfig Properties:
+       * - `{string}` - `baseUrl` - Base url.
+       * - `{string=}` - `endpoint` - Endpoint path for the resource.
+       * @param {object=} params Search query parameters. See the [query guide](/documentation/guide/queries/index).
+       * @param {object=} options Optional configuration. Refer to the documentation for `$http.post`.
+       * @returns {Promise} Promise.
+       */
+      create: create,
 
-			/**
-			 * @doc method
-			 * @id DSHttpAdapter.methods:update
-			 * @name update
-			 * @description
-			 * Update an entity on the server.
-			 *
-			 * Sends a `PUT` request to `:baseUrl/:endpoint/:id`.
-			 *
-			 * @param {object} resourceConfig Properties:
-			 * - `{string}` - `baseUrl` - Base url.
-			 * - `{string=}` - `endpoint` - Endpoint path for the resource.
-			 * @param {string|number} id The primary key of the entity to update.
-			 * @param {object} attrs The attributes with which to update the entity. See the [query guide](/documentation/guide/queries/index).
-			 * @param {object=} options Optional configuration. Refer to the documentation for `$http.put`.
-			 * @returns {Promise} Promise.
-			 */
-			update: update,
+      /**
+       * @doc method
+       * @id DSHttpAdapter.methods:update
+       * @name update
+       * @description
+       * Update an entity on the server.
+       *
+       * Sends a `PUT` request to `:baseUrl/:endpoint/:id`.
+       *
+       * @param {object} resourceConfig Properties:
+       * - `{string}` - `baseUrl` - Base url.
+       * - `{string=}` - `endpoint` - Endpoint path for the resource.
+       * @param {string|number} id The primary key of the entity to update.
+       * @param {object} attrs The attributes with which to update the entity. See the [query guide](/documentation/guide/queries/index).
+       * @param {object=} options Optional configuration. Refer to the documentation for `$http.put`.
+       * @returns {Promise} Promise.
+       */
+      update: update,
 
-			/**
-			 * @doc method
-			 * @id DSHttpAdapter.methods:updateAll
-			 * @name updateAll
-			 * @description
-			 * Update a collection of entities on the server.
-			 *
-			 * Sends a `PUT` request to `:baseUrl/:endpoint`.
-			 *
-			 *
-			 * @param {object} resourceConfig Properties:
-			 * - `{string}` - `baseUrl` - Base url.
-			 * - `{string=}` - `endpoint` - Endpoint path for the resource.
-			 * @param {object=} params Search query parameters. See the [query guide](/documentation/guide/queries/index).
-			 * @param {object=} options Optional configuration. Refer to the documentation for `$http.put`.
-			 * @returns {Promise} Promise.
-			 */
-			updateAll: updateAll,
+      /**
+       * @doc method
+       * @id DSHttpAdapter.methods:updateAll
+       * @name updateAll
+       * @description
+       * Update a collection of entities on the server.
+       *
+       * Sends a `PUT` request to `:baseUrl/:endpoint`.
+       *
+       *
+       * @param {object} resourceConfig Properties:
+       * - `{string}` - `baseUrl` - Base url.
+       * - `{string=}` - `endpoint` - Endpoint path for the resource.
+       * @param {object=} params Search query parameters. See the [query guide](/documentation/guide/queries/index).
+       * @param {object=} options Optional configuration. Refer to the documentation for `$http.put`.
+       * @returns {Promise} Promise.
+       */
+      updateAll: updateAll,
 
-			/**
-			 * @doc method
-			 * @id DSHttpAdapter.methods:destroy
-			 * @name destroy
-			 * @description
-			 * destroy an entity on the server.
-			 *
-			 * Sends a `PUT` request to `:baseUrl/:endpoint/:id`.
-			 *
-			 * @param {object} resourceConfig Properties:
-			 * - `{string}` - `baseUrl` - Base url.
-			 * - `{string=}` - `endpoint` - Endpoint path for the resource.
-			 * @param {string|number} id The primary key of the entity to destroy.
-			 * @param {object=} options Optional configuration. Refer to the documentation for `$http.delete`.
-			 * @returns {Promise} Promise.
-			 */
-			destroy: destroy,
+      /**
+       * @doc method
+       * @id DSHttpAdapter.methods:destroy
+       * @name destroy
+       * @description
+       * destroy an entity on the server.
+       *
+       * Sends a `PUT` request to `:baseUrl/:endpoint/:id`.
+       *
+       * @param {object} resourceConfig Properties:
+       * - `{string}` - `baseUrl` - Base url.
+       * - `{string=}` - `endpoint` - Endpoint path for the resource.
+       * @param {string|number} id The primary key of the entity to destroy.
+       * @param {object=} options Optional configuration. Refer to the documentation for `$http.delete`.
+       * @returns {Promise} Promise.
+       */
+      destroy: destroy,
 
-			/**
-			 * @doc method
-			 * @id DSHttpAdapter.methods:destroyAll
-			 * @name destroyAll
-			 * @description
-			 * Retrieve a collection of entities from the server.
-			 *
-			 * Sends a `DELETE` request to `:baseUrl/:endpoint`.
-			 *
-			 *
-			 * @param {object} resourceConfig Properties:
-			 * - `{string}` - `baseUrl` - Base url.
-			 * - `{string=}` - `endpoint` - Endpoint path for the resource.
-			 * @param {object=} params Search query parameters. See the [query guide](/documentation/guide/queries/index).
-			 * @param {object=} options Optional configuration. Refer to the documentation for `$http.delete`.
-			 * @returns {Promise} Promise.
-			 */
-			destroyAll: destroyAll
-		};
+      /**
+       * @doc method
+       * @id DSHttpAdapter.methods:destroyAll
+       * @name destroyAll
+       * @description
+       * Retrieve a collection of entities from the server.
+       *
+       * Sends a `DELETE` request to `:baseUrl/:endpoint`.
+       *
+       *
+       * @param {object} resourceConfig Properties:
+       * - `{string}` - `baseUrl` - Base url.
+       * - `{string=}` - `endpoint` - Endpoint path for the resource.
+       * @param {object=} params Search query parameters. See the [query guide](/documentation/guide/queries/index).
+       * @param {object=} options Optional configuration. Refer to the documentation for `$http.delete`.
+       * @returns {Promise} Promise.
+       */
+      destroyAll: destroyAll
+    };
 
-		function HTTP(config) {
-			var start = new Date().getTime();
+    function HTTP(config) {
+      var start = new Date().getTime();
 
-			return $http(config).then(function (data) {
-				$log.debug(data.config.method + ' request:' + data.config.url + ' Time taken: ' + (new Date().getTime() - start) + 'ms', arguments);
-				return data;
-			});
-		}
+      return $http(config).then(function (data) {
+        $log.debug(data.config.method + ' request:' + data.config.url + ' Time taken: ' + (new Date().getTime() - start) + 'ms', arguments);
+        return data;
+      });
+    }
 
-		function GET(url, config) {
-			config = config || {};
-			return HTTP(DSUtils.deepMixIn(config, {
-				url: url,
-				method: 'GET'
-			}));
-		}
+    function GET(url, config) {
+      config = config || {};
+      return HTTP(DSUtils.deepMixIn(config, {
+        url: url,
+        method: 'GET'
+      }));
+    }
 
-		function POST(url, attrs, config) {
-			config = config || {};
-			return HTTP(DSUtils.deepMixIn(config, {
-				url: url,
-				data: attrs,
-				method: 'POST'
-			}));
-		}
+    function POST(url, attrs, config) {
+      config = config || {};
+      return HTTP(DSUtils.deepMixIn(config, {
+        url: url,
+        data: attrs,
+        method: 'POST'
+      }));
+    }
 
-		function PUT(url, attrs, config) {
-			config = config || {};
-			return HTTP(DSUtils.deepMixIn(config, {
-				url: url,
-				data: attrs,
-				method: 'PUT'
-			}));
-		}
+    function PUT(url, attrs, config) {
+      config = config || {};
+      return HTTP(DSUtils.deepMixIn(config, {
+        url: url,
+        data: attrs,
+        method: 'PUT'
+      }));
+    }
 
-		function DEL(url, config) {
-			config = config || {};
-			return this.HTTP(DSUtils.deepMixIn(config, {
-				url: url,
-				method: 'DELETE'
-			}));
-		}
+    function DEL(url, config) {
+      config = config || {};
+      return this.HTTP(DSUtils.deepMixIn(config, {
+        url: url,
+        method: 'DELETE'
+      }));
+    }
 
-		function create(resourceConfig, attrs, options) {
-			options = options || {};
-			return this.POST(
-				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint),
-				attrs,
-				options
-			);
-		}
+    function create(resourceConfig, attrs, options) {
+      options = options || {};
+      return this.POST(
+        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint),
+        attrs,
+        options
+      );
+    }
 
-		function destroy(resourceConfig, id, options) {
-			options = options || {};
-			return this.DEL(
-				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
-				options
-			);
-		}
+    function destroy(resourceConfig, id, options) {
+      options = options || {};
+      return this.DEL(
+        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
+        options
+      );
+    }
 
-		function destroyAll(resourceConfig, params, options) {
-			options = options || {};
-			options.params = options.params || {};
-			if (params) {
-				if (params.query) {
-					params.query = defaults.queryTransform(resourceConfig.name, params.query);
-				}
-				DSUtils.deepMixIn(options.params, params);
-			}
-			return this.DEL(
-				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint),
-				options
-			);
-		}
+    function destroyAll(resourceConfig, params, options) {
+      options = options || {};
+      options.params = options.params || {};
+      if (params) {
+        params = defaults.queryTransform(resourceConfig.name, params);
+        DSUtils.deepMixIn(options.params, params);
+      }
+      return this.DEL(
+        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint),
+        options
+      );
+    }
 
-		function find(resourceConfig, id, options) {
-			options = options || {};
-			return this.GET(
-				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
-				options
-			);
-		}
+    function find(resourceConfig, id, options) {
+      options = options || {};
+      return this.GET(
+        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
+        options
+      );
+    }
 
-		function findAll(resourceConfig, params, options) {
-			options = options || {};
-			options.params = options.params || {};
-			if (params) {
-				if (params.query) {
-					params.query = defaults.queryTransform(resourceConfig.name, params.query);
-				}
-				DSUtils.deepMixIn(options.params, params);
-			}
-			return this.GET(
-				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint),
-				options
-			);
-		}
+    function findAll(resourceConfig, params, options) {
+      options = options || {};
+      options.params = options.params || {};
+      if (params) {
+        params = defaults.queryTransform(resourceConfig.name, params);
+        DSUtils.deepMixIn(options.params, params);
+      }
+      return this.GET(
+        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint),
+        options
+      );
+    }
 
-		function update(resourceConfig, id, attrs, options) {
-			options = options || {};
-			return this.PUT(
-				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
-				attrs,
-				options
-			);
-		}
+    function update(resourceConfig, id, attrs, options) {
+      options = options || {};
+      return this.PUT(
+        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
+        attrs,
+        options
+      );
+    }
 
-		function updateAll(resourceConfig, attrs, params, options) {
-			options = options || {};
-			options.params = options.params || {};
-			if (params) {
-				if (params.query) {
-					params.query = defaults.queryTransform(resourceConfig.name, params.query);
-				}
-				DSUtils.deepMixIn(options.params, params);
-			}
-			return this.PUT(
-				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint),
-				attrs,
-				options
-			);
-		}
-	}];
+    function updateAll(resourceConfig, attrs, params, options) {
+      options = options || {};
+      options.params = options.params || {};
+      if (params) {
+        params = defaults.queryTransform(resourceConfig.name, params);
+        DSUtils.deepMixIn(options.params, params);
+      }
+      return this.PUT(
+        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint),
+        attrs,
+        options
+      );
+    }
+  }];
 }
 
 module.exports = DSHttpAdapterProvider;
@@ -1641,179 +1635,179 @@ module.exports = DSHttpAdapterProvider;
  */
 function DSLocalStorageProvider() {
 
-	this.$get = ['$q', 'DSUtils', function ($q, DSUtils) {
+  this.$get = ['$q', 'DSUtils', function ($q, DSUtils) {
 
-		/**
-		 * @doc interface
-		 * @id DSLocalStorage
-		 * @name DSLocalStorage
-		 * @description
-		 * Default adapter used by angular-data. This adapter uses AJAX and JSON to send/retrieve data to/from a server.
-		 * Developers may provide custom adapters that implement the adapter interface.
-		 */
-		return {
-			/**
-			 * @doc method
-			 * @id DSLocalStorage.methods:find
-			 * @name find
-			 * @description
-			 * Retrieve a single entity from localStorage.
-			 *
-			 * Calls `localStorage.getItem(key)`.
-			 *
-			 * @param {object} resourceConfig Properties:
-			 * - `{string}` - `baseUrl` - Base url.
-			 * - `{string=}` - `namespace` - Namespace path for the resource.
-			 * @param {string|number} id The primary key of the entity to retrieve.
-			 * @returns {Promise} Promise.
-			 */
-			find: find,
+    /**
+     * @doc interface
+     * @id DSLocalStorage
+     * @name DSLocalStorage
+     * @description
+     * Default adapter used by angular-data. This adapter uses AJAX and JSON to send/retrieve data to/from a server.
+     * Developers may provide custom adapters that implement the adapter interface.
+     */
+    return {
+      /**
+       * @doc method
+       * @id DSLocalStorage.methods:find
+       * @name find
+       * @description
+       * Retrieve a single entity from localStorage.
+       *
+       * Calls `localStorage.getItem(key)`.
+       *
+       * @param {object} resourceConfig Properties:
+       * - `{string}` - `baseUrl` - Base url.
+       * - `{string=}` - `namespace` - Namespace path for the resource.
+       * @param {string|number} id The primary key of the entity to retrieve.
+       * @returns {Promise} Promise.
+       */
+      find: find,
 
-			/**
-			 * @doc method
-			 * @id DSLocalStorage.methods:findAll
-			 * @name findAll
-			 * @description
-			 * Not supported.
-			 */
-			findAll: function () {
-				throw new Error('Not supported!');
-			},
+      /**
+       * @doc method
+       * @id DSLocalStorage.methods:findAll
+       * @name findAll
+       * @description
+       * Not supported.
+       */
+      findAll: function () {
+        throw new Error('Not supported!');
+      },
 
-			/**
-			 * @doc method
-			 * @id DSLocalStorage.methods:findAll
-			 * @name find
-			 * @description
-			 * Not supported.
-			 */
-			create: function () {
-				throw new Error('Not supported!');
-			},
+      /**
+       * @doc method
+       * @id DSLocalStorage.methods:findAll
+       * @name find
+       * @description
+       * Not supported.
+       */
+      create: function () {
+        throw new Error('Not supported!');
+      },
 
-			/**
-			 * @doc method
-			 * @id DSLocalStorage.methods:update
-			 * @name update
-			 * @description
-			 * Update an entity in localStorage.
-			 *
-			 * Calls `localStorage.setItem(key, value)`.
-			 *
-			 * @param {object} resourceConfig Properties:
-			 * - `{string}` - `baseUrl` - Base url.
-			 * - `{string=}` - `namespace` - Namespace path for the resource.
-			 * @param {string|number} id The primary key of the entity to update.
-			 * @param {object} attrs The attributes with which to update the entity.
-			 * @returns {Promise} Promise.
-			 */
-			update: update,
+      /**
+       * @doc method
+       * @id DSLocalStorage.methods:update
+       * @name update
+       * @description
+       * Update an entity in localStorage.
+       *
+       * Calls `localStorage.setItem(key, value)`.
+       *
+       * @param {object} resourceConfig Properties:
+       * - `{string}` - `baseUrl` - Base url.
+       * - `{string=}` - `namespace` - Namespace path for the resource.
+       * @param {string|number} id The primary key of the entity to update.
+       * @param {object} attrs The attributes with which to update the entity.
+       * @returns {Promise} Promise.
+       */
+      update: update,
 
-			/**
-			 * @doc method
-			 * @id DSLocalStorage.methods:updateAll
-			 * @name updateAll
-			 * @description
-			 * Not supported.
-			 */
-			updateAll: function () {
-				throw new Error('Not supported!');
-			},
+      /**
+       * @doc method
+       * @id DSLocalStorage.methods:updateAll
+       * @name updateAll
+       * @description
+       * Not supported.
+       */
+      updateAll: function () {
+        throw new Error('Not supported!');
+      },
 
-			/**
-			 * @doc method
-			 * @id DSLocalStorage.methods:destroy
-			 * @name destroy
-			 * @description
-			 * Destroy an entity from localStorage.
-			 *
-			 * Calls `localStorage.removeItem(key)`.
-			 *
-			 * @param {object} resourceConfig Properties:
-			 * - `{string}` - `baseUrl` - Base url.
-			 * - `{string=}` - `endpoint` - Endpoint path for the resource.
-			 * @param {string|number} id The primary key of the entity to destroy.
-			 * @returns {Promise} Promise.
-			 */
-			destroy: destroy,
+      /**
+       * @doc method
+       * @id DSLocalStorage.methods:destroy
+       * @name destroy
+       * @description
+       * Destroy an entity from localStorage.
+       *
+       * Calls `localStorage.removeItem(key)`.
+       *
+       * @param {object} resourceConfig Properties:
+       * - `{string}` - `baseUrl` - Base url.
+       * - `{string=}` - `endpoint` - Endpoint path for the resource.
+       * @param {string|number} id The primary key of the entity to destroy.
+       * @returns {Promise} Promise.
+       */
+      destroy: destroy,
 
-			/**
-			 * @doc method
-			 * @id DSLocalStorage.methods:destroyAll
-			 * @name destroyAll
-			 * @description
-			 * Not supported.
-			 */
-			destroyAll: function () {
-				throw new Error('Not supported!');
-			}
-		};
+      /**
+       * @doc method
+       * @id DSLocalStorage.methods:destroyAll
+       * @name destroyAll
+       * @description
+       * Not supported.
+       */
+      destroyAll: function () {
+        throw new Error('Not supported!');
+      }
+    };
 
-		function GET(key) {
-			var deferred = $q.defer();
-			try {
-				var item = localStorage.getItem(key);
-				deferred.resolve(item ? angular.fromJson(item) : undefined);
-			} catch (err) {
-				deferred.reject(err);
-			}
-			return deferred.promise;
-		}
+    function GET(key) {
+      var deferred = $q.defer();
+      try {
+        var item = localStorage.getItem(key);
+        deferred.resolve(item ? angular.fromJson(item) : undefined);
+      } catch (err) {
+        deferred.reject(err);
+      }
+      return deferred.promise;
+    }
 
-		function PUT(key, value) {
-			var deferred = $q.defer();
-			try {
-				var item = localStorage.getItem(key);
-				if (item) {
-					item = angular.fromJson(item);
-					DSUtils.deepMixIn(item, value);
-					deferred.resolve(localStorage.setItem(key, angular.toJson(item)));
-				} else {
-					deferred.resolve(localStorage.setItem(key, angular.toJson(value)));
-				}
-			} catch (err) {
-				deferred.reject(err);
-			}
-			return deferred.promise;
-		}
+    function PUT(key, value) {
+      var deferred = $q.defer();
+      try {
+        var item = localStorage.getItem(key);
+        if (item) {
+          item = angular.fromJson(item);
+          DSUtils.deepMixIn(item, value);
+          deferred.resolve(localStorage.setItem(key, angular.toJson(item)));
+        } else {
+          deferred.resolve(localStorage.setItem(key, angular.toJson(value)));
+        }
+      } catch (err) {
+        deferred.reject(err);
+      }
+      return deferred.promise;
+    }
 
-		function DEL(key) {
-			var deferred = $q.defer();
-			try {
-				deferred.resolve(localStorage.removeItem(key));
-			} catch (err) {
-				deferred.reject(err);
-			}
-			return deferred.promise;
-		}
+    function DEL(key) {
+      var deferred = $q.defer();
+      try {
+        deferred.resolve(localStorage.removeItem(key));
+      } catch (err) {
+        deferred.reject(err);
+      }
+      return deferred.promise;
+    }
 
-		function destroy(resourceConfig, id, options) {
-			options = options || {};
-			return DEL(
-				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
-				options
-			);
-		}
+    function destroy(resourceConfig, id, options) {
+      options = options || {};
+      return DEL(
+        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
+        options
+      );
+    }
 
-		function find(resourceConfig, id, options) {
-			options = options || {};
-			return GET(
-				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
-				options
-			);
-		}
+    function find(resourceConfig, id, options) {
+      options = options || {};
+      return GET(
+        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
+        options
+      );
+    }
 
-		function update(resourceConfig, id, attrs, options) {
-			options = options || {};
-			return PUT(
-				DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
-				attrs,
-				options
-			).then(function () {
-					return GET(DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id));
-				});
-		}
-	}];
+    function update(resourceConfig, id, attrs, options) {
+      options = options || {};
+      return PUT(
+        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
+        attrs,
+        options
+      ).then(function () {
+          return GET(DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id));
+        });
+    }
+  }];
 }
 
 module.exports = DSLocalStorageProvider;
@@ -1860,59 +1854,57 @@ var errorPrefix = 'DS.create(resourceName, attrs[, options]): ';
  * ## Rejects with:
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  */
 function create(resourceName, attrs, options) {
-	var deferred = this.$q.defer(),
-		promise = deferred.promise;
+  var deferred = this.$q.defer();
+  var promise = deferred.promise;
 
-	options = options || {};
+  try {
+    options = options || {};
 
-	if (!this.definitions[resourceName]) {
-		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
-	} else if (!this.utils.isObject(attrs)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'attrs: Must be an object!', { attrs: { actual: typeof attrs, expected: 'object' } }));
-	} else {
-		try {
-			var definition = this.definitions[resourceName],
-				resource = this.store[resourceName],
-				_this = this;
+    if (!this.definitions[resourceName]) {
+      throw new this.errors.NER(errorPrefix + resourceName);
+    } else if (!this.utils.isObject(attrs)) {
+      throw new this.errors.IA(errorPrefix + 'attrs: Must be an object!');
+    }
+    var definition = this.definitions[resourceName];
+    var resource = this.store[resourceName];
+    var _this = this;
 
-			promise = promise
-				.then(function (attrs) {
-					return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
-				})
-				.then(function (attrs) {
-					return _this.$q.promisify(definition.validate)(resourceName, attrs);
-				})
-				.then(function (attrs) {
-					return _this.$q.promisify(definition.afterValidate)(resourceName, attrs);
-				})
-				.then(function (attrs) {
-					return _this.$q.promisify(definition.beforeCreate)(resourceName, attrs);
-				})
-				.then(function (attrs) {
-					return _this.adapters[options.adapter || definition.defaultAdapter].create(definition, definition.serialize(resourceName, attrs), options);
-				})
-				.then(function (res) {
-					return _this.$q.promisify(definition.afterCreate)(resourceName, definition.deserialize(resourceName, res));
-				})
-				.then(function (data) {
-					var created = _this.inject(definition.name, data);
-					var id = created[definition.idAttribute];
-					resource.previousAttributes[id] = _this.utils.deepMixIn({}, created);
-					resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
-					return _this.get(definition.name, id);
-				});
+    promise = promise
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
+      })
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.validate)(resourceName, attrs);
+      })
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.afterValidate)(resourceName, attrs);
+      })
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.beforeCreate)(resourceName, attrs);
+      })
+      .then(function (attrs) {
+        return _this.adapters[options.adapter || definition.defaultAdapter].create(definition, definition.serialize(resourceName, attrs), options);
+      })
+      .then(function (res) {
+        return _this.$q.promisify(definition.afterCreate)(resourceName, definition.deserialize(resourceName, res));
+      })
+      .then(function (data) {
+        var created = _this.inject(definition.name, data);
+        var id = created[definition.idAttribute];
+        resource.previousAttributes[id] = _this.utils.deepMixIn({}, created);
+        resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
+        return _this.get(definition.name, id);
+      });
 
-			deferred.resolve(attrs);
-		} catch (err) {
-			deferred.reject(new this.errors.UnhandledError(err));
-		}
-	}
+    deferred.resolve(attrs);
+  } catch (err) {
+    deferred.reject(err);
+  }
 
-	return promise;
+  return promise;
 }
 
 module.exports = create;
@@ -1960,46 +1952,49 @@ var errorPrefix = 'DS.destroy(resourceName, id): ';
  *
  * - `{IllegalArgumentError}`
  * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  */
 function destroy(resourceName, id, options) {
-	var deferred = this.$q.defer(),
-		promise = deferred.promise;
+  var deferred = this.$q.defer();
+  var promise = deferred.promise;
 
-	options = options || {};
+  try {
+    options = options || {};
 
-	if (!this.definitions[resourceName]) {
-		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
-	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
-	} else {
-		var item = this.get(resourceName, id);
-		if (!item) {
-			deferred.reject(new this.errors.RuntimeError(errorPrefix + 'id: "' + id + '" not found!'));
-		} else {
-			var definition = this.definitions[resourceName],
-				resource = this.store[resourceName],
-				_this = this;
+    if (!this.definitions[resourceName]) {
+      throw new this.errors.NER(errorPrefix + resourceName);
+    } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+      throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
+    }
 
-			promise = promise
-				.then(function (attrs) {
-					return _this.$q.promisify(definition.beforeDestroy)(resourceName, attrs);
-				})
-				.then(function () {
-					return _this.adapters[options.adapter || definition.defaultAdapter].destroy(definition, id, options);
-				})
-				.then(function () {
-					return _this.$q.promisify(definition.afterDestroy)(resourceName, item);
-				})
-				.then(function () {
-					_this.eject(resourceName, id);
-					return id;
-				});
-			deferred.resolve(item);
-		}
-	}
+    var item = this.get(resourceName, id);
+    if (!item) {
+      throw new this.errors.R(errorPrefix + 'id: "' + id + '" not found!');
+    }
 
-	return promise;
+    var definition = this.definitions[resourceName];
+    var _this = this;
+
+    promise = promise
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.beforeDestroy)(resourceName, attrs);
+      })
+      .then(function () {
+        return _this.adapters[options.adapter || definition.defaultAdapter].destroy(definition, id, options);
+      })
+      .then(function () {
+        return _this.$q.promisify(definition.afterDestroy)(resourceName, item);
+      })
+      .then(function () {
+        _this.eject(resourceName, id);
+        return id;
+      });
+    deferred.resolve(item);
+  } catch (err) {
+    deferred.reject(err);
+  }
+
+  return promise;
 }
 
 module.exports = destroy;
@@ -2023,7 +2018,7 @@ var errorPrefix = 'DS.destroyAll(resourceName, params[, options]): ';
  * ## Example:
  *
  * ```js
- *  var query = {
+ *  var params = {
  *      where: {
  *          author: {
  *              '==': 'John Anderson'
@@ -2031,13 +2026,9 @@ var errorPrefix = 'DS.destroyAll(resourceName, params[, options]): ';
  *      }
  *  };
  *
- *  DS.destroyAll('document', {
- *      query: query
- *  }).then(function (documents) {
+ *  DS.destroyAll('document', params).then(function (documents) {
  *      // The documents are gone from the data store
- *      DS.filter('document', {
- *          query: query
- *      }); // []
+ *      DS.filter('document', params); // []
  *
  *  }, function (err) {
  *      // handle error
@@ -2047,11 +2038,11 @@ var errorPrefix = 'DS.destroyAll(resourceName, params[, options]): ';
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {object} params Parameter object that is serialized into the query string. Properties:
  *
- * - `{object=}` - `query` - The query object by which to filter items of the type specified by `resourceName`. Properties:
- *      - `{object=}` - `where` - Where clause.
- *      - `{number=}` - `limit` - Limit clause.
- *      - `{skip=}` - `skip` - Skip clause.
- *      - `{orderBy=}` - `orderBy` - OrderBy clause.
+ *  - `{object=}` - `where` - Where clause.
+ *  - `{number=}` - `limit` - Limit clause.
+ *  - `{number=}` - `skip` - Skip clause.
+ *  - `{number=}` - `offset` - Same as skip.
+ *  - `{string|array=}` - `orderBy` - OrderBy clause.
  *
  * @param {object=} options Optional configuration. Properties:
  * - `{boolean=}` - `bypassCache` - Bypass the cache. Default: `false`.
@@ -2061,40 +2052,41 @@ var errorPrefix = 'DS.destroyAll(resourceName, params[, options]): ';
  * ## Rejects with:
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  */
 function destroyAll(resourceName, params, options) {
-	var deferred = this.$q.defer(),
-		promise = deferred.promise,
-		_this = this;
+  var deferred = this.$q.defer();
+  var promise = deferred.promise;
 
-	options = options || {};
+  try {
+    var _this = this;
+    var IA = this.errors.IA;
 
-	if (!this.definitions[resourceName]) {
-		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
-	} else if (!this.utils.isObject(params)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!'));
-	} else if (!this.utils.isObject(options)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!'));
-	} else {
-		try {
-			var definition = this.definitions[resourceName];
+    options = options || {};
 
-			promise = promise
-				.then(function () {
-					return _this.adapters[options.adapter || definition.defaultAdapter].destroyAll(definition, params, options);
-				})
-				.then(function () {
-					return _this.ejectAll(resourceName, params);
-				});
-			deferred.resolve();
-		} catch (err) {
-			deferred.reject(new this.errors.UnhandledError(err));
-		}
-	}
+    if (!this.definitions[resourceName]) {
+      throw new this.errors.NER(errorPrefix + resourceName);
+    } else if (!this.utils.isObject(params)) {
+      throw new IA(errorPrefix + 'params: Must be an object!');
+    } else if (!this.utils.isObject(options)) {
+      throw new IA(errorPrefix + 'options: Must be an object!');
+    }
 
-	return promise;
+    var definition = this.definitions[resourceName];
+
+    promise = promise
+      .then(function () {
+        return _this.adapters[options.adapter || definition.defaultAdapter].destroyAll(definition, params, options);
+      })
+      .then(function () {
+        return _this.ejectAll(resourceName, params);
+      });
+    deferred.resolve();
+  } catch (err) {
+    deferred.reject(err);
+  }
+
+  return promise;
 }
 
 module.exports = destroyAll;
@@ -2143,65 +2135,67 @@ var errorPrefix = 'DS.find(resourceName, id[, options]): ';
  * ## Rejects with:
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  */
 function find(resourceName, id, options) {
-	var deferred = this.$q.defer(),
-		promise = deferred.promise;
+  var deferred = this.$q.defer();
+  var promise = deferred.promise;
 
-	options = options || {};
+  try {
+    var IA = this.errors.IA;
 
-	if (!this.definitions[resourceName]) {
-		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
-	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
-	} else if (!this.utils.isObject(options)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
-	} else {
-		if (!('cacheResponse' in options)) {
-			options.cacheResponse = true;
-		} else {
-			options.cacheResponse = !!options.cacheResponse;
-		}
-		try {
-			var definition = this.definitions[resourceName],
-				resource = this.store[resourceName],
-				_this = this;
+    options = options || {};
 
-			if (options.bypassCache) {
-				delete resource.completedQueries[id];
-			}
+    if (!this.definitions[resourceName]) {
+      throw new this.errors.NER(errorPrefix + resourceName);
+    } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+      throw new IA(errorPrefix + 'id: Must be a string or a number!');
+    } else if (!this.utils.isObject(options)) {
+      throw new IA(errorPrefix + 'options: Must be an object!');
+    }
 
-			if (!(id in resource.completedQueries)) {
-				if (!(id in resource.pendingQueries)) {
-					promise = resource.pendingQueries[id] = _this.adapters[options.adapter || definition.defaultAdapter].find(definition, id, options)
-						.then(function (res) {
-							var data = definition.deserialize(resourceName, res);
-							if (options.cacheResponse) {
-								// Query is no longer pending
-								delete resource.pendingQueries[id];
-								resource.completedQueries[id] = new Date().getTime();
-								return _this.inject(resourceName, data);
-							} else {
-								return data;
-							}
-						}, function (err) {
-							delete resource.pendingQueries[id];
-							return _this.$q.reject(err);
-						});
-				}
+    if (!('cacheResponse' in options)) {
+      options.cacheResponse = true;
+    } else {
+      options.cacheResponse = !!options.cacheResponse;
+    }
 
-				return resource.pendingQueries[id];
-			} else {
-				deferred.resolve(_this.get(resourceName, id));
-			}
-		} catch (err) {
-			deferred.reject(err);
-		}
-	}
+    var definition = this.definitions[resourceName];
+    var resource = this.store[resourceName];
+    var _this = this;
 
-	return promise;
+    if (options.bypassCache) {
+      delete resource.completedQueries[id];
+    }
+
+    if (!(id in resource.completedQueries)) {
+      if (!(id in resource.pendingQueries)) {
+        promise = resource.pendingQueries[id] = _this.adapters[options.adapter || definition.defaultAdapter].find(definition, id, options)
+          .then(function (res) {
+            var data = definition.deserialize(resourceName, res);
+            if (options.cacheResponse) {
+              // Query is no longer pending
+              delete resource.pendingQueries[id];
+              resource.completedQueries[id] = new Date().getTime();
+              return _this.inject(resourceName, data);
+            } else {
+              return data;
+            }
+          }, function (err) {
+            delete resource.pendingQueries[id];
+            return _this.$q.reject(err);
+          });
+      }
+
+      return resource.pendingQueries[id];
+    } else {
+      deferred.resolve(_this.get(resourceName, id));
+    }
+  } catch (err) {
+    deferred.reject(err);
+  }
+
+  return promise;
 }
 
 module.exports = find;
@@ -2210,59 +2204,59 @@ module.exports = find;
 var errorPrefix = 'DS.findAll(resourceName, params[, options]): ';
 
 function processResults(utils, data, resourceName, queryHash) {
-	var resource = this.store[resourceName];
+  var resource = this.store[resourceName];
 
-	data = data || [];
+  data = data || [];
 
-	// Query is no longer pending
-	delete resource.pendingQueries[queryHash];
-	resource.completedQueries[queryHash] = new Date().getTime();
+  // Query is no longer pending
+  delete resource.pendingQueries[queryHash];
+  resource.completedQueries[queryHash] = new Date().getTime();
 
-	// Update modified timestamp of collection
-	resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
+  // Update modified timestamp of collection
+  resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
 
-	// Merge the new values into the cache
-	return this.inject(resourceName, data);
+  // Merge the new values into the cache
+  return this.inject(resourceName, data);
 }
 
 function _findAll(utils, resourceName, params, options) {
-	var definition = this.definitions[resourceName],
-		resource = this.store[resourceName],
-		_this = this,
-		queryHash = utils.toJson(params);
+  var definition = this.definitions[resourceName],
+    resource = this.store[resourceName],
+    _this = this,
+    queryHash = utils.toJson(params);
 
-	if (options.bypassCache) {
-		delete resource.completedQueries[queryHash];
-	}
+  if (options.bypassCache) {
+    delete resource.completedQueries[queryHash];
+  }
 
-	if (!(queryHash in resource.completedQueries)) {
-		// This particular query has never been completed
+  if (!(queryHash in resource.completedQueries)) {
+    // This particular query has never been completed
 
-		if (!(queryHash in resource.pendingQueries)) {
+    if (!(queryHash in resource.pendingQueries)) {
 
-			// This particular query has never even been made
-			resource.pendingQueries[queryHash] = _this.adapters[options.adapter || definition.defaultAdapter].findAll(definition, params, options)
-				.then(function (res) {
-					var data = definition.deserialize(resourceName, res);
-					if (options.cacheResponse) {
-						try {
-							return processResults.apply(_this, [utils, data, resourceName, queryHash]);
-						} catch (err) {
-							return _this.$q.reject(_this.errors.UnhandledError(err));
-						}
-					} else {
-						return data;
-					}
-				}, function (err) {
-					delete resource.pendingQueries[queryHash];
-					return _this.$q.reject(err);
-				});
-		}
+      // This particular query has never even been made
+      resource.pendingQueries[queryHash] = _this.adapters[options.adapter || definition.defaultAdapter].findAll(definition, params, options)
+        .then(function (res) {
+          var data = definition.deserialize(resourceName, res);
+          if (options.cacheResponse) {
+            try {
+              return processResults.apply(_this, [utils, data, resourceName, queryHash]);
+            } catch (err) {
+              return _this.$q.reject(err);
+            }
+          } else {
+            return data;
+          }
+        }, function (err) {
+          delete resource.pendingQueries[queryHash];
+          return _this.$q.reject(err);
+        });
+    }
 
-		return resource.pendingQueries[queryHash];
-	} else {
-		return this.filter(resourceName, params, options);
-	}
+    return resource.pendingQueries[queryHash];
+  } else {
+    return this.filter(resourceName, params, options);
+  }
 }
 
 /**
@@ -2281,7 +2275,7 @@ function _findAll(utils, resourceName, params, options) {
  * ## Example:
  *
  * ```js
- *  var query = {
+ *  var params = {
  *      where: {
  *          author: {
  *              '==': 'John Anderson'
@@ -2289,17 +2283,13 @@ function _findAll(utils, resourceName, params, options) {
  *      }
  *  };
  *
- *  DS.findAll('document', {
- *      query: query
- *  }).then(function (documents) {
- *      documents;  // [{ id: 'aab7ff66-e21e-46e2-8be8-264d82aee535', author: 'John Anderson', title: 'How to cook' },
- *                  //  { id: 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f', author: 'John Anderson', title: 'How NOT to cook' }]
+ *  DS.findAll('document', params).then(function (documents) {
+ *      documents;  // [{ id: '1', author: 'John Anderson', title: 'How to cook' },
+ *                  //  { id: '2', author: 'John Anderson', title: 'How NOT to cook' }]
  *
  *      // The documents are now in the data store
- *      DS.filter('document', {
- *          query: query
- *      }); // [{ id: 'aab7ff66-e21e-46e2-8be8-264d82aee535', author: 'John Anderson', title: 'How to cook' },
- *          //  { id: 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f', author: 'John Anderson', title: 'How NOT to cook' }]
+ *      DS.filter('document', params); // [{ id: '1', author: 'John Anderson', title: 'How to cook' },
+ *                                     //  { id: '2', author: 'John Anderson', title: 'How NOT to cook' }]
  *
  *  }, function (err) {
  *      // handle error
@@ -2309,11 +2299,11 @@ function _findAll(utils, resourceName, params, options) {
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {object=} params Parameter object that is serialized into the query string. Properties:
  *
- * - `{object=}` - `query` - The query object by which to filter items of the type specified by `resourceName`. Properties:
- *      - `{object=}` - `where` - Where clause.
- *      - `{number=}` - `limit` - Limit clause.
- *      - `{skip=}` - `skip` - Skip clause.
- *      - `{orderBy=}` - `orderBy` - OrderBy clause.
+ * - `{object=}` - `where` - Where clause.
+ * - `{number=}` - `limit` - Limit clause.
+ * - `{number=}` - `skip` - Skip clause.
+ * - `{number=}` - `offset` - Same as skip.
+ * - `{string|array=}` - `orderBy` - OrderBy clause.
  *
  * @param {object=} options Optional configuration. Properties:
  * - `{boolean=}` - `bypassCache` - Bypass the cache. Default: `false`.
@@ -2328,138 +2318,286 @@ function _findAll(utils, resourceName, params, options) {
  * ## Rejects with:
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  */
 function findAll(resourceName, params, options) {
-	var deferred = this.$q.defer(),
-		promise = deferred.promise,
-		_this = this;
+  var deferred = this.$q.defer();
+  var promise = deferred.promise;
 
-	options = options || {};
-	params = params || {};
+  try {
+    var IA = this.errors.IA;
+    var _this = this;
 
-	if (!this.definitions[resourceName]) {
-		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
-	} else if (!this.utils.isObject(params)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!'));
-	} else if (!this.utils.isObject(options)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!'));
-	} else {
-		if (!('cacheResponse' in options)) {
-			options.cacheResponse = true;
-		} else {
-			options.cacheResponse = !!options.cacheResponse;
-		}
-		try {
-			promise = promise.then(function () {
-				return _findAll.apply(_this, [_this.utils, resourceName, params, options]);
-			});
-			deferred.resolve();
-		} catch (err) {
-			deferred.reject(new this.errors.UnhandledError(err));
-		}
-	}
+    options = options || {};
+    params = params || {};
 
-	return promise;
+    if (!this.definitions[resourceName]) {
+      throw new this.errors.NER(errorPrefix + resourceName);
+    } else if (!this.utils.isObject(params)) {
+      throw new IA(errorPrefix + 'params: Must be an object!');
+    } else if (!this.utils.isObject(options)) {
+      throw new IA(errorPrefix + 'options: Must be an object!');
+    }
+
+    if (!('cacheResponse' in options)) {
+      options.cacheResponse = true;
+    } else {
+      options.cacheResponse = !!options.cacheResponse;
+    }
+
+    promise = promise.then(function () {
+      return _findAll.apply(_this, [_this.utils, resourceName, params, options]);
+    });
+    deferred.resolve();
+  } catch (err) {
+    deferred.reject(err);
+  }
+
+  return promise;
 }
 
 module.exports = findAll;
 
 },{}],37:[function(require,module,exports){
 module.exports = {
-	/**
-	 * @doc method
-	 * @id DS.async_methods:create
-	 * @name create
-	 * @methodOf DS
-	 * @description
-	 * See [DS.create](/documentation/api/api/DS.async_methods:create).
-	 */
-	create: require('./create'),
+  /**
+   * @doc method
+   * @id DS.async_methods:create
+   * @name create
+   * @methodOf DS
+   * @description
+   * See [DS.create](/documentation/api/api/DS.async_methods:create).
+   */
+  create: require('./create'),
 
-	/**
-	 * @doc method
-	 * @id DS.async_methods:destroy
-	 * @name destroy
-	 * @methodOf DS
-	 * @description
-	 * See [DS.destroy](/documentation/api/api/DS.async_methods:destroy).
-	 */
-	destroy: require('./destroy'),
+  /**
+   * @doc method
+   * @id DS.async_methods:destroy
+   * @name destroy
+   * @methodOf DS
+   * @description
+   * See [DS.destroy](/documentation/api/api/DS.async_methods:destroy).
+   */
+  destroy: require('./destroy'),
 
-	/**
-	 * @doc method
-	 * @id DS.async_methods:destroyAll
-	 * @name destroyAll
-	 * @methodOf DS
-	 * @description
-	 * See [DS.destroyAll](/documentation/api/api/DS.async_methods:destroyAll).
-	 */
-	destroyAll: require('./destroyAll'),
+  /**
+   * @doc method
+   * @id DS.async_methods:destroyAll
+   * @name destroyAll
+   * @methodOf DS
+   * @description
+   * See [DS.destroyAll](/documentation/api/api/DS.async_methods:destroyAll).
+   */
+  destroyAll: require('./destroyAll'),
 
-	/**
-	 * @doc method
-	 * @id DS.async_methods:find
-	 * @name find
-	 * @methodOf DS
-	 * @description
-	 * See [DS.find](/documentation/api/api/DS.async_methods:find).
-	 */
-	find: require('./find'),
+  /**
+   * @doc method
+   * @id DS.async_methods:find
+   * @name find
+   * @methodOf DS
+   * @description
+   * See [DS.find](/documentation/api/api/DS.async_methods:find).
+   */
+  find: require('./find'),
 
-	/**
-	 * @doc method
-	 * @id DS.async_methods:findAll
-	 * @name findAll
-	 * @methodOf DS
-	 * @description
-	 * See [DS.findAll](/documentation/api/api/DS.async_methods:findAll).
-	 */
-	findAll: require('./findAll'),
+  /**
+   * @doc method
+   * @id DS.async_methods:findAll
+   * @name findAll
+   * @methodOf DS
+   * @description
+   * See [DS.findAll](/documentation/api/api/DS.async_methods:findAll).
+   */
+  findAll: require('./findAll'),
 
-	/**
-	 * @doc method
-	 * @id DS.async_methods:refresh
-	 * @name refresh
-	 * @methodOf DS
-	 * @description
-	 * See [DS.refresh](/documentation/api/api/DS.async_methods:refresh).
-	 */
-	refresh: require('./refresh'),
+  /**
+   * @doc method
+   * @id DS.async_methods:loadRelations
+   * @name loadRelations
+   * @methodOf DS
+   * @description
+   * See [DS.loadRelations](/documentation/api/api/DS.async_methods:loadRelations).
+   */
+  loadRelations: require('./loadRelations'),
 
-	/**
-	 * @doc method
-	 * @id DS.async_methods:save
-	 * @name save
-	 * @methodOf DS
-	 * @description
-	 * See [DS.save](/documentation/api/api/DS.async_methods:save).
-	 */
-	save: require('./save'),
+  /**
+   * @doc method
+   * @id DS.async_methods:refresh
+   * @name refresh
+   * @methodOf DS
+   * @description
+   * See [DS.refresh](/documentation/api/api/DS.async_methods:refresh).
+   */
+  refresh: require('./refresh'),
 
-	/**
-	 * @doc method
-	 * @id DS.async_methods:update
-	 * @name update
-	 * @methodOf DS
-	 * @description
-	 * See [DS.update](/documentation/api/api/DS.async_methods:update).
-	 */
-	update: require('./update'),
+  /**
+   * @doc method
+   * @id DS.async_methods:save
+   * @name save
+   * @methodOf DS
+   * @description
+   * See [DS.save](/documentation/api/api/DS.async_methods:save).
+   */
+  save: require('./save'),
 
-	/**
-	 * @doc method
-	 * @id DS.async_methods:updateAll
-	 * @name updateAll
-	 * @methodOf DS
-	 * @description
-	 * See [DS.updateAll](/documentation/api/api/DS.async_methods:updateAll).
-	 */
-	updateAll: require('./updateAll')
+  /**
+   * @doc method
+   * @id DS.async_methods:update
+   * @name update
+   * @methodOf DS
+   * @description
+   * See [DS.update](/documentation/api/api/DS.async_methods:update).
+   */
+  update: require('./update'),
+
+  /**
+   * @doc method
+   * @id DS.async_methods:updateAll
+   * @name updateAll
+   * @methodOf DS
+   * @description
+   * See [DS.updateAll](/documentation/api/api/DS.async_methods:updateAll).
+   */
+  updateAll: require('./updateAll')
 };
 
-},{"./create":32,"./destroy":33,"./destroyAll":34,"./find":35,"./findAll":36,"./refresh":38,"./save":39,"./update":40,"./updateAll":41}],38:[function(require,module,exports){
+},{"./create":32,"./destroy":33,"./destroyAll":34,"./find":35,"./findAll":36,"./loadRelations":38,"./refresh":39,"./save":40,"./update":41,"./updateAll":42}],38:[function(require,module,exports){
+var errorPrefix = 'DS.loadRelations(resourceName, instance(Id), relations[, options]): ';
+
+/**
+ * @doc method
+ * @id DS.async_methods:loadRelations
+ * @name loadRelations
+ * @description
+ * Asynchronously load the indicated relations of the given instance.
+ *
+ * ## Signature:
+ * ```js
+ * DS.loadRelations(resourceName, instance(Id), relations[, options])
+ * ```
+ *
+ * ## Examples:
+ *
+ * ```js
+ * DS.loadRelations('user', 10, ['profile']).then(function (user) {
+ *   user.profile; // object
+ *   assert.deepEqual(user.profile, DS.filter('profile', { userId: 10 })[0]);
+ * });
+ * ```
+ *
+ * ```js
+ * var user = DS.get('user', 10);
+ *
+ * DS.loadRelations('user', user, ['profile']).then(function (user) {
+ *   user.profile; // object
+ *   assert.deepEqual(user.profile, DS.filter('profile', { userId: 10 })[0]);
+ * });
+ * ```
+ *
+ * ```js
+ * DS.loadRelations('user', 10, ['profile'], { cacheResponse: false }).then(function (user) {
+ *   user.profile; // object
+ *   assert.equal(DS.filter('profile', { userId: 10 }).length, 0);
+ * });
+ * ```
+ *
+ * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
+ * @param {string|number|object} instance The instance or the id of the instance for which relations are to be loaded.
+ * @param {string|array=} relations The relation(s) to load.
+ * @param {object=} options Optional configuration that is passed to the `find` and `findAll` methods that may be called.
+ *
+ * @returns {Promise} Promise produced by the `$q` service.
+ *
+ * ## Resolves with:
+ *
+ * - `{object}` - `item` - The instance with its loaded relations.
+ *
+ * ## Rejects with:
+ *
+ * - `{IllegalArgumentError}`
+ * - `{NonexistentResourceError}`
+ */
+function loadRelations(resourceName, instance, relations, options) {
+  var deferred = this.$q.defer();
+  var promise = deferred.promise;
+
+  try {
+    var IA = this.errors.IA;
+
+    options = options || {};
+
+    if (angular.isString(instance) || angular.isNumber(instance)) {
+      instance = this.get(resourceName, instance);
+    }
+
+    if (angular.isString(relations)) {
+      relations = [relations];
+    }
+
+    if (!this.definitions[resourceName]) {
+      throw new this.errors.NER(errorPrefix + resourceName);
+    } else if (!this.utils.isObject(instance)) {
+      throw new IA(errorPrefix + 'instance(Id): Must be a string, number or object!');
+    } else if (!this.utils.isArray(relations)) {
+      throw new IA(errorPrefix + 'relations: Must be a string or an array!');
+    } else if (!this.utils.isObject(options)) {
+      throw new IA(errorPrefix + 'options: Must be an object!');
+    }
+
+    var definition = this.definitions[resourceName];
+    var _this = this;
+    var tasks = [];
+    var fields = [];
+
+    _this.utils.forOwn(definition.relations, function (relation, type) {
+      _this.utils.forOwn(relation, function (def, relationName) {
+        if (_this.utils.contains(relations, relationName)) {
+          var task;
+          var params = {};
+          params[def.foreignKey] = instance[definition.idAttribute];
+
+          if (type === 'hasMany') {
+            task = _this.findAll(relationName, params, options);
+          } else if (type === 'hasOne') {
+            if (def.localKey && instance[def.localKey]) {
+              task = _this.find(relationName, instance[def.localKey], options);
+            } else if (def.foreignKey) {
+              task = _this.findAll(relationName, params, options);
+            }
+          } else {
+            task = _this.find(relationName, instance[def.localKey], options);
+          }
+
+          if (task) {
+            tasks.push(task);
+            fields.push(def.localField);
+          }
+        }
+      });
+    });
+
+    promise = promise
+      .then(function () {
+        return _this.$q.all(tasks);
+      })
+      .then(function (loadedRelations) {
+        angular.forEach(fields, function (field, index) {
+          instance[field] = loadedRelations[index];
+        });
+        return instance;
+      });
+
+    deferred.resolve();
+  } catch (err) {
+    deferred.reject(err);
+  }
+
+  return promise;
+}
+
+module.exports = loadRelations;
+
+},{}],39:[function(require,module,exports){
 var errorPrefix = 'DS.refresh(resourceName, id[, options]): ';
 
 /**
@@ -2493,7 +2631,7 @@ var errorPrefix = 'DS.refresh(resourceName, id[, options]): ';
  * ## Throws
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to refresh from the server.
@@ -2508,32 +2646,33 @@ var errorPrefix = 'DS.refresh(resourceName, id[, options]): ';
  * ## Rejects with:
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  */
 function refresh(resourceName, id, options) {
-	options = options || {};
+  var IA = this.errors.IA;
 
-	if (!this.definitions[resourceName]) {
-		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
-	} else if (!this.utils.isObject(options)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
-	} else {
-		options.bypassCache = true;
+  options = options || {};
 
-		if (this.get(resourceName, id)) {
-			return this.find(resourceName, id, options);
-		} else {
-			return false;
-		}
-	}
+  if (!this.definitions[resourceName]) {
+    throw new this.errors.NER(errorPrefix + resourceName);
+  } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+    throw new IA(errorPrefix + 'id: Must be a string or a number!');
+  } else if (!this.utils.isObject(options)) {
+    throw new IA(errorPrefix + 'options: Must be an object!');
+  } else {
+    options.bypassCache = true;
+
+    if (this.get(resourceName, id)) {
+      return this.find(resourceName, id, options);
+    } else {
+      return false;
+    }
+  }
 }
 
 module.exports = refresh;
 
-},{}],39:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 var errorPrefix = 'DS.save(resourceName, id[, options]): ';
 
 /**
@@ -2576,83 +2715,90 @@ var errorPrefix = 'DS.save(resourceName, id[, options]): ';
  *
  * - `{IllegalArgumentError}`
  * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  */
 function save(resourceName, id, options) {
-	var deferred = this.$q.defer(),
-		promise = deferred.promise;
+  var deferred = this.$q.defer();
+  var promise = deferred.promise;
 
-	options = options || {};
+  try {
+    var IA = this.errors.IA;
 
-	if (!this.definitions[resourceName]) {
-		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
-	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } }));
-	} else if (!this.utils.isObject(options)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } }));
-	} else {
-		var item = this.get(resourceName, id);
-		if (!item) {
-			deferred.reject(new this.errors.RuntimeError(errorPrefix + 'id: "' + id + '" not found!'));
-		} else {
-			var definition = this.definitions[resourceName],
-				resource = this.store[resourceName],
-				_this = this;
+    options = options || {};
 
-			promise = promise
-				.then(function (attrs) {
-					return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
-				})
-				.then(function (attrs) {
-					return _this.$q.promisify(definition.validate)(resourceName, attrs);
-				})
-				.then(function (attrs) {
-					return _this.$q.promisify(definition.afterValidate)(resourceName, attrs);
-				})
-				.then(function (attrs) {
-					return _this.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
-				})
-				.then(function (attrs) {
-					if (options.changesOnly) {
-						resource.observers[id].deliver();
-						var toKeep = [],
-							changes = _this.changes(resourceName, id);
+    if (!this.definitions[resourceName]) {
+      throw new this.errors.NER(errorPrefix + resourceName);
+    } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+      throw new IA(errorPrefix + 'id: Must be a string or a number!');
+    } else if (!this.utils.isObject(options)) {
+      throw new IA(errorPrefix + 'options: Must be an object!');
+    }
 
-						for (var key in changes.added) {
-							toKeep.push(key);
-						}
-						for (key in changes.changed) {
-							toKeep.push(key);
-						}
-						changes = _this.utils.pick(attrs, toKeep);
-						if (_this.utils.isEmpty(changes)) {
-							// no changes, return
-							return attrs;
-						} else {
-							attrs = changes;
-						}
-					}
-					return _this.adapters[options.adapter || definition.defaultAdapter].update(definition, id, definition.serialize(resourceName, attrs), options);
-				})
-				.then(function (res) {
-					return _this.$q.promisify(definition.afterUpdate)(resourceName, definition.deserialize(resourceName, res));
-				})
-				.then(function (data) {
-					_this.inject(definition.name, data, options);
-					resource.previousAttributes[id] = _this.utils.deepMixIn({}, data);
-					resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
-					return _this.get(resourceName, id);
-				});
+    var item = this.get(resourceName, id);
+    if (!item) {
+      throw new this.errors.R(errorPrefix + 'id: "' + id + '" not found!');
+    }
 
-			deferred.resolve(item);
-		}
-	}
-	return promise;
+    var definition = this.definitions[resourceName];
+    var resource = this.store[resourceName];
+    var _this = this;
+
+    promise = promise
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
+      })
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.validate)(resourceName, attrs);
+      })
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.afterValidate)(resourceName, attrs);
+      })
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
+      })
+      .then(function (attrs) {
+        if (options.changesOnly) {
+          resource.observers[id].deliver();
+          var toKeep = [],
+            changes = _this.changes(resourceName, id);
+
+          for (var key in changes.added) {
+            toKeep.push(key);
+          }
+          for (key in changes.changed) {
+            toKeep.push(key);
+          }
+          changes = _this.utils.pick(attrs, toKeep);
+          if (_this.utils.isEmpty(changes)) {
+            // no changes, return
+            return attrs;
+          } else {
+            attrs = changes;
+          }
+        }
+        return _this.adapters[options.adapter || definition.defaultAdapter].update(definition, id, definition.serialize(resourceName, attrs), options);
+      })
+      .then(function (res) {
+        return _this.$q.promisify(definition.afterUpdate)(resourceName, definition.deserialize(resourceName, res));
+      })
+      .then(function (data) {
+        _this.inject(definition.name, data, options);
+        resource.previousAttributes[id] = _this.utils.deepMixIn({}, data);
+        resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
+        return _this.get(resourceName, id);
+      });
+
+    deferred.resolve(item);
+  } catch (err) {
+    deferred.reject(err);
+  }
+
+  return promise;
 }
 
 module.exports = save;
 
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 var errorPrefix = 'DS.update(resourceName, id, attrs[, options]): ';
 
 /**
@@ -2697,73 +2843,79 @@ var errorPrefix = 'DS.update(resourceName, id, attrs[, options]): ';
  * ## Rejects with:
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  */
 function update(resourceName, id, attrs, options) {
-	var deferred = this.$q.defer(),
-		promise = deferred.promise;
+  var deferred = this.$q.defer();
+  var promise = deferred.promise;
 
-	options = options || {};
+  try {
+    var IA = this.errors.IA;
 
-	if (!this.definitions[resourceName]) {
-		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
-	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!'));
-	} else if (!this.utils.isObject(attrs)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'attrs: Must be an object!'));
-	} else if (!this.utils.isObject(options)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!'));
-	} else {
-		var definition = this.definitions[resourceName],
-			resource = this.store[resourceName],
-			_this = this;
+    options = options || {};
 
-		if (!('cacheResponse' in options)) {
-			options.cacheResponse = true;
-		} else {
-			options.cacheResponse = !!options.cacheResponse;
-		}
+    if (!this.definitions[resourceName]) {
+      throw new this.errors.NER(errorPrefix + resourceName);
+    } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+      throw new IA(errorPrefix + 'id: Must be a string or a number!');
+    } else if (!this.utils.isObject(attrs)) {
+      throw new IA(errorPrefix + 'attrs: Must be an object!');
+    } else if (!this.utils.isObject(options)) {
+      throw new IA(errorPrefix + 'options: Must be an object!');
+    }
 
-		promise = promise
-			.then(function (attrs) {
-				return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
-			})
-			.then(function (attrs) {
-				return _this.$q.promisify(definition.validate)(resourceName, attrs);
-			})
-			.then(function (attrs) {
-				return _this.$q.promisify(definition.afterValidate)(resourceName, attrs);
-			})
-			.then(function (attrs) {
-				return _this.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
-			})
-			.then(function (attrs) {
-				return _this.adapters[options.adapter || definition.defaultAdapter].update(definition, id, definition.serialize(resourceName, attrs), options);
-			})
-			.then(function (res) {
-				return _this.$q.promisify(definition.afterUpdate)(resourceName, definition.deserialize(resourceName, res));
-			})
-			.then(function (data) {
-				if (options.cacheResponse) {
-					var updated = _this.inject(definition.name, data, options);
-					var id = updated[definition.idAttribute];
-					resource.previousAttributes[id] = _this.utils.deepMixIn({}, updated);
-					resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
-					return _this.get(definition.name, id);
-				} else {
-					return data;
-				}
-			});
+    var definition = this.definitions[resourceName];
+    var resource = this.store[resourceName];
+    var _this = this;
 
-		deferred.resolve(attrs);
-	}
-	return promise;
+    if (!('cacheResponse' in options)) {
+      options.cacheResponse = true;
+    } else {
+      options.cacheResponse = !!options.cacheResponse;
+    }
+
+    promise = promise
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
+      })
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.validate)(resourceName, attrs);
+      })
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.afterValidate)(resourceName, attrs);
+      })
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
+      })
+      .then(function (attrs) {
+        return _this.adapters[options.adapter || definition.defaultAdapter].update(definition, id, definition.serialize(resourceName, attrs), options);
+      })
+      .then(function (res) {
+        return _this.$q.promisify(definition.afterUpdate)(resourceName, definition.deserialize(resourceName, res));
+      })
+      .then(function (data) {
+        if (options.cacheResponse) {
+          var updated = _this.inject(definition.name, data, options);
+          var id = updated[definition.idAttribute];
+          resource.previousAttributes[id] = _this.utils.deepMixIn({}, updated);
+          resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
+          return _this.get(definition.name, id);
+        } else {
+          return data;
+        }
+      });
+
+    deferred.resolve(attrs);
+  } catch (err) {
+    deferred.reject(err);
+  }
+
+  return promise;
 }
 
 module.exports = update;
 
-},{}],41:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 var errorPrefix = 'DS.updateAll(resourceName, attrs, params[, options]): ';
 
 /**
@@ -2786,11 +2938,9 @@ var errorPrefix = 'DS.updateAll(resourceName, attrs, params[, options]): ';
  *  DS.filter('document'); // []
  *
  *  DS.updateAll('document', 5, { author: 'Sally' }, {
- *      query: {
- *          where: {
- *              author: {
- *                  '==': 'John Anderson'
- *              }
+ *      where: {
+ *          author: {
+ *              '==': 'John Anderson'
  *          }
  *      }
  *  })
@@ -2806,11 +2956,11 @@ var errorPrefix = 'DS.updateAll(resourceName, attrs, params[, options]): ';
  * @param {object} attrs The attributes with which to update the items.
  * @param {object} params Parameter object that is serialized into the query string. Properties:
  *
- * - `{object=}` - `query` - The query object by which to filter items of the type specified by `resourceName`. Properties:
- *      - `{object=}` - `where` - Where clause.
- *      - `{number=}` - `limit` - Limit clause.
- *      - `{skip=}` - `skip` - Skip clause.
- *      - `{orderBy=}` - `orderBy` - OrderBy clause.
+ *  - `{object=}` - `where` - Where clause.
+ *  - `{number=}` - `limit` - Limit clause.
+ *  - `{number=}` - `skip` - Skip clause.
+ *  - `{number=}` - `offset` - Same as skip.
+ *  - `{string|array=}` - `orderBy` - OrderBy clause.
  *
  * @param {object=} options Optional configuration. Properties:
  * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
@@ -2824,114 +2974,264 @@ var errorPrefix = 'DS.updateAll(resourceName, attrs, params[, options]): ';
  * ## Rejects with:
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  */
 function updateAll(resourceName, attrs, params, options) {
-	var deferred = this.$q.defer(),
-		promise = deferred.promise;
+  var deferred = this.$q.defer();
+  var promise = deferred.promise;
 
-	options = options || {};
+  try {
+    var IA = this.errors.IA;
 
-	if (!this.definitions[resourceName]) {
-		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
-	} else if (!this.utils.isObject(attrs)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'attrs: Must be an object!'));
-	} else if (!this.utils.isObject(params)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!'));
-	} else if (!this.utils.isObject(options)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!'));
-	} else {
-		var definition = this.definitions[resourceName],
-			resource = this.store[resourceName],
-			_this = this;
+    options = options || {};
 
-		if (!('cacheResponse' in options)) {
-			options.cacheResponse = true;
-		} else {
-			options.cacheResponse = !!options.cacheResponse;
-		}
+    if (!this.definitions[resourceName]) {
+      throw new this.errors.NER(errorPrefix + resourceName);
+    } else if (!this.utils.isObject(attrs)) {
+      throw new IA(errorPrefix + 'attrs: Must be an object!');
+    } else if (!this.utils.isObject(params)) {
+      throw new IA(errorPrefix + 'params: Must be an object!');
+    } else if (!this.utils.isObject(options)) {
+      throw new IA(errorPrefix + 'options: Must be an object!');
+    }
 
-		promise = promise
-			.then(function (attrs) {
-				return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
-			})
-			.then(function (attrs) {
-				return _this.$q.promisify(definition.validate)(resourceName, attrs);
-			})
-			.then(function (attrs) {
-				return _this.$q.promisify(definition.afterValidate)(resourceName, attrs);
-			})
-			.then(function (attrs) {
-				return _this.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
-			})
-			.then(function (attrs) {
-				return _this.adapters[options.adapter || definition.defaultAdapter].updateAll(definition, definition.serialize(resourceName, attrs), params, options);
-			})
-			.then(function (res) {
-				return _this.$q.promisify(definition.afterUpdate)(resourceName, definition.deserialize(resourceName, res));
-			})
-			.then(function (data) {
-				if (options.cacheResponse) {
-					return _this.inject(definition.name, data, options);
-				} else {
-					return data;
-				}
-			});
+    var definition = this.definitions[resourceName];
+    var _this = this;
 
-		deferred.resolve(attrs);
-	}
-	return promise;
+    if (!('cacheResponse' in options)) {
+      options.cacheResponse = true;
+    } else {
+      options.cacheResponse = !!options.cacheResponse;
+    }
+
+    promise = promise
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
+      })
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.validate)(resourceName, attrs);
+      })
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.afterValidate)(resourceName, attrs);
+      })
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
+      })
+      .then(function (attrs) {
+        return _this.adapters[options.adapter || definition.defaultAdapter].updateAll(definition, definition.serialize(resourceName, attrs), params, options);
+      })
+      .then(function (res) {
+        return _this.$q.promisify(definition.afterUpdate)(resourceName, definition.deserialize(resourceName, res));
+      })
+      .then(function (data) {
+        if (options.cacheResponse) {
+          return _this.inject(definition.name, data, options);
+        } else {
+          return data;
+        }
+      });
+
+    deferred.resolve(attrs);
+  } catch (err) {
+    deferred.reject(err);
+  }
+
+  return promise;
 }
 
 module.exports = updateAll;
 
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 var utils = require('../utils')[0]();
 
 function lifecycleNoop(resourceName, attrs, cb) {
-	cb(null, attrs);
+  cb(null, attrs);
 }
 
-function BaseConfig() {
+function Defaults() {
 }
 
-BaseConfig.prototype.idAttribute = 'id';
-BaseConfig.prototype.defaultAdapter = 'DSHttpAdapter';
-BaseConfig.prototype.filter = function (resourceName, where, attrs) {
-	var keep = true;
-	utils.forOwn(where, function (clause, field) {
-		if (utils.isString(clause)) {
-			clause = {
-				'===': clause
-			};
-		} else if (utils.isNumber(clause)) {
-			clause = {
-				'==': clause
-			};
-		}
-		if ('==' in clause) {
-			keep = keep && (attrs[field] == clause['==']);
-		} else if ('===' in clause) {
-			keep = keep && (attrs[field] === clause['===']);
-		} else if ('!=' in clause) {
-			keep = keep && (attrs[field] != clause['!=']);
-		} else if ('>' in clause) {
-			keep = keep && (attrs[field] > clause['>']);
-		} else if ('>=' in clause) {
-			keep = keep && (attrs[field] >= clause['>=']);
-		} else if ('<' in clause) {
-			keep = keep && (attrs[field] < clause['<']);
-		} else if ('<=' in clause) {
-			keep = keep && (attrs[field] <= clause['<=']);
-		} else if ('in' in clause) {
-			keep = keep && utils.contains(clause['in'], attrs[field]);
-		}
-	});
-	return keep;
+Defaults.prototype.idAttribute = 'id';
+Defaults.prototype.defaultAdapter = 'DSHttpAdapter';
+Defaults.prototype.filter = function (collection, resourceName, params, options) {
+  var _this = this;
+  var filtered = collection;
+  var where = null;
+  var reserved = {
+    skip: '',
+    offset: '',
+    where: '',
+    limit: '',
+    orderBy: '',
+    sort: ''
+  };
+
+  if (this.utils.isObject(params.where)) {
+    where = params.where;
+  } else {
+    where = {};
+  }
+
+  if (options.allowSimpleWhere) {
+    this.utils.forOwn(params, function (value, key) {
+      if (!(key in reserved) && !(key in where)) {
+        where[key] = {
+          '==': value
+        };
+      }
+    });
+  }
+
+  if (this.utils.isEmpty(where)) {
+    where = null;
+  }
+
+  if (where) {
+    filtered = this.utils.filter(filtered, function (attrs) {
+//      console.log(attrs);
+      var first = true;
+      var keep = true;
+      _this.utils.forOwn(where, function (clause, field) {
+//        console.log(clause, field);
+        if (_this.utils.isString(clause)) {
+          clause = {
+            '===': clause
+          };
+        } else if (_this.utils.isNumber(clause)) {
+          clause = {
+            '==': clause
+          };
+        }
+        if (_this.utils.isObject(clause)) {
+          _this.utils.forOwn(clause, function (val, op) {
+//            console.log(op, val);
+            if (op === '==') {
+              keep = first ? (attrs[field] == val) : keep && (attrs[field] == val);
+            } else if (op === '===') {
+              keep = first ? (attrs[field] === val) : keep && (attrs[field] === val);
+            } else if (op === '!=') {
+              keep = first ? (attrs[field] != val) : keep && (attrs[field] != val);
+            } else if (op === '!==') {
+              keep = first ? (attrs[field] !== val) : keep && (attrs[field] !== val);
+            } else if (op === '>') {
+              keep = first ? (attrs[field] > val) : keep && (attrs[field] > val);
+            } else if (op === '>=') {
+              keep = first ? (attrs[field] >= val) : keep && (attrs[field] >= val);
+            } else if (op === '<') {
+              keep = first ? (attrs[field] < val) : keep && (attrs[field] < val);
+            } else if (op === '<=') {
+              keep = first ? (attrs[field] <= val) : keep && (attrs[field] <= val);
+            } else if (op === 'in') {
+              keep = first ? _this.utils.contains(val, attrs[field]) : keep && _this.utils.contains(val, attrs[field]);
+            } else if (op === '|==') {
+              keep = first ? (attrs[field] == val) : keep || (attrs[field] == val);
+            } else if (op === '|===') {
+              keep = first ? (attrs[field] === val) : keep || (attrs[field] === val);
+            } else if (op === '|!=') {
+              keep = first ? (attrs[field] != val) : keep || (attrs[field] != val);
+            } else if (op === '|!==') {
+              keep = first ? (attrs[field] !== val) : keep || (attrs[field] !== val);
+            } else if (op === '|>') {
+              keep = first ? (attrs[field] > val) : keep || (attrs[field] > val);
+            } else if (op === '|>=') {
+              keep = first ? (attrs[field] >= val) : keep || (attrs[field] >= val);
+            } else if (op === '|<') {
+              keep = first ? (attrs[field] < val) : keep || (attrs[field] < val);
+            } else if (op === '|<=') {
+              keep = first ? (attrs[field] <= val) : keep || (attrs[field] <= val);
+            } else if (op === '|in') {
+              keep = first ? _this.utils.contains(val, attrs[field]) : keep || _this.utils.contains(val, attrs[field]);
+            }
+            first = false;
+//            console.log(keep, first);
+          });
+        }
+      });
+      return keep;
+    });
+  }
+
+  var orderBy = null;
+
+  if (this.utils.isString(params.orderBy)) {
+    orderBy = [
+      [params.orderBy, 'ASC']
+    ];
+  } else if (this.utils.isArray(params.orderBy)) {
+    orderBy = params.orderBy;
+  }
+
+  if (!orderBy && this.utils.isString(params.sort)) {
+    orderBy = [
+      [params.sort, 'ASC']
+    ];
+  } else if (!orderBy && this.utils.isArray(params.sort)) {
+    orderBy = params.sort;
+  }
+
+  // Apply 'orderBy'
+  if (orderBy) {
+    angular.forEach(orderBy, function (def) {
+      if (_this.utils.isString(def)) {
+        def = [def, 'ASC'];
+      } else if (!_this.utils.isArray(def)) {
+        throw new _this.errors.IllegalArgumentError('DS.filter(resourceName[, params][, options]): ' + angular.toJson(def) + ': Must be a string or an array!', { params: { 'orderBy[i]': { actual: typeof def, expected: 'string|array' } } });
+      }
+      filtered = _this.utils.sort(filtered, function (a, b) {
+        var cA = a[def[0]], cB = b[def[0]];
+        if (_this.utils.isString(cA)) {
+          cA = _this.utils.upperCase(cA);
+        }
+        if (_this.utils.isString(cB)) {
+          cB = _this.utils.upperCase(cB);
+        }
+        if (def[1] === 'DESC') {
+          if (cB < cA) {
+            return -1;
+          } else if (cB > cA) {
+            return 1;
+          } else {
+            return 0;
+          }
+        } else {
+          if (cA < cB) {
+            return -1;
+          } else if (cA > cB) {
+            return 1;
+          } else {
+            return 0;
+          }
+        }
+      });
+    });
+  }
+
+  var limit = angular.isNumber(params.limit) ? params.limit : null;
+  var skip = null;
+
+  if (angular.isNumber(params.skip)) {
+    skip = params.skip;
+  } else if (angular.isNumber(params.offset)) {
+    skip = params.offset;
+  }
+
+  // Apply 'limit' and 'skip'
+  if (limit && skip) {
+    filtered = this.utils.slice(filtered, skip, Math.min(filtered.length, skip + limit));
+  } else if (this.utils.isNumber(limit)) {
+    filtered = this.utils.slice(filtered, 0, Math.min(filtered.length, limit));
+  } else if (this.utils.isNumber(skip)) {
+    if (skip < filtered.length) {
+      filtered = this.utils.slice(filtered, skip);
+    } else {
+      filtered = [];
+    }
+  }
+
+  return filtered;
 };
-BaseConfig.prototype.baseUrl = '';
-BaseConfig.prototype.endpoint = '';
+Defaults.prototype.baseUrl = '';
+Defaults.prototype.endpoint = '';
 /**
  * @doc property
  * @id DSProvider.properties:defaults.beforeValidate
@@ -2962,7 +3262,7 @@ BaseConfig.prototype.endpoint = '';
  * @param {string} resourceName The name of the resource moving through the lifecycle.
  * @param {object} attrs Attributes of the item moving through the lifecycle.
  */
-BaseConfig.prototype.beforeValidate = lifecycleNoop;
+Defaults.prototype.beforeValidate = lifecycleNoop;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.validate
@@ -2993,7 +3293,7 @@ BaseConfig.prototype.beforeValidate = lifecycleNoop;
  * @param {string} resourceName The name of the resource moving through the lifecycle.
  * @param {object} attrs Attributes of the item moving through the lifecycle.
  */
-BaseConfig.prototype.validate = lifecycleNoop;
+Defaults.prototype.validate = lifecycleNoop;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.afterValidate
@@ -3024,7 +3324,7 @@ BaseConfig.prototype.validate = lifecycleNoop;
  * @param {string} resourceName The name of the resource moving through the lifecycle.
  * @param {object} attrs Attributes of the item moving through the lifecycle.
  */
-BaseConfig.prototype.afterValidate = lifecycleNoop;
+Defaults.prototype.afterValidate = lifecycleNoop;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.beforeCreate
@@ -3055,7 +3355,7 @@ BaseConfig.prototype.afterValidate = lifecycleNoop;
  * @param {string} resourceName The name of the resource moving through the lifecycle.
  * @param {object} attrs Attributes of the item moving through the lifecycle.
  */
-BaseConfig.prototype.beforeCreate = lifecycleNoop;
+Defaults.prototype.beforeCreate = lifecycleNoop;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.afterCreate
@@ -3086,7 +3386,7 @@ BaseConfig.prototype.beforeCreate = lifecycleNoop;
  * @param {string} resourceName The name of the resource moving through the lifecycle.
  * @param {object} attrs Attributes of the item moving through the lifecycle.
  */
-BaseConfig.prototype.afterCreate = lifecycleNoop;
+Defaults.prototype.afterCreate = lifecycleNoop;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.beforeUpdate
@@ -3117,7 +3417,7 @@ BaseConfig.prototype.afterCreate = lifecycleNoop;
  * @param {string} resourceName The name of the resource moving through the lifecycle.
  * @param {object} attrs Attributes of the item moving through the lifecycle.
  */
-BaseConfig.prototype.beforeUpdate = lifecycleNoop;
+Defaults.prototype.beforeUpdate = lifecycleNoop;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.afterUpdate
@@ -3148,7 +3448,7 @@ BaseConfig.prototype.beforeUpdate = lifecycleNoop;
  * @param {string} resourceName The name of the resource moving through the lifecycle.
  * @param {object} attrs Attributes of the item moving through the lifecycle.
  */
-BaseConfig.prototype.afterUpdate = lifecycleNoop;
+Defaults.prototype.afterUpdate = lifecycleNoop;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.beforeDestroy
@@ -3179,7 +3479,7 @@ BaseConfig.prototype.afterUpdate = lifecycleNoop;
  * @param {string} resourceName The name of the resource moving through the lifecycle.
  * @param {object} attrs Attributes of the item moving through the lifecycle.
  */
-BaseConfig.prototype.beforeDestroy = lifecycleNoop;
+Defaults.prototype.beforeDestroy = lifecycleNoop;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.afterDestroy
@@ -3210,7 +3510,7 @@ BaseConfig.prototype.beforeDestroy = lifecycleNoop;
  * @param {string} resourceName The name of the resource moving through the lifecycle.
  * @param {object} attrs Attributes of the item moving through the lifecycle.
  */
-BaseConfig.prototype.afterDestroy = lifecycleNoop;
+Defaults.prototype.afterDestroy = lifecycleNoop;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.beforeInject
@@ -3235,8 +3535,8 @@ BaseConfig.prototype.afterDestroy = lifecycleNoop;
  * @param {string} resourceName The name of the resource moving through the lifecycle.
  * @param {object} attrs Attributes of the item moving through the lifecycle.
  */
-BaseConfig.prototype.beforeInject = function (resourceName, attrs) {
-	return attrs;
+Defaults.prototype.beforeInject = function (resourceName, attrs) {
+  return attrs;
 };
 /**
  * @doc property
@@ -3262,8 +3562,8 @@ BaseConfig.prototype.beforeInject = function (resourceName, attrs) {
  * @param {string} resourceName The name of the resource moving through the lifecycle.
  * @param {object} attrs Attributes of the item moving through the lifecycle.
  */
-BaseConfig.prototype.afterInject = function (resourceName, attrs) {
-	return attrs;
+Defaults.prototype.afterInject = function (resourceName, attrs) {
+  return attrs;
 };
 /**
  * @doc property
@@ -3286,8 +3586,8 @@ BaseConfig.prototype.afterInject = function (resourceName, attrs) {
  * @param {object} data Data to be sent to the server.
  * @returns {*} By default returns `data` as-is.
  */
-BaseConfig.prototype.serialize = function (resourceName, data) {
-	return data;
+Defaults.prototype.serialize = function (resourceName, data) {
+  return data;
 };
 
 /**
@@ -3309,8 +3609,8 @@ BaseConfig.prototype.serialize = function (resourceName, data) {
  * @param {object} data Response object from `$http()`.
  * @returns {*} By default returns `data.data`.
  */
-BaseConfig.prototype.deserialize = function (resourceName, data) {
-	return data.data;
+Defaults.prototype.deserialize = function (resourceName, data) {
+  return data.data;
 };
 
 /**
@@ -3320,153 +3620,154 @@ BaseConfig.prototype.deserialize = function (resourceName, data) {
  */
 function DSProvider() {
 
-	/**
-	 * @doc property
-	 * @id DSProvider.properties:defaults
-	 * @name defaults
-	 * @description
-	 * See the [configuration guide](/documentation/guide/configure/global).
-	 *
-	 * Properties:
-	 *
-	 * - `{string}` - `baseUrl` - The url relative to which all AJAX requests will be made.
-	 * - `{string}` - `idAttribute` - Default: `"id"` - The attribute that specifies the primary key for resources.
-	 * - `{string}` - `defaultAdapter` - Default: `"DSHttpAdapter"`
-	 * - `{function}` - `filter` - Default: See [angular-data query language](/documentation/guide/queries/custom).
-	 * - `{function}` - `beforeValidate` - See [DSProvider.defaults.beforeValidate](/documentation/api/angular-data/DSProvider.properties:defaults.beforeValidate). Default: No-op
-	 * - `{function}` - `validate` - See [DSProvider.defaults.validate](/documentation/api/angular-data/DSProvider.properties:defaults.validate). Default: No-op
-	 * - `{function}` - `afterValidate` - See [DSProvider.defaults.afterValidate](/documentation/api/angular-data/DSProvider.properties:defaults.afterValidate). Default: No-op
-	 * - `{function}` - `beforeCreate` - See [DSProvider.defaults.beforeCreate](/documentation/api/angular-data/DSProvider.properties:defaults.beforeCreate). Default: No-op
-	 * - `{function}` - `afterCreate` - See [DSProvider.defaults.afterCreate](/documentation/api/angular-data/DSProvider.properties:defaults.afterCreate). Default: No-op
-	 * - `{function}` - `beforeUpdate` - See [DSProvider.defaults.beforeUpdate](/documentation/api/angular-data/DSProvider.properties:defaults.beforeUpdate). Default: No-op
-	 * - `{function}` - `afterUpdate` - See [DSProvider.defaults.afterUpdate](/documentation/api/angular-data/DSProvider.properties:defaults.afterUpdate). Default: No-op
-	 * - `{function}` - `beforeDestroy` - See [DSProvider.defaults.beforeDestroy](/documentation/api/angular-data/DSProvider.properties:defaults.beforeDestroy). Default: No-op
-	 * - `{function}` - `afterDestroy` - See [DSProvider.defaults.afterDestroy](/documentation/api/angular-data/DSProvider.properties:defaults.afterDestroy). Default: No-op
-	 * - `{function}` - `afterInject` - See [DSProvider.defaults.afterInject](/documentation/api/angular-data/DSProvider.properties:defaults.afterInject). Default: No-op
-	 * - `{function}` - `beforeInject` - See [DSProvider.defaults.beforeInject](/documentation/api/angular-data/DSProvider.properties:defaults.beforeInject). Default: No-op
-	 * - `{function}` - `serialize` - See [DSProvider.defaults.serialize](/documentation/api/angular-data/DSProvider.properties:defaults.serialize). Default: No-op
-	 * - `{function}` - `deserialize` - See [DSProvider.defaults.deserialize](/documentation/api/angular-data/DSProvider.properties:defaults.deserialize). Default: No-op
-	 */
-	var defaults = this.defaults = new BaseConfig();
+  /**
+   * @doc property
+   * @id DSProvider.properties:defaults
+   * @name defaults
+   * @description
+   * See the [configuration guide](/documentation/guide/configure/global).
+   *
+   * Properties:
+   *
+   * - `{string}` - `baseUrl` - The url relative to which all AJAX requests will be made.
+   * - `{string}` - `idAttribute` - Default: `"id"` - The attribute that specifies the primary key for resources.
+   * - `{string}` - `defaultAdapter` - Default: `"DSHttpAdapter"`
+   * - `{function}` - `filter` - Default: See [angular-data query language](/documentation/guide/queries/custom).
+   * - `{function}` - `beforeValidate` - See [DSProvider.defaults.beforeValidate](/documentation/api/angular-data/DSProvider.properties:defaults.beforeValidate). Default: No-op
+   * - `{function}` - `validate` - See [DSProvider.defaults.validate](/documentation/api/angular-data/DSProvider.properties:defaults.validate). Default: No-op
+   * - `{function}` - `afterValidate` - See [DSProvider.defaults.afterValidate](/documentation/api/angular-data/DSProvider.properties:defaults.afterValidate). Default: No-op
+   * - `{function}` - `beforeCreate` - See [DSProvider.defaults.beforeCreate](/documentation/api/angular-data/DSProvider.properties:defaults.beforeCreate). Default: No-op
+   * - `{function}` - `afterCreate` - See [DSProvider.defaults.afterCreate](/documentation/api/angular-data/DSProvider.properties:defaults.afterCreate). Default: No-op
+   * - `{function}` - `beforeUpdate` - See [DSProvider.defaults.beforeUpdate](/documentation/api/angular-data/DSProvider.properties:defaults.beforeUpdate). Default: No-op
+   * - `{function}` - `afterUpdate` - See [DSProvider.defaults.afterUpdate](/documentation/api/angular-data/DSProvider.properties:defaults.afterUpdate). Default: No-op
+   * - `{function}` - `beforeDestroy` - See [DSProvider.defaults.beforeDestroy](/documentation/api/angular-data/DSProvider.properties:defaults.beforeDestroy). Default: No-op
+   * - `{function}` - `afterDestroy` - See [DSProvider.defaults.afterDestroy](/documentation/api/angular-data/DSProvider.properties:defaults.afterDestroy). Default: No-op
+   * - `{function}` - `afterInject` - See [DSProvider.defaults.afterInject](/documentation/api/angular-data/DSProvider.properties:defaults.afterInject). Default: No-op
+   * - `{function}` - `beforeInject` - See [DSProvider.defaults.beforeInject](/documentation/api/angular-data/DSProvider.properties:defaults.beforeInject). Default: No-op
+   * - `{function}` - `serialize` - See [DSProvider.defaults.serialize](/documentation/api/angular-data/DSProvider.properties:defaults.serialize). Default: No-op
+   * - `{function}` - `deserialize` - See [DSProvider.defaults.deserialize](/documentation/api/angular-data/DSProvider.properties:defaults.deserialize). Default: No-op
+   */
+  var defaults = this.defaults = new Defaults();
 
-	this.$get = [
-		'$rootScope', '$log', '$q', 'DSHttpAdapter', 'DSLocalStorageAdapter', 'DSUtils', 'DSErrors',
-		function ($rootScope, $log, $q, DSHttpAdapter, DSLocalStorageAdapter, DSUtils, DSErrors) {
+  this.$get = [
+    '$rootScope', '$log', '$q', 'DSHttpAdapter', 'DSLocalStorageAdapter', 'DSUtils', 'DSErrors',
+    function ($rootScope, $log, $q, DSHttpAdapter, DSLocalStorageAdapter, DSUtils, DSErrors) {
 
-			var syncMethods = require('./sync_methods'),
-				asyncMethods = require('./async_methods'),
-				cache;
+      var syncMethods = require('./sync_methods'),
+        asyncMethods = require('./async_methods'),
+        cache;
 
-			try {
-				cache = angular.injector(['angular-data.DSCacheFactory']).get('DSCacheFactory');
-			} catch (err) {
-				$log.warn(err);
-				$log.warn('DSCacheFactory is unavailable. Resorting to the lesser capabilities of $cacheFactory.');
-				cache = angular.injector(['ng']).get('$cacheFactory');
-			}
+      try {
+        cache = angular.injector(['angular-data.DSCacheFactory']).get('DSCacheFactory');
+      } catch (err) {
+        $log.warn(err);
+        $log.warn('DSCacheFactory is unavailable. Resorting to the lesser capabilities of $cacheFactory.');
+        cache = angular.injector(['ng']).get('$cacheFactory');
+      }
 
-			/**
-			 * @doc interface
-			 * @id DS
-			 * @name DS
-			 * @description
-			 * Public data store interface. Consists of several properties and a number of methods. Injectable as `DS`.
-			 *
-			 * See the [guide](/documentation/guide/overview/index).
-			 */
-			var DS = {
-				$rootScope: $rootScope,
-				$log: $log,
-				$q: $q,
+      /**
+       * @doc interface
+       * @id DS
+       * @name DS
+       * @description
+       * Public data store interface. Consists of several properties and a number of methods. Injectable as `DS`.
+       *
+       * See the [guide](/documentation/guide/overview/index).
+       */
+      var DS = {
+        $rootScope: $rootScope,
+        $log: $log,
+        $q: $q,
 
-				cacheFactory: cache,
+        cacheFactory: cache,
 
-				/**
-				 * @doc property
-				 * @id DS.properties:defaults
-				 * @name defaults
-				 * @description
-				 * Reference to [DSProvider.defaults](/documentation/api/api/DSProvider.properties:defaults).
-				 */
-				defaults: defaults,
+        /**
+         * @doc property
+         * @id DS.properties:defaults
+         * @name defaults
+         * @description
+         * Reference to [DSProvider.defaults](/documentation/api/api/DSProvider.properties:defaults).
+         */
+        defaults: defaults,
 
-				/*!
-				 * @doc property
-				 * @id DS.properties:store
-				 * @name store
-				 * @description
-				 * Meta data for each registered resource.
-				 */
-				store: {},
+        /*!
+         * @doc property
+         * @id DS.properties:store
+         * @name store
+         * @description
+         * Meta data for each registered resource.
+         */
+        store: {},
 
-				/*!
-				 * @doc property
-				 * @id DS.properties:definitions
-				 * @name definitions
-				 * @description
-				 * Registered resource definitions available to the data store.
-				 */
-				definitions: {},
+        /*!
+         * @doc property
+         * @id DS.properties:definitions
+         * @name definitions
+         * @description
+         * Registered resource definitions available to the data store.
+         */
+        definitions: {},
 
-				/**
-				 * @doc property
-				 * @id DS.properties:adapters
-				 * @name adapters
-				 * @description
-				 * Registered adapters available to the data store. Object consists of key-values pairs where the key is
-				 * the name of the adapter and the value is the adapter itself.
-				 */
-				adapters: {
-					DSHttpAdapter: DSHttpAdapter,
-					DSLocalStorageAdapter: DSLocalStorageAdapter
-				},
+        /**
+         * @doc property
+         * @id DS.properties:adapters
+         * @name adapters
+         * @description
+         * Registered adapters available to the data store. Object consists of key-values pairs where the key is
+         * the name of the adapter and the value is the adapter itself.
+         */
+        adapters: {
+          DSHttpAdapter: DSHttpAdapter,
+          DSLocalStorageAdapter: DSLocalStorageAdapter
+        },
 
-				/**
-				 * @doc property
-				 * @id DS.properties:errors
-				 * @name errors
-				 * @description
-				 * References to the various [error types](/documentation/api/api/errors) used by angular-data.
-				 */
-				errors: DSErrors,
+        /**
+         * @doc property
+         * @id DS.properties:errors
+         * @name errors
+         * @description
+         * References to the various [error types](/documentation/api/api/errors) used by angular-data.
+         */
+        errors: DSErrors,
 
-				/*!
-				 * @doc property
-				 * @id DS.properties:utils
-				 * @name utils
-				 * @description
-				 * Utility functions used internally by angular-data.
-				 */
-				utils: DSUtils
-			};
+        /*!
+         * @doc property
+         * @id DS.properties:utils
+         * @name utils
+         * @description
+         * Utility functions used internally by angular-data.
+         */
+        utils: DSUtils
+      };
 
-			DSUtils.deepFreeze(syncMethods);
-			DSUtils.deepFreeze(asyncMethods);
+      DSUtils.deepFreeze(syncMethods);
+      DSUtils.deepFreeze(asyncMethods);
 
-			DSUtils.deepMixIn(DS, syncMethods);
-			DSUtils.deepMixIn(DS, asyncMethods);
+      DSUtils.deepMixIn(DS, syncMethods);
+      DSUtils.deepMixIn(DS, asyncMethods);
 
-			DSUtils.deepFreeze(DS.errors);
-			DSUtils.deepFreeze(DS.utils);
+      DSUtils.deepFreeze(DS.errors);
+      DSUtils.deepFreeze(DS.utils);
 
-			var $dirtyCheckScope = $rootScope.$new();
+      var $dirtyCheckScope = $rootScope.$new();
 
-			$dirtyCheckScope.$watch(function () {
-				// Throttle angular-data's digest loop to tenths of a second
-				// TODO: Is this okay?
-				return new Date().getTime() / 100 | 0;
-			}, function () {
-				DS.digest();
-			});
+      $dirtyCheckScope.$watch(function () {
+        // Throttle angular-data's digest loop to tenths of a second
+        // TODO: Is this okay?
+        return new Date().getTime() / 100 | 0;
+      }, function () {
+        DS.digest();
+      });
 
-			return DS;
-		}];
+      return DS;
+    }
+  ];
 }
 
 module.exports = DSProvider;
 
-},{"../utils":60,"./async_methods":37,"./sync_methods":53}],43:[function(require,module,exports){
-var errorPrefix = 'DS.bindAll(scope, expr, resourceName, params): ';
+},{"../utils":61,"./async_methods":37,"./sync_methods":54}],44:[function(require,module,exports){
+var errorPrefix = 'DS.bindAll(scope, expr, resourceName, params[, cb]): ';
 
 /**
  * @doc method
@@ -3477,7 +3778,7 @@ var errorPrefix = 'DS.bindAll(scope, expr, resourceName, params): ';
  *
  * ## Signature:
  * ```js
- * DS.bindAll(scope, expr, resourceName, params)
+ * DS.bindAll(scope, expr, resourceName, params[, cb])
  * ```
  *
  * ## Example:
@@ -3485,10 +3786,8 @@ var errorPrefix = 'DS.bindAll(scope, expr, resourceName, params): ';
  * ```js
  * // bind the documents with ownerId of 5 to the 'docs' property of the $scope
  * var deregisterFunc = DS.bindAll($scope, 'docs', 'document', {
- *      query: {
- *          criteria: {
- *              ownerId: 5
- *          }
+ *      where: {
+ *          ownerId: 5
  *      }
  * });
  * ```
@@ -3496,49 +3795,61 @@ var errorPrefix = 'DS.bindAll(scope, expr, resourceName, params): ';
  * ## Throws
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {object} scope The scope to bind to.
  * @param {string} expr An expression used to bind to the scope. Can be used to set nested keys, i.e. `"user.comments"`.
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {object} params Parameter object that is used in filtering the collection. Properties:
  *
- * - `{object=}` - `query` - The query object by which to filter items of the type specified by `resourceName`. Properties:
- *      - `{object=}` - `where` - Where clause.
- *      - `{number=}` - `limit` - Limit clause.
- *      - `{skip=}` - `skip` - Skip clause.
- *      - `{orderBy=}` - `orderBy` - OrderBy clause.
+ *  - `{object=}` - `where` - Where clause.
+ *  - `{number=}` - `limit` - Limit clause.
+ *  - `{number=}` - `skip` - Skip clause.
+ *  - `{number=}` - `offset` - Same as skip.
+ *  - `{string|array=}` - `orderBy` - OrderBy clause.
+ *
+ * @param {function=} cb Optional callback executed on change. Signature: `cb(err, items)`.
+ *
  * @returns {function} Scope $watch deregistration function.
  */
-function bindOne(scope, expr, resourceName, params) {
-	if (!this.utils.isObject(scope)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'scope: Must be an object!');
-	} else if (!this.utils.isString(expr)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'expr: Must be a string!');
-	} else if (!this.definitions[resourceName]) {
-		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (!this.utils.isObject(params)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!');
-	}
+function bindOne(scope, expr, resourceName, params, cb) {
+  var IA = this.errors.IA;
 
-	var _this = this;
+  if (!this.utils.isObject(scope)) {
+    throw new IA(errorPrefix + 'scope: Must be an object!');
+  } else if (!this.utils.isString(expr)) {
+    throw new IA(errorPrefix + 'expr: Must be a string!');
+  } else if (!this.definitions[resourceName]) {
+    throw new this.errors.NER(errorPrefix + resourceName);
+  } else if (!this.utils.isObject(params)) {
+    throw new IA(errorPrefix + 'params: Must be an object!');
+  }
 
-	try {
-		return scope.$watch(function () {
-			return _this.lastModified(resourceName);
-		}, function () {
-			_this.utils.set(scope, expr, _this.filter(resourceName, params));
-		});
-	} catch (err) {
-		throw new this.errors.UnhandledError(err);
-	}
+  var _this = this;
+
+  try {
+    return scope.$watch(function () {
+      return _this.lastModified(resourceName);
+    }, function () {
+      var items = _this.filter(resourceName, params);
+      _this.utils.set(scope, expr, items);
+      if (cb) {
+        cb(null, items);
+      }
+    });
+  } catch (err) {
+    if (cb) {
+      cb(err);
+    } else {
+      throw err;
+    }
+  }
 }
 
 module.exports = bindOne;
 
-},{}],44:[function(require,module,exports){
-var errorPrefix = 'DS.bindOne(scope, expr, resourceName, id): ';
+},{}],45:[function(require,module,exports){
+var errorPrefix = 'DS.bindOne(scope, expr, resourceName, id[, cb]): ';
 
 /**
  * @doc method
@@ -3549,7 +3860,7 @@ var errorPrefix = 'DS.bindOne(scope, expr, resourceName, id): ';
  *
  * ## Signature:
  * ```js
- * DS.bindOne(scope, expr, resourceName, id)
+ * DS.bindOne(scope, expr, resourceName, id[, cb])
  * ```
  *
  * ## Example:
@@ -3562,42 +3873,52 @@ var errorPrefix = 'DS.bindOne(scope, expr, resourceName, id): ';
  * ## Throws
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {object} scope The scope to bind to.
  * @param {string} expr An expression used to bind to the scope. Can be used to set nested keys, i.e. `"user.profile"`.
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to bind.
+ * @param {function=} cb Optional callback executed on change. Signature: `cb(err, item)`.
  * @returns {function} Scope $watch deregistration function.
  */
-function bindOne(scope, expr, resourceName, id) {
-	if (!this.utils.isObject(scope)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'scope: Must be an object!');
-	} else if (!this.utils.isString(expr)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'expr: Must be a string!');
-	} else if (!this.definitions[resourceName]) {
-		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!');
-	}
+function bindOne(scope, expr, resourceName, id, cb) {
+  var IA = this.errors.IA;
 
-	var _this = this;
+  if (!this.utils.isObject(scope)) {
+    throw new IA(errorPrefix + 'scope: Must be an object!');
+  } else if (!this.utils.isString(expr)) {
+    throw new IA(errorPrefix + 'expr: Must be a string!');
+  } else if (!this.definitions[resourceName]) {
+    throw new this.errors.NER(errorPrefix + resourceName);
+  } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+    throw new IA(errorPrefix + 'id: Must be a string or a number!');
+  }
 
-	try {
-		return scope.$watch(function () {
-			return _this.lastModified(resourceName, id);
-		}, function () {
-			_this.utils.set(scope, expr, _this.get(resourceName, id));
-		});
-	} catch (err) {
-		throw new this.errors.UnhandledError(err);
-	}
+  var _this = this;
+
+  try {
+    return scope.$watch(function () {
+      return _this.lastModified(resourceName, id);
+    }, function () {
+      var item = _this.get(resourceName, id);
+      _this.utils.set(scope, expr, item);
+      if (cb) {
+        cb(null, item);
+      }
+    });
+  } catch (err) {
+    if (cb) {
+      cb(err);
+    } else {
+      throw err;
+    }
+  }
 }
 
 module.exports = bindOne;
 
-},{}],45:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 var errorPrefix = 'DS.changes(resourceName, id): ';
 
 /**
@@ -3627,46 +3948,41 @@ var errorPrefix = 'DS.changes(resourceName, id): ';
  * ## Throws
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item of the changes to retrieve.
  * @returns {object} The changes of the item of the type specified by `resourceName` with the primary key specified by `id`.
  */
 function changes(resourceName, id) {
-	if (!this.definitions[resourceName]) {
-		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
-	}
+  if (!this.definitions[resourceName]) {
+    throw new this.errors.NER(errorPrefix + resourceName);
+  } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
+  }
 
-	try {
-		var item = this.get(resourceName, id);
-		if (item) {
-			this.store[resourceName].observers[id].deliver();
-			return this.utils.diffObjectFromOldObject(item, this.store[resourceName].previousAttributes[id]);
-		}
-	} catch (err) {
-		throw new this.errors.UnhandledError(err);
-	}
+  var item = this.get(resourceName, id);
+  if (item) {
+    this.store[resourceName].observers[id].deliver();
+    return this.utils.diffObjectFromOldObject(item, this.store[resourceName].previousAttributes[id]);
+  }
 }
 
 module.exports = changes;
 
-},{}],46:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 /*jshint evil:true*/
 var errorPrefix = 'DS.defineResource(definition): ';
 
 function Resource(utils, options) {
 
-	utils.deepMixIn(this, options);
+  utils.deepMixIn(this, options);
 
-	if ('endpoint' in options) {
-		this.endpoint = options.endpoint;
-	} else {
-		this.endpoint = this.name;
-	}
+  if ('endpoint' in options) {
+    this.endpoint = options.endpoint;
+  } else {
+    this.endpoint = this.name;
+  }
 }
 
 /**
@@ -3700,7 +4016,6 @@ function Resource(utils, options) {
  *
  * - `{IllegalArgumentError}`
  * - `{RuntimeError}`
- * - `{UnhandledError}`
  *
  * @param {string|object} definition Name of resource or resource definition object: Properties:
  *
@@ -3730,73 +4045,93 @@ function Resource(utils, options) {
  * See [DSProvider.defaults](/documentation/api/angular-data/DSProvider.properties:defaults).
  */
 function defineResource(definition) {
-	if (this.utils.isString(definition)) {
-		definition = {
-			name: definition
-		};
-	}
-	if (!this.utils.isObject(definition)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'definition: Must be an object!', { definition: { actual: typeof definition, expected: 'object' } });
-	} else if (!this.utils.isString(definition.name)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'definition.name: Must be a string!', { definition: { name: { actual: typeof definition.name, expected: 'string' } } });
-	} else if (definition.idAttribute && !this.utils.isString(definition.idAttribute)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'definition.idAttribute: Must be a string!', { definition: { idAttribute: { actual: typeof definition.idAttribute, expected: 'string' } } });
-	} else if (definition.endpoint && !this.utils.isString(definition.endpoint)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'definition.endpoint: Must be a string!', { definition: { endpoint: { actual: typeof definition.endpoint, expected: 'string' } } });
-	} else if (this.store[definition.name]) {
-		throw new this.errors.RuntimeError(errorPrefix + definition.name + ' is already registered!');
-	}
+  var IA = this.errors.IA;
 
-	try {
-		Resource.prototype = this.defaults;
-		this.definitions[definition.name] = new Resource(this.utils, definition);
+  if (this.utils.isString(definition)) {
+    definition = {
+      name: definition
+    };
+  }
+  if (!this.utils.isObject(definition)) {
+    throw new IA(errorPrefix + 'definition: Must be an object!');
+  } else if (!this.utils.isString(definition.name)) {
+    throw new IA(errorPrefix + 'definition.name: Must be a string!');
+  } else if (definition.idAttribute && !this.utils.isString(definition.idAttribute)) {
+    throw new IA(errorPrefix + 'definition.idAttribute: Must be a string!');
+  } else if (definition.endpoint && !this.utils.isString(definition.endpoint)) {
+    throw new IA(errorPrefix + 'definition.endpoint: Must be a string!');
+  } else if (this.store[definition.name]) {
+    throw new this.errors.R(errorPrefix + definition.name + ' is already registered!');
+  }
 
-		var _this = this,
-			def = this.definitions[definition.name];
+  try {
+    Resource.prototype = this.defaults;
+    this.definitions[definition.name] = new Resource(this.utils, definition);
 
-		var cache = this.cacheFactory('DS.' + def.name, {
-			maxAge: def.maxAge || null,
-			recycleFreq: def.recycleFreq || 1000,
-			cacheFlushInterval: def.cacheFlushInterval || null,
-			deleteOnExpire: def.deleteOnExpire || 'none',
-			onExpire: function (id) {
-				_this.eject(def.name, id);
-			},
-			capacity: Number.MAX_VALUE,
-			storageMode: 'memory',
-			storageImpl: null,
-			disabled: false,
-			storagePrefix: 'DS.' + def.name
-		});
+    var _this = this;
+    var def = this.definitions[definition.name];
 
-		if (def.methods) {
-			def.class = definition.name[0].toUpperCase() + definition.name.substring(1);
-			eval('function ' + def.class + '() {}');
-			def[def.class] = eval(def.class);
-			this.utils.deepMixIn(def[def.class].prototype, def.methods);
-		}
+    var cache = this.cacheFactory('DS.' + def.name, {
+      maxAge: def.maxAge || null,
+      recycleFreq: def.recycleFreq || 1000,
+      cacheFlushInterval: def.cacheFlushInterval || null,
+      deleteOnExpire: def.deleteOnExpire || 'none',
+      onExpire: function (id) {
+        _this.eject(def.name, id);
+      },
+      capacity: Number.MAX_VALUE,
+      storageMode: 'memory',
+      storageImpl: null,
+      disabled: false,
+      storagePrefix: 'DS.' + def.name
+    });
 
-		this.store[def.name] = {
-			collection: [],
-			completedQueries: {},
-			pendingQueries: {},
-			index: cache,
-			modified: {},
-			saved: {},
-			previousAttributes: {},
-			observers: {},
-			collectionModified: 0
-		};
-	} catch (err) {
-		delete this.definitions[definition.name];
-		delete this.store[definition.name];
-		throw new this.errors.UnhandledError(err);
-	}
+    if (def.methods) {
+      def.class = definition.name[0].toUpperCase() + definition.name.substring(1);
+      eval('function ' + def.class + '() {}');
+      def[def.class] = eval(def.class);
+      this.utils.deepMixIn(def[def.class].prototype, def.methods);
+    }
+
+    if (def.computed) {
+      this.utils.forOwn(def.computed, function (fn, field) {
+        if (def.methods && field in def.methods) {
+          _this.$log.warn(errorPrefix + 'Computed property "' + field + '" conflicts with previously defined prototype method!');
+        }
+        var match = fn.toString().match(/function.*?\(([\s\S]*?)\)/);
+        var deps = match[1].split(',');
+        fn.deps = _this.utils.filter(deps, function (dep) {
+          return !!dep;
+        });
+        angular.forEach(fn.deps, function (val, index) {
+          fn.deps[index] = val.trim();
+        });
+      });
+    }
+
+    this.store[def.name] = {
+      collection: [],
+      completedQueries: {},
+      pendingQueries: {},
+      index: cache,
+      modified: {},
+      saved: {},
+      previousAttributes: {},
+      observers: {},
+      collectionModified: 0
+    };
+  }
+  catch
+    (err) {
+    delete this.definitions[definition.name];
+    delete this.store[definition.name];
+    throw err;
+  }
 }
 
 module.exports = defineResource;
 
-},{}],47:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 var observe = require('../../../lib/observe-js/observe-js');
 
 /**
@@ -3818,47 +4153,40 @@ var observe = require('../../../lib/observe-js/observe-js');
  * Works like $scope.$apply()
  * ```
  *
- * ## Throws
- *
- * - `{UnhandledError}`
  */
 function digest() {
-	try {
-		if (!this.$rootScope.$$phase) {
-			this.$rootScope.$apply(function () {
-				observe.Platform.performMicrotaskCheckpoint();
-			});
-		} else {
-			observe.Platform.performMicrotaskCheckpoint();
-		}
-	} catch (err) {
-		throw new this.errors.UnhandledError(err);
-	}
+  if (!this.$rootScope.$$phase) {
+    this.$rootScope.$apply(function () {
+      observe.Platform.performMicrotaskCheckpoint();
+    });
+  } else {
+    observe.Platform.performMicrotaskCheckpoint();
+  }
 }
 
 module.exports = digest;
 
-},{"../../../lib/observe-js/observe-js":1}],48:[function(require,module,exports){
+},{"../../../lib/observe-js/observe-js":1}],49:[function(require,module,exports){
 var errorPrefix = 'DS.eject(resourceName, id): ';
 
 function _eject(definition, resource, id) {
-	var found = false;
-	for (var i = 0; i < resource.collection.length; i++) {
-		if (resource.collection[i][definition.idAttribute] == id) {
-			found = true;
-			break;
-		}
-	}
-	if (found) {
-		resource.collection.splice(i, 1);
-		resource.observers[id].close();
-		delete resource.observers[id];
+  var found = false;
+  for (var i = 0; i < resource.collection.length; i++) {
+    if (resource.collection[i][definition.idAttribute] == id) {
+      found = true;
+      break;
+    }
+  }
+  if (found) {
+    resource.collection.splice(i, 1);
+    resource.observers[id].close();
+    delete resource.observers[id];
 
-		resource.index.remove(id);
-		delete resource.previousAttributes[id];
-		delete resource.modified[id];
-		delete resource.saved[id];
-	}
+    resource.index.remove(id);
+    delete resource.previousAttributes[id];
+    delete resource.modified[id];
+    delete resource.saved[id];
+  }
 }
 
 /**
@@ -3887,52 +4215,49 @@ function _eject(definition, resource, id) {
  * ## Throws
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to eject.
  */
 function eject(resourceName, id) {
-	if (!this.definitions[resourceName]) {
-		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
-	}
+  if (!this.definitions[resourceName]) {
+    throw new this.errors.NER(errorPrefix + resourceName);
+  } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
+  }
 
-	var resource = this.store[resourceName],
-		_this = this;
+  var resource = this.store[resourceName];
+  var _this = this;
 
-	try {
-		if (!this.$rootScope.$$phase) {
-			this.$rootScope.$apply(function () {
-				_eject(_this.definitions[resourceName], resource, id);
-				resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
-			});
-		} else {
-			_eject(_this.definitions[resourceName], resource, id);
-			resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
-		}
-		delete this.store[resourceName].completedQueries[id];
-	} catch (err) {
-		throw new this.errors.UnhandledError(err);
-	}
+  if (!this.$rootScope.$$phase) {
+    this.$rootScope.$apply(function () {
+      _eject(_this.definitions[resourceName], resource, id);
+      resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
+    });
+  } else {
+    _eject(_this.definitions[resourceName], resource, id);
+    resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
+  }
+  delete this.store[resourceName].completedQueries[id];
 }
 
 module.exports = eject;
 
-},{}],49:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 var errorPrefix = 'DS.ejectAll(resourceName[, params]): ';
 
 function _ejectAll(definition, resource, params) {
-	var queryHash = this.utils.toJson(params),
-		items = this.filter(definition.name, params);
+  var queryHash = this.utils.toJson(params);
+  var items = this.filter(definition.name, params);
+  var ids = this.utils.toLookup(items, definition.idAttribute);
+  var _this = this;
 
-	for (var i = 0; i < items.length; i++) {
-		this.eject(definition.name, items[i][definition.idAttribute]);
-	}
+  angular.forEach(ids, function (item, id) {
+    _this.eject(definition.name, id);
+  });
 
-	delete resource.completedQueries[queryHash];
+  delete resource.completedQueries[queryHash];
 }
 
 /**
@@ -3965,7 +4290,7 @@ function _ejectAll(definition, resource, params) {
  * DS.filter('document');   // [ { title: 'How to Cook', id: 45, author: 'John Anderson' },
  *                          //   { title: 'How to Eat', id: 46, author: 'Sally Jane' } ]
  *
- * DS.ejectAll('document', { query: { where: { author: 'Sally Jane' } } });
+ * DS.ejectAll('document', { where: { author: 'Sally Jane' } });
  *
  * DS.filter('document'); // [ { title: 'How to Cook', id: 45, author: 'John Anderson' } ]
  * ```
@@ -3984,50 +4309,51 @@ function _ejectAll(definition, resource, params) {
  * ## Throws
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {object} params Parameter object that is serialized into the query string. Properties:
  *
- * - `{object=}` - `query` - The query object by which to filter items of the type specified by `resourceName`. Properties:
- *      - `{object=}` - `where` - Where clause.
- *      - `{number=}` - `limit` - Limit clause.
- *      - `{skip=}` - `skip` - Skip clause.
- *      - `{orderBy=}` - `orderBy` - OrderBy clause.
+ *  - `{object=}` - `where` - Where clause.
+ *  - `{number=}` - `limit` - Limit clause.
+ *  - `{number=}` - `skip` - Skip clause.
+ *  - `{number=}` - `offset` - Same as skip.
+ *  - `{string|array=}` - `orderBy` - OrderBy clause.
  */
 function ejectAll(resourceName, params) {
-	params = params || {};
+  params = params || {};
 
-	if (!this.definitions[resourceName]) {
-		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (!this.utils.isObject(params)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!', { params: { actual: typeof params, expected: 'object' } });
-	}
+  if (!this.definitions[resourceName]) {
+    throw new this.errors.NER(errorPrefix + resourceName);
+  } else if (!this.utils.isObject(params)) {
+    throw new this.errors.IA(errorPrefix + 'params: Must be an object!');
+  }
 
-	var resource = this.store[resourceName],
-		_this = this;
+  var _this = this;
+  var resource = this.store[resourceName];
+  var queryHash = this.utils.toJson(params);
 
-	try {
-		if (!this.$rootScope.$$phase) {
-			this.$rootScope.$apply(function () {
-				_ejectAll.apply(_this, [_this.definitions[resourceName], resource, params]);
-				resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
-			});
-		} else {
-			_ejectAll.apply(_this, [_this.definitions[resourceName], resource, params]);
-			resource.collectionModified = this.utils.updateTimestamp(resource.collectionModified);
-		}
-	} catch (err) {
-		throw new this.errors.UnhandledError(err);
-	}
+  delete resource.completedQueries[queryHash];
+
+  if (this.utils.isEmpty(params)) {
+    resource.completedQueries = {};
+  }
+
+  if (!this.$rootScope.$$phase) {
+    this.$rootScope.$apply(function () {
+      _ejectAll.apply(_this, [_this.definitions[resourceName], resource, params]);
+      resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
+    });
+  } else {
+    _ejectAll.apply(_this, [_this.definitions[resourceName], resource, params]);
+    resource.collectionModified = this.utils.updateTimestamp(resource.collectionModified);
+  }
 }
 
 module.exports = ejectAll;
 
-},{}],50:[function(require,module,exports){
-/* jshint loopfunc: true */
-var errorPrefix = 'DS.filter(resourceName, params[, options]): ';
+},{}],51:[function(require,module,exports){
+var errorPrefix = 'DS.filter(resourceName[, params][, options]): ';
 
 /**
  * @doc method
@@ -4038,7 +4364,7 @@ var errorPrefix = 'DS.filter(resourceName, params[, options]): ';
  *
  * ## Signature:
  * ```js
- * DS.filter(resourceName, params[, options])
+ * DS.filter(resourceName[, params][, options])
  * ```
  *
  * ## Example:
@@ -4050,140 +4376,64 @@ var errorPrefix = 'DS.filter(resourceName, params[, options]): ';
  * ## Throws
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {object=} params Parameter object that is serialized into the query string. Properties:
  *
- * - `{object=}` - `query` - The query object by which to filter items of the type specified by `resourceName`. Properties:
- *      - `{object=}` - `where` - Where clause.
- *      - `{number=}` - `limit` - Limit clause.
- *      - `{skip=}` - `skip` - Skip clause.
- *      - `{orderBy=}` - `orderBy` - OrderBy clause.
+ *  - `{object=}` - `where` - Where clause.
+ *  - `{number=}` - `limit` - Limit clause.
+ *  - `{number=}` - `skip` - Skip clause.
+ *  - `{number=}` - `offset` - Same as skip.
+ *  - `{string|array=}` - `orderBy` - OrderBy clause.
  *
  * @param {object=} options Optional configuration. Properties:
  * - `{boolean=}` - `loadFromServer` - Send the query to server if it has not been sent yet. Default: `false`.
+ * - `{boolean=}` - `allowSimpleWhere` - Treat top-level fields on the `params` argument as simple "where" equality clauses. Default: `true`.
  * @returns {array} The filtered collection of items of the type specified by `resourceName`.
  */
 function filter(resourceName, params, options) {
-	options = options || {};
+  var IA = this.errors.IA;
 
-	if (!this.definitions[resourceName]) {
-		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (params && !this.utils.isObject(params)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!', { params: { actual: typeof params, expected: 'object' } });
-	} else if (!this.utils.isObject(options)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
-	}
+  options = options || {};
 
-	try {
-		var definition = this.definitions[resourceName],
-			resource = this.store[resourceName],
-			_this = this;
+  if (!this.definitions[resourceName]) {
+    throw new this.errors.NER(errorPrefix + resourceName);
+  } else if (params && !this.utils.isObject(params)) {
+    throw new IA(errorPrefix + 'params: Must be an object!');
+  } else if (!this.utils.isObject(options)) {
+    throw new IA(errorPrefix + 'options: Must be an object!');
+  }
 
-		// Protect against null
-		params = params || {};
+  var definition = this.definitions[resourceName];
+  var resource = this.store[resourceName];
 
-		var queryHash = this.utils.toJson(params);
+  // Protect against null
+  params = params || {};
 
-		if (!(queryHash in resource.completedQueries) && options.loadFromServer) {
-			// This particular query has never been completed
+  if ('allowSimpleWhere' in options) {
+    options.allowSimpleWhere = !!options.allowSimpleWhere;
+  } else {
+    options.allowSimpleWhere = true;
+  }
 
-			if (!resource.pendingQueries[queryHash]) {
-				// This particular query has never even been started
-				this.findAll(resourceName, params, options);
-			}
-		}
+  var queryHash = this.utils.toJson(params);
 
-		params.query = params.query || {};
-		// The query has been completed, so hit the cache with the query
-		var filtered = this.utils.filter(resource.collection, function (attrs) {
-			var keep = true,
-				where = params.query.where;
+  if (!(queryHash in resource.completedQueries) && options.loadFromServer) {
+    // This particular query has never been completed
 
-			// Apply 'where' clauses
-			if (where) {
-				if (!_this.utils.isObject(where)) {
-					throw new _this.errors.IllegalArgumentError(errorPrefix + 'params.query.where: Must be an object!', { params: { query: { where: { actual: typeof params.query.where, expected: 'object' } } } });
-				}
-				keep = definition.filter(resourceName, where, attrs);
-			}
-			return keep;
-		});
+    if (!resource.pendingQueries[queryHash]) {
+      // This particular query has never even been started
+      this.findAll(resourceName, params, options);
+    }
+  }
 
-		// Apply 'orderBy'
-		if (params.query.orderBy) {
-			if (this.utils.isString(params.query.orderBy)) {
-				params.query.orderBy = [
-					[params.query.orderBy, 'ASC']
-				];
-			}
-			if (this.utils.isArray(params.query.orderBy)) {
-				for (var i = 0; i < params.query.orderBy.length; i++) {
-					if (this.utils.isString(params.query.orderBy[i])) {
-						params.query.orderBy[i] = [params.query.orderBy[i], 'ASC'];
-					} else if (!this.utils.isArray(params.query.orderBy[i])) {
-						throw new this.errors.IllegalArgumentError(errorPrefix + 'params.query.orderBy[' + i + ']: Must be a string or an array!', { params: { query: { 'orderBy[i]': { actual: typeof params.query.orderBy[i], expected: 'string|array' } } } });
-					}
-					filtered = this.utils.sort(filtered, function (a, b) {
-						var cA = a[params.query.orderBy[i][0]], cB = b[params.query.orderBy[i][0]];
-						if (_this.utils.isString(cA)) {
-							cA = _this.utils.upperCase(cA);
-						}
-						if (_this.utils.isString(cB)) {
-							cB = _this.utils.upperCase(cB);
-						}
-						if (params.query.orderBy[i][1] === 'DESC') {
-							if (cB < cA) {
-								return -1;
-							} else if (cB > cA) {
-								return 1;
-							} else {
-								return 0;
-							}
-						} else {
-							if (cA < cB) {
-								return -1;
-							} else if (cA > cB) {
-								return 1;
-							} else {
-								return 0;
-							}
-						}
-					});
-				}
-			} else {
-				throw new this.errors.IllegalArgumentError(errorPrefix + 'params.query.orderBy: Must be a string or an array!', { params: { query: { orderBy: { actual: typeof params.query.orderBy, expected: 'string|array' } } } });
-			}
-		}
-
-		// Apply 'limit' and 'skip'
-		if (this.utils.isNumber(params.query.limit) && this.utils.isNumber(params.query.skip)) {
-			filtered = this.utils.slice(filtered, params.query.skip, Math.min(filtered.length, params.query.skip + params.query.limit));
-		} else if (this.utils.isNumber(params.query.limit)) {
-			filtered = this.utils.slice(filtered, 0, Math.min(filtered.length, params.query.limit));
-		} else if (this.utils.isNumber(params.query.skip)) {
-			if (params.query.skip < filtered.length) {
-				filtered = this.utils.slice(filtered, params.query.skip);
-			} else {
-				filtered = [];
-			}
-		}
-
-		return filtered;
-	} catch (err) {
-		if (err instanceof this.errors.IllegalArgumentError) {
-			throw err;
-		} else {
-			throw new this.errors.UnhandledError(err);
-		}
-	}
+  return definition.filter.call(this, resource.collection, resourceName, params, options);
 }
 
 module.exports = filter;
 
-},{}],51:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 var errorPrefix = 'DS.get(resourceName, id[, options]): ';
 
 /**
@@ -4208,8 +4458,7 @@ var errorPrefix = 'DS.get(resourceName, id[, options]): ';
  * ## Throws
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to retrieve.
@@ -4218,42 +4467,40 @@ var errorPrefix = 'DS.get(resourceName, id[, options]): ';
  * @returns {object} The item of the type specified by `resourceName` with the primary key specified by `id`.
  */
 function get(resourceName, id, options) {
-	options = options || {};
+  var IA = this.errors.IA;
 
-	if (!this.definitions[resourceName]) {
-		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
-	} else if (!this.utils.isObject(options)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
-	}
-	var _this = this;
+  options = options || {};
 
-	try {
-		// cache miss, request resource from server
-		var item = this.store[resourceName].index.get(id);
-		if (!item && options.loadFromServer) {
-			this.find(resourceName, id).then(null, function (err) {
-				return _this.$q.reject(err);
-			});
-		}
+  if (!this.definitions[resourceName]) {
+    throw new this.errors.NER(errorPrefix + resourceName);
+  } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+    throw new IA(errorPrefix + 'id: Must be a string or a number!');
+  } else if (!this.utils.isObject(options)) {
+    throw new IA(errorPrefix + 'options: Must be an object!');
+  }
+  var _this = this;
 
-		// return resource from cache
-		return item;
-	} catch (err) {
-		throw new this.errors.UnhandledError(err);
-	}
+  // cache miss, request resource from server
+  var item = this.store[resourceName].index.get(id);
+  if (!item && options.loadFromServer) {
+    this.find(resourceName, id).then(null, function (err) {
+      return _this.$q.reject(err);
+    });
+  }
+
+  // return resource from cache
+  return item;
 }
 
 module.exports = get;
 
-},{}],52:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 var errorPrefix = 'DS.hasChanges(resourceName, id): ';
 
 function diffIsEmpty(utils, diff) {
-	return !(utils.isEmpty(diff.added) &&
-		utils.isEmpty(diff.removed) &&
-		utils.isEmpty(diff.changed));
+  return !(utils.isEmpty(diff.added) &&
+    utils.isEmpty(diff.removed) &&
+    utils.isEmpty(diff.changed));
 }
 
 /**
@@ -4282,259 +4529,294 @@ function diffIsEmpty(utils, diff) {
  * ## Throws
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item.
  * @returns {boolean} Whether the item of the type specified by `resourceName` with the primary key specified by `id` has changes.
  */
 function hasChanges(resourceName, id) {
-	if (!this.definitions[resourceName]) {
-		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
-	}
+  if (!this.definitions[resourceName]) {
+    throw new this.errors.NER(errorPrefix + resourceName);
+  } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
+  }
 
-	try {
-		// return resource from cache
-		if (this.get(resourceName, id)) {
-			return diffIsEmpty(this.utils, this.changes(resourceName, id));
-		} else {
-			return false;
-		}
-	} catch (err) {
-		throw new this.errors.UnhandledError(err);
-	}
+  // return resource from cache
+  if (this.get(resourceName, id)) {
+    return diffIsEmpty(this.utils, this.changes(resourceName, id));
+  } else {
+    return false;
+  }
 }
 
 module.exports = hasChanges;
 
-},{}],53:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 module.exports = {
-	/**
-	 * @doc method
-	 * @id DS.sync_methods:defineResource
-	 * @name defineResource
-	 * @methodOf DS
-	 * @description
-	 * See [DS.defineResource](/documentation/api/api/DS.sync_methods:defineResource).
-	 */
-	defineResource: require('./defineResource'),
+  /**
+   * @doc method
+   * @id DS.sync_methods:defineResource
+   * @name defineResource
+   * @methodOf DS
+   * @description
+   * See [DS.defineResource](/documentation/api/api/DS.sync_methods:defineResource).
+   */
+  defineResource: require('./defineResource'),
 
-	/**
-	 * @doc method
-	 * @id DS.sync_methods:bindOne
-	 * @name bindOne
-	 * @methodOf DS
-	 * @description
-	 * See [DS.bindOne](/documentation/api/api/DS.sync_methods:bindOne).
-	 */
-	bindOne: require('./bindOne'),
+  /**
+   * @doc method
+   * @id DS.sync_methods:bindOne
+   * @name bindOne
+   * @methodOf DS
+   * @description
+   * See [DS.bindOne](/documentation/api/api/DS.sync_methods:bindOne).
+   */
+  bindOne: require('./bindOne'),
 
-	/**
-	 * @doc method
-	 * @id DS.sync_methods:bindAll
-	 * @name bindAll
-	 * @methodOf DS
-	 * @description
-	 * See [DS.bindAll](/documentation/api/api/DS.sync_methods:bindAll).
-	 */
-	bindAll: require('./bindAll'),
+  /**
+   * @doc method
+   * @id DS.sync_methods:bindAll
+   * @name bindAll
+   * @methodOf DS
+   * @description
+   * See [DS.bindAll](/documentation/api/api/DS.sync_methods:bindAll).
+   */
+  bindAll: require('./bindAll'),
 
-	/**
-	 * @doc method
-	 * @id DS.sync_methods:eject
-	 * @name eject
-	 * @methodOf DS
-	 * @description
-	 * See [DS.eject](/documentation/api/api/DS.sync_methods:eject).
-	 */
-	eject: require('./eject'),
+  /**
+   * @doc method
+   * @id DS.sync_methods:eject
+   * @name eject
+   * @methodOf DS
+   * @description
+   * See [DS.eject](/documentation/api/api/DS.sync_methods:eject).
+   */
+  eject: require('./eject'),
 
-	/**
-	 * @doc method
-	 * @id DS.sync_methods:ejectAll
-	 * @name ejectAll
-	 * @methodOf DS
-	 * @description
-	 * See [DS.ejectAll](/documentation/api/api/DS.sync_methods:ejectAll).
-	 */
-	ejectAll: require('./ejectAll'),
+  /**
+   * @doc method
+   * @id DS.sync_methods:ejectAll
+   * @name ejectAll
+   * @methodOf DS
+   * @description
+   * See [DS.ejectAll](/documentation/api/api/DS.sync_methods:ejectAll).
+   */
+  ejectAll: require('./ejectAll'),
 
-	/**
-	 * @doc method
-	 * @id DS.sync_methods:filter
-	 * @name filter
-	 * @methodOf DS
-	 * @description
-	 * See [DS.filter](/documentation/api/api/DS.sync_methods:filter).
-	 */
-	filter: require('./filter'),
+  /**
+   * @doc method
+   * @id DS.sync_methods:filter
+   * @name filter
+   * @methodOf DS
+   * @description
+   * See [DS.filter](/documentation/api/api/DS.sync_methods:filter).
+   */
+  filter: require('./filter'),
 
-	/**
-	 * @doc method
-	 * @id DS.sync_methods:get
-	 * @name get
-	 * @methodOf DS
-	 * @description
-	 * See [DS.get](/documentation/api/api/DS.sync_methods:get).
-	 */
-	get: require('./get'),
+  /**
+   * @doc method
+   * @id DS.sync_methods:get
+   * @name get
+   * @methodOf DS
+   * @description
+   * See [DS.get](/documentation/api/api/DS.sync_methods:get).
+   */
+  get: require('./get'),
 
-	/**
-	 * @doc method
-	 * @id DS.sync_methods:inject
-	 * @name inject
-	 * @methodOf DS
-	 * @description
-	 * See [DS.inject](/documentation/api/api/DS.sync_methods:inject).
-	 */
-	inject: require('./inject'),
+  /**
+   * @doc method
+   * @id DS.sync_methods:inject
+   * @name inject
+   * @methodOf DS
+   * @description
+   * See [DS.inject](/documentation/api/api/DS.sync_methods:inject).
+   */
+  inject: require('./inject'),
 
-	/**
-	 * @doc method
-	 * @id DS.sync_methods:lastModified
-	 * @name lastModified
-	 * @methodOf DS
-	 * @description
-	 * See [DS.lastModified](/documentation/api/api/DS.sync_methods:lastModified).
-	 */
-	lastModified: require('./lastModified'),
+  /**
+   * @doc method
+   * @id DS.sync_methods:lastModified
+   * @name lastModified
+   * @methodOf DS
+   * @description
+   * See [DS.lastModified](/documentation/api/api/DS.sync_methods:lastModified).
+   */
+  lastModified: require('./lastModified'),
 
-	/**
-	 * @doc method
-	 * @id DS.sync_methods:lastSaved
-	 * @name lastSaved
-	 * @methodOf DS
-	 * @description
-	 * See [DS.lastSaved](/documentation/api/api/DS.sync_methods:lastSaved).
-	 */
-	lastSaved: require('./lastSaved'),
+  /**
+   * @doc method
+   * @id DS.sync_methods:lastSaved
+   * @name lastSaved
+   * @methodOf DS
+   * @description
+   * See [DS.lastSaved](/documentation/api/api/DS.sync_methods:lastSaved).
+   */
+  lastSaved: require('./lastSaved'),
 
-	/**
-	 * @doc method
-	 * @id DS.sync_methods:digest
-	 * @name digest
-	 * @methodOf DS
-	 * @description
-	 * See [DS.digest](/documentation/api/api/DS.sync_methods:digest).
-	 */
-	digest: require('./digest'),
+  /**
+   * @doc method
+   * @id DS.sync_methods:digest
+   * @name digest
+   * @methodOf DS
+   * @description
+   * See [DS.digest](/documentation/api/api/DS.sync_methods:digest).
+   */
+  digest: require('./digest'),
 
-	/**
-	 * @doc method
-	 * @id DS.sync_methods:changes
-	 * @name changes
-	 * @methodOf DS
-	 * @description
-	 * See [DS.changes](/documentation/api/api/DS.sync_methods:changes).
-	 */
-	changes: require('./changes'),
+  /**
+   * @doc method
+   * @id DS.sync_methods:changes
+   * @name changes
+   * @methodOf DS
+   * @description
+   * See [DS.changes](/documentation/api/api/DS.sync_methods:changes).
+   */
+  changes: require('./changes'),
 
-	/**
-	 * @doc method
-	 * @id DS.sync_methods:previous
-	 * @name previous
-	 * @methodOf DS
-	 * @description
-	 * See [DS.previous](/documentation/api/api/DS.sync_methods:previous).
-	 */
-	previous: require('./previous'),
+  /**
+   * @doc method
+   * @id DS.sync_methods:previous
+   * @name previous
+   * @methodOf DS
+   * @description
+   * See [DS.previous](/documentation/api/api/DS.sync_methods:previous).
+   */
+  previous: require('./previous'),
 
-	/**
-	 * @doc method
-	 * @id DS.sync_methods:hasChanges
-	 * @name hasChanges
-	 * @methodOf DS
-	 * @description
-	 * See [DS.hasChanges](/documentation/api/api/DS.sync_methods:hasChanges).
-	 */
-	hasChanges: require('./hasChanges')
+  /**
+   * @doc method
+   * @id DS.sync_methods:hasChanges
+   * @name hasChanges
+   * @methodOf DS
+   * @description
+   * See [DS.hasChanges](/documentation/api/api/DS.sync_methods:hasChanges).
+   */
+  hasChanges: require('./hasChanges')
 };
 
-},{"./bindAll":43,"./bindOne":44,"./changes":45,"./defineResource":46,"./digest":47,"./eject":48,"./ejectAll":49,"./filter":50,"./get":51,"./hasChanges":52,"./inject":54,"./lastModified":55,"./lastSaved":56,"./previous":57}],54:[function(require,module,exports){
-var observe = require('../../../lib/observe-js/observe-js'),
-	errorPrefix = 'DS.inject(resourceName, attrs[, options]): ';
+},{"./bindAll":44,"./bindOne":45,"./changes":46,"./defineResource":47,"./digest":48,"./eject":49,"./ejectAll":50,"./filter":51,"./get":52,"./hasChanges":53,"./inject":55,"./lastModified":56,"./lastSaved":57,"./previous":58}],55:[function(require,module,exports){
+var observe = require('../../../lib/observe-js/observe-js');
+var errorPrefix = 'DS.inject(resourceName, attrs[, options]): ';
 
 function _inject(definition, resource, attrs) {
-	var _this = this,
-		$log = _this.$log;
+  var _this = this;
+  var $log = _this.$log;
 
-	function _react(added, removed, changed, getOldValueFn) {
-		try {
-			var innerId = getOldValueFn(definition.idAttribute);
+  function _react(added, removed, changed, getOldValueFn) {
+    var innerId = getOldValueFn(definition.idAttribute);
 
-			resource.modified[innerId] = _this.utils.updateTimestamp(resource.modified[innerId]);
-			resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
+    resource.modified[innerId] = _this.utils.updateTimestamp(resource.modified[innerId]);
+    resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
 
-			if (definition.idAttribute in changed) {
-				$log.error('Doh! You just changed the primary key of an object! ' +
-					'I don\'t know how to handle this yet, so your data for the "' + definition.name +
-					'" resource is now in an undefined (probably broken) state.');
-			}
-		} catch (err) {
-			throw new _this.errors.UnhandledError(err);
-		}
-	}
+    if (definition.computed) {
+      var item = _this.get(definition.name, innerId);
+      _this.utils.forOwn(definition.computed, function (fn, field) {
+        var compute = false;
+        // check if required fields changed
+        angular.forEach(fn.deps, function (dep) {
+          if (dep in changed || dep in removed || dep in changed || !(field in item)) {
+            compute = true;
+          }
+        });
+        if (compute) {
+          var args = [];
+          angular.forEach(fn.deps, function (dep) {
+            args.push(item[dep]);
+          });
+          // recompute property
+          item[field] = fn.apply(item, args);
+        }
+      });
+    }
 
-	var injected;
-	if (_this.utils.isArray(attrs)) {
-		injected = [];
-		for (var i = 0; i < attrs.length; i++) {
-			injected.push(_inject.call(_this, definition, resource, attrs[i]));
-		}
-	} else {
-		if (!(definition.idAttribute in attrs)) {
-			throw new _this.errors.RuntimeError(errorPrefix + 'attrs: Must contain the property specified by `idAttribute`!');
-		} else {
-			try {
-				definition.beforeInject(definition.name, attrs);
-				var id = attrs[definition.idAttribute],
-					item = this.get(definition.name, id);
+    if (definition.idAttribute in changed) {
+      $log.error('Doh! You just changed the primary key of an object! ' +
+        'I don\'t know how to handle this yet, so your data for the "' + definition.name +
+        '" resource is now in an undefined (probably broken) state.');
+    }
+  }
 
-				if (!item) {
-					if (definition.class) {
-						if (attrs instanceof definition[definition.class]) {
-							item = attrs;
-						} else {
-							item = new definition[definition.class]();
-						}
-					} else {
-						item = {};
-					}
-					resource.previousAttributes[id] = {};
+  var injected;
+  if (_this.utils.isArray(attrs)) {
+    injected = [];
+    for (var i = 0; i < attrs.length; i++) {
+      injected.push(_inject.call(_this, definition, resource, attrs[i]));
+    }
+  } else {
+    // check if "idAttribute" is a computed property
+    if (definition.computed && definition.computed[definition.idAttribute]) {
+      var args = [];
+      angular.forEach(definition.computed[definition.idAttribute].deps, function (dep) {
+        args.push(attrs[dep]);
+      });
+      attrs[definition.idAttribute] = definition.computed[definition.idAttribute].apply(attrs, args);
+    }
+    if (!(definition.idAttribute in attrs)) {
+      throw new _this.errors.R(errorPrefix + 'attrs: Must contain the property specified by `idAttribute`!');
+    } else {
+      try {
+        definition.beforeInject(definition.name, attrs);
+        var id = attrs[definition.idAttribute],
+          item = this.get(definition.name, id);
 
-					_this.utils.deepMixIn(item, attrs);
-					_this.utils.deepMixIn(resource.previousAttributes[id], attrs);
+        if (!item) {
+          if (definition.class) {
+            if (attrs instanceof definition[definition.class]) {
+              item = attrs;
+            } else {
+              item = new definition[definition.class]();
+            }
+          } else {
+            item = {};
+          }
+          resource.previousAttributes[id] = {};
 
-					resource.collection.push(item);
+          _this.utils.deepMixIn(item, attrs);
+          _this.utils.deepMixIn(resource.previousAttributes[id], attrs);
 
-					resource.observers[id] = new observe.ObjectObserver(item, _react);
-					resource.index.put(id, item);
+          resource.collection.push(item);
 
-					_react({}, {}, {}, function () {
-						return id;
-					});
-				} else {
-					_this.utils.deepMixIn(item, attrs);
-					if (typeof resource.index.touch === 'function') {
-						resource.index.touch(id);
-					} else {
-						resource.index.put(id, resource.index.get(id));
-					}
-					resource.observers[id].deliver();
-				}
-				resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
-				definition.afterInject(definition.name, item);
-				injected = item;
-			} catch (err) {
-				$log.error(err);
-				$log.error('inject failed!', definition.name, attrs);
-			}
-		}
-	}
-	return injected;
+          resource.observers[id] = new observe.ObjectObserver(item, _react);
+          resource.index.put(id, item);
+
+          _react({}, {}, {}, function () {
+            return id;
+          });
+        } else {
+          _this.utils.deepMixIn(item, attrs);
+          if (typeof resource.index.touch === 'function') {
+            resource.index.touch(id);
+          } else {
+            resource.index.put(id, resource.index.get(id));
+          }
+          resource.observers[id].deliver();
+        }
+        resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
+        definition.afterInject(definition.name, item);
+        injected = item;
+      } catch (err) {
+        $log.error(err);
+        $log.error('inject failed!', definition.name, attrs);
+      }
+    }
+  }
+  return injected;
+}
+
+function _injectRelations(definition, injected) {
+  var _this = this;
+  _this.utils.forOwn(definition.relations, function (relation, type) {
+    _this.utils.forOwn(relation, function (def, relationName) {
+      if (_this.definitions[relationName] && injected[def.localField]) {
+        try {
+          injected[def.localField] = _this.inject(relationName, injected[def.localField]);
+        } catch (err) {
+          _this.$log.error(errorPrefix + 'Failed to inject ' + type + ' relation: "' + relationName + '"!', err);
+        }
+      }
+    });
+  });
 }
 
 /**
@@ -4574,7 +4856,7 @@ function _inject(definition, resource, attrs) {
  *
  * - `{IllegalArgumentError}`
  * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {object|array} attrs The item or collection of items to inject into the data store.
@@ -4583,42 +4865,40 @@ function _inject(definition, resource, attrs) {
  * the items that were injected into the data store.
  */
 function inject(resourceName, attrs, options) {
-	options = options || {};
+  var IA = this.errors.IA;
 
-	if (!this.definitions[resourceName]) {
-		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (!this.utils.isObject(attrs) && !this.utils.isArray(attrs)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'attrs: Must be an object or an array!', { attrs: { actual: typeof attrs, expected: 'object|array' } });
-	} else if (!this.utils.isObject(options)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
-	}
+  options = options || {};
 
-	var definition = this.definitions[resourceName],
-		resource = this.store[resourceName],
-		_this = this;
+  if (!this.definitions[resourceName]) {
+    throw new this.errors.NER(errorPrefix + resourceName);
+  } else if (!this.utils.isObject(attrs) && !this.utils.isArray(attrs)) {
+    throw new IA(errorPrefix + 'attrs: Must be an object or an array!');
+  } else if (!this.utils.isObject(options)) {
+    throw new IA(errorPrefix + 'options: Must be an object!');
+  }
 
-	try {
-		var injected;
-		if (!this.$rootScope.$$phase) {
-			this.$rootScope.$apply(function () {
-				injected = _inject.apply(_this, [definition, resource, attrs]);
-			});
-		} else {
-			injected = _inject.apply(_this, [definition, resource, attrs]);
-		}
-		return injected;
-	} catch (err) {
-		if (!(err instanceof this.errors.RuntimeError)) {
-			throw new this.errors.UnhandledError(err);
-		} else {
-			throw err;
-		}
-	}
+  var definition = this.definitions[resourceName];
+  var resource = this.store[resourceName];
+  var _this = this;
+
+  var injected;
+  if (!this.$rootScope.$$phase) {
+    this.$rootScope.$apply(function () {
+      injected = _inject.call(_this, definition, resource, attrs);
+    });
+  } else {
+    injected = _inject.call(_this, definition, resource, attrs);
+  }
+  if (definition.relations) {
+    _injectRelations.call(_this, definition, injected);
+  }
+
+  return injected;
 }
 
 module.exports = inject;
 
-},{"../../../lib/observe-js/observe-js":1}],55:[function(require,module,exports){
+},{"../../../lib/observe-js/observe-js":1}],56:[function(require,module,exports){
 var errorPrefix = 'DS.lastModified(resourceName[, id]): ';
 
 /**
@@ -4647,8 +4927,7 @@ var errorPrefix = 'DS.lastModified(resourceName[, id]): ';
  * ## Throws
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number=} id The primary key of the item to remove.
@@ -4656,27 +4935,23 @@ var errorPrefix = 'DS.lastModified(resourceName[, id]): ';
  * `resourceName` with the given primary key was modified.
  */
 function lastModified(resourceName, id) {
-	if (!this.definitions[resourceName]) {
-		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (id && !this.utils.isString(id) && !this.utils.isNumber(id)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
-	}
-	try {
-		if (id) {
-			if (!(id in this.store[resourceName].modified)) {
-				this.store[resourceName].modified[id] = 0;
-			}
-			return this.store[resourceName].modified[id];
-		}
-		return this.store[resourceName].collectionModified;
-	} catch (err) {
-		throw new this.errors.UnhandledError(err);
-	}
+  if (!this.definitions[resourceName]) {
+    throw new this.errors.NER(errorPrefix + resourceName);
+  } else if (id && !this.utils.isString(id) && !this.utils.isNumber(id)) {
+    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
+  }
+  if (id) {
+    if (!(id in this.store[resourceName].modified)) {
+      this.store[resourceName].modified[id] = 0;
+    }
+    return this.store[resourceName].modified[id];
+  }
+  return this.store[resourceName].collectionModified;
 }
 
 module.exports = lastModified;
 
-},{}],56:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 var errorPrefix = 'DS.lastSaved(resourceName[, id]): ';
 
 /**
@@ -4712,32 +4987,27 @@ var errorPrefix = 'DS.lastSaved(resourceName[, id]): ';
  * ## Throws
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item for which to retrieve the lastSaved timestamp.
  * @returns {number} The timestamp of the last time the item of type `resourceName` with the given primary key was saved.
  */
 function lastSaved(resourceName, id) {
-	if (!this.definitions[resourceName]) {
-		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
-	}
-	try {
-		if (!(id in this.store[resourceName].saved)) {
-			this.store[resourceName].saved[id] = 0;
-		}
-		return this.store[resourceName].saved[id];
-	} catch (err) {
-		throw new this.errors.UnhandledError(err);
-	}
+  if (!this.definitions[resourceName]) {
+    throw new this.errors.NER(errorPrefix + resourceName);
+  } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
+  }
+  if (!(id in this.store[resourceName].saved)) {
+    this.store[resourceName].saved[id] = 0;
+  }
+  return this.store[resourceName].saved[id];
 }
 
 module.exports = lastSaved;
 
-},{}],57:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 var errorPrefix = 'DS.previous(resourceName, id): ';
 
 /**
@@ -4768,129 +5038,57 @@ var errorPrefix = 'DS.previous(resourceName, id): ';
  * ## Throws
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item whose previous attributes are to be retrieved.
  * @returns {object} The previous attributes of the item of the type specified by `resourceName` with the primary key specified by `id`.
  */
 function previous(resourceName, id) {
-	if (!this.definitions[resourceName]) {
-		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
-	}
+  if (!this.definitions[resourceName]) {
+    throw new this.errors.NER(errorPrefix + resourceName);
+  } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
+  }
 
-	try {
-		// return resource from cache
-		return angular.copy(this.store[resourceName].previousAttributes[id]);
-	} catch (err) {
-		throw new this.errors.UnhandledError(err);
-	}
+  // return resource from cache
+  return angular.copy(this.store[resourceName].previousAttributes[id]);
 }
 
 module.exports = previous;
 
-},{}],58:[function(require,module,exports){
-/**
- * @doc function
- * @id errors.types:UnhandledError
- * @name UnhandledError
- * @description Error that is thrown/returned when Reheat encounters an uncaught/unknown exception.
- * @param {Error} error The originally thrown error.
- * @returns {UnhandledError} A new instance of `UnhandledError`.
- */
-function UnhandledError(error) {
-	Error.call(this);
-	if (typeof Error.captureStackTrace === 'function') {
-		Error.captureStackTrace(this, this.constructor);
-	}
-
-	error = error || {};
-
-	/**
-	 * @doc property
-	 * @id errors.types:UnhandledError.type
-	 * @name type
-	 * @propertyOf errors.types:UnhandledError
-	 * @description Name of error type. Default: `"UnhandledError"`.
-	 */
-	this.type = this.constructor.name;
-
-	/**
-	 * @doc property
-	 * @id errors.types:UnhandledError.originalError
-	 * @name originalError
-	 * @propertyOf errors.types:UnhandledError
-	 * @description A reference to the original error that was thrown.
-	 */
-	this.originalError = error;
-
-	/**
-	 * @doc property
-	 * @id errors.types:UnhandledError.message
-	 * @name message
-	 * @propertyOf errors.types:UnhandledError
-	 * @description Message and stack trace. Same as `UnhandledError#stack`.
-	 */
-	this.message = 'UnhandledError: This is an uncaught exception. Please consider submitting an issue at https://github.com/jmdobry/angular-data/issues.\n\n' +
-		'Original Uncaught Exception:\n' + (error.stack ? error.stack.toString() : error.stack);
-
-	/**
-	 * @doc property
-	 * @id errors.types:UnhandledError.stack
-	 * @name stack
-	 * @propertyOf errors.types:UnhandledError
-	 * @description Message and stack trace. Same as `UnhandledError#message`.
-	 */
-	this.stack = this.message;
-}
-
-UnhandledError.prototype = Object.create(Error.prototype);
-UnhandledError.prototype.constructor = UnhandledError;
-
+},{}],59:[function(require,module,exports){
 /**
  * @doc function
  * @id errors.types:IllegalArgumentError
  * @name IllegalArgumentError
  * @description Error that is thrown/returned when a caller does not honor the pre-conditions of a method/function.
  * @param {string=} message Error message. Default: `"Illegal Argument!"`.
- * @param {object=} errors Object containing information about the error.
  * @returns {IllegalArgumentError} A new instance of `IllegalArgumentError`.
  */
-function IllegalArgumentError(message, errors) {
-	Error.call(this);
-	if (typeof Error.captureStackTrace === 'function') {
-		Error.captureStackTrace(this, this.constructor);
-	}
+function IllegalArgumentError(message) {
+  Error.call(this);
+  if (typeof Error.captureStackTrace === 'function') {
+    Error.captureStackTrace(this, this.constructor);
+  }
 
-	/**
-	 * @doc property
-	 * @id errors.types:IllegalArgumentError.type
-	 * @name type
-	 * @propertyOf errors.types:IllegalArgumentError
-	 * @description Name of error type. Default: `"IllegalArgumentError"`.
-	 */
-	this.type = this.constructor.name;
+  /**
+   * @doc property
+   * @id errors.types:IllegalArgumentError.type
+   * @name type
+   * @propertyOf errors.types:IllegalArgumentError
+   * @description Name of error type. Default: `"IllegalArgumentError"`.
+   */
+  this.type = this.constructor.name;
 
-	/**
-	 * @doc property
-	 * @id errors.types:IllegalArgumentError.errors
-	 * @name errors
-	 * @propertyOf errors.types:IllegalArgumentError
-	 * @description Object containing information about the error.
-	 */
-	this.errors = errors || {};
-
-	/**
-	 * @doc property
-	 * @id errors.types:IllegalArgumentError.message
-	 * @name message
-	 * @propertyOf errors.types:IllegalArgumentError
-	 * @description Error message. Default: `"Illegal Argument!"`.
-	 */
-	this.message = message || 'Illegal Argument!';
+  /**
+   * @doc property
+   * @id errors.types:IllegalArgumentError.message
+   * @name message
+   * @propertyOf errors.types:IllegalArgumentError
+   * @description Error message. Default: `"Illegal Argument!"`.
+   */
+  this.message = message || 'Illegal Argument!';
 }
 
 IllegalArgumentError.prototype = Object.create(Error.prototype);
@@ -4902,45 +5100,71 @@ IllegalArgumentError.prototype.constructor = IllegalArgumentError;
  * @name RuntimeError
  * @description Error that is thrown/returned for invalid state during runtime.
  * @param {string=} message Error message. Default: `"Runtime Error!"`.
- * @param {object=} errors Object containing information about the error.
  * @returns {RuntimeError} A new instance of `RuntimeError`.
  */
-function RuntimeError(message, errors) {
-	Error.call(this);
-	if (typeof Error.captureStackTrace === 'function') {
-		Error.captureStackTrace(this, this.constructor);
-	}
+function RuntimeError(message) {
+  Error.call(this);
+  if (typeof Error.captureStackTrace === 'function') {
+    Error.captureStackTrace(this, this.constructor);
+  }
 
-	/**
-	 * @doc property
-	 * @id errors.types:RuntimeError.type
-	 * @name type
-	 * @propertyOf errors.types:RuntimeError
-	 * @description Name of error type. Default: `"RuntimeError"`.
-	 */
-	this.type = this.constructor.name;
+  /**
+   * @doc property
+   * @id errors.types:RuntimeError.type
+   * @name type
+   * @propertyOf errors.types:RuntimeError
+   * @description Name of error type. Default: `"RuntimeError"`.
+   */
+  this.type = this.constructor.name;
 
-	/**
-	 * @doc property
-	 * @id errors.types:RuntimeError.errors
-	 * @name errors
-	 * @propertyOf errors.types:RuntimeError
-	 * @description Object containing information about the error.
-	 */
-	this.errors = errors || {};
-
-	/**
-	 * @doc property
-	 * @id errors.types:RuntimeError.message
-	 * @name message
-	 * @propertyOf errors.types:RuntimeError
-	 * @description Error message. Default: `"Runtime Error!"`.
-	 */
-	this.message = message || 'RuntimeError Error!';
+  /**
+   * @doc property
+   * @id errors.types:RuntimeError.message
+   * @name message
+   * @propertyOf errors.types:RuntimeError
+   * @description Error message. Default: `"Runtime Error!"`.
+   */
+  this.message = message || 'RuntimeError Error!';
 }
 
 RuntimeError.prototype = Object.create(Error.prototype);
 RuntimeError.prototype.constructor = RuntimeError;
+
+/**
+ * @doc function
+ * @id errors.types:NonexistentResourceError
+ * @name NonexistentResourceError
+ * @description Error that is thrown/returned when trying to access a resource that does not exist.
+ * @param {string=} resourceName Name of non-existent resource.
+ * @returns {NonexistentResourceError} A new instance of `NonexistentResourceError`.
+ */
+function NonexistentResourceError(resourceName) {
+  Error.call(this);
+  if (typeof Error.captureStackTrace === 'function') {
+    Error.captureStackTrace(this, this.constructor);
+  }
+
+  /**
+   * @doc property
+   * @id errors.types:NonexistentResourceError.type
+   * @name type
+   * @propertyOf errors.types:NonexistentResourceError
+   * @description Name of error type. Default: `"NonexistentResourceError"`.
+   */
+  this.type = this.constructor.name;
+
+  /**
+   * @doc property
+   * @id errors.types:NonexistentResourceError.message
+   * @name message
+   * @propertyOf errors.types:NonexistentResourceError
+   * @description Error message. Default: `"Runtime Error!"`.
+   */
+  this.message = (resourceName || '') + ' is not a registered resource!';
+}
+
+NonexistentResourceError.prototype = Object.create(Error.prototype);
+NonexistentResourceError.prototype.constructor = NonexistentResourceError;
 
 /**
  * @doc interface
@@ -4949,183 +5173,186 @@ RuntimeError.prototype.constructor = RuntimeError;
  * @description
  * Various error types that may be thrown by angular-data.
  *
- * - [UnhandledError](/documentation/api/api/errors.types:UnhandledError)
  * - [IllegalArgumentError](/documentation/api/api/errors.types:IllegalArgumentError)
  * - [RuntimeError](/documentation/api/api/errors.types:RuntimeError)
+ * - [NonexistentResourceError](/documentation/api/api/errors.types:NonexistentResourceError)
  *
  * References to the constructor functions of these errors can be found in `DS.errors`.
  */
 module.exports = [function () {
-	return {
-		UnhandledError: UnhandledError,
-		IllegalArgumentError: IllegalArgumentError,
-		RuntimeError: RuntimeError
-	};
+  return {
+    IllegalArgumentError: IllegalArgumentError,
+    IA: IllegalArgumentError,
+    RuntimeError: RuntimeError,
+    R: RuntimeError,
+    NonexistentResourceError: NonexistentResourceError,
+    NER: NonexistentResourceError
+  };
 }];
 
-},{}],59:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 (function (window, angular, undefined) {
-	'use strict';
+  'use strict';
 
-	/**
-	 * @doc overview
-	 * @id angular-data
-	 * @name angular-data
-	 * @description
-	 * __Version:__ 0.9.1
-	 *
-	 * ## Install
-	 *
-	 * #### Bower
-	 * ```text
-	 * bower install angular-data
-	 * ```
-	 *
-	 * Load `dist/angular-data.js` or `dist/angular-data.min.js` onto your web page after Angular.js.
-	 *
-	 * #### Npm
-	 * ```text
-	 * npm install angular-data
-	 * ```
-	 *
-	 * Load `dist/angular-data.js` or `dist/angular-data.min.js` onto your web page after Angular.js.
-	 *
-	 * #### Manual download
-	 * Download angular-data-<%= pkg.version %>.js from the [Releases](https://github.com/jmdobry/angular-data/releases)
-	 * section of the angular-data GitHub project.
-	 *
-	 * ## Load into Angular
-	 * Your Angular app must depend on the module `"angular-data.DS"` in order to use angular-data. Loading
-	 * angular-data into your app allows you to inject the following:
-	 *
-	 * - `DS`
-	 * - `DSHttpAdapter`
-	 * - `DSUtils`
-	 * - `DSErrors`
-	 *
-	 * [DS](/documentation/api/api/DS) is the Data Store itself, which you will inject often.
-	 * [DSHttpAdapter](/documentation/api/api/DSHttpAdapter) is useful as a wrapper for `$http` and is configurable.
-	 * [DSUtils](/documentation/api/api/DSUtils) has some useful utility methods.
-	 * [DSErrors](/documentation/api/api/DSErrors) provides references to the various errors thrown by the data store.
-	 */
-	angular.module('angular-data.DS', ['ng'])
-		.factory('DSUtils', require('./utils'))
-		.factory('DSErrors', require('./errors'))
-		.provider('DSHttpAdapter', require('./adapters/http'))
-		.provider('DSLocalStorageAdapter', require('./adapters/localStorage'))
-		.provider('DS', require('./datastore'))
-		.config(['$provide', function ($provide) {
-			$provide.decorator('$q', ['$delegate', function ($delegate) {
-				// do whatever you you want
-				$delegate.promisify = function (fn, target) {
-					var _this = this;
-					return function () {
-						var deferred = _this.defer(),
-							args = Array.prototype.slice.apply(arguments);
+  /**
+   * @doc overview
+   * @id angular-data
+   * @name angular-data
+   * @description
+   * __Version:__ 0.10.0
+   *
+   * ## Install
+   *
+   * #### Bower
+   * ```text
+   * bower install angular-data
+   * ```
+   *
+   * Load `dist/angular-data.js` or `dist/angular-data.min.js` onto your web page after Angular.js.
+   *
+   * #### Npm
+   * ```text
+   * npm install angular-data
+   * ```
+   *
+   * Load `dist/angular-data.js` or `dist/angular-data.min.js` onto your web page after Angular.js.
+   *
+   * #### Manual download
+   * Download angular-data-<%= pkg.version %>.js from the [Releases](https://github.com/jmdobry/angular-data/releases)
+   * section of the angular-data GitHub project.
+   *
+   * ## Load into Angular
+   * Your Angular app must depend on the module `"angular-data.DS"` in order to use angular-data. Loading
+   * angular-data into your app allows you to inject the following:
+   *
+   * - `DS`
+   * - `DSHttpAdapter`
+   * - `DSUtils`
+   * - `DSErrors`
+   *
+   * [DS](/documentation/api/api/DS) is the Data Store itself, which you will inject often.
+   * [DSHttpAdapter](/documentation/api/api/DSHttpAdapter) is useful as a wrapper for `$http` and is configurable.
+   * [DSUtils](/documentation/api/api/DSUtils) has some useful utility methods.
+   * [DSErrors](/documentation/api/api/DSErrors) provides references to the various errors thrown by the data store.
+   */
+  angular.module('angular-data.DS', ['ng'])
+    .factory('DSUtils', require('./utils'))
+    .factory('DSErrors', require('./errors'))
+    .provider('DSHttpAdapter', require('./adapters/http'))
+    .provider('DSLocalStorageAdapter', require('./adapters/localStorage'))
+    .provider('DS', require('./datastore'))
+    .config(['$provide', function ($provide) {
+      $provide.decorator('$q', ['$delegate', function ($delegate) {
+        // do whatever you you want
+        $delegate.promisify = function (fn, target) {
+          var _this = this;
+          return function () {
+            var deferred = _this.defer(),
+              args = Array.prototype.slice.apply(arguments);
 
-						args.push(function (err, result) {
-							if (err) {
-								deferred.reject(err);
-							} else {
-								deferred.resolve(result);
-							}
-						});
+            args.push(function (err, result) {
+              if (err) {
+                deferred.reject(err);
+              } else {
+                deferred.resolve(result);
+              }
+            });
 
-						try {
-							fn.apply(target || this, args);
-						} catch (err) {
-							deferred.reject(err);
-						}
+            try {
+              fn.apply(target || this, args);
+            } catch (err) {
+              deferred.reject(err);
+            }
 
-						return deferred.promise;
-					};
-				};
-				return $delegate;
-			}]);
-		}]);
+            return deferred.promise;
+          };
+        };
+        return $delegate;
+      }]);
+    }]);
 
 })(window, window.angular);
 
-},{"./adapters/http":30,"./adapters/localStorage":31,"./datastore":42,"./errors":58,"./utils":60}],60:[function(require,module,exports){
+},{"./adapters/http":30,"./adapters/localStorage":31,"./datastore":43,"./errors":59,"./utils":61}],61:[function(require,module,exports){
 module.exports = [function () {
-	return {
-		isString: angular.isString,
-		isArray: angular.isArray,
-		isObject: angular.isObject,
-		isNumber: angular.isNumber,
-		isFunction: angular.isFunction,
-		isEmpty: require('mout/lang/isEmpty'),
-		toJson: angular.toJson,
-		makePath: require('mout/string/makePath'),
-		upperCase: require('mout/string/upperCase'),
-		deepMixIn: require('mout/object/deepMixIn'),
-		forOwn: require('mout/object/forOwn'),
-		pick: require('mout/object/pick'),
-		set: require('mout/object/set'),
-		contains: require('mout/array/contains'),
-		filter: require('mout/array/filter'),
-		toLookup: require('mout/array/toLookup'),
-		slice: require('mout/array/slice'),
-		sort: require('mout/array/sort'),
-		updateTimestamp: function (timestamp) {
-			var newTimestamp = typeof Date.now === 'function' ? Date.now() : new Date().getTime();
-			if (timestamp && newTimestamp <= timestamp) {
-				return timestamp + 1;
-			} else {
-				return newTimestamp;
-			}
-		},
-		deepFreeze: function deepFreeze(o) {
-			if (typeof Object.freeze === 'function') {
-				var prop, propKey;
-				Object.freeze(o); // First freeze the object.
-				for (propKey in o) {
-					prop = o[propKey];
-					if (!o.hasOwnProperty(propKey) || typeof prop !== 'object' || Object.isFrozen(prop)) {
-						// If the object is on the prototype, not an object, or is already frozen,
-						// skip it. Note that this might leave an unfrozen reference somewhere in the
-						// object if there is an already frozen object containing an unfrozen object.
-						continue;
-					}
+  return {
+    isString: angular.isString,
+    isArray: angular.isArray,
+    isObject: angular.isObject,
+    isNumber: angular.isNumber,
+    isFunction: angular.isFunction,
+    isEmpty: require('mout/lang/isEmpty'),
+    toJson: angular.toJson,
+    makePath: require('mout/string/makePath'),
+    upperCase: require('mout/string/upperCase'),
+    deepMixIn: require('mout/object/deepMixIn'),
+    forOwn: require('mout/object/forOwn'),
+    pick: require('mout/object/pick'),
+    set: require('mout/object/set'),
+    contains: require('mout/array/contains'),
+    filter: require('mout/array/filter'),
+    toLookup: require('mout/array/toLookup'),
+    slice: require('mout/array/slice'),
+    sort: require('mout/array/sort'),
+    updateTimestamp: function (timestamp) {
+      var newTimestamp = typeof Date.now === 'function' ? Date.now() : new Date().getTime();
+      if (timestamp && newTimestamp <= timestamp) {
+        return timestamp + 1;
+      } else {
+        return newTimestamp;
+      }
+    },
+    deepFreeze: function deepFreeze(o) {
+      if (typeof Object.freeze === 'function') {
+        var prop, propKey;
+        Object.freeze(o); // First freeze the object.
+        for (propKey in o) {
+          prop = o[propKey];
+          if (!o.hasOwnProperty(propKey) || typeof prop !== 'object' || Object.isFrozen(prop)) {
+            // If the object is on the prototype, not an object, or is already frozen,
+            // skip it. Note that this might leave an unfrozen reference somewhere in the
+            // object if there is an already frozen object containing an unfrozen object.
+            continue;
+          }
 
-					deepFreeze(prop); // Recursively call deepFreeze.
-				}
-			}
-		},
-		diffObjectFromOldObject: function (object, oldObject) {
-			var added = {};
-			var removed = {};
-			var changed = {};
+          deepFreeze(prop); // Recursively call deepFreeze.
+        }
+      }
+    },
+    diffObjectFromOldObject: function (object, oldObject) {
+      var added = {};
+      var removed = {};
+      var changed = {};
 
-			for (var prop in oldObject) {
-				var newValue = object[prop];
+      for (var prop in oldObject) {
+        var newValue = object[prop];
 
-				if (newValue !== undefined && newValue === oldObject[prop])
-					continue;
+        if (newValue !== undefined && newValue === oldObject[prop])
+          continue;
 
-				if (!(prop in object)) {
-					removed[prop] = undefined;
-					continue;
-				}
+        if (!(prop in object)) {
+          removed[prop] = undefined;
+          continue;
+        }
 
-				if (newValue !== oldObject[prop])
-					changed[prop] = newValue;
-			}
+        if (newValue !== oldObject[prop])
+          changed[prop] = newValue;
+      }
 
-			for (var prop2 in object) {
-				if (prop2 in oldObject)
-					continue;
+      for (var prop2 in object) {
+        if (prop2 in oldObject)
+          continue;
 
-				added[prop2] = object[prop2];
-			}
+        added[prop2] = object[prop2];
+      }
 
-			return {
-				added: added,
-				removed: removed,
-				changed: changed
-			};
-		}
-	};
+      return {
+        added: added,
+        removed: removed,
+        changed: changed
+      };
+    }
+  };
 }];
 
-},{"mout/array/contains":2,"mout/array/filter":3,"mout/array/slice":7,"mout/array/sort":8,"mout/array/toLookup":9,"mout/lang/isEmpty":14,"mout/object/deepMixIn":21,"mout/object/forOwn":23,"mout/object/pick":26,"mout/object/set":27,"mout/string/makePath":28,"mout/string/upperCase":29}]},{},[59])
+},{"mout/array/contains":2,"mout/array/filter":3,"mout/array/slice":7,"mout/array/sort":8,"mout/array/toLookup":9,"mout/lang/isEmpty":14,"mout/object/deepMixIn":21,"mout/object/forOwn":23,"mout/object/pick":26,"mout/object/set":27,"mout/string/makePath":28,"mout/string/upperCase":29}]},{},[60])

@@ -31,7 +31,7 @@ var errorPrefix = 'DS.refresh(resourceName, id[, options]): ';
  * ## Throws
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to refresh from the server.
@@ -46,27 +46,28 @@ var errorPrefix = 'DS.refresh(resourceName, id[, options]): ';
  * ## Rejects with:
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  */
 function refresh(resourceName, id, options) {
-	options = options || {};
+  var IA = this.errors.IA;
 
-	if (!this.definitions[resourceName]) {
-		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
-	} else if (!this.utils.isObject(options)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!', { options: { actual: typeof options, expected: 'object' } });
-	} else {
-		options.bypassCache = true;
+  options = options || {};
 
-		if (this.get(resourceName, id)) {
-			return this.find(resourceName, id, options);
-		} else {
-			return false;
-		}
-	}
+  if (!this.definitions[resourceName]) {
+    throw new this.errors.NER(errorPrefix + resourceName);
+  } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+    throw new IA(errorPrefix + 'id: Must be a string or a number!');
+  } else if (!this.utils.isObject(options)) {
+    throw new IA(errorPrefix + 'options: Must be an object!');
+  } else {
+    options.bypassCache = true;
+
+    if (this.get(resourceName, id)) {
+      return this.find(resourceName, id, options);
+    } else {
+      return false;
+    }
+  }
 }
 
 module.exports = refresh;

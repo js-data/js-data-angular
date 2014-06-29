@@ -1,59 +1,59 @@
 var errorPrefix = 'DS.findAll(resourceName, params[, options]): ';
 
 function processResults(utils, data, resourceName, queryHash) {
-	var resource = this.store[resourceName];
+  var resource = this.store[resourceName];
 
-	data = data || [];
+  data = data || [];
 
-	// Query is no longer pending
-	delete resource.pendingQueries[queryHash];
-	resource.completedQueries[queryHash] = new Date().getTime();
+  // Query is no longer pending
+  delete resource.pendingQueries[queryHash];
+  resource.completedQueries[queryHash] = new Date().getTime();
 
-	// Update modified timestamp of collection
-	resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
+  // Update modified timestamp of collection
+  resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
 
-	// Merge the new values into the cache
-	return this.inject(resourceName, data);
+  // Merge the new values into the cache
+  return this.inject(resourceName, data);
 }
 
 function _findAll(utils, resourceName, params, options) {
-	var definition = this.definitions[resourceName],
-		resource = this.store[resourceName],
-		_this = this,
-		queryHash = utils.toJson(params);
+  var definition = this.definitions[resourceName],
+    resource = this.store[resourceName],
+    _this = this,
+    queryHash = utils.toJson(params);
 
-	if (options.bypassCache) {
-		delete resource.completedQueries[queryHash];
-	}
+  if (options.bypassCache) {
+    delete resource.completedQueries[queryHash];
+  }
 
-	if (!(queryHash in resource.completedQueries)) {
-		// This particular query has never been completed
+  if (!(queryHash in resource.completedQueries)) {
+    // This particular query has never been completed
 
-		if (!(queryHash in resource.pendingQueries)) {
+    if (!(queryHash in resource.pendingQueries)) {
 
-			// This particular query has never even been made
-			resource.pendingQueries[queryHash] = _this.adapters[options.adapter || definition.defaultAdapter].findAll(definition, params, options)
-				.then(function (res) {
-					var data = definition.deserialize(resourceName, res);
-					if (options.cacheResponse) {
-						try {
-							return processResults.apply(_this, [utils, data, resourceName, queryHash]);
-						} catch (err) {
-							return _this.$q.reject(_this.errors.UnhandledError(err));
-						}
-					} else {
-						return data;
-					}
-				}, function (err) {
-					delete resource.pendingQueries[queryHash];
-					return _this.$q.reject(err);
-				});
-		}
+      // This particular query has never even been made
+      resource.pendingQueries[queryHash] = _this.adapters[options.adapter || definition.defaultAdapter].findAll(definition, params, options)
+        .then(function (res) {
+          var data = definition.deserialize(resourceName, res);
+          if (options.cacheResponse) {
+            try {
+              return processResults.apply(_this, [utils, data, resourceName, queryHash]);
+            } catch (err) {
+              return _this.$q.reject(err);
+            }
+          } else {
+            return data;
+          }
+        }, function (err) {
+          delete resource.pendingQueries[queryHash];
+          return _this.$q.reject(err);
+        });
+    }
 
-		return resource.pendingQueries[queryHash];
-	} else {
-		return this.filter(resourceName, params, options);
-	}
+    return resource.pendingQueries[queryHash];
+  } else {
+    return this.filter(resourceName, params, options);
+  }
 }
 
 /**
@@ -72,7 +72,7 @@ function _findAll(utils, resourceName, params, options) {
  * ## Example:
  *
  * ```js
- *  var query = {
+ *  var params = {
  *      where: {
  *          author: {
  *              '==': 'John Anderson'
@@ -80,17 +80,13 @@ function _findAll(utils, resourceName, params, options) {
  *      }
  *  };
  *
- *  DS.findAll('document', {
- *      query: query
- *  }).then(function (documents) {
- *      documents;  // [{ id: 'aab7ff66-e21e-46e2-8be8-264d82aee535', author: 'John Anderson', title: 'How to cook' },
- *                  //  { id: 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f', author: 'John Anderson', title: 'How NOT to cook' }]
+ *  DS.findAll('document', params).then(function (documents) {
+ *      documents;  // [{ id: '1', author: 'John Anderson', title: 'How to cook' },
+ *                  //  { id: '2', author: 'John Anderson', title: 'How NOT to cook' }]
  *
  *      // The documents are now in the data store
- *      DS.filter('document', {
- *          query: query
- *      }); // [{ id: 'aab7ff66-e21e-46e2-8be8-264d82aee535', author: 'John Anderson', title: 'How to cook' },
- *          //  { id: 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f', author: 'John Anderson', title: 'How NOT to cook' }]
+ *      DS.filter('document', params); // [{ id: '1', author: 'John Anderson', title: 'How to cook' },
+ *                                     //  { id: '2', author: 'John Anderson', title: 'How NOT to cook' }]
  *
  *  }, function (err) {
  *      // handle error
@@ -100,11 +96,11 @@ function _findAll(utils, resourceName, params, options) {
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {object=} params Parameter object that is serialized into the query string. Properties:
  *
- * - `{object=}` - `query` - The query object by which to filter items of the type specified by `resourceName`. Properties:
- *      - `{object=}` - `where` - Where clause.
- *      - `{number=}` - `limit` - Limit clause.
- *      - `{skip=}` - `skip` - Skip clause.
- *      - `{orderBy=}` - `orderBy` - OrderBy clause.
+ * - `{object=}` - `where` - Where clause.
+ * - `{number=}` - `limit` - Limit clause.
+ * - `{number=}` - `skip` - Skip clause.
+ * - `{number=}` - `offset` - Same as skip.
+ * - `{string|array=}` - `orderBy` - OrderBy clause.
  *
  * @param {object=} options Optional configuration. Properties:
  * - `{boolean=}` - `bypassCache` - Bypass the cache. Default: `false`.
@@ -119,40 +115,42 @@ function _findAll(utils, resourceName, params, options) {
  * ## Rejects with:
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  */
 function findAll(resourceName, params, options) {
-	var deferred = this.$q.defer(),
-		promise = deferred.promise,
-		_this = this;
+  var deferred = this.$q.defer();
+  var promise = deferred.promise;
 
-	options = options || {};
-	params = params || {};
+  try {
+    var IA = this.errors.IA;
+    var _this = this;
 
-	if (!this.definitions[resourceName]) {
-		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
-	} else if (!this.utils.isObject(params)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!'));
-	} else if (!this.utils.isObject(options)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!'));
-	} else {
-		if (!('cacheResponse' in options)) {
-			options.cacheResponse = true;
-		} else {
-			options.cacheResponse = !!options.cacheResponse;
-		}
-		try {
-			promise = promise.then(function () {
-				return _findAll.apply(_this, [_this.utils, resourceName, params, options]);
-			});
-			deferred.resolve();
-		} catch (err) {
-			deferred.reject(new this.errors.UnhandledError(err));
-		}
-	}
+    options = options || {};
+    params = params || {};
 
-	return promise;
+    if (!this.definitions[resourceName]) {
+      throw new this.errors.NER(errorPrefix + resourceName);
+    } else if (!this.utils.isObject(params)) {
+      throw new IA(errorPrefix + 'params: Must be an object!');
+    } else if (!this.utils.isObject(options)) {
+      throw new IA(errorPrefix + 'options: Must be an object!');
+    }
+
+    if (!('cacheResponse' in options)) {
+      options.cacheResponse = true;
+    } else {
+      options.cacheResponse = !!options.cacheResponse;
+    }
+
+    promise = promise.then(function () {
+      return _findAll.apply(_this, [_this.utils, resourceName, params, options]);
+    });
+    deferred.resolve();
+  } catch (err) {
+    deferred.reject(err);
+  }
+
+  return promise;
 }
 
 module.exports = findAll;

@@ -1,4 +1,4 @@
-var errorPrefix = 'DS.bindOne(scope, expr, resourceName, id): ';
+var errorPrefix = 'DS.bindOne(scope, expr, resourceName, id[, cb]): ';
 
 /**
  * @doc method
@@ -9,7 +9,7 @@ var errorPrefix = 'DS.bindOne(scope, expr, resourceName, id): ';
  *
  * ## Signature:
  * ```js
- * DS.bindOne(scope, expr, resourceName, id)
+ * DS.bindOne(scope, expr, resourceName, id[, cb])
  * ```
  *
  * ## Example:
@@ -22,37 +22,47 @@ var errorPrefix = 'DS.bindOne(scope, expr, resourceName, id): ';
  * ## Throws
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {object} scope The scope to bind to.
  * @param {string} expr An expression used to bind to the scope. Can be used to set nested keys, i.e. `"user.profile"`.
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to bind.
+ * @param {function=} cb Optional callback executed on change. Signature: `cb(err, item)`.
  * @returns {function} Scope $watch deregistration function.
  */
-function bindOne(scope, expr, resourceName, id) {
-	if (!this.utils.isObject(scope)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'scope: Must be an object!');
-	} else if (!this.utils.isString(expr)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'expr: Must be a string!');
-	} else if (!this.definitions[resourceName]) {
-		throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
-	} else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!');
-	}
+function bindOne(scope, expr, resourceName, id, cb) {
+  var IA = this.errors.IA;
 
-	var _this = this;
+  if (!this.utils.isObject(scope)) {
+    throw new IA(errorPrefix + 'scope: Must be an object!');
+  } else if (!this.utils.isString(expr)) {
+    throw new IA(errorPrefix + 'expr: Must be a string!');
+  } else if (!this.definitions[resourceName]) {
+    throw new this.errors.NER(errorPrefix + resourceName);
+  } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+    throw new IA(errorPrefix + 'id: Must be a string or a number!');
+  }
 
-	try {
-		return scope.$watch(function () {
-			return _this.lastModified(resourceName, id);
-		}, function () {
-			_this.utils.set(scope, expr, _this.get(resourceName, id));
-		});
-	} catch (err) {
-		throw new this.errors.UnhandledError(err);
-	}
+  var _this = this;
+
+  try {
+    return scope.$watch(function () {
+      return _this.lastModified(resourceName, id);
+    }, function () {
+      var item = _this.get(resourceName, id);
+      _this.utils.set(scope, expr, item);
+      if (cb) {
+        cb(null, item);
+      }
+    });
+  } catch (err) {
+    if (cb) {
+      cb(err);
+    } else {
+      throw err;
+    }
+  }
 }
 
 module.exports = bindOne;

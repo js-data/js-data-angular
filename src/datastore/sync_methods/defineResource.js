@@ -3,13 +3,13 @@ var errorPrefix = 'DS.defineResource(definition): ';
 
 function Resource(utils, options) {
 
-	utils.deepMixIn(this, options);
+  utils.deepMixIn(this, options);
 
-	if ('endpoint' in options) {
-		this.endpoint = options.endpoint;
-	} else {
-		this.endpoint = this.name;
-	}
+  if ('endpoint' in options) {
+    this.endpoint = options.endpoint;
+  } else {
+    this.endpoint = this.name;
+  }
 }
 
 /**
@@ -43,7 +43,6 @@ function Resource(utils, options) {
  *
  * - `{IllegalArgumentError}`
  * - `{RuntimeError}`
- * - `{UnhandledError}`
  *
  * @param {string|object} definition Name of resource or resource definition object: Properties:
  *
@@ -73,68 +72,88 @@ function Resource(utils, options) {
  * See [DSProvider.defaults](/documentation/api/angular-data/DSProvider.properties:defaults).
  */
 function defineResource(definition) {
-	if (this.utils.isString(definition)) {
-		definition = {
-			name: definition
-		};
-	}
-	if (!this.utils.isObject(definition)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'definition: Must be an object!', { definition: { actual: typeof definition, expected: 'object' } });
-	} else if (!this.utils.isString(definition.name)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'definition.name: Must be a string!', { definition: { name: { actual: typeof definition.name, expected: 'string' } } });
-	} else if (definition.idAttribute && !this.utils.isString(definition.idAttribute)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'definition.idAttribute: Must be a string!', { definition: { idAttribute: { actual: typeof definition.idAttribute, expected: 'string' } } });
-	} else if (definition.endpoint && !this.utils.isString(definition.endpoint)) {
-		throw new this.errors.IllegalArgumentError(errorPrefix + 'definition.endpoint: Must be a string!', { definition: { endpoint: { actual: typeof definition.endpoint, expected: 'string' } } });
-	} else if (this.store[definition.name]) {
-		throw new this.errors.RuntimeError(errorPrefix + definition.name + ' is already registered!');
-	}
+  var IA = this.errors.IA;
 
-	try {
-		Resource.prototype = this.defaults;
-		this.definitions[definition.name] = new Resource(this.utils, definition);
+  if (this.utils.isString(definition)) {
+    definition = {
+      name: definition
+    };
+  }
+  if (!this.utils.isObject(definition)) {
+    throw new IA(errorPrefix + 'definition: Must be an object!');
+  } else if (!this.utils.isString(definition.name)) {
+    throw new IA(errorPrefix + 'definition.name: Must be a string!');
+  } else if (definition.idAttribute && !this.utils.isString(definition.idAttribute)) {
+    throw new IA(errorPrefix + 'definition.idAttribute: Must be a string!');
+  } else if (definition.endpoint && !this.utils.isString(definition.endpoint)) {
+    throw new IA(errorPrefix + 'definition.endpoint: Must be a string!');
+  } else if (this.store[definition.name]) {
+    throw new this.errors.R(errorPrefix + definition.name + ' is already registered!');
+  }
 
-		var _this = this,
-			def = this.definitions[definition.name];
+  try {
+    Resource.prototype = this.defaults;
+    this.definitions[definition.name] = new Resource(this.utils, definition);
 
-		var cache = this.cacheFactory('DS.' + def.name, {
-			maxAge: def.maxAge || null,
-			recycleFreq: def.recycleFreq || 1000,
-			cacheFlushInterval: def.cacheFlushInterval || null,
-			deleteOnExpire: def.deleteOnExpire || 'none',
-			onExpire: function (id) {
-				_this.eject(def.name, id);
-			},
-			capacity: Number.MAX_VALUE,
-			storageMode: 'memory',
-			storageImpl: null,
-			disabled: false,
-			storagePrefix: 'DS.' + def.name
-		});
+    var _this = this;
+    var def = this.definitions[definition.name];
 
-		if (def.methods) {
-			def.class = definition.name[0].toUpperCase() + definition.name.substring(1);
-			eval('function ' + def.class + '() {}');
-			def[def.class] = eval(def.class);
-			this.utils.deepMixIn(def[def.class].prototype, def.methods);
-		}
+    var cache = this.cacheFactory('DS.' + def.name, {
+      maxAge: def.maxAge || null,
+      recycleFreq: def.recycleFreq || 1000,
+      cacheFlushInterval: def.cacheFlushInterval || null,
+      deleteOnExpire: def.deleteOnExpire || 'none',
+      onExpire: function (id) {
+        _this.eject(def.name, id);
+      },
+      capacity: Number.MAX_VALUE,
+      storageMode: 'memory',
+      storageImpl: null,
+      disabled: false,
+      storagePrefix: 'DS.' + def.name
+    });
 
-		this.store[def.name] = {
-			collection: [],
-			completedQueries: {},
-			pendingQueries: {},
-			index: cache,
-			modified: {},
-			saved: {},
-			previousAttributes: {},
-			observers: {},
-			collectionModified: 0
-		};
-	} catch (err) {
-		delete this.definitions[definition.name];
-		delete this.store[definition.name];
-		throw new this.errors.UnhandledError(err);
-	}
+    if (def.methods) {
+      def.class = definition.name[0].toUpperCase() + definition.name.substring(1);
+      eval('function ' + def.class + '() {}');
+      def[def.class] = eval(def.class);
+      this.utils.deepMixIn(def[def.class].prototype, def.methods);
+    }
+
+    if (def.computed) {
+      this.utils.forOwn(def.computed, function (fn, field) {
+        if (def.methods && field in def.methods) {
+          _this.$log.warn(errorPrefix + 'Computed property "' + field + '" conflicts with previously defined prototype method!');
+        }
+        var match = fn.toString().match(/function.*?\(([\s\S]*?)\)/);
+        var deps = match[1].split(',');
+        fn.deps = _this.utils.filter(deps, function (dep) {
+          return !!dep;
+        });
+        angular.forEach(fn.deps, function (val, index) {
+          fn.deps[index] = val.trim();
+        });
+      });
+    }
+
+    this.store[def.name] = {
+      collection: [],
+      completedQueries: {},
+      pendingQueries: {},
+      index: cache,
+      modified: {},
+      saved: {},
+      previousAttributes: {},
+      observers: {},
+      collectionModified: 0
+    };
+  }
+  catch
+    (err) {
+    delete this.definitions[definition.name];
+    delete this.store[definition.name];
+    throw err;
+  }
 }
 
 module.exports = defineResource;

@@ -20,11 +20,9 @@ var errorPrefix = 'DS.updateAll(resourceName, attrs, params[, options]): ';
  *  DS.filter('document'); // []
  *
  *  DS.updateAll('document', 5, { author: 'Sally' }, {
- *      query: {
- *          where: {
- *              author: {
- *                  '==': 'John Anderson'
- *              }
+ *      where: {
+ *          author: {
+ *              '==': 'John Anderson'
  *          }
  *      }
  *  })
@@ -40,11 +38,11 @@ var errorPrefix = 'DS.updateAll(resourceName, attrs, params[, options]): ';
  * @param {object} attrs The attributes with which to update the items.
  * @param {object} params Parameter object that is serialized into the query string. Properties:
  *
- * - `{object=}` - `query` - The query object by which to filter items of the type specified by `resourceName`. Properties:
- *      - `{object=}` - `where` - Where clause.
- *      - `{number=}` - `limit` - Limit clause.
- *      - `{skip=}` - `skip` - Skip clause.
- *      - `{orderBy=}` - `orderBy` - OrderBy clause.
+ *  - `{object=}` - `where` - Where clause.
+ *  - `{number=}` - `limit` - Limit clause.
+ *  - `{number=}` - `skip` - Skip clause.
+ *  - `{number=}` - `offset` - Same as skip.
+ *  - `{string|array=}` - `orderBy` - OrderBy clause.
  *
  * @param {object=} options Optional configuration. Properties:
  * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
@@ -58,64 +56,69 @@ var errorPrefix = 'DS.updateAll(resourceName, attrs, params[, options]): ';
  * ## Rejects with:
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  */
 function updateAll(resourceName, attrs, params, options) {
-	var deferred = this.$q.defer(),
-		promise = deferred.promise;
+  var deferred = this.$q.defer();
+  var promise = deferred.promise;
 
-	options = options || {};
+  try {
+    var IA = this.errors.IA;
 
-	if (!this.definitions[resourceName]) {
-		deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
-	} else if (!this.utils.isObject(attrs)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'attrs: Must be an object!'));
-	} else if (!this.utils.isObject(params)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!'));
-	} else if (!this.utils.isObject(options)) {
-		deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!'));
-	} else {
-		var definition = this.definitions[resourceName],
-			resource = this.store[resourceName],
-			_this = this;
+    options = options || {};
 
-		if (!('cacheResponse' in options)) {
-			options.cacheResponse = true;
-		} else {
-			options.cacheResponse = !!options.cacheResponse;
-		}
+    if (!this.definitions[resourceName]) {
+      throw new this.errors.NER(errorPrefix + resourceName);
+    } else if (!this.utils.isObject(attrs)) {
+      throw new IA(errorPrefix + 'attrs: Must be an object!');
+    } else if (!this.utils.isObject(params)) {
+      throw new IA(errorPrefix + 'params: Must be an object!');
+    } else if (!this.utils.isObject(options)) {
+      throw new IA(errorPrefix + 'options: Must be an object!');
+    }
 
-		promise = promise
-			.then(function (attrs) {
-				return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
-			})
-			.then(function (attrs) {
-				return _this.$q.promisify(definition.validate)(resourceName, attrs);
-			})
-			.then(function (attrs) {
-				return _this.$q.promisify(definition.afterValidate)(resourceName, attrs);
-			})
-			.then(function (attrs) {
-				return _this.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
-			})
-			.then(function (attrs) {
-				return _this.adapters[options.adapter || definition.defaultAdapter].updateAll(definition, definition.serialize(resourceName, attrs), params, options);
-			})
-			.then(function (res) {
-				return _this.$q.promisify(definition.afterUpdate)(resourceName, definition.deserialize(resourceName, res));
-			})
-			.then(function (data) {
-				if (options.cacheResponse) {
-					return _this.inject(definition.name, data, options);
-				} else {
-					return data;
-				}
-			});
+    var definition = this.definitions[resourceName];
+    var _this = this;
 
-		deferred.resolve(attrs);
-	}
-	return promise;
+    if (!('cacheResponse' in options)) {
+      options.cacheResponse = true;
+    } else {
+      options.cacheResponse = !!options.cacheResponse;
+    }
+
+    promise = promise
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
+      })
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.validate)(resourceName, attrs);
+      })
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.afterValidate)(resourceName, attrs);
+      })
+      .then(function (attrs) {
+        return _this.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
+      })
+      .then(function (attrs) {
+        return _this.adapters[options.adapter || definition.defaultAdapter].updateAll(definition, definition.serialize(resourceName, attrs), params, options);
+      })
+      .then(function (res) {
+        return _this.$q.promisify(definition.afterUpdate)(resourceName, definition.deserialize(resourceName, res));
+      })
+      .then(function (data) {
+        if (options.cacheResponse) {
+          return _this.inject(definition.name, data, options);
+        } else {
+          return data;
+        }
+      });
+
+    deferred.resolve(attrs);
+  } catch (err) {
+    deferred.reject(err);
+  }
+
+  return promise;
 }
 
 module.exports = updateAll;
