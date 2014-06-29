@@ -33,8 +33,7 @@ var errorPrefix = 'DS.lastSaved(resourceName[, id]): ';
  * ## Throws
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item for which to retrieve the lastSaved timestamp.
@@ -42,18 +41,14 @@ var errorPrefix = 'DS.lastSaved(resourceName[, id]): ';
  */
 function lastSaved(resourceName, id) {
   if (!this.definitions[resourceName]) {
-    throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+    throw new this.errors.NER(errorPrefix + resourceName);
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!', { id: { actual: typeof id, expected: 'string|number' } });
+    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
   }
-  try {
-    if (!(id in this.store[resourceName].saved)) {
-      this.store[resourceName].saved[id] = 0;
-    }
-    return this.store[resourceName].saved[id];
-  } catch (err) {
-    throw new this.errors.UnhandledError(err);
+  if (!(id in this.store[resourceName].saved)) {
+    this.store[resourceName].saved[id] = 0;
   }
+  return this.store[resourceName].saved[id];
 }
 
 module.exports = lastSaved;

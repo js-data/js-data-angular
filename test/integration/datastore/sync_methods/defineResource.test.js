@@ -56,27 +56,27 @@ describe('DS.defineResource(definition)', function () {
       };
 
     DS.defineResource({
-      name: 'comment',
+      name: 'Comment',
       baseUrl: 'hello/',
       validate: test.validate
     });
 
     assert.doesNotThrow(function () {
-      assert.isUndefined(DS.get('comment', 5), 'should be undefined');
+      assert.isUndefined(DS.get('Comment', 5), 'should be undefined');
     });
 
     // Should override global baseUrl
-    $httpBackend.expectGET('hello/comment/1').respond(200, { name: 'Sally', id: 1 });
+    $httpBackend.expectGET('hello/Comment/1').respond(200, { name: 'Sally', id: 1 });
 
-    assert.isUndefined(DS.get('comment', 1, { loadFromServer: true }), 'should be undefined');
+    assert.isUndefined(DS.get('Comment', 1, { loadFromServer: true }), 'should be undefined');
 
     $httpBackend.flush();
 
-    assert.deepEqual(DS.get('comment', 1), { name: 'Sally', id: 1 });
+    assert.deepEqual(DS.get('Comment', 1), { name: 'Sally', id: 1 });
 
-    $httpBackend.expectPOST('hello/comment').respond(200, { name: 'John', id: 2 });
+    $httpBackend.expectPOST('hello/Comment').respond(200, { name: 'John', id: 2 });
 
-    DS.create('comment', { name: 'John' }).then(function (comment) {
+    DS.create('Comment', { name: 'John' }).then(function (comment) {
       assert.deepEqual(comment, { name: 'John', id: 2 });
     });
 
@@ -87,7 +87,7 @@ describe('DS.defineResource(definition)', function () {
   });
   it('should allow custom behavior to be applied to resources', function () {
     DS.defineResource({
-      name: 'user',
+      name: 'person',
       methods: {
         fullName: function () {
           return this.first + ' ' + this.last;
@@ -95,13 +95,13 @@ describe('DS.defineResource(definition)', function () {
       }
     });
 
-    DS.inject('user', {
+    DS.inject('person', {
       first: 'John',
       last: 'Anderson',
       id: 1
     });
 
-    var user = DS.get('user', 1);
+    var user = DS.get('person', 1);
 
     assert.deepEqual(JSON.stringify(user), JSON.stringify({
       first: 'John',
@@ -109,9 +109,9 @@ describe('DS.defineResource(definition)', function () {
       id: 1
     }));
     assert.equal(user.fullName(), 'John Anderson');
-    assert.isTrue(user instanceof DS.definitions.user[DS.definitions.user.class]);
-    assert.equal(DS.definitions.user.class, 'User');
-    assert.equal(DS.definitions.user[DS.definitions.user.class].name, 'User');
+    assert.isTrue(user instanceof DS.definitions.person[DS.definitions.person.class]);
+    assert.equal(DS.definitions.person.class, 'Person');
+    assert.equal(DS.definitions.person[DS.definitions.person.class].name, 'Person');
     assert.equal(lifecycle.beforeInject.callCount, 1, 'beforeInject should have been called');
     assert.equal(lifecycle.afterInject.callCount, 1, 'afterInject should have been called');
   });

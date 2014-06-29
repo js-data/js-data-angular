@@ -26,8 +26,7 @@ var errorPrefix = 'DS.bindAll(scope, expr, resourceName, params[, cb]): ';
  * ## Throws
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  *
  * @param {object} scope The scope to bind to.
  * @param {string} expr An expression used to bind to the scope. Can be used to set nested keys, i.e. `"user.comments"`.
@@ -45,14 +44,16 @@ var errorPrefix = 'DS.bindAll(scope, expr, resourceName, params[, cb]): ';
  * @returns {function} Scope $watch deregistration function.
  */
 function bindOne(scope, expr, resourceName, params, cb) {
+  var IA = this.errors.IA;
+
   if (!this.utils.isObject(scope)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'scope: Must be an object!');
+    throw new IA(errorPrefix + 'scope: Must be an object!');
   } else if (!this.utils.isString(expr)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'expr: Must be a string!');
+    throw new IA(errorPrefix + 'expr: Must be a string!');
   } else if (!this.definitions[resourceName]) {
-    throw new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!');
+    throw new this.errors.NER(errorPrefix + resourceName);
   } else if (!this.utils.isObject(params)) {
-    throw new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!');
+    throw new IA(errorPrefix + 'params: Must be an object!');
   }
 
   var _this = this;
@@ -69,9 +70,9 @@ function bindOne(scope, expr, resourceName, params, cb) {
     });
   } catch (err) {
     if (cb) {
-      cb(new this.errors.UnhandledError(err));
+      cb(err);
     } else {
-      throw new this.errors.UnhandledError(err);
+      throw err;
     }
   }
 }

@@ -7,7 +7,7 @@ describe('DS.find(resourceName, id[, options]): ', function () {
     DS.find('does not exist', 5).then(function () {
       fail('should have rejected');
     }, function (err) {
-      assert.isTrue(err instanceof DS.errors.RuntimeError);
+      assert.isTrue(err instanceof DS.errors.NonexistentResourceError);
       assert.equal(err.message, errorPrefix + 'does not exist is not a registered resource!');
     });
 

@@ -42,27 +42,30 @@ var errorPrefix = 'DS.update(resourceName, id, attrs[, options]): ';
  * ## Rejects with:
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  */
 function update(resourceName, id, attrs, options) {
-  var deferred = this.$q.defer(),
-    promise = deferred.promise;
+  var deferred = this.$q.defer();
+  var promise = deferred.promise;
 
-  options = options || {};
+  try {
+    var IA = this.errors.IA;
 
-  if (!this.definitions[resourceName]) {
-    deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
-  } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'id: Must be a string or a number!'));
-  } else if (!this.utils.isObject(attrs)) {
-    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'attrs: Must be an object!'));
-  } else if (!this.utils.isObject(options)) {
-    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!'));
-  } else {
-    var definition = this.definitions[resourceName],
-      resource = this.store[resourceName],
-      _this = this;
+    options = options || {};
+
+    if (!this.definitions[resourceName]) {
+      throw new this.errors.NER(errorPrefix + resourceName);
+    } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+      throw new IA(errorPrefix + 'id: Must be a string or a number!');
+    } else if (!this.utils.isObject(attrs)) {
+      throw new IA(errorPrefix + 'attrs: Must be an object!');
+    } else if (!this.utils.isObject(options)) {
+      throw new IA(errorPrefix + 'options: Must be an object!');
+    }
+
+    var definition = this.definitions[resourceName];
+    var resource = this.store[resourceName];
+    var _this = this;
 
     if (!('cacheResponse' in options)) {
       options.cacheResponse = true;
@@ -102,7 +105,10 @@ function update(resourceName, id, attrs, options) {
       });
 
     deferred.resolve(attrs);
+  } catch (err) {
+    deferred.reject(err);
   }
+
   return promise;
 }
 

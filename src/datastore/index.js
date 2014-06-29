@@ -4,12 +4,12 @@ function lifecycleNoop(resourceName, attrs, cb) {
   cb(null, attrs);
 }
 
-function BaseConfig() {
+function Defaults() {
 }
 
-BaseConfig.prototype.idAttribute = 'id';
-BaseConfig.prototype.defaultAdapter = 'DSHttpAdapter';
-BaseConfig.prototype.filter = function (collection, resourceName, params, options) {
+Defaults.prototype.idAttribute = 'id';
+Defaults.prototype.defaultAdapter = 'DSHttpAdapter';
+Defaults.prototype.filter = function (collection, resourceName, params, options) {
   var _this = this;
   var filtered = collection;
   var where = null;
@@ -67,7 +67,7 @@ BaseConfig.prototype.filter = function (collection, resourceName, params, option
               keep = first ? (attrs[field] === val) : keep && (attrs[field] === val);
             } else if (op === '!=') {
               keep = first ? (attrs[field] != val) : keep && (attrs[field] != val);
-            }  else if (op === '!==') {
+            } else if (op === '!==') {
               keep = first ? (attrs[field] !== val) : keep && (attrs[field] !== val);
             } else if (op === '>') {
               keep = first ? (attrs[field] > val) : keep && (attrs[field] > val);
@@ -186,8 +186,8 @@ BaseConfig.prototype.filter = function (collection, resourceName, params, option
 
   return filtered;
 };
-BaseConfig.prototype.baseUrl = '';
-BaseConfig.prototype.endpoint = '';
+Defaults.prototype.baseUrl = '';
+Defaults.prototype.endpoint = '';
 /**
  * @doc property
  * @id DSProvider.properties:defaults.beforeValidate
@@ -218,7 +218,7 @@ BaseConfig.prototype.endpoint = '';
  * @param {string} resourceName The name of the resource moving through the lifecycle.
  * @param {object} attrs Attributes of the item moving through the lifecycle.
  */
-BaseConfig.prototype.beforeValidate = lifecycleNoop;
+Defaults.prototype.beforeValidate = lifecycleNoop;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.validate
@@ -249,7 +249,7 @@ BaseConfig.prototype.beforeValidate = lifecycleNoop;
  * @param {string} resourceName The name of the resource moving through the lifecycle.
  * @param {object} attrs Attributes of the item moving through the lifecycle.
  */
-BaseConfig.prototype.validate = lifecycleNoop;
+Defaults.prototype.validate = lifecycleNoop;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.afterValidate
@@ -280,7 +280,7 @@ BaseConfig.prototype.validate = lifecycleNoop;
  * @param {string} resourceName The name of the resource moving through the lifecycle.
  * @param {object} attrs Attributes of the item moving through the lifecycle.
  */
-BaseConfig.prototype.afterValidate = lifecycleNoop;
+Defaults.prototype.afterValidate = lifecycleNoop;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.beforeCreate
@@ -311,7 +311,7 @@ BaseConfig.prototype.afterValidate = lifecycleNoop;
  * @param {string} resourceName The name of the resource moving through the lifecycle.
  * @param {object} attrs Attributes of the item moving through the lifecycle.
  */
-BaseConfig.prototype.beforeCreate = lifecycleNoop;
+Defaults.prototype.beforeCreate = lifecycleNoop;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.afterCreate
@@ -342,7 +342,7 @@ BaseConfig.prototype.beforeCreate = lifecycleNoop;
  * @param {string} resourceName The name of the resource moving through the lifecycle.
  * @param {object} attrs Attributes of the item moving through the lifecycle.
  */
-BaseConfig.prototype.afterCreate = lifecycleNoop;
+Defaults.prototype.afterCreate = lifecycleNoop;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.beforeUpdate
@@ -373,7 +373,7 @@ BaseConfig.prototype.afterCreate = lifecycleNoop;
  * @param {string} resourceName The name of the resource moving through the lifecycle.
  * @param {object} attrs Attributes of the item moving through the lifecycle.
  */
-BaseConfig.prototype.beforeUpdate = lifecycleNoop;
+Defaults.prototype.beforeUpdate = lifecycleNoop;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.afterUpdate
@@ -404,7 +404,7 @@ BaseConfig.prototype.beforeUpdate = lifecycleNoop;
  * @param {string} resourceName The name of the resource moving through the lifecycle.
  * @param {object} attrs Attributes of the item moving through the lifecycle.
  */
-BaseConfig.prototype.afterUpdate = lifecycleNoop;
+Defaults.prototype.afterUpdate = lifecycleNoop;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.beforeDestroy
@@ -435,7 +435,7 @@ BaseConfig.prototype.afterUpdate = lifecycleNoop;
  * @param {string} resourceName The name of the resource moving through the lifecycle.
  * @param {object} attrs Attributes of the item moving through the lifecycle.
  */
-BaseConfig.prototype.beforeDestroy = lifecycleNoop;
+Defaults.prototype.beforeDestroy = lifecycleNoop;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.afterDestroy
@@ -466,7 +466,7 @@ BaseConfig.prototype.beforeDestroy = lifecycleNoop;
  * @param {string} resourceName The name of the resource moving through the lifecycle.
  * @param {object} attrs Attributes of the item moving through the lifecycle.
  */
-BaseConfig.prototype.afterDestroy = lifecycleNoop;
+Defaults.prototype.afterDestroy = lifecycleNoop;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.beforeInject
@@ -491,7 +491,7 @@ BaseConfig.prototype.afterDestroy = lifecycleNoop;
  * @param {string} resourceName The name of the resource moving through the lifecycle.
  * @param {object} attrs Attributes of the item moving through the lifecycle.
  */
-BaseConfig.prototype.beforeInject = function (resourceName, attrs) {
+Defaults.prototype.beforeInject = function (resourceName, attrs) {
   return attrs;
 };
 /**
@@ -518,7 +518,7 @@ BaseConfig.prototype.beforeInject = function (resourceName, attrs) {
  * @param {string} resourceName The name of the resource moving through the lifecycle.
  * @param {object} attrs Attributes of the item moving through the lifecycle.
  */
-BaseConfig.prototype.afterInject = function (resourceName, attrs) {
+Defaults.prototype.afterInject = function (resourceName, attrs) {
   return attrs;
 };
 /**
@@ -542,7 +542,7 @@ BaseConfig.prototype.afterInject = function (resourceName, attrs) {
  * @param {object} data Data to be sent to the server.
  * @returns {*} By default returns `data` as-is.
  */
-BaseConfig.prototype.serialize = function (resourceName, data) {
+Defaults.prototype.serialize = function (resourceName, data) {
   return data;
 };
 
@@ -565,7 +565,7 @@ BaseConfig.prototype.serialize = function (resourceName, data) {
  * @param {object} data Response object from `$http()`.
  * @returns {*} By default returns `data.data`.
  */
-BaseConfig.prototype.deserialize = function (resourceName, data) {
+Defaults.prototype.deserialize = function (resourceName, data) {
   return data.data;
 };
 
@@ -603,7 +603,7 @@ function DSProvider() {
    * - `{function}` - `serialize` - See [DSProvider.defaults.serialize](/documentation/api/angular-data/DSProvider.properties:defaults.serialize). Default: No-op
    * - `{function}` - `deserialize` - See [DSProvider.defaults.deserialize](/documentation/api/angular-data/DSProvider.properties:defaults.deserialize). Default: No-op
    */
-  var defaults = this.defaults = new BaseConfig();
+  var defaults = this.defaults = new Defaults();
 
   this.$get = [
     '$rootScope', '$log', '$q', 'DSHttpAdapter', 'DSLocalStorageAdapter', 'DSUtils', 'DSErrors',
@@ -716,7 +716,8 @@ function DSProvider() {
       });
 
       return DS;
-    }];
+    }
+  ];
 }
 
 module.exports = DSProvider;

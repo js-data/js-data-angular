@@ -6,7 +6,7 @@ describe('DS.refresh(resourceName, id[, options]): ', function () {
   it('should throw an error when method pre-conditions are not met', function () {
     assert.throws(function () {
       DS.refresh('does not exist', 5);
-    }, DS.errors.RuntimeError, errorPrefix + 'does not exist is not a registered resource!');
+    }, DS.errors.NonexistentResourceError, errorPrefix + 'does not exist is not a registered resource!');
 
     angular.forEach(TYPES_EXCEPT_STRING_OR_NUMBER, function (key) {
       assert.throws(function () {

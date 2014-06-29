@@ -56,27 +56,29 @@ var errorPrefix = 'DS.updateAll(resourceName, attrs, params[, options]): ';
  * ## Rejects with:
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  */
 function updateAll(resourceName, attrs, params, options) {
-  var deferred = this.$q.defer(),
-    promise = deferred.promise;
+  var deferred = this.$q.defer();
+  var promise = deferred.promise;
 
-  options = options || {};
+  try {
+    var IA = this.errors.IA;
 
-  if (!this.definitions[resourceName]) {
-    deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
-  } else if (!this.utils.isObject(attrs)) {
-    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'attrs: Must be an object!'));
-  } else if (!this.utils.isObject(params)) {
-    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!'));
-  } else if (!this.utils.isObject(options)) {
-    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!'));
-  } else {
-    var definition = this.definitions[resourceName],
-      resource = this.store[resourceName],
-      _this = this;
+    options = options || {};
+
+    if (!this.definitions[resourceName]) {
+      throw new this.errors.NER(errorPrefix + resourceName);
+    } else if (!this.utils.isObject(attrs)) {
+      throw new IA(errorPrefix + 'attrs: Must be an object!');
+    } else if (!this.utils.isObject(params)) {
+      throw new IA(errorPrefix + 'params: Must be an object!');
+    } else if (!this.utils.isObject(options)) {
+      throw new IA(errorPrefix + 'options: Must be an object!');
+    }
+
+    var definition = this.definitions[resourceName];
+    var _this = this;
 
     if (!('cacheResponse' in options)) {
       options.cacheResponse = true;
@@ -112,7 +114,10 @@ function updateAll(resourceName, attrs, params, options) {
       });
 
     deferred.resolve(attrs);
+  } catch (err) {
+    deferred.reject(err);
   }
+
   return promise;
 }
 

@@ -6,7 +6,7 @@ describe('DS.filter(resourceName[, params][, options])', function () {
   it('should throw an error when method pre-conditions are not met', function () {
     assert.throws(function () {
       DS.filter('does not exist');
-    }, DS.errors.RuntimeError, errorPrefix + 'does not exist is not a registered resource!');
+    }, DS.errors.NonexistentResourceError, errorPrefix + 'does not exist is not a registered resource!');
 
     angular.forEach(TYPES_EXCEPT_OBJECT, function (key) {
       if (key) {
@@ -324,7 +324,7 @@ describe('DS.filter(resourceName[, params][, options])', function () {
   });
   it('should allow custom filter function', function () {
     DS.defineResource({
-      name: 'comment',
+      name: 'Comment',
       filter: function (collection, resourceName, params, options) {
         var filtered = collection;
         var where = params.where;
@@ -335,10 +335,10 @@ describe('DS.filter(resourceName[, params][, options])', function () {
       }
     });
     assert.doesNotThrow(function () {
-      DS.inject('comment', p1);
-      DS.inject('comment', p2);
-      DS.inject('comment', p3);
-      DS.inject('comment', p4);
+      DS.inject('Comment', p1);
+      DS.inject('Comment', p2);
+      DS.inject('Comment', p3);
+      DS.inject('Comment', p4);
     }, Error, 'should not throw an error');
 
     var params = {
@@ -352,6 +352,6 @@ describe('DS.filter(resourceName[, params][, options])', function () {
       }
     };
 
-    assert.deepEqual(DS.filter('comment', params), [p1, p2], 'should keep p1 and p2');
+    assert.deepEqual(DS.filter('Comment', params), [p1, p2], 'should keep p1 and p2');
   });
 });

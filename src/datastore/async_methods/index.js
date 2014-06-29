@@ -51,6 +51,16 @@ module.exports = {
 
   /**
    * @doc method
+   * @id DS.async_methods:loadRelations
+   * @name loadRelations
+   * @methodOf DS
+   * @description
+   * See [DS.loadRelations](/documentation/api/api/DS.async_methods:loadRelations).
+   */
+  loadRelations: require('./loadRelations'),
+
+  /**
+   * @doc method
    * @id DS.async_methods:refresh
    * @name refresh
    * @methodOf DS

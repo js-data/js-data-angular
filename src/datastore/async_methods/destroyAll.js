@@ -50,37 +50,38 @@ var errorPrefix = 'DS.destroyAll(resourceName, params[, options]): ';
  * ## Rejects with:
  *
  * - `{IllegalArgumentError}`
- * - `{RuntimeError}`
- * - `{UnhandledError}`
+ * - `{NonexistentResourceError}`
  */
 function destroyAll(resourceName, params, options) {
-  var deferred = this.$q.defer(),
-    promise = deferred.promise,
-    _this = this;
+  var deferred = this.$q.defer();
+  var promise = deferred.promise;
 
-  options = options || {};
+  try {
+    var _this = this;
+    var IA = this.errors.IA;
 
-  if (!this.definitions[resourceName]) {
-    deferred.reject(new this.errors.RuntimeError(errorPrefix + resourceName + ' is not a registered resource!'));
-  } else if (!this.utils.isObject(params)) {
-    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'params: Must be an object!'));
-  } else if (!this.utils.isObject(options)) {
-    deferred.reject(new this.errors.IllegalArgumentError(errorPrefix + 'options: Must be an object!'));
-  } else {
-    try {
-      var definition = this.definitions[resourceName];
+    options = options || {};
 
-      promise = promise
-        .then(function () {
-          return _this.adapters[options.adapter || definition.defaultAdapter].destroyAll(definition, params, options);
-        })
-        .then(function () {
-          return _this.ejectAll(resourceName, params);
-        });
-      deferred.resolve();
-    } catch (err) {
-      deferred.reject(new this.errors.UnhandledError(err));
+    if (!this.definitions[resourceName]) {
+      throw new this.errors.NER(errorPrefix + resourceName);
+    } else if (!this.utils.isObject(params)) {
+      throw new IA(errorPrefix + 'params: Must be an object!');
+    } else if (!this.utils.isObject(options)) {
+      throw new IA(errorPrefix + 'options: Must be an object!');
     }
+
+    var definition = this.definitions[resourceName];
+
+    promise = promise
+      .then(function () {
+        return _this.adapters[options.adapter || definition.defaultAdapter].destroyAll(definition, params, options);
+      })
+      .then(function () {
+        return _this.ejectAll(resourceName, params);
+      });
+    deferred.resolve();
+  } catch (err) {
+    deferred.reject(err);
   }
 
   return promise;
