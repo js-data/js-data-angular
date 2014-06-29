@@ -1,4 +1,4 @@
-### 0.9.x. ---> 0.10.0 - 29 June 2014
+### 0.9.x. ---> 0.10.x - 29 June 2014
 
 #### Breaking API changes
 ##### #76 - Queries and filtering.
