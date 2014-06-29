@@ -1,7 +1,13 @@
-### 0.9.x. ---> 0.10.0 - 25 June 2014
+### 0.9.x. ---> 0.10.0 - 29 June 2014
 
 #### Breaking API changes
 ##### #76 - Queries and filtering.
+
+###### Before
+`IllegalArgumentError` has an `errors` field.
+
+###### After
+`IllegalArgumentError` no longer has an `errors` field.
 
 ###### Before
 ```javascript

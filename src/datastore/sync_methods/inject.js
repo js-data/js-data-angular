@@ -11,6 +11,27 @@ function _inject(definition, resource, attrs) {
     resource.modified[innerId] = _this.utils.updateTimestamp(resource.modified[innerId]);
     resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
 
+    if (definition.computed) {
+      var item = _this.get(definition.name, innerId);
+      _this.utils.forOwn(definition.computed, function (fn, field) {
+        var compute = false;
+        // check if required fields changed
+        angular.forEach(fn.deps, function (dep) {
+          if (dep in changed || dep in removed || dep in changed || !(field in item)) {
+            compute = true;
+          }
+        });
+        if (compute) {
+          var args = [];
+          angular.forEach(fn.deps, function (dep) {
+            args.push(item[dep]);
+          });
+          // recompute property
+          item[field] = fn.apply(item, args);
+        }
+      });
+    }
+
     if (definition.idAttribute in changed) {
       $log.error('Doh! You just changed the primary key of an object! ' +
         'I don\'t know how to handle this yet, so your data for the "' + definition.name +
@@ -25,6 +46,14 @@ function _inject(definition, resource, attrs) {
       injected.push(_inject.call(_this, definition, resource, attrs[i]));
     }
   } else {
+    // check if "idAttribute" is a computed property
+    if (definition.computed && definition.computed[definition.idAttribute]) {
+      var args = [];
+      angular.forEach(definition.computed[definition.idAttribute].deps, function (dep) {
+        args.push(attrs[dep]);
+      });
+      attrs[definition.idAttribute] = definition.computed[definition.idAttribute].apply(attrs, args);
+    }
     if (!(definition.idAttribute in attrs)) {
       throw new _this.errors.R(errorPrefix + 'attrs: Must contain the property specified by `idAttribute`!');
     } else {

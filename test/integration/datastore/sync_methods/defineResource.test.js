@@ -115,4 +115,125 @@ describe('DS.defineResource(definition)', function () {
     assert.equal(lifecycle.beforeInject.callCount, 1, 'beforeInject should have been called');
     assert.equal(lifecycle.afterInject.callCount, 1, 'afterInject should have been called');
   });
+  it('should allow definition of computed properties', function () {
+    var callCount = 0;
+
+    DS.defineResource({
+      name: 'person',
+      computed: {
+        fullName: function (first, last) {
+          callCount++;
+          return first + ' ' + last;
+        }
+      }
+    });
+
+    DS.inject('person', {
+      first: 'John',
+      last: 'Anderson',
+      email: 'john.anderson@test.com',
+      id: 1
+    });
+
+    var person = DS.get('person', 1);
+
+    assert.deepEqual(JSON.stringify(person), JSON.stringify({
+      first: 'John',
+      last: 'Anderson',
+      email: 'john.anderson@test.com',
+      id: 1,
+      fullName: 'John Anderson'
+    }));
+    assert.equal(person.fullName, 'John Anderson');
+    assert.equal(lifecycle.beforeInject.callCount, 1, 'beforeInject should have been called');
+    assert.equal(lifecycle.afterInject.callCount, 1, 'afterInject should have been called');
+
+    person.first = 'Johnny';
+
+    // digest loop hasn't happened yet
+    assert.equal(DS.get('person', 1).first, 'Johnny');
+    assert.equal(DS.get('person', 1).fullName, 'John Anderson');
+
+    DS.digest();
+
+    assert.deepEqual(person, {
+      first: 'Johnny',
+      last: 'Anderson',
+      email: 'john.anderson@test.com',
+      id: 1,
+      fullName: 'Johnny Anderson'
+    });
+    assert.equal(person.fullName, 'Johnny Anderson');
+
+    // should work with $timeout
+    $timeout(function () {
+      person.first = 'Jack';
+
+      DS.digest();
+
+      assert.deepEqual(person, {
+        first: 'Jack',
+        last: 'Anderson',
+        email: 'john.anderson@test.com',
+        id: 1,
+        fullName: 'Jack Anderson'
+      });
+      assert.equal(person.fullName, 'Jack Anderson');
+    });
+
+    $timeout.flush();
+
+    // computed property function should not be called
+    // when a property changes that isn't a dependency
+    // of the computed property
+    person.email = 'ja@test.com';
+
+    DS.digest();
+
+    assert.equal(callCount, 3, 'fullName() should have been called 3 times');
+  });
+  it('should work if idAttribute is a computed property computed property', function () {
+    DS.defineResource({
+      name: 'person',
+      computed: {
+        id: function (first, last) {
+          return first + '_' + last;
+        }
+      }
+    });
+
+    DS.inject('person', {
+      first: 'John',
+      last: 'Anderson',
+      email: 'john.anderson@test.com'
+    });
+
+    var person = DS.get('person', 'John_Anderson');
+
+    assert.deepEqual(JSON.stringify(person), JSON.stringify({
+      first: 'John',
+      last: 'Anderson',
+      email: 'john.anderson@test.com',
+      id: 'John_Anderson'
+    }));
+    assert.equal(person.id, 'John_Anderson');
+    assert.equal(lifecycle.beforeInject.callCount, 1, 'beforeInject should have been called');
+    assert.equal(lifecycle.afterInject.callCount, 1, 'afterInject should have been called');
+
+    person.first = 'Johnny';
+
+    // digest loop hasn't happened yet
+    assert.equal(DS.get('person', 'John_Anderson').first, 'Johnny');
+    assert.equal(DS.get('person', 'John_Anderson').id, 'John_Anderson');
+
+    DS.digest();
+
+    assert.deepEqual(person, {
+      first: 'Johnny',
+      last: 'Anderson',
+      email: 'john.anderson@test.com',
+      id: 'Johnny_Anderson'
+    });
+    assert.equal(person.id, 'Johnny_Anderson');
+  });
 });

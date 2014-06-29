@@ -394,3 +394,54 @@ You can configure your server to also return the `comment` and `organization` re
 ```
 
 If you've told angular-data about the relations, then the comments and organization will be injected into the data store in addition to the user.
+
+@doc overview
+@id computed
+@name Computed Properties
+@description
+
+Angular-data supports computed properties. When you define a computed property you also define the fields that it depends on.
+The computed property will only be updated when one of those fields changes.
+
+## Example
+```js
+DS.defineResource('user', {
+  computed: {
+    // each function's argument list defines the fields
+    // that the computed property depends on
+    fullName: function (first, last) {
+      return first + ' ' + last;
+    }
+  }
+});
+
+var user = DS.inject('user', {
+  id: 1,
+  first: 'John',
+  last: 'Anderson'
+});
+
+user.fullName; // "John Anderson"
+
+user.first = 'Fred';
+
+// angular-data relies on dirty-checking, so the
+// computed property hasn't been updated yet
+user.fullName; // "John Anderson"
+
+DS.digest();
+
+user.fullName; // "Fred Anderson"
+
+user.first = 'George';
+  
+$timeout(function () {
+  user.fullName; // "George Anderson"
+});
+
+user.first = 'William';
+  
+$scope.$apply(function () {
+  user.fullName; // "William Anderson"
+});
+```

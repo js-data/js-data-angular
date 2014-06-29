@@ -1,5 +1,5 @@
 // Setup global test variables
-var $rootScope, $q, $log, DSHttpAdapterProvider, DSProvider, DSLocalStorageAdapter, DS, DSUtils, DSHttpAdapter, app, $httpBackend, p1, p2, p3, p4, p5;
+var $rootScope, $q, $log, $timeout, DSHttpAdapterProvider, DSProvider, DSLocalStorageAdapter, DS, DSUtils, DSHttpAdapter, app, $httpBackend, p1, p2, p3, p4, p5;
 
 var user1, organization2, comment3, profile4;
 var comment11, comment12, comment13, organization14, profile15, user10, user16, user17, user18, organization15, user20, comment19, user22, profile21;
@@ -116,13 +116,14 @@ beforeEach(function () {
 });
 
 function startInjector() {
-  inject(function (_$rootScope_, _$q_, _$httpBackend_, _DS_, _$log_, _DSUtils_, _DSHttpAdapter_, _DSLocalStorageAdapter_) {
+  inject(function (_$rootScope_, _$q_, _$timeout_, _$httpBackend_, _DS_, _$log_, _DSUtils_, _DSHttpAdapter_, _DSLocalStorageAdapter_) {
     // Setup global mocks
 
     localStorage.clear();
     $q = _$q_;
     $rootScope = _$rootScope_;
     DS = _DS_;
+    $timeout = _$timeout_;
     DSUtils = _DSUtils_;
     DSHttpAdapter = _DSHttpAdapter_;
     DSLocalStorageAdapter = _DSLocalStorageAdapter_;

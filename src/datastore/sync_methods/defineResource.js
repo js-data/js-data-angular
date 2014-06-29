@@ -120,6 +120,22 @@ function defineResource(definition) {
       this.utils.deepMixIn(def[def.class].prototype, def.methods);
     }
 
+    if (def.computed) {
+      this.utils.forOwn(def.computed, function (fn, field) {
+        if (def.methods && field in def.methods) {
+          _this.$log.warn(errorPrefix + 'Computed property "' + field + '" conflicts with previously defined prototype method!');
+        }
+        var match = fn.toString().match(/function.*?\(([\s\S]*?)\)/);
+        var deps = match[1].split(',');
+        fn.deps = _this.utils.filter(deps, function (dep) {
+          return !!dep;
+        });
+        angular.forEach(fn.deps, function (val, index) {
+          fn.deps[index] = val.trim();
+        });
+      });
+    }
+
     this.store[def.name] = {
       collection: [],
       completedQueries: {},
@@ -131,7 +147,9 @@ function defineResource(definition) {
       observers: {},
       collectionModified: 0
     };
-  } catch (err) {
+  }
+  catch
+    (err) {
     delete this.definitions[definition.name];
     delete this.store[definition.name];
     throw err;
