@@ -1,5 +1,6 @@
 module.exports = [function () {
   return {
+    isBoolean: require('mout/lang/isBoolean'),
     isString: angular.isString,
     isArray: angular.isArray,
     isObject: angular.isObject,

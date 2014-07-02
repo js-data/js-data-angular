@@ -1,3 +1,8 @@
+##### 0.10.0-beta.2 - xx July 2014
+
+###### Backwards compatible bug fixes
+- #87 - Filter where boolean values
+
 ##### 0.10.0-beta.1 - 28 June 2014
 
 ###### Breaking API changes

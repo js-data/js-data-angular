@@ -44,23 +44,20 @@ Defaults.prototype.filter = function (collection, resourceName, params, options)
 
   if (where) {
     filtered = this.utils.filter(filtered, function (attrs) {
-//      console.log(attrs);
       var first = true;
       var keep = true;
       _this.utils.forOwn(where, function (clause, field) {
-//        console.log(clause, field);
         if (_this.utils.isString(clause)) {
           clause = {
             '===': clause
           };
-        } else if (_this.utils.isNumber(clause)) {
+        } else if (_this.utils.isNumber(clause) || _this.utils.isBoolean(clause)) {
           clause = {
             '==': clause
           };
         }
         if (_this.utils.isObject(clause)) {
           _this.utils.forOwn(clause, function (val, op) {
-//            console.log(op, val);
             if (op === '==') {
               keep = first ? (attrs[field] == val) : keep && (attrs[field] == val);
             } else if (op === '===') {
@@ -99,7 +96,6 @@ Defaults.prototype.filter = function (collection, resourceName, params, options)
               keep = first ? _this.utils.contains(val, attrs[field]) : keep || _this.utils.contains(val, attrs[field]);
             }
             first = false;
-//            console.log(keep, first);
           });
         }
       });
