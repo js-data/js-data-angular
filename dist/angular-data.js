@@ -1854,7 +1854,10 @@ var errorPrefix = 'DS.create(resourceName, attrs[, options]): ';
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {object} attrs The attributes with which to update the item of the type specified by `resourceName` that has
  * the primary key specified by `id`.
- * @param {object=} options Configuration options.
+ * @param {object=} options Configuration options. Properties:
+ *
+ * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
+ *
  * @returns {Promise} Promise produced by the `$q` service.
  *
  * ## Resolves with:
@@ -1882,6 +1885,10 @@ function create(resourceName, attrs, options) {
     var resource = this.store[resourceName];
     var _this = this;
 
+    if (!('cacheResponse' in options)) {
+      options.cacheResponse = true;
+    }
+
     promise = promise
       .then(function (attrs) {
         return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
@@ -1902,11 +1909,15 @@ function create(resourceName, attrs, options) {
         return _this.$q.promisify(definition.afterCreate)(resourceName, definition.deserialize(resourceName, res));
       })
       .then(function (data) {
-        var created = _this.inject(definition.name, data);
-        var id = created[definition.idAttribute];
-        resource.previousAttributes[id] = _this.utils.deepMixIn({}, created);
-        resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
-        return _this.get(definition.name, id);
+        if (options.cacheResponse) {
+          var created = _this.inject(definition.name, data);
+          var id = created[definition.idAttribute];
+          resource.previousAttributes[id] = _this.utils.deepMixIn({}, created);
+          resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
+          return _this.get(definition.name, id);
+        } else {
+          return data;
+        }
       });
 
     deferred.resolve(attrs);
@@ -2133,6 +2144,7 @@ var errorPrefix = 'DS.find(resourceName, id[, options]): ';
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to retrieve.
  * @param {object=} options Optional configuration. Properties:
+ *
  * - `{boolean=}` - `bypassCache` - Bypass the cache. Default: `false`.
  * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
  *
@@ -2166,8 +2178,6 @@ function find(resourceName, id, options) {
 
     if (!('cacheResponse' in options)) {
       options.cacheResponse = true;
-    } else {
-      options.cacheResponse = !!options.cacheResponse;
     }
 
     var definition = this.definitions[resourceName];
@@ -2316,6 +2326,7 @@ function _findAll(utils, resourceName, params, options) {
  * - `{string|array=}` - `orderBy` - OrderBy clause.
  *
  * @param {object=} options Optional configuration. Properties:
+ *
  * - `{boolean=}` - `bypassCache` - Bypass the cache. Default: `false`.
  * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
  *
@@ -2351,8 +2362,6 @@ function findAll(resourceName, params, options) {
 
     if (!('cacheResponse' in options)) {
       options.cacheResponse = true;
-    } else {
-      options.cacheResponse = !!options.cacheResponse;
     }
 
     promise = promise.then(function () {
@@ -2645,7 +2654,7 @@ var errorPrefix = 'DS.refresh(resourceName, id[, options]): ';
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to refresh from the server.
- * @param {object=} options Optional configuration. Properties:
+ * @param {object=} options Optional configuration passed through to `DS.find` if it is called.
  * @returns {false|Promise} `false` if the item doesn't already exist in the data store. A `Promise` if the item does
  * exist in the data store and is being refreshed.
  *
@@ -2712,7 +2721,9 @@ var errorPrefix = 'DS.save(resourceName, id[, options]): ';
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to retrieve.
- * @param {object=} options Optional configuration. Properties:
+ * @param {object=} options Optional configuration. Properties::
+ *
+ * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
  * - `{boolean=}` - `changesOnly` - Only send changed and added values back to the server.
  *
  * @returns {Promise} Promise produced by the `$q` service.
@@ -2753,6 +2764,10 @@ function save(resourceName, id, options) {
     var resource = this.store[resourceName];
     var _this = this;
 
+    if (!('cacheResponse' in options)) {
+      options.cacheResponse = true;
+    }
+
     promise = promise
       .then(function (attrs) {
         return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
@@ -2792,10 +2807,14 @@ function save(resourceName, id, options) {
         return _this.$q.promisify(definition.afterUpdate)(resourceName, definition.deserialize(resourceName, res));
       })
       .then(function (data) {
-        _this.inject(definition.name, data, options);
-        resource.previousAttributes[id] = _this.utils.deepMixIn({}, data);
-        resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
-        return _this.get(resourceName, id);
+        if (options.cacheResponse) {
+          var saved = _this.inject(definition.name, data, options);
+          resource.previousAttributes[id] = _this.utils.deepMixIn({}, saved);
+          resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
+          return _this.get(resourceName, id);
+        } else {
+          return data;
+        }
       });
 
     deferred.resolve(item);
@@ -2842,6 +2861,7 @@ var errorPrefix = 'DS.update(resourceName, id, attrs[, options]): ';
  * @param {string|number} id The primary key of the item to update.
  * @param {object} attrs The attributes with which to update the item.
  * @param {object=} options Optional configuration. Properties:
+ *
  * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
  *
  * @returns {Promise} Promise produced by the `$q` service.
@@ -2880,8 +2900,6 @@ function update(resourceName, id, attrs, options) {
 
     if (!('cacheResponse' in options)) {
       options.cacheResponse = true;
-    } else {
-      options.cacheResponse = !!options.cacheResponse;
     }
 
     promise = promise
@@ -2973,6 +2991,7 @@ var errorPrefix = 'DS.updateAll(resourceName, attrs, params[, options]): ';
  *  - `{string|array=}` - `orderBy` - OrderBy clause.
  *
  * @param {object=} options Optional configuration. Properties:
+ *
  * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
  *
  * @returns {Promise} Promise produced by the `$q` service.
@@ -3010,8 +3029,6 @@ function updateAll(resourceName, attrs, params, options) {
 
     if (!('cacheResponse' in options)) {
       options.cacheResponse = true;
-    } else {
-      options.cacheResponse = !!options.cacheResponse;
     }
 
     promise = promise

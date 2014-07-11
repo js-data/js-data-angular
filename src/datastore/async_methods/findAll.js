@@ -103,6 +103,7 @@ function _findAll(utils, resourceName, params, options) {
  * - `{string|array=}` - `orderBy` - OrderBy clause.
  *
  * @param {object=} options Optional configuration. Properties:
+ *
  * - `{boolean=}` - `bypassCache` - Bypass the cache. Default: `false`.
  * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
  *
@@ -138,8 +139,6 @@ function findAll(resourceName, params, options) {
 
     if (!('cacheResponse' in options)) {
       options.cacheResponse = true;
-    } else {
-      options.cacheResponse = !!options.cacheResponse;
     }
 
     promise = promise.then(function () {

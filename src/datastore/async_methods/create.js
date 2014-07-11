@@ -29,7 +29,10 @@ var errorPrefix = 'DS.create(resourceName, attrs[, options]): ';
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {object} attrs The attributes with which to update the item of the type specified by `resourceName` that has
  * the primary key specified by `id`.
- * @param {object=} options Configuration options.
+ * @param {object=} options Configuration options. Properties:
+ *
+ * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
+ *
  * @returns {Promise} Promise produced by the `$q` service.
  *
  * ## Resolves with:
@@ -57,6 +60,10 @@ function create(resourceName, attrs, options) {
     var resource = this.store[resourceName];
     var _this = this;
 
+    if (!('cacheResponse' in options)) {
+      options.cacheResponse = true;
+    }
+
     promise = promise
       .then(function (attrs) {
         return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
@@ -77,11 +84,15 @@ function create(resourceName, attrs, options) {
         return _this.$q.promisify(definition.afterCreate)(resourceName, definition.deserialize(resourceName, res));
       })
       .then(function (data) {
-        var created = _this.inject(definition.name, data);
-        var id = created[definition.idAttribute];
-        resource.previousAttributes[id] = _this.utils.deepMixIn({}, created);
-        resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
-        return _this.get(definition.name, id);
+        if (options.cacheResponse) {
+          var created = _this.inject(definition.name, data);
+          var id = created[definition.idAttribute];
+          resource.previousAttributes[id] = _this.utils.deepMixIn({}, created);
+          resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
+          return _this.get(definition.name, id);
+        } else {
+          return data;
+        }
       });
 
     deferred.resolve(attrs);

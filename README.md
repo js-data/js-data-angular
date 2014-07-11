@@ -3,22 +3,23 @@
 __Data store for Angular.js.__
 
 __Latest Release:__ [0.9.1](http://angular-data.pseudobry.com/)
-__master:__ [0.9.1](http://angular-data-next.pseudobry.com/)
+__master:__ [0.10.0-beta.2](http://angular-data-next.pseudobry.com/)
 
-Angular-data is in a pre-1.0.0 development stage; the API is fluctuating, not a lot of tests yet, etc.
+Angular-data is approaching 1.0.0 Beta. The API is stabilizing and angular-data is well tested.
 
-Not for production use (yet). If you still want to develop with Angular-data, be prepared to keep a close eye on the changelog, as the API is still liable to change before 1.0.0.
+Angular-data is being used in production, though it's not 1.0.0. If you want to use Angular-data, keep an eye on the changelog. 1.0.0 will introduce strict semver (minor number is bumped for breaking changes right now).
 
 Roadmap:
-- Relations/Associations
-- Various Adapters
-- Schema Definition/Validation
+- Even more adapters
 - Nested Resources
-- See [issues](https://github.com/jmdobry/angular-data/issues?milestone=7&page=1&state=open) for what's in development
+- See [issues](https://github.com/jmdobry/angular-data/issues?page=1&state=open) for what's in development
 - See [Design Doc](https://docs.google.com/document/d/1o069KLuBH4jpwm1FCLZFwKMgM73Xi8_1JyjhSxVpidM/edit?usp=sharing) for other juicy reading material
 
 ## Changelog
 [CHANGELOG.md](https://github.com/jmdobry/angular-data/blob/master/CHANGELOG.md)
+
+## Version Migration
+[TRANSITION.md](https://github.com/jmdobry/angular-data/blob/master/TRANSITION.md)
 
 ## Resources
 

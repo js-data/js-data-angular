@@ -1,7 +1,13 @@
-##### 0.10.0-beta.2 - xx July 2014
+##### 0.10.0-beta.2 - 10 July 2014
+
+###### Backwards compatible API changes
+- #89 - Added the `cacheResponse` option to `DS.create` and `DS.save`
 
 ###### Backwards compatible bug fixes
 - #87 - Filter where boolean values
+
+###### Other
+- #88 - Fixed guide documentation for the simple default `where` filter
 
 ##### 0.10.0-beta.1 - 28 June 2014
 

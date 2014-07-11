@@ -31,18 +31,22 @@ describe('DS.save(resourceName, id[, options])', function () {
       }
     });
   });
-  it('should save an item to the server', function () {
-    $httpBackend.expectPUT('http://test.angular-cache.com/posts/5').respond(200, p1);
+  it('should save an item to the server and inject the result', function () {
+    $httpBackend.expectPUT('http://test.angular-cache.com/posts/5').respond(200, {
+      author: 'Jake',
+      id: 5,
+      age: 30
+    });
 
     DS.inject('post', p1);
 
-    var initialModified = DS.lastModified('post', 5),
-      initialSaved = DS.lastSaved('post', 5);
+    var initialModified = DS.lastModified('post', 5);
+    var initialSaved = DS.lastSaved('post', 5);
 
-    p1.author = 'Jake';
+    DS.get('post', 5).author = 'Jake';
 
     DS.save('post', 5).then(function (post) {
-      assert.deepEqual(post, p1, 'post 5 should have been saved');
+      assert.deepEqual(post, DS.get('post', 5), 'post 5 should have been saved');
       assert.equal(post.author, 'Jake');
     }, function (err) {
       console.error(err.stack);
@@ -53,7 +57,11 @@ describe('DS.save(resourceName, id[, options])', function () {
 
     assert.equal(lifecycle.beforeUpdate.callCount, 1, 'beforeUpdate should have been called');
     assert.equal(lifecycle.afterUpdate.callCount, 1, 'afterUpdate should have been called');
-    assert.deepEqual(DS.get('post', 5), p1);
+    assert.deepEqual(DS.get('post', 5), {
+      author: 'Jake',
+      id: 5,
+      age: 30
+    });
     assert.notEqual(DS.lastModified('post', 5), initialModified);
     assert.notEqual(DS.lastSaved('post', 5), initialSaved);
 
@@ -68,6 +76,42 @@ describe('DS.save(resourceName, id[, options])', function () {
     assert.equal(lifecycle.afterInject.callCount, 2, 'afterInject should have been called');
     assert.equal(lifecycle.serialize.callCount, 1, 'serialize should have been called');
     assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
+  });
+  it('should save an item to the server but not inject the result', function () {
+    $httpBackend.expectPUT('http://test.angular-cache.com/posts/5').respond(200, {
+      random: 'stuff'
+    });
+
+    DS.inject('post', p1);
+
+    var initialModified = DS.lastModified('post', 5);
+    var initialSaved = DS.lastSaved('post', 5);
+
+    DS.get('post', 5).author = 'Jake';
+
+    DS.save('post', 5, { cacheResponse: false }).then(function (post) {
+      assert.deepEqual(post, {
+        random: 'stuff'
+      }, 'should have the right response');
+    }, function (err) {
+      console.error(err.stack);
+      fail('should not have rejected');
+    });
+
+    $httpBackend.flush();
+
+    assert.equal(lifecycle.beforeUpdate.callCount, 1, 'beforeUpdate should have been called');
+    assert.equal(lifecycle.afterUpdate.callCount, 1, 'afterUpdate should have been called');
+    assert.equal(lifecycle.beforeInject.callCount, 1, 'beforeInject should have been called only once');
+    assert.equal(lifecycle.afterInject.callCount, 1, 'afterInject should have been called only once');
+    assert.deepEqual(DS.get('post', 5), {
+      author: 'Jake',
+      id: 5,
+      age: 30
+    });
+    // item wasn't injected
+    assert.equal(DS.lastModified('post', 5), initialModified);
+    assert.equal(DS.lastSaved('post', 5), initialSaved);
   });
   it('should save changes of an item to the server', function () {
     $httpBackend.expectPUT('http://test.angular-cache.com/posts/5', { author: 'Jake' }).respond(200, {

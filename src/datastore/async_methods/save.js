@@ -27,7 +27,9 @@ var errorPrefix = 'DS.save(resourceName, id[, options]): ';
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to retrieve.
- * @param {object=} options Optional configuration. Properties:
+ * @param {object=} options Optional configuration. Properties::
+ *
+ * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
  * - `{boolean=}` - `changesOnly` - Only send changed and added values back to the server.
  *
  * @returns {Promise} Promise produced by the `$q` service.
@@ -68,6 +70,10 @@ function save(resourceName, id, options) {
     var resource = this.store[resourceName];
     var _this = this;
 
+    if (!('cacheResponse' in options)) {
+      options.cacheResponse = true;
+    }
+
     promise = promise
       .then(function (attrs) {
         return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
@@ -107,10 +113,14 @@ function save(resourceName, id, options) {
         return _this.$q.promisify(definition.afterUpdate)(resourceName, definition.deserialize(resourceName, res));
       })
       .then(function (data) {
-        _this.inject(definition.name, data, options);
-        resource.previousAttributes[id] = _this.utils.deepMixIn({}, data);
-        resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
-        return _this.get(resourceName, id);
+        if (options.cacheResponse) {
+          var saved = _this.inject(definition.name, data, options);
+          resource.previousAttributes[id] = _this.utils.deepMixIn({}, saved);
+          resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
+          return _this.get(resourceName, id);
+        } else {
+          return data;
+        }
       });
 
     deferred.resolve(item);

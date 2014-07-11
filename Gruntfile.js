@@ -11,8 +11,8 @@ module.exports = function (grunt) {
   require('load-grunt-tasks')(grunt);
   require('time-grunt')(grunt);
 
-  var dev = process.cwd().indexOf('/home/jdobry/angular-data') === -1,
-    pkg = grunt.file.readJSON('package.json');
+  var dev = process.cwd().indexOf('/home/jdobry/angular-data') === -1;
+  var pkg = grunt.file.readJSON('package.json');
 
   // Project configuration.
   grunt.initConfig({

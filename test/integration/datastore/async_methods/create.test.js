@@ -40,6 +40,26 @@ describe('DS.create(resourceName, attrs[, options])', function () {
     assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
     assert.deepEqual(DS.get('post', 5), p1);
   });
+  it('should create an item and save it to the server but not inject the result', function () {
+    $httpBackend.expectPOST('http://test.angular-cache.com/posts').respond(200, p1);
+
+    DS.create('post', { author: 'John', age: 30 }, { cacheResponse: false }).then(function (post) {
+      assert.deepEqual(post, p1, 'post 5 should have been created');
+    }, function (err) {
+      console.error(err.stack);
+      fail('should not have rejected');
+    });
+
+    $httpBackend.flush();
+
+    assert.equal(lifecycle.beforeCreate.callCount, 1, 'beforeCreate should have been called');
+    assert.equal(lifecycle.afterCreate.callCount, 1, 'afterCreate should have been called');
+    assert.equal(lifecycle.beforeInject.callCount, 0, 'beforeInject should not have been called');
+    assert.equal(lifecycle.afterInject.callCount, 0, 'afterInject should not have been called');
+    assert.equal(lifecycle.serialize.callCount, 1, 'serialize should have been called');
+    assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
+    assert.isUndefined(DS.get('post', 5));
+  });
   it('should create an item that includes relations, save them to the server and inject the results', function () {
     var payload = {
       id: 99,

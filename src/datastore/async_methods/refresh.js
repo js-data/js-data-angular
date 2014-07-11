@@ -35,7 +35,7 @@ var errorPrefix = 'DS.refresh(resourceName, id[, options]): ';
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to refresh from the server.
- * @param {object=} options Optional configuration. Properties:
+ * @param {object=} options Optional configuration passed through to `DS.find` if it is called.
  * @returns {false|Promise} `false` if the item doesn't already exist in the data store. A `Promise` if the item does
  * exist in the data store and is being refreshed.
  *

@@ -45,6 +45,7 @@ var errorPrefix = 'DS.updateAll(resourceName, attrs, params[, options]): ';
  *  - `{string|array=}` - `orderBy` - OrderBy clause.
  *
  * @param {object=} options Optional configuration. Properties:
+ *
  * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
  *
  * @returns {Promise} Promise produced by the `$q` service.
@@ -82,8 +83,6 @@ function updateAll(resourceName, attrs, params, options) {
 
     if (!('cacheResponse' in options)) {
       options.cacheResponse = true;
-    } else {
-      options.cacheResponse = !!options.cacheResponse;
     }
 
     promise = promise

@@ -29,6 +29,7 @@ var errorPrefix = 'DS.find(resourceName, id[, options]): ';
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to retrieve.
  * @param {object=} options Optional configuration. Properties:
+ *
  * - `{boolean=}` - `bypassCache` - Bypass the cache. Default: `false`.
  * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
  *
@@ -62,8 +63,6 @@ function find(resourceName, id, options) {
 
     if (!('cacheResponse' in options)) {
       options.cacheResponse = true;
-    } else {
-      options.cacheResponse = !!options.cacheResponse;
     }
 
     var definition = this.definitions[resourceName];

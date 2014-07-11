@@ -31,6 +31,7 @@ var errorPrefix = 'DS.update(resourceName, id, attrs[, options]): ';
  * @param {string|number} id The primary key of the item to update.
  * @param {object} attrs The attributes with which to update the item.
  * @param {object=} options Optional configuration. Properties:
+ *
  * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
  *
  * @returns {Promise} Promise produced by the `$q` service.
@@ -69,8 +70,6 @@ function update(resourceName, id, attrs, options) {
 
     if (!('cacheResponse' in options)) {
       options.cacheResponse = true;
-    } else {
-      options.cacheResponse = !!options.cacheResponse;
     }
 
     promise = promise

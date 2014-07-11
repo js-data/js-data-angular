@@ -221,7 +221,9 @@ DS.filter('post', {
 
 #### Shortcuts
 
-These are equivalent:
+###### `==` operator shortcut
+
+The following are equivalent:
 ```js
 DS.filter('post', {
   author: 'John'
@@ -234,13 +236,15 @@ DS.filter('post', {
 DS.filter('post', {
   where: {
     author: {
-      'in': ['John', 'Sally']
+      '==': 'John'
     }
   }
 });
 ```
 
-These are equivalent:
+###### `orderBy` shortcut
+
+The following are equivalent:
 ```js
 DS.filter('post', {
   orderBy: 'age'
