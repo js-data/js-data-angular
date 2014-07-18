@@ -2,8 +2,8 @@
 
 __Data store for Angular.js.__
 
-__Latest Release:__ [0.9.1](http://angular-data.pseudobry.com/)
-__master:__ [0.10.0-beta.2](http://angular-data-next.pseudobry.com/)
+__Latest Release:__ [0.10.0](http://angular-data.pseudobry.com/)
+__master:__ [0.10.1](http://angular-data-next.pseudobry.com/)
 
 Angular-data is approaching 1.0.0 Beta. The API is stabilizing and angular-data is well tested.
 
