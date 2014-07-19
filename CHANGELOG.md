@@ -1,3 +1,8 @@
+##### 0.10.1 - xx July 2014
+
+###### Backwards compatible bug fixes
+- #95 - observe-js outdated
+
 ##### 0.10.0 - 18 July 2014
 
 Official Release

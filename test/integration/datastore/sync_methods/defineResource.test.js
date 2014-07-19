@@ -115,7 +115,7 @@ describe('DS.defineResource(definition)', function () {
     assert.equal(lifecycle.beforeInject.callCount, 1, 'beforeInject should have been called');
     assert.equal(lifecycle.afterInject.callCount, 1, 'afterInject should have been called');
   });
-  it('should allow definition of computed properties', function () {
+  it('should allow definition of computed properties', function (done) {
     var callCount = 0;
 
     DS.defineResource({
@@ -156,43 +156,44 @@ describe('DS.defineResource(definition)', function () {
 
     DS.digest();
 
-    assert.deepEqual(person, {
-      first: 'Johnny',
-      last: 'Anderson',
-      email: 'john.anderson@test.com',
-      id: 1,
-      fullName: 'Johnny Anderson'
-    });
-    assert.equal(person.fullName, 'Johnny Anderson');
+    setTimeout(function () {
+      assert.deepEqual(person, {
+        first: 'Johnny',
+        last: 'Anderson',
+        email: 'john.anderson@test.com',
+        id: 1,
+        fullName: 'Johnny Anderson'
+      });
+      assert.equal(person.fullName, 'Johnny Anderson');
 
-    // should work with $timeout
-    $timeout(function () {
       person.first = 'Jack';
 
       DS.digest();
 
-      assert.deepEqual(person, {
-        first: 'Jack',
-        last: 'Anderson',
-        email: 'john.anderson@test.com',
-        id: 1,
-        fullName: 'Jack Anderson'
-      });
-      assert.equal(person.fullName, 'Jack Anderson');
-    });
+      setTimeout(function () {
+        assert.deepEqual(person, {
+          first: 'Jack',
+          last: 'Anderson',
+          email: 'john.anderson@test.com',
+          id: 1,
+          fullName: 'Jack Anderson'
+        });
+        assert.equal(person.fullName, 'Jack Anderson');
 
-    $timeout.flush();
+        // computed property function should not be called
+        // when a property changes that isn't a dependency
+        // of the computed property
+        person.email = 'ja@test.com';
 
-    // computed property function should not be called
-    // when a property changes that isn't a dependency
-    // of the computed property
-    person.email = 'ja@test.com';
+        DS.digest();
 
-    DS.digest();
+        assert.equal(callCount, 3, 'fullName() should have been called 3 times');
 
-    assert.equal(callCount, 3, 'fullName() should have been called 3 times');
+        done();
+      }, 50);
+    }, 50);
   });
-  it('should work if idAttribute is a computed property computed property', function () {
+  it('should work if idAttribute is a computed property computed property', function (done) {
     DS.defineResource({
       name: 'person',
       computed: {
@@ -228,12 +229,16 @@ describe('DS.defineResource(definition)', function () {
 
     DS.digest();
 
-    assert.deepEqual(person, {
-      first: 'Johnny',
-      last: 'Anderson',
-      email: 'john.anderson@test.com',
-      id: 'Johnny_Anderson'
-    });
-    assert.equal(person.id, 'Johnny_Anderson');
+    setTimeout(function () {
+      assert.deepEqual(person, {
+        first: 'Johnny',
+        last: 'Anderson',
+        email: 'john.anderson@test.com',
+        id: 'Johnny_Anderson'
+      });
+      assert.equal(person.id, 'Johnny_Anderson');
+
+      done();
+    }, 50);
   });
 });

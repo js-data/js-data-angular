@@ -5,8 +5,9 @@ function _inject(definition, resource, attrs) {
   var _this = this;
   var $log = _this.$log;
 
-  function _react(added, removed, changed, getOldValueFn) {
-    var innerId = getOldValueFn(definition.idAttribute);
+  function _react(added, removed, changed, oldValueFn) {
+    var target = this;
+    var innerId = (oldValueFn && oldValueFn(definition.idAttribute)) ? oldValueFn(definition.idAttribute) : target[definition.idAttribute];
 
     resource.modified[innerId] = _this.utils.updateTimestamp(resource.modified[innerId]);
     resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
@@ -17,7 +18,7 @@ function _inject(definition, resource, attrs) {
         var compute = false;
         // check if required fields changed
         angular.forEach(fn.deps, function (dep) {
-          if (dep in changed || dep in removed || dep in changed || !(field in item)) {
+          if (dep in added || dep in removed || dep in changed || !(field in item)) {
             compute = true;
           }
         });
@@ -59,8 +60,8 @@ function _inject(definition, resource, attrs) {
     } else {
       try {
         definition.beforeInject(definition.name, attrs);
-        var id = attrs[definition.idAttribute],
-          item = this.get(definition.name, id);
+        var id = attrs[definition.idAttribute];
+        var item = this.get(definition.name, id);
 
         if (!item) {
           if (definition.class) {
@@ -79,12 +80,11 @@ function _inject(definition, resource, attrs) {
 
           resource.collection.push(item);
 
-          resource.observers[id] = new observe.ObjectObserver(item, _react);
+          resource.observers[id] = new observe.ObjectObserver(item);
+          resource.observers[id].open(_react, item);
           resource.index.put(id, item);
 
-          _react({}, {}, {}, function () {
-            return id;
-          });
+          _react.call(item, {}, {}, {});
         } else {
           _this.utils.deepMixIn(item, attrs);
           if (typeof resource.index.touch === 'function') {

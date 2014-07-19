@@ -35,7 +35,7 @@ describe('DS.inject(resourceName, attrs[, options])', function () {
     assert.notEqual(DS.lastModified('post', 5), 0);
     assert.isNumber(DS.lastModified('post', 5));
   });
-  it('should inject an item into the store', function () {
+  it('should get mad when primary keys are changed', function (done) {
 
     assert.equal(DS.lastModified('post', 5), 0);
     assert.doesNotThrow(function () {
@@ -50,9 +50,13 @@ describe('DS.inject(resourceName, attrs[, options])', function () {
 
     DS.digest();
 
-    assert.deepEqual('Doh! You just changed the primary key of an object! ' +
-      'I don\'t know how to handle this yet, so your data for the "post' +
-      '" resource is now in an undefined (probably broken) state.', $log.error.logs[0][0]);
+    setTimeout(function () {
+      assert.deepEqual('Doh! You just changed the primary key of an object! ' +
+        'I don\'t know how to handle this yet, so your data for the "post' +
+        '" resource is now in an undefined (probably broken) state.', $log.error.logs[0][0]);
+
+      done();
+    }, 50);
   });
   it('should inject multiple items into the store', function () {
 

@@ -62,7 +62,7 @@ describe('DS.bindOne(scope, expr, resourceName, id[, cb])', function () {
     assert.deepEqual($scope.other.post, post2);
     assert.isUndefined($scope.post2);
   });
-  it('should execute a callback if given', function () {
+  it('should execute a callback if given', function (done) {
 
     var cb = sinon.spy();
     DS.inject('post', p1);
@@ -79,11 +79,16 @@ describe('DS.bindOne(scope, expr, resourceName, id[, cb])', function () {
     post.author = 'Jason';
 
     DS.digest();
+    $rootScope.$apply();
 
-    $rootScope.$apply(function () {
+    setTimeout(function () {
+      $rootScope.$apply();
+
       assert.equal(cb.callCount, 2);
       assert.equal($scope.post.author, 'Jason');
       assert.deepEqual($scope.post, post);
-    });
+
+      done();
+    }, 50);
   });
 });

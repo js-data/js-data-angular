@@ -701,11 +701,8 @@ function DSProvider() {
       DSUtils.deepFreeze(DS.errors);
       DSUtils.deepFreeze(DS.utils);
 
-      var $dirtyCheckScope = $rootScope.$new();
-
-      $dirtyCheckScope.$watch(function () {
+      $rootScope.$watch(function () {
         // Throttle angular-data's digest loop to tenths of a second
-        // TODO: Is this okay?
         return new Date().getTime() / 100 | 0;
       }, function () {
         DS.digest();

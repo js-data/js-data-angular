@@ -62,6 +62,7 @@ describe('DS.save(resourceName, id[, options])', function () {
       id: 5,
       age: 30
     });
+    DS.digest();
     assert.notEqual(DS.lastModified('post', 5), initialModified);
     assert.notEqual(DS.lastSaved('post', 5), initialSaved);
 
