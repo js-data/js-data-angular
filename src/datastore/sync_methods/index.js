@@ -1,13 +1,4 @@
 module.exports = {
-  /**
-   * @doc method
-   * @id DS.sync_methods:defineResource
-   * @name defineResource
-   * @methodOf DS
-   * @description
-   * See [DS.defineResource](/documentation/api/api/DS.sync_methods:defineResource).
-   */
-  defineResource: require('./defineResource'),
 
   /**
    * @doc method
@@ -28,6 +19,26 @@ module.exports = {
    * See [DS.bindAll](/documentation/api/api/DS.sync_methods:bindAll).
    */
   bindAll: require('./bindAll'),
+
+  /**
+   * @doc method
+   * @id DS.sync_methods:createInstance
+   * @name createInstance
+   * @methodOf DS
+   * @description
+   * See [DS.createInstance](/documentation/api/api/DS.sync_methods:createInstance).
+   */
+  createInstance: require('./createInstance'),
+
+  /**
+   * @doc method
+   * @id DS.sync_methods:defineResource
+   * @name defineResource
+   * @methodOf DS
+   * @description
+   * See [DS.defineResource](/documentation/api/api/DS.sync_methods:defineResource).
+   */
+  defineResource: require('./defineResource'),
 
   /**
    * @doc method

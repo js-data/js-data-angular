@@ -1,5 +1,8 @@
 ##### 0.10.1 - xx July 2014
 
+##### Backwards compatible API changes
+- #93 - Added `DS.createInstance(resourceName[, attrs][, options])`
+
 ###### Backwards compatible bug fixes
 - #90 - DS.create isn't added to completedQueries (`DS.create` now adds a completed query entry)
 - #91 - dist/angular-data(.min).js doesn't end with a semicolon (upgraded Browserify)

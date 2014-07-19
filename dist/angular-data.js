@@ -3891,7 +3891,7 @@ function DSProvider() {
 
 module.exports = DSProvider;
 
-},{"../utils":62,"./async_methods":38,"./sync_methods":55}],45:[function(require,module,exports){
+},{"../utils":63,"./async_methods":38,"./sync_methods":56}],45:[function(require,module,exports){
 var errorPrefix = 'DS.bindAll(scope, expr, resourceName, params[, cb]): ';
 
 /**
@@ -4096,6 +4096,76 @@ function changes(resourceName, id) {
 module.exports = changes;
 
 },{}],48:[function(require,module,exports){
+var errorPrefix = 'DS.createInstance(resourceName[, attrs][, options]): ';
+
+/**
+ * @doc method
+ * @id DS.sync_methods:createInstance
+ * @name createInstance
+ * @description
+ * Return a new instance of the specified resource.
+ *
+ * ## Signature:
+ * ```js
+ * DS.createInstance(resourceName[, attrs][, options])
+ * ```
+ *
+ * ## Example:
+ *
+ * ```js
+ * // Thanks to createInstance, you don't have to do this anymore
+ * var User = DS.definitions.user[DS.definitions.user.class];
+ *
+ * var user = DS.createInstance('user');
+ *
+ * user instanceof User; // true
+ * ```
+ *
+ * ## Throws
+ *
+ * - `{IllegalArgumentError}`
+ * - `{NonexistentResourceError}`
+ *
+ * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
+ * @param {object=} attrs Optional attributes to mix in to the new instance.
+ * @param {object=} options Optional configuration. Properties:
+ *
+ * - `{boolean=}` - `useClass` - Whether to use the resource's wrapper class. Default: `true`.
+ *
+ * @returns {object} The new instance
+ */
+function createInstance(resourceName, attrs, options) {
+  var IA = this.errors.IA;
+
+  attrs = attrs || {};
+  options = options || {};
+
+  if (!this.definitions[resourceName]) {
+    throw new this.errors.NER(errorPrefix + resourceName);
+  } else if (attrs && !this.utils.isObject(attrs)) {
+    throw new IA(errorPrefix + 'attrs: Must be an object!');
+  } else if (!this.utils.isObject(options)) {
+    throw new IA(errorPrefix + 'options: Must be an object!');
+  }
+
+  if (!('useClass' in options)) {
+    options.useClass = true;
+  }
+
+  var item;
+
+  if (options.useClass) {
+    var Func = this.definitions[resourceName][this.definitions[resourceName].class];
+    item = new Func();
+  } else {
+    item = {};
+  }
+  return this.utils.deepMixIn(item, attrs);
+}
+
+module.exports = createInstance;
+
+},{}],49:[function(require,module,exports){
 /*jshint evil:true*/
 var errorPrefix = 'DS.defineResource(definition): ';
 
@@ -4259,7 +4329,7 @@ function defineResource(definition) {
 
 module.exports = defineResource;
 
-},{}],49:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 var observe = require('../../../lib/observe-js/observe-js');
 
 /**
@@ -4294,7 +4364,7 @@ function digest() {
 
 module.exports = digest;
 
-},{"../../../lib/observe-js/observe-js":1}],50:[function(require,module,exports){
+},{"../../../lib/observe-js/observe-js":1}],51:[function(require,module,exports){
 var errorPrefix = 'DS.eject(resourceName, id): ';
 
 function _eject(definition, resource, id) {
@@ -4372,7 +4442,7 @@ function eject(resourceName, id) {
 
 module.exports = eject;
 
-},{}],51:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 var errorPrefix = 'DS.ejectAll(resourceName[, params]): ';
 
 function _ejectAll(definition, resource, params) {
@@ -4480,7 +4550,7 @@ function ejectAll(resourceName, params) {
 
 module.exports = ejectAll;
 
-},{}],52:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 var errorPrefix = 'DS.filter(resourceName[, params][, options]): ';
 
 /**
@@ -4561,7 +4631,7 @@ function filter(resourceName, params, options) {
 
 module.exports = filter;
 
-},{}],53:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 var errorPrefix = 'DS.get(resourceName, id[, options]): ';
 
 /**
@@ -4591,7 +4661,9 @@ var errorPrefix = 'DS.get(resourceName, id[, options]): ';
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to retrieve.
  * @param {object=} options Optional configuration. Properties:
+ *
  * - `{boolean=}` - `loadFromServer` - Send the query to server if it has not been sent yet. Default: `false`.
+ *
  * @returns {object} The item of the type specified by `resourceName` with the primary key specified by `id`.
  */
 function get(resourceName, id, options) {
@@ -4622,7 +4694,7 @@ function get(resourceName, id, options) {
 
 module.exports = get;
 
-},{}],54:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 var errorPrefix = 'DS.hasChanges(resourceName, id): ';
 
 function diffIsEmpty(utils, diff) {
@@ -4680,17 +4752,8 @@ function hasChanges(resourceName, id) {
 
 module.exports = hasChanges;
 
-},{}],55:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 module.exports = {
-  /**
-   * @doc method
-   * @id DS.sync_methods:defineResource
-   * @name defineResource
-   * @methodOf DS
-   * @description
-   * See [DS.defineResource](/documentation/api/api/DS.sync_methods:defineResource).
-   */
-  defineResource: require('./defineResource'),
 
   /**
    * @doc method
@@ -4711,6 +4774,26 @@ module.exports = {
    * See [DS.bindAll](/documentation/api/api/DS.sync_methods:bindAll).
    */
   bindAll: require('./bindAll'),
+
+  /**
+   * @doc method
+   * @id DS.sync_methods:createInstance
+   * @name createInstance
+   * @methodOf DS
+   * @description
+   * See [DS.createInstance](/documentation/api/api/DS.sync_methods:createInstance).
+   */
+  createInstance: require('./createInstance'),
+
+  /**
+   * @doc method
+   * @id DS.sync_methods:defineResource
+   * @name defineResource
+   * @methodOf DS
+   * @description
+   * See [DS.defineResource](/documentation/api/api/DS.sync_methods:defineResource).
+   */
+  defineResource: require('./defineResource'),
 
   /**
    * @doc method
@@ -4823,7 +4906,7 @@ module.exports = {
   hasChanges: require('./hasChanges')
 };
 
-},{"./bindAll":45,"./bindOne":46,"./changes":47,"./defineResource":48,"./digest":49,"./eject":50,"./ejectAll":51,"./filter":52,"./get":53,"./hasChanges":54,"./inject":56,"./lastModified":57,"./lastSaved":58,"./previous":59}],56:[function(require,module,exports){
+},{"./bindAll":45,"./bindOne":46,"./changes":47,"./createInstance":48,"./defineResource":49,"./digest":50,"./eject":51,"./ejectAll":52,"./filter":53,"./get":54,"./hasChanges":55,"./inject":57,"./lastModified":58,"./lastSaved":59,"./previous":60}],57:[function(require,module,exports){
 var observe = require('../../../lib/observe-js/observe-js');
 var errorPrefix = 'DS.inject(resourceName, attrs[, options]): ';
 
@@ -5026,7 +5109,7 @@ function inject(resourceName, attrs, options) {
 
 module.exports = inject;
 
-},{"../../../lib/observe-js/observe-js":1}],57:[function(require,module,exports){
+},{"../../../lib/observe-js/observe-js":1}],58:[function(require,module,exports){
 var errorPrefix = 'DS.lastModified(resourceName[, id]): ';
 
 /**
@@ -5079,7 +5162,7 @@ function lastModified(resourceName, id) {
 
 module.exports = lastModified;
 
-},{}],58:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 var errorPrefix = 'DS.lastSaved(resourceName[, id]): ';
 
 /**
@@ -5135,7 +5218,7 @@ function lastSaved(resourceName, id) {
 
 module.exports = lastSaved;
 
-},{}],59:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 var errorPrefix = 'DS.previous(resourceName, id): ';
 
 /**
@@ -5185,7 +5268,7 @@ function previous(resourceName, id) {
 
 module.exports = previous;
 
-},{}],60:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 /**
  * @doc function
  * @id errors.types:IllegalArgumentError
@@ -5318,7 +5401,7 @@ module.exports = [function () {
   };
 }];
 
-},{}],61:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 (function (window, angular, undefined) {
   'use strict';
 
@@ -5401,7 +5484,7 @@ module.exports = [function () {
 
 })(window, window.angular);
 
-},{"./adapters/http":31,"./adapters/localStorage":32,"./datastore":44,"./errors":60,"./utils":62}],62:[function(require,module,exports){
+},{"./adapters/http":31,"./adapters/localStorage":32,"./datastore":44,"./errors":61,"./utils":63}],63:[function(require,module,exports){
 module.exports = [function () {
   return {
     isBoolean: require('mout/lang/isBoolean'),
@@ -5484,4 +5567,4 @@ module.exports = [function () {
   };
 }];
 
-},{"mout/array/contains":2,"mout/array/filter":3,"mout/array/slice":7,"mout/array/sort":8,"mout/array/toLookup":9,"mout/lang/isBoolean":14,"mout/lang/isEmpty":15,"mout/object/deepMixIn":22,"mout/object/forOwn":24,"mout/object/pick":27,"mout/object/set":28,"mout/string/makePath":29,"mout/string/upperCase":30}]},{},[61]);
+},{"mout/array/contains":2,"mout/array/filter":3,"mout/array/slice":7,"mout/array/sort":8,"mout/array/toLookup":9,"mout/lang/isBoolean":14,"mout/lang/isEmpty":15,"mout/object/deepMixIn":22,"mout/object/forOwn":24,"mout/object/pick":27,"mout/object/set":28,"mout/string/makePath":29,"mout/string/upperCase":30}]},{},[62]);
