@@ -87,6 +87,7 @@ function create(resourceName, attrs, options) {
         if (options.cacheResponse) {
           var created = _this.inject(definition.name, data);
           var id = created[definition.idAttribute];
+          resource.completedQueries[id] = new Date().getTime();
           resource.previousAttributes[id] = _this.utils.deepMixIn({}, created);
           resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
           return _this.get(definition.name, id);

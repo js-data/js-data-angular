@@ -1,6 +1,7 @@
 ##### 0.10.1 - xx July 2014
 
 ###### Backwards compatible bug fixes
+- #90 - DS.create isn't added to completedQueries
 - #91 - dist/angular-data(.min).js doesn't end with a semicolon
 - #95 - observe-js outdated
 

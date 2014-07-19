@@ -80,6 +80,8 @@ describe('DS.create(resourceName, attrs[, options])', function () {
       }
     }).then(function (user) {
       assert.deepEqual(user, payload, 'user should have been created');
+
+      DS.find('user', 99); // should not trigger another http request
     }, function (err) {
       console.error(err.stack);
       fail('should not have rejected');
