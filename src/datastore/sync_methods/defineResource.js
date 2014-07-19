@@ -50,6 +50,7 @@ function Resource(utils, options) {
  * - `{string="id"}` - `idAttribute` - The attribute that specifies the primary key for this resource.
  * - `{string=}` - `endpoint` - The attribute that specifies the primary key for this resource. Default is the value of `name`.
  * - `{string=}` - `baseUrl` - The url relative to which all AJAX requests will be made.
+ * - `{boolean=}` - `useClass` - Whether to use a wrapper class created from the ProperCase name of the resource. The wrapper will always be used for resources that have `methods` defined.
  * - `{*=}` - `meta` - A property reserved for developer use. This will never be used by the API.
  * - `{object=}` - `methods` - If provided, items of this resource will be wrapped in a constructor function that is
  * empty save for the attributes in this option which will be mixed in to the constructor function prototype. Enabling
@@ -75,6 +76,7 @@ function defineResource(definition) {
   var IA = this.errors.IA;
 
   if (this.utils.isString(definition)) {
+    definition = definition.replace(/\s/gi, '');
     definition = {
       name: definition
     };
@@ -113,10 +115,11 @@ function defineResource(definition) {
       storagePrefix: 'DS.' + def.name
     });
 
+    def.class = definition.name[0].toUpperCase() + definition.name.substring(1);
+    eval('function ' + def.class + '() {}');
+    def[def.class] = eval(def.class);
+
     if (def.methods) {
-      def.class = definition.name[0].toUpperCase() + definition.name.substring(1);
-      eval('function ' + def.class + '() {}');
-      def[def.class] = eval(def.class);
       this.utils.deepMixIn(def[def.class].prototype, def.methods);
     }
 

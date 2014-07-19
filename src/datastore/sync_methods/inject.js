@@ -64,7 +64,7 @@ function _inject(definition, resource, attrs) {
         var item = this.get(definition.name, id);
 
         if (!item) {
-          if (definition.class) {
+          if (definition.methods || definition.useClass) {
             if (attrs instanceof definition[definition.class]) {
               item = attrs;
             } else {

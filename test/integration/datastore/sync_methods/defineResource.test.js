@@ -42,6 +42,7 @@ describe('DS.defineResource(definition)', function () {
 
     assert.doesNotThrow(function () {
       DS.defineResource('new resource');
+      assert.equal(DS.definitions.newresource.class, 'Newresource');
     }, 'Should not throw');
   });
 
@@ -95,13 +96,34 @@ describe('DS.defineResource(definition)', function () {
       }
     });
 
+    DS.defineResource({
+      name: 'dog',
+      useClass: true
+    });
+
+    DS.defineResource({
+      name: 'cat'
+    });
+
     DS.inject('person', {
       first: 'John',
       last: 'Anderson',
       id: 1
     });
 
+    DS.inject('dog', {
+      name: 'Spot',
+      id: 1
+    });
+
+    DS.inject('cat', {
+      name: 'Sam',
+      id: 1
+    });
+
     var user = DS.get('person', 1);
+    var dog = DS.get('dog', 1);
+    var cat = DS.get('cat', 1);
 
     assert.deepEqual(JSON.stringify(user), JSON.stringify({
       first: 'John',
@@ -110,10 +132,12 @@ describe('DS.defineResource(definition)', function () {
     }));
     assert.equal(user.fullName(), 'John Anderson');
     assert.isTrue(user instanceof DS.definitions.person[DS.definitions.person.class]);
+    assert.isTrue(dog instanceof DS.definitions.dog[DS.definitions.dog.class]);
+    assert.isTrue(cat instanceof Object);
     assert.equal(DS.definitions.person.class, 'Person');
     assert.equal(DS.definitions.person[DS.definitions.person.class].name, 'Person');
-    assert.equal(lifecycle.beforeInject.callCount, 1, 'beforeInject should have been called');
-    assert.equal(lifecycle.afterInject.callCount, 1, 'afterInject should have been called');
+    assert.equal(lifecycle.beforeInject.callCount, 3, 'beforeInject should have been called');
+    assert.equal(lifecycle.afterInject.callCount, 3, 'afterInject should have been called');
   });
   it('should allow definition of computed properties', function (done) {
     var callCount = 0;
