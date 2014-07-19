@@ -1,6 +1,7 @@
 ##### 0.10.1 - xx July 2014
 
 ###### Backwards compatible bug fixes
+- #91 - dist/angular-data(.min).js doesn't end with a semicolon
 - #95 - observe-js outdated
 
 ##### 0.10.0 - 18 July 2014
