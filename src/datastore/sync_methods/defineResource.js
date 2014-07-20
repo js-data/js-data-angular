@@ -12,6 +12,29 @@ function Resource(utils, options) {
   }
 }
 
+var methodsToProxy = [
+  'bindAll',
+  'bindOne',
+  'create',
+  'createInstance',
+  'destroy',
+  'destroyAll',
+  'filter',
+  'find',
+  'findAll',
+  'get',
+  'hasChanges',
+  'inject',
+  'lastModified',
+  'lastSaved',
+  'loadRelations',
+  'previous',
+  'refresh',
+  'save',
+  'update',
+  'updateAll'
+];
+
 /**
  * @doc method
  * @id DS.sync_methods:defineResource
@@ -166,17 +189,17 @@ function defineResource(definition) {
     };
 
     // Proxy DS methods with shorthand ones
-    DS.utils.forOwn(DS, function (func, name) {
-      if (angular.isFunction(func) && func.toString().substr(0, 37).indexOf('(resourceName,') !== -1) {
-        def[name] = function () {
-          var args = Array.prototype.slice.call(arguments);
-          args.unshift(def.name);
-          return func.apply(DS, args);
-        };
-      } else if (name === 'bindOne' || name === 'bindAll') {
+    angular.forEach(methodsToProxy, function (name) {
+      if (name === 'bindOne' || name === 'bindAll') {
         def[name] = function () {
           var args = Array.prototype.slice.call(arguments);
           args.splice(2, 0, def.name);
+          return DS[name].apply(DS, args);
+        };
+      } else {
+        def[name] = function () {
+          var args = Array.prototype.slice.call(arguments);
+          args.unshift(def.name);
           return DS[name].apply(DS, args);
         };
       }
