@@ -2,6 +2,7 @@
 
 ##### Backwards compatible API changes
 - #93 - Added `DS.createInstance(resourceName[, attrs][, options])`
+- #96 - Resource definitions should be able to proxy DS methods
 
 ###### Backwards compatible bug fixes
 - #90 - DS.create isn't added to completedQueries (`DS.create` now adds a completed query entry)

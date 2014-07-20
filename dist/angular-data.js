@@ -3184,7 +3184,7 @@ function Defaults() {
 
 Defaults.prototype.idAttribute = 'id';
 Defaults.prototype.defaultAdapter = 'DSHttpAdapter';
-Defaults.prototype.filter = function (collection, resourceName, params, options) {
+Defaults.prototype.defaultFilter = function (collection, resourceName, params, options) {
   var _this = this;
   var filtered = collection;
   var where = null;
@@ -4219,6 +4219,7 @@ function Resource(utils, options) {
  * - `{string=}` - `endpoint` - The attribute that specifies the primary key for this resource. Default is the value of `name`.
  * - `{string=}` - `baseUrl` - The url relative to which all AJAX requests will be made.
  * - `{boolean=}` - `useClass` - Whether to use a wrapper class created from the ProperCase name of the resource. The wrapper will always be used for resources that have `methods` defined.
+ * - `{function=}` - `defaultFilter` - Override the filtering used internally by `DS.filter` with you own function here.
  * - `{*=}` - `meta` - A property reserved for developer use. This will never be used by the API.
  * - `{object=}` - `methods` - If provided, items of this resource will be wrapped in a constructor function that is
  * empty save for the attributes in this option which will be mixed in to the constructor function prototype. Enabling
@@ -4242,6 +4243,7 @@ function Resource(utils, options) {
  */
 function defineResource(definition) {
   var IA = this.errors.IA;
+  var DS = this;
 
   if (this.utils.isString(definition)) {
     definition = definition.replace(/\s/gi, '');
@@ -4262,19 +4264,27 @@ function defineResource(definition) {
   }
 
   try {
-    Resource.prototype = this.defaults;
-    this.definitions[definition.name] = new Resource(this.utils, definition);
+    // Inherit from global defaults
+    Resource.prototype = DS.defaults;
+    DS.definitions[definition.name] = new Resource(DS.utils, definition);
 
-    var _this = this;
-    var def = this.definitions[definition.name];
+    var def = DS.definitions[definition.name];
 
-    var cache = this.cacheFactory('DS.' + def.name, {
+    // Remove this in v0.11.0 and make a breaking change notice
+    // the the `filter` option has been renamed to `defaultFilter`
+    if (def.filter) {
+      def.defaultFilter = def.filter;
+      delete def.filter;
+    }
+
+    // Setup the cache
+    var cache = DS.cacheFactory('DS.' + def.name, {
       maxAge: def.maxAge || null,
       recycleFreq: def.recycleFreq || 1000,
       cacheFlushInterval: def.cacheFlushInterval || null,
       deleteOnExpire: def.deleteOnExpire || 'none',
       onExpire: function (id) {
-        _this.eject(def.name, id);
+        DS.eject(def.name, id);
       },
       capacity: Number.MAX_VALUE,
       storageMode: 'memory',
@@ -4283,22 +4293,25 @@ function defineResource(definition) {
       storagePrefix: 'DS.' + def.name
     });
 
+    // Create the wrapper class for the new resource
     def.class = definition.name[0].toUpperCase() + definition.name.substring(1);
     eval('function ' + def.class + '() {}');
     def[def.class] = eval(def.class);
 
+    // Apply developer-defined methods
     if (def.methods) {
-      this.utils.deepMixIn(def[def.class].prototype, def.methods);
+      DS.utils.deepMixIn(def[def.class].prototype, def.methods);
     }
 
+    // Prepare for computed properties
     if (def.computed) {
-      this.utils.forOwn(def.computed, function (fn, field) {
+      DS.utils.forOwn(def.computed, function (fn, field) {
         if (def.methods && field in def.methods) {
-          _this.$log.warn(errorPrefix + 'Computed property "' + field + '" conflicts with previously defined prototype method!');
+          DS.$log.warn(errorPrefix + 'Computed property "' + field + '" conflicts with previously defined prototype method!');
         }
         var match = fn.toString().match(/function.*?\(([\s\S]*?)\)/);
         var deps = match[1].split(',');
-        fn.deps = _this.utils.filter(deps, function (dep) {
+        fn.deps = DS.utils.filter(deps, function (dep) {
           return !!dep;
         });
         angular.forEach(fn.deps, function (val, index) {
@@ -4307,7 +4320,8 @@ function defineResource(definition) {
       });
     }
 
-    this.store[def.name] = {
+    // Initialize store data for the new resource
+    DS.store[def.name] = {
       collection: [],
       completedQueries: {},
       pendingQueries: {},
@@ -4318,9 +4332,27 @@ function defineResource(definition) {
       observers: {},
       collectionModified: 0
     };
-  }
-  catch
-    (err) {
+
+    // Proxy DS methods with shorthand ones
+    DS.utils.forOwn(DS, function (func, name) {
+      if (angular.isFunction(func) && func.toString().indexOf('(resourceName, ') !== -1) {
+        def[name] = function () {
+          var args = Array.prototype.slice.call(arguments);
+          args.unshift(def.name);
+          return func.apply(DS, args);
+        };
+      } else if (name === 'bindOne' || name === 'bindAll') {
+        def[name] = function () {
+          var args = Array.prototype.slice.call(arguments);
+          args.splice(2, 0, def.name);
+          return DS[name].apply(DS, args);
+        };
+      }
+    });
+
+    return def;
+  } catch (err) {
+    DS.$log.error(err);
     delete this.definitions[definition.name];
     delete this.store[definition.name];
     throw err;
@@ -4626,7 +4658,7 @@ function filter(resourceName, params, options) {
     }
   }
 
-  return definition.filter.call(this, resource.collection, resourceName, params, options);
+  return definition.defaultFilter.call(this, resource.collection, resourceName, params, options);
 }
 
 module.exports = filter;

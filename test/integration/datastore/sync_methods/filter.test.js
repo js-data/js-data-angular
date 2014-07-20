@@ -325,7 +325,7 @@ describe('DS.filter(resourceName[, params][, options])', function () {
   it('should allow custom filter function', function () {
     DS.defineResource({
       name: 'Comment',
-      filter: function (collection, resourceName, params, options) {
+      defaultFilter: function (collection, resourceName, params, options) {
         var filtered = collection;
         var where = params.where;
         filtered = this.utils.filter(filtered, function (attrs) {

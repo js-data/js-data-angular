@@ -87,7 +87,7 @@ describe('DS.defineResource(definition)', function () {
     assert.equal(lifecycle.validate.callCount, 0, 'global validate should not have been called');
   });
   it('should allow custom behavior to be applied to resources', function () {
-    DS.defineResource({
+    var Person = DS.defineResource({
       name: 'person',
       methods: {
         fullName: function () {
@@ -96,12 +96,12 @@ describe('DS.defineResource(definition)', function () {
       }
     });
 
-    DS.defineResource({
+    var Dog = DS.defineResource({
       name: 'dog',
       useClass: true
     });
 
-    DS.defineResource({
+    var Cat = DS.defineResource({
       name: 'cat'
     });
 
@@ -121,17 +121,25 @@ describe('DS.defineResource(definition)', function () {
       id: 1
     });
 
-    var user = DS.get('person', 1);
-    var dog = DS.get('dog', 1);
-    var cat = DS.get('cat', 1);
+    var person = DS.get('person', 1);
+    var person2 = Person.get(1);
 
-    assert.deepEqual(JSON.stringify(user), JSON.stringify({
+    var dog = DS.get('dog', 1);
+    var dog2 = Dog.get(1);
+
+    var cat = DS.get('cat', 1);
+    var cat2 = Cat.get(1);
+
+    assert.deepEqual(JSON.stringify(person), JSON.stringify({
       first: 'John',
       last: 'Anderson',
       id: 1
     }));
-    assert.equal(user.fullName(), 'John Anderson');
-    assert.isTrue(user instanceof DS.definitions.person[DS.definitions.person.class]);
+    assert.deepEqual(person, person2, 'persons should be equal');
+    assert.deepEqual(dog, dog2, 'dogs should be equal');
+    assert.deepEqual(cat, cat2, 'cats should be equal');
+    assert.equal(person.fullName(), 'John Anderson');
+    assert.isTrue(person instanceof DS.definitions.person[DS.definitions.person.class]);
     assert.isTrue(dog instanceof DS.definitions.dog[DS.definitions.dog.class]);
     assert.isTrue(cat instanceof Object);
     assert.equal(DS.definitions.person.class, 'Person');

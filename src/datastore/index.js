@@ -9,7 +9,7 @@ function Defaults() {
 
 Defaults.prototype.idAttribute = 'id';
 Defaults.prototype.defaultAdapter = 'DSHttpAdapter';
-Defaults.prototype.filter = function (collection, resourceName, params, options) {
+Defaults.prototype.defaultFilter = function (collection, resourceName, params, options) {
   var _this = this;
   var filtered = collection;
   var where = null;

@@ -19,6 +19,16 @@ about a particular _resource_, like what its root endpoint is and which attribut
 resource. A _resource definition_ can also specify validation functions to be executed before create and update
 operations.
 
+Resource definitions proxy `DS` methods that require a `resourceName` argument (a convenient shorthand!). Example:
+
+```js
+var User = DS.defineResource('user');
+
+// The following are equivalent
+DS.find('user', 5);
+User.find(5);
+```
+
 See [defineResource(definition)](/documentation/api/api/DS.sync_methods:defineResource) for detailed API information.
 
 @doc overview
@@ -29,7 +39,7 @@ See [defineResource(definition)](/documentation/api/api/DS.sync_methods:defineRe
 The simplest resource definition:
 
 ```js
-DS.defineResource('document');
+var Document = DS.defineResource('document');
 ```
 
 With this definition the data store assumes the following:
@@ -47,7 +57,7 @@ With this definition the data store assumes the following:
 An advanced resource definition:
 
 ```js
-DS.defineResource({
+var Document = DS.defineResource({
 	name: 'document',
 	idAttribute: '_id',
 	endpoint: 'documents',

@@ -67,7 +67,7 @@ Here's how to replace Angular-data's filter:
 
 ```js
 // override how DS.filter handles the "where", "skip", "limit" and "orderBy" clauses
-DSProvider.defaults.filter = function (collection, resourceName, params, options) {
+DSProvider.defaults.defaultFilter = function (collection, resourceName, params, options) {
   // examine params and
   // decide whether to exclude items, skip items, start from an offset, or sort the items
   
@@ -90,7 +90,7 @@ You can even override the filter per-resource:
 ```js
 DS.defineResource({
 	name: 'post',
-	filter: function (collection, resourceName, params, options) {
+	defaultFilter: function (collection, resourceName, params, options) {
 		// …
 	}
 });

@@ -73,7 +73,7 @@ function filter(resourceName, params, options) {
     }
   }
 
-  return definition.filter.call(this, resource.collection, resourceName, params, options);
+  return definition.defaultFilter.call(this, resource.collection, resourceName, params, options);
 }
 
 module.exports = filter;

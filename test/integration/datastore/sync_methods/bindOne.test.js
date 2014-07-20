@@ -64,12 +64,13 @@ describe('DS.bindOne(scope, expr, resourceName, id[, cb])', function () {
   });
   it('should execute a callback if given', function (done) {
 
+    var Post = DS.definitions.post;
     var cb = sinon.spy();
-    DS.inject('post', p1);
+    Post.inject(p1);
 
-    var post = DS.get('post', 5);
+    var post = Post.get(5);
 
-    DS.bindOne($scope, 'post', 'post', 5, cb);
+    Post.bindOne($scope, 'post', 5, cb);
 
     $rootScope.$apply();
 
