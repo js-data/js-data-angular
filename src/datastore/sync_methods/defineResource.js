@@ -167,7 +167,7 @@ function defineResource(definition) {
 
     // Proxy DS methods with shorthand ones
     DS.utils.forOwn(DS, function (func, name) {
-      if (angular.isFunction(func) && func.toString().indexOf('(resourceName, ') !== -1) {
+      if (angular.isFunction(func) && func.toString().substr(0, 37).indexOf('(resourceName,') !== -1) {
         def[name] = function () {
           var args = Array.prototype.slice.call(arguments);
           args.unshift(def.name);
