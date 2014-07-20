@@ -84,6 +84,25 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
     assert.equal(lifecycle.serialize.callCount, 0, 'serialize should have been called');
     assert.equal(lifecycle.deserialize.callCount, 2, 'deserialize should have been called');
   });
+  it('should fail when no "idAttribute" is present on an item in the response', function () {
+    $httpBackend.expectGET(/http:\/\/test\.angular-cache\.com\/posts\??/).respond(200, [
+      { author: 'John', age: 30 },
+      { author: 'Sally', age: 31 }
+    ]);
+
+    DS.findAll('post', {}).then(function () {
+      fail('Should not have succeeded!');
+    }, function (err) {
+      assert(err.message, 'DS.inject(resourceName, attrs[, options]): attrs: Must contain the property specified by `idAttribute`!');
+      assert.deepEqual(DS.filter('post', {}), [], 'The posts should not be in the store');
+    });
+
+    $httpBackend.flush();
+
+    assert($log.error.logs[0][0].message, 'DS.inject(resourceName, attrs[, options]): attrs: Must contain the property specified by `idAttribute`!');
+    assert.equal(lifecycle.beforeInject.callCount, 0, 'beforeInject should not have been called');
+    assert.equal(lifecycle.afterInject.callCount, 0, 'afterInject should not have been called');
+  });
   it('should query the server for a collection but not store the data if cacheResponse is false', function () {
     $httpBackend.expectGET(/http:\/\/test\.angular-cache\.com\/posts\??/).respond(200, [p1, p2, p3, p4]);
 

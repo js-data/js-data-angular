@@ -1,4 +1,4 @@
-##### 0.10.1 - xx July 2014
+##### 0.10.1 - 20 July 2014
 
 ##### Backwards compatible API changes
 - #93 - Added `DS.createInstance(resourceName[, attrs][, options])`
@@ -9,6 +9,7 @@
 - #91 - dist/angular-data(.min).js doesn't end with a semicolon (upgraded Browserify)
 - #94 - Resource object name/class inconsistency (added `useClass` option to `DS.defineResource`)
 - #95 - observe-js outdated (Upgraded observe-js.js an refactored to new API)
+- #98 - Missing id warning
 
 ##### 0.10.0 - 18 July 2014
 

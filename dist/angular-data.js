@@ -5020,7 +5020,9 @@ function _inject(definition, resource, attrs) {
       attrs[definition.idAttribute] = definition.computed[definition.idAttribute].apply(attrs, args);
     }
     if (!(definition.idAttribute in attrs)) {
-      throw new _this.errors.R(errorPrefix + 'attrs: Must contain the property specified by `idAttribute`!');
+      var error = new _this.errors.R(errorPrefix + 'attrs: Must contain the property specified by `idAttribute`!');
+      $log.error(error);
+      throw error;
     } else {
       try {
         definition.beforeInject(definition.name, attrs);
