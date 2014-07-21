@@ -160,6 +160,16 @@ describe('DS.defineResource(definition)', function () {
       }
     });
 
+    DS.defineResource({
+      name: 'dog',
+      computed: {
+        fullName: ['first', 'last', function (f, l) {
+          callCount++;
+          return f + ' ' + l;
+        }]
+      }
+    });
+
     DS.inject('person', {
       first: 'John',
       last: 'Anderson',
@@ -167,7 +177,14 @@ describe('DS.defineResource(definition)', function () {
       id: 1
     });
 
+    DS.inject('dog', {
+      first: 'doggy',
+      last: 'dog',
+      id: 1
+    });
+
     var person = DS.get('person', 1);
+    var dog = DS.get('dog', 1);
 
     assert.deepEqual(JSON.stringify(person), JSON.stringify({
       first: 'John',
@@ -177,14 +194,16 @@ describe('DS.defineResource(definition)', function () {
       fullName: 'John Anderson'
     }));
     assert.equal(person.fullName, 'John Anderson');
-    assert.equal(lifecycle.beforeInject.callCount, 1, 'beforeInject should have been called');
-    assert.equal(lifecycle.afterInject.callCount, 1, 'afterInject should have been called');
+    assert.equal(dog.fullName, 'doggy dog');
+    assert.equal(lifecycle.beforeInject.callCount, 2, 'beforeInject should have been called twice');
+    assert.equal(lifecycle.afterInject.callCount, 2, 'afterInject should have been called twice');
 
     person.first = 'Johnny';
 
     // digest loop hasn't happened yet
     assert.equal(DS.get('person', 1).first, 'Johnny');
     assert.equal(DS.get('person', 1).fullName, 'John Anderson');
+    assert.equal(DS.get('dog', 1).fullName, 'doggy dog');
 
     DS.digest();
 
@@ -199,6 +218,7 @@ describe('DS.defineResource(definition)', function () {
       assert.equal(person.fullName, 'Johnny Anderson');
 
       person.first = 'Jack';
+      dog.first = 'spot';
 
       DS.digest();
 
@@ -211,6 +231,7 @@ describe('DS.defineResource(definition)', function () {
           fullName: 'Jack Anderson'
         });
         assert.equal(person.fullName, 'Jack Anderson');
+        assert.equal(dog.fullName, 'spot dog');
 
         // computed property function should not be called
         // when a property changes that isn't a dependency
@@ -219,7 +240,7 @@ describe('DS.defineResource(definition)', function () {
 
         DS.digest();
 
-        assert.equal(callCount, 3, 'fullName() should have been called 3 times');
+        assert.equal(callCount, 5, 'fullName() should have been called 3 times');
 
         done();
       }, 50);

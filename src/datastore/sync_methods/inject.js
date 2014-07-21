@@ -28,7 +28,11 @@ function _inject(definition, resource, attrs) {
             args.push(item[dep]);
           });
           // recompute property
-          item[field] = fn.apply(item, args);
+          if (angular.isFunction(fn)) {
+            item[field] = fn.apply(item, args);
+          } else {
+            item[field] = fn[fn.length - 1].apply(item, args);
+          }
         }
       });
     }

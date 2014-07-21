@@ -1,6 +1,11 @@
+##### 0.10.2 - 21 July 2014
+
+###### Backwards compatible bug fixes
+- #99 - Computed properties + uglify
+
 ##### 0.10.1 - 20 July 2014
 
-##### Backwards compatible API changes
+###### Backwards compatible API changes
 - #93 - Added `DS.createInstance(resourceName[, attrs][, options])`
 - #96 - Resource definitions should be able to proxy DS methods
 

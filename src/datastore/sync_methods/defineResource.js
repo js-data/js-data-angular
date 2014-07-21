@@ -164,8 +164,14 @@ function defineResource(definition) {
         if (def.methods && field in def.methods) {
           DS.$log.warn(errorPrefix + 'Computed property "' + field + '" conflicts with previously defined prototype method!');
         }
-        var match = fn.toString().match(/function.*?\(([\s\S]*?)\)/);
-        var deps = match[1].split(',');
+        var deps;
+        if (angular.isFunction(fn)) {
+          var match = fn.toString().match(/function.*?\(([\s\S]*?)\)/);
+          deps = match[1].split(',');
+          DS.$log.warn(errorPrefix + 'Use the computed property array for compatibility with minified code!');
+        } else {
+          deps = fn.slice(0, fn.length - 1);
+        }
         fn.deps = DS.utils.filter(deps, function (dep) {
           return !!dep;
         });

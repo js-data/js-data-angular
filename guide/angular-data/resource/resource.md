@@ -419,8 +419,14 @@ DS.defineResource('user', {
   computed: {
     // each function's argument list defines the fields
     // that the computed property depends on
-    fullName: function (first, last) {
+    fullName: ['first', 'last', function (first, last) {
       return first + ' ' + last;
+    }],
+    // shortand, use the array syntax above if you want
+    // you computed properties to work after you've
+    // minified your code
+    initials: function (first, last) {
+        return first.toUppercase()[0] + '. ' + last.toUppercase()[0] + '.';
     }
   }
 });
@@ -439,7 +445,7 @@ user.first = 'Fred';
 // computed property hasn't been updated yet
 user.fullName; // "John Anderson"
 
-DS.digest();
+DS.digest(); // or $scope.$apply()
 
 user.fullName; // "Fred Anderson"
 
