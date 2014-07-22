@@ -1,7 +1,7 @@
 /**
 * @author Jason Dobry <jason.dobry@gmail.com>
 * @file angular-data.js
-* @version 0.10.1 - Homepage <http://angular-data.pseudobry.com/>
+* @version 0.10.2 - Homepage <http://angular-data.pseudobry.com/>
 * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>
 * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
 *
@@ -2328,13 +2328,20 @@ module.exports = find;
 var errorPrefix = 'DS.findAll(resourceName, params[, options]): ';
 
 function processResults(utils, data, resourceName, queryHash) {
-  var resource = this.store[resourceName];
+  var resource = this.store[resourceName],
+    idAttribute = this.definitions[resourceName].idAttribute,
+    date = new Date().getTime();
 
   data = data || [];
 
   // Query is no longer pending
   delete resource.pendingQueries[queryHash];
-  resource.completedQueries[queryHash] = new Date().getTime();
+  resource.completedQueries[queryHash] = date;
+
+  // Make sure each object is added to completedQueries
+  angular.forEach(data, function (obj, idx) {
+    resource.completedQueries[obj[idAttribute]] = date;
+  });
 
   // Update modified timestamp of collection
   resource.collectionModified = utils.updateTimestamp(resource.collectionModified);

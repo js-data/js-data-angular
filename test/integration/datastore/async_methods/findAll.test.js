@@ -58,6 +58,8 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
     assert.deepEqual(DS.filter('post', {}), [p1, p2, p3, p4], 'The posts are now in the store');
     assert.isNumber(DS.lastModified('post', 5));
     assert.isNumber(DS.lastSaved('post', 5));
+    DS.find('post', p1.id); // should not trigger another XHR
+    
 
     // Should not make a request because the request was already completed
     DS.findAll('post', {}).then(function (data) {
