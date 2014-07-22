@@ -1,3 +1,8 @@
+##### 0.10.2 - xx July 2014 (pending)
+
+###### Backwards compatible bug fixes
+- #100 - DS.findAll wasn't added to completedQueries
+
 ##### 0.10.2 - 21 July 2014
 
 ###### Backwards compatible bug fixes

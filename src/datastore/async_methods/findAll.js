@@ -11,16 +11,18 @@ function processResults(utils, data, resourceName, queryHash) {
   delete resource.pendingQueries[queryHash];
   resource.completedQueries[queryHash] = date;
 
-  // Make sure each object is added to completedQueries
-  angular.forEach(data, function (obj, idx) {
-    resource.completedQueries[obj[idAttribute]] = date;
-  });
-
   // Update modified timestamp of collection
   resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
 
   // Merge the new values into the cache
-  return this.inject(resourceName, data);
+  var injected = this.inject(resourceName, data);
+
+  // Make sure each object is added to completedQueries
+  angular.forEach(injected, function (item) {
+    resource.completedQueries[item[idAttribute]] = date;
+  });
+
+  return injected;
 }
 
 function _findAll(utils, resourceName, params, options) {
