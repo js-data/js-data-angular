@@ -10,6 +10,7 @@ module.exports = [function () {
     toJson: angular.toJson,
     makePath: require('mout/string/makePath'),
     upperCase: require('mout/string/upperCase'),
+    pascalCase: require('mout/string/pascalCase'),
     deepMixIn: require('mout/object/deepMixIn'),
     forOwn: require('mout/object/forOwn'),
     pick: require('mout/object/pick'),

@@ -62,6 +62,12 @@ describe('DS.defineResource(definition)', function () {
       validate: test.validate
     });
 
+    var weirdThing = DS.defineResource({
+      name: 'weird-thing'
+    });
+
+    assert.equal(weirdThing.class, 'WeirdThing');
+
     assert.doesNotThrow(function () {
       assert.isUndefined(DS.get('Comment', 5), 'should be undefined');
     });

@@ -1,7 +1,9 @@
-##### 0.10.2 - xx July 2014 (pending)
+##### 0.10.3 - 24 July 2014
 
 ###### Backwards compatible bug fixes
-- #100 - DS.findAll wasn't added to completedQueries
+- #100 - defineResource can't handle names that aren't [a-zA-z0-9]
+- #101 - DS.findAll isn't added to completedQueries
+- #102 - Resource objects are missing the changes, eject, and ejectAll methods
 
 ##### 0.10.2 - 21 July 2014
 

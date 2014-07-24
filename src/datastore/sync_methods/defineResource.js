@@ -15,10 +15,13 @@ function Resource(utils, options) {
 var methodsToProxy = [
   'bindAll',
   'bindOne',
+  'changes',
   'create',
   'createInstance',
   'destroy',
   'destroyAll',
+  'eject',
+  'ejectAll',
   'filter',
   'find',
   'findAll',
@@ -149,7 +152,7 @@ function defineResource(definition) {
     });
 
     // Create the wrapper class for the new resource
-    def.class = definition.name[0].toUpperCase() + definition.name.substring(1);
+    def.class = DS.utils.pascalCase(definition.name);
     eval('function ' + def.class + '() {}');
     def[def.class] = eval(def.class);
 
