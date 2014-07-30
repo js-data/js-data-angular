@@ -15,6 +15,9 @@ Roadmap:
 - See [issues](https://github.com/jmdobry/angular-data/issues?page=1&state=open) for what's in development
 - See [Design Doc](https://docs.google.com/document/d/1o069KLuBH4jpwm1FCLZFwKMgM73Xi8_1JyjhSxVpidM/edit?usp=sharing) for other juicy reading material
 
+## Documentation
+[pseudobry.com/angular-data](http://www.pseudobry.com/angular-data)
+
 ## Changelog
 [CHANGELOG.md](https://github.com/jmdobry/angular-data/blob/master/CHANGELOG.md)
 
