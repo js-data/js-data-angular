@@ -1,3 +1,8 @@
+##### 0.10.4 - xx July 2014
+
+###### Backwards compatible API changes
+- #103 - Add `upsert` option to `DS.create`
+
 ##### 0.10.3 - 24 July 2014
 
 ###### Backwards compatible bug fixes

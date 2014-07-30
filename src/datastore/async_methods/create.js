@@ -32,6 +32,7 @@ var errorPrefix = 'DS.create(resourceName, attrs[, options]): ';
  * @param {object=} options Configuration options. Properties:
  *
  * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
+ * - `{boolean=}` - `upsert` - If `attrs` already contains a primary key, then attempt to call `DS.update` instead. Default: `true`.
  *
  * @returns {Promise} Promise produced by the `$q` service.
  *
@@ -64,37 +65,45 @@ function create(resourceName, attrs, options) {
       options.cacheResponse = true;
     }
 
-    promise = promise
-      .then(function (attrs) {
-        return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
-      })
-      .then(function (attrs) {
-        return _this.$q.promisify(definition.validate)(resourceName, attrs);
-      })
-      .then(function (attrs) {
-        return _this.$q.promisify(definition.afterValidate)(resourceName, attrs);
-      })
-      .then(function (attrs) {
-        return _this.$q.promisify(definition.beforeCreate)(resourceName, attrs);
-      })
-      .then(function (attrs) {
-        return _this.adapters[options.adapter || definition.defaultAdapter].create(definition, definition.serialize(resourceName, attrs), options);
-      })
-      .then(function (res) {
-        return _this.$q.promisify(definition.afterCreate)(resourceName, definition.deserialize(resourceName, res));
-      })
-      .then(function (data) {
-        if (options.cacheResponse) {
-          var created = _this.inject(definition.name, data);
-          var id = created[definition.idAttribute];
-          resource.completedQueries[id] = new Date().getTime();
-          resource.previousAttributes[id] = _this.utils.deepMixIn({}, created);
-          resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
-          return _this.get(definition.name, id);
-        } else {
-          return data;
-        }
-      });
+    if (!('upsert' in options)) {
+      options.upsert = true;
+    }
+
+    if (options.upsert && attrs[definition.idAttribute]) {
+      promise = this.update(resourceName, attrs[definition.idAttribute], attrs, options);
+    } else {
+      promise = promise
+        .then(function (attrs) {
+          return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
+        })
+        .then(function (attrs) {
+          return _this.$q.promisify(definition.validate)(resourceName, attrs);
+        })
+        .then(function (attrs) {
+          return _this.$q.promisify(definition.afterValidate)(resourceName, attrs);
+        })
+        .then(function (attrs) {
+          return _this.$q.promisify(definition.beforeCreate)(resourceName, attrs);
+        })
+        .then(function (attrs) {
+          return _this.adapters[options.adapter || definition.defaultAdapter].create(definition, definition.serialize(resourceName, attrs), options);
+        })
+        .then(function (res) {
+          return _this.$q.promisify(definition.afterCreate)(resourceName, definition.deserialize(resourceName, res));
+        })
+        .then(function (data) {
+          if (options.cacheResponse) {
+            var created = _this.inject(definition.name, data);
+            var id = created[definition.idAttribute];
+            resource.completedQueries[id] = new Date().getTime();
+            resource.previousAttributes[id] = _this.utils.deepMixIn({}, created);
+            resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
+            return _this.get(definition.name, id);
+          } else {
+            return data;
+          }
+        });
+    }
 
     deferred.resolve(attrs);
   } catch (err) {

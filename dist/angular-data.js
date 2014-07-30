@@ -1,7 +1,7 @@
 /**
 * @author Jason Dobry <jason.dobry@gmail.com>
 * @file angular-data.js
-* @version 0.10.3 - Homepage <http://angular-data.pseudobry.com/>
+* @version 0.10.4 - Homepage <http://angular-data.pseudobry.com/>
 * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>
 * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
 *
@@ -2064,6 +2064,7 @@ var errorPrefix = 'DS.create(resourceName, attrs[, options]): ';
  * @param {object=} options Configuration options. Properties:
  *
  * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
+ * - `{boolean=}` - `upsert` - If `attrs` already contains a primary key, then attempt to call `DS.update` instead. Default: `true`.
  *
  * @returns {Promise} Promise produced by the `$q` service.
  *
@@ -2096,37 +2097,45 @@ function create(resourceName, attrs, options) {
       options.cacheResponse = true;
     }
 
-    promise = promise
-      .then(function (attrs) {
-        return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
-      })
-      .then(function (attrs) {
-        return _this.$q.promisify(definition.validate)(resourceName, attrs);
-      })
-      .then(function (attrs) {
-        return _this.$q.promisify(definition.afterValidate)(resourceName, attrs);
-      })
-      .then(function (attrs) {
-        return _this.$q.promisify(definition.beforeCreate)(resourceName, attrs);
-      })
-      .then(function (attrs) {
-        return _this.adapters[options.adapter || definition.defaultAdapter].create(definition, definition.serialize(resourceName, attrs), options);
-      })
-      .then(function (res) {
-        return _this.$q.promisify(definition.afterCreate)(resourceName, definition.deserialize(resourceName, res));
-      })
-      .then(function (data) {
-        if (options.cacheResponse) {
-          var created = _this.inject(definition.name, data);
-          var id = created[definition.idAttribute];
-          resource.completedQueries[id] = new Date().getTime();
-          resource.previousAttributes[id] = _this.utils.deepMixIn({}, created);
-          resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
-          return _this.get(definition.name, id);
-        } else {
-          return data;
-        }
-      });
+    if (!('upsert' in options)) {
+      options.upsert = true;
+    }
+
+    if (options.upsert && attrs[definition.idAttribute]) {
+      promise = this.update(resourceName, attrs[definition.idAttribute], attrs, options);
+    } else {
+      promise = promise
+        .then(function (attrs) {
+          return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
+        })
+        .then(function (attrs) {
+          return _this.$q.promisify(definition.validate)(resourceName, attrs);
+        })
+        .then(function (attrs) {
+          return _this.$q.promisify(definition.afterValidate)(resourceName, attrs);
+        })
+        .then(function (attrs) {
+          return _this.$q.promisify(definition.beforeCreate)(resourceName, attrs);
+        })
+        .then(function (attrs) {
+          return _this.adapters[options.adapter || definition.defaultAdapter].create(definition, definition.serialize(resourceName, attrs), options);
+        })
+        .then(function (res) {
+          return _this.$q.promisify(definition.afterCreate)(resourceName, definition.deserialize(resourceName, res));
+        })
+        .then(function (data) {
+          if (options.cacheResponse) {
+            var created = _this.inject(definition.name, data);
+            var id = created[definition.idAttribute];
+            resource.completedQueries[id] = new Date().getTime();
+            resource.previousAttributes[id] = _this.utils.deepMixIn({}, created);
+            resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
+            return _this.get(definition.name, id);
+          } else {
+            return data;
+          }
+        });
+    }
 
     deferred.resolve(attrs);
   } catch (err) {
@@ -2274,6 +2283,7 @@ var errorPrefix = 'DS.destroyAll(resourceName, params[, options]): ';
  *  - `{string|array=}` - `orderBy` - OrderBy clause.
  *
  * @param {object=} options Optional configuration. Properties:
+ *
  * - `{boolean=}` - `bypassCache` - Bypass the cache. Default: `false`.
  *
  * @returns {Promise} Promise produced by the `$q` service.
@@ -4763,8 +4773,10 @@ var errorPrefix = 'DS.filter(resourceName[, params][, options]): ';
  *  - `{string|array=}` - `orderBy` - OrderBy clause.
  *
  * @param {object=} options Optional configuration. Properties:
+ *
  * - `{boolean=}` - `loadFromServer` - Send the query to server if it has not been sent yet. Default: `false`.
  * - `{boolean=}` - `allowSimpleWhere` - Treat top-level fields on the `params` argument as simple "where" equality clauses. Default: `true`.
+ *
  * @returns {array} The filtered collection of items of the type specified by `resourceName`.
  */
 function filter(resourceName, params, options) {
@@ -5254,7 +5266,7 @@ function _injectRelations(definition, injected) {
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {object|array} attrs The item or collection of items to inject into the data store.
- * @param {object=} options Optional configuration. Properties:
+ * @param {object=} options Optional configuration.
  * @returns {object|array} A reference to the item that was injected into the data store or an array of references to
  * the items that were injected into the data store.
  */

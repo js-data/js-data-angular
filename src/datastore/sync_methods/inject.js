@@ -168,7 +168,7 @@ function _injectRelations(definition, injected) {
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {object|array} attrs The item or collection of items to inject into the data store.
- * @param {object=} options Optional configuration. Properties:
+ * @param {object=} options Optional configuration.
  * @returns {object|array} A reference to the item that was injected into the data store or an array of references to
  * the items that were injected into the data store.
  */

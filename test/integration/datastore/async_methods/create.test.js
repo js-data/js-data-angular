@@ -60,6 +60,40 @@ describe('DS.create(resourceName, attrs[, options])', function () {
     assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
     assert.isUndefined(DS.get('post', 5));
   });
+  it('should work with the upsert option', function () {
+    $httpBackend.expectPUT('http://test.angular-cache.com/posts/5').respond(200, p1);
+
+    DS.create('post', { author: 'John', age: 30, id: 5 }).then(function (post) {
+      assert.deepEqual(post, p1, 'post 5 should have been created');
+    }, function (err) {
+      console.error(err.stack);
+      fail('should not have rejected');
+    });
+
+    $httpBackend.flush();
+
+    $httpBackend.expectPOST('http://test.angular-cache.com/posts').respond(200, p2);
+
+    DS.create('post', { author: 'Sue', age: 70, id: 6 }, { upsert: false }).then(function (post) {
+      assert.deepEqual(post, p2, 'post 6 should have been created');
+    }, function (err) {
+      console.error(err.stack);
+      fail('should not have rejected');
+    });
+
+    $httpBackend.flush();
+
+    assert.equal(lifecycle.beforeUpdate.callCount, 1, 'beforeUpdate should have been called');
+    assert.equal(lifecycle.afterUpdate.callCount, 1, 'afterUpdate should have been called');
+    assert.equal(lifecycle.beforeCreate.callCount, 1, 'beforeCreate should have been called');
+    assert.equal(lifecycle.afterCreate.callCount, 1, 'afterCreate should have been called');
+    assert.equal(lifecycle.beforeInject.callCount, 2, 'beforeInject should have been called twice');
+    assert.equal(lifecycle.afterInject.callCount, 2, 'afterInject should have been called twice');
+    assert.equal(lifecycle.serialize.callCount, 2, 'serialize should have been called twice');
+    assert.equal(lifecycle.deserialize.callCount, 2, 'deserialize should have been called twice');
+    assert.isDefined(DS.get('post', 5));
+    assert.isDefined(DS.get('post', 6));
+  });
   it('should create an item that includes relations, save them to the server and inject the results', function () {
     var payload = {
       id: 99,

@@ -43,6 +43,7 @@ var errorPrefix = 'DS.destroyAll(resourceName, params[, options]): ';
  *  - `{string|array=}` - `orderBy` - OrderBy clause.
  *
  * @param {object=} options Optional configuration. Properties:
+ *
  * - `{boolean=}` - `bypassCache` - Bypass the cache. Default: `false`.
  *
  * @returns {Promise} Promise produced by the `$q` service.
