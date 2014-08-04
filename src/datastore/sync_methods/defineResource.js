@@ -164,22 +164,29 @@ function defineResource(definition) {
     // Prepare for computed properties
     if (def.computed) {
       DS.utils.forOwn(def.computed, function (fn, field) {
+        if (angular.isFunction(fn)) {
+          def.computed[field] = [fn];
+          fn = def.computed[field];
+        }
         if (def.methods && field in def.methods) {
           DS.$log.warn(errorPrefix + 'Computed property "' + field + '" conflicts with previously defined prototype method!');
         }
         var deps;
-        if (angular.isFunction(fn)) {
-          var match = fn.toString().match(/function.*?\(([\s\S]*?)\)/);
+        if (fn.length === 1) {
+          var match = fn[0].toString().match(/function.*?\(([\s\S]*?)\)/);
           deps = match[1].split(',');
-          DS.$log.warn(errorPrefix + 'Use the computed property array for compatibility with minified code!');
-        } else {
-          deps = fn.slice(0, fn.length - 1);
+          def.computed[field] = deps.concat(fn);
+          fn = def.computed[field];
+          if (deps.length) {
+            DS.$log.warn(errorPrefix + 'Use the computed property array syntax for compatibility with minified code!');
+          }
         }
+        deps = fn.slice(0, fn.length - 1);
+        angular.forEach(deps, function (val, index) {
+          deps[index] = val.trim();
+        });
         fn.deps = DS.utils.filter(deps, function (dep) {
           return !!dep;
-        });
-        angular.forEach(fn.deps, function (val, index) {
-          fn.deps[index] = val.trim();
         });
       });
     }

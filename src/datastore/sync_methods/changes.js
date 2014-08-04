@@ -41,9 +41,21 @@ function changes(resourceName, id) {
   }
 
   var item = this.get(resourceName, id);
+  var _this = this;
+
   if (item) {
     this.store[resourceName].observers[id].deliver();
-    return this.utils.diffObjectFromOldObject(item, this.store[resourceName].previousAttributes[id]);
+    var diff = this.utils.diffObjectFromOldObject(item, this.store[resourceName].previousAttributes[id]);
+    this.utils.forOwn(diff, function (changeset, name) {
+      var toKeep = [];
+      _this.utils.forOwn(changeset, function (value, field) {
+        if (!angular.isFunction(value)) {
+          toKeep.push(field);
+        }
+      });
+      diff[name] = _this.utils.pick(diff[name], toKeep);
+    });
+    return diff;
   }
 }
 

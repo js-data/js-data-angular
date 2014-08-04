@@ -25,7 +25,9 @@ describe('DS.refresh(resourceName, id[, options]): ', function () {
   it('should get an item from the server', function () {
 
     // Should do nothing because the data isn't in the store
-    assert.isFalse(DS.refresh('post', 5));
+    DS.refresh('post', 5).then(function (post) {
+      assert.isUndefined(post);
+    });
 
     assert.isUndefined(DS.get('post', 5), 'The post should not be in the store yet');
 

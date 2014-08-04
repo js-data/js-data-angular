@@ -2402,7 +2402,7 @@ function find(resourceName, id, options) {
     var resource = this.store[resourceName];
     var _this = this;
 
-    if (options.bypassCache) {
+    if (options.bypassCache || !options.cacheResponse) {
       delete resource.completedQueries[id];
     }
 
@@ -2472,7 +2472,7 @@ function _findAll(utils, resourceName, params, options) {
     _this = this,
     queryHash = utils.toJson(params);
 
-  if (options.bypassCache) {
+  if (options.bypassCache || !options.cacheResponse) {
     delete resource.completedQueries[queryHash];
   }
 
@@ -2861,17 +2861,19 @@ var errorPrefix = 'DS.refresh(resourceName, id[, options]): ';
  *
  * ```js
  *  // Exists in the data store, but we want a fresh copy
- *  DS.get('document', 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f');
+ *  DS.get('document', 5);
  *
- *  DS.refresh('document', 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f')
+ *  DS.refresh('document', 5)
  *  .then(function (document) {
  *      document; // The fresh copy
  *  });
  *
  *  // Does not exist in the data store
- *  DS.get('document', 'aab7ff66-e21e-46e2-8be8-264d82aee535');
+ *  DS.get('document', 6); // undefined
  *
- *  DS.refresh('document', 'aab7ff66-e21e-46e2-8be8-264d82aee535'); // false
+ *  DS.refresh('document', 6).then(function (document) {
+ *      document; // undeinfed
+ *  }); // false
  * ```
  *
  * ## Throws
@@ -2882,8 +2884,7 @@ var errorPrefix = 'DS.refresh(resourceName, id[, options]): ';
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to refresh from the server.
  * @param {object=} options Optional configuration passed through to `DS.find` if it is called.
- * @returns {false|Promise} `false` if the item doesn't already exist in the data store. A `Promise` if the item does
- * exist in the data store and is being refreshed.
+ * @returns {Promise} A Promise created by the $q server.
  *
  * ## Resolves with:
  *
@@ -2911,7 +2912,9 @@ function refresh(resourceName, id, options) {
     if (this.get(resourceName, id)) {
       return this.find(resourceName, id, options);
     } else {
-      return false;
+      var deferred = this.$q.defer();
+      deferred.resolve();
+      return deferred.promise;
     }
   }
 }
@@ -4000,12 +4003,15 @@ function DSProvider() {
       DSUtils.deepFreeze(DS.errors);
       DSUtils.deepFreeze(DS.utils);
 
-      $rootScope.$watch(function () {
-        // Throttle angular-data's digest loop to tenths of a second
-        return new Date().getTime() / 100 | 0;
-      }, function () {
-        DS.digest();
-      });
+      if (typeof Object.observe !== 'function' ||
+        typeof Array.observe !== 'function') {
+        $rootScope.$watch(function () {
+          // Throttle angular-data's digest loop to tenths of a second
+          return new Date().getTime() / 100 | 0;
+        }, function () {
+          DS.digest();
+        });
+      }
 
       return DS;
     }
@@ -4210,9 +4216,21 @@ function changes(resourceName, id) {
   }
 
   var item = this.get(resourceName, id);
+  var _this = this;
+
   if (item) {
     this.store[resourceName].observers[id].deliver();
-    return this.utils.diffObjectFromOldObject(item, this.store[resourceName].previousAttributes[id]);
+    var diff = this.utils.diffObjectFromOldObject(item, this.store[resourceName].previousAttributes[id]);
+    this.utils.forOwn(diff, function (changeset, name) {
+      var toKeep = [];
+      _this.utils.forOwn(changeset, function (value, field) {
+        if (!angular.isFunction(value)) {
+          toKeep.push(field);
+        }
+      });
+      diff[name] = _this.utils.pick(diff[name], toKeep);
+    });
+    return diff;
   }
 }
 
@@ -4455,22 +4473,29 @@ function defineResource(definition) {
     // Prepare for computed properties
     if (def.computed) {
       DS.utils.forOwn(def.computed, function (fn, field) {
+        if (angular.isFunction(fn)) {
+          def.computed[field] = [fn];
+          fn = def.computed[field];
+        }
         if (def.methods && field in def.methods) {
           DS.$log.warn(errorPrefix + 'Computed property "' + field + '" conflicts with previously defined prototype method!');
         }
         var deps;
-        if (angular.isFunction(fn)) {
-          var match = fn.toString().match(/function.*?\(([\s\S]*?)\)/);
+        if (fn.length === 1) {
+          var match = fn[0].toString().match(/function.*?\(([\s\S]*?)\)/);
           deps = match[1].split(',');
-          DS.$log.warn(errorPrefix + 'Use the computed property array for compatibility with minified code!');
-        } else {
-          deps = fn.slice(0, fn.length - 1);
+          def.computed[field] = deps.concat(fn);
+          fn = def.computed[field];
+          if (deps.length) {
+            DS.$log.warn(errorPrefix + 'Use the computed property array syntax for compatibility with minified code!');
+          }
         }
+        deps = fn.slice(0, fn.length - 1);
+        angular.forEach(deps, function (val, index) {
+          deps[index] = val.trim();
+        });
         fn.deps = DS.utils.filter(deps, function (dep) {
           return !!dep;
-        });
-        angular.forEach(fn.deps, function (val, index) {
-          fn.deps[index] = val.trim();
         });
       });
     }
@@ -5120,17 +5145,14 @@ function _inject(definition, resource, attrs) {
             compute = true;
           }
         });
+        compute = compute || !fn.deps.length;
         if (compute) {
           var args = [];
           angular.forEach(fn.deps, function (dep) {
             args.push(item[dep]);
           });
           // recompute property
-          if (angular.isFunction(fn)) {
-            item[field] = fn.apply(item, args);
-          } else {
-            item[field] = fn[fn.length - 1].apply(item, args);
-          }
+          item[field] = fn[fn.length - 1].apply(item, args);
         }
       });
     }
@@ -5150,21 +5172,23 @@ function _inject(definition, resource, attrs) {
     }
   } else {
     // check if "idAttribute" is a computed property
-    if (definition.computed && definition.computed[definition.idAttribute]) {
+    var c = definition.computed;
+    var idA = definition.idAttribute;
+    if (c && c[idA]) {
       var args = [];
-      angular.forEach(definition.computed[definition.idAttribute].deps, function (dep) {
+      angular.forEach(c[idA].deps, function (dep) {
         args.push(attrs[dep]);
       });
-      attrs[definition.idAttribute] = definition.computed[definition.idAttribute].apply(attrs, args);
+      attrs[idA] = c[idA][c[idA].length - 1].apply(attrs, args);
     }
-    if (!(definition.idAttribute in attrs)) {
+    if (!(idA in attrs)) {
       var error = new _this.errors.R(errorPrefix + 'attrs: Must contain the property specified by `idAttribute`!');
       $log.error(error);
       throw error;
     } else {
       try {
         definition.beforeInject(definition.name, attrs);
-        var id = attrs[definition.idAttribute];
+        var id = attrs[idA];
         var item = this.get(definition.name, id);
 
         if (!item) {

@@ -69,7 +69,7 @@ function find(resourceName, id, options) {
     var resource = this.store[resourceName];
     var _this = this;
 
-    if (options.bypassCache) {
+    if (options.bypassCache || !options.cacheResponse) {
       delete resource.completedQueries[id];
     }
 

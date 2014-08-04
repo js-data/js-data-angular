@@ -192,13 +192,6 @@ describe('DS.defineResource(definition)', function () {
     var person = DS.get('person', 1);
     var dog = DS.get('dog', 1);
 
-    assert.deepEqual(JSON.stringify(person), JSON.stringify({
-      first: 'John',
-      last: 'Anderson',
-      email: 'john.anderson@test.com',
-      id: 1,
-      fullName: 'John Anderson'
-    }));
     assert.equal(person.fullName, 'John Anderson');
     assert.equal(dog.fullName, 'doggy dog');
     assert.equal(lifecycle.beforeInject.callCount, 2, 'beforeInject should have been called twice');
@@ -251,6 +244,45 @@ describe('DS.defineResource(definition)', function () {
         done();
       }, 50);
     }, 50);
+  });
+  it('should allow definition of computed properties that have no dependencies', function () {
+    DS.defineResource({
+      name: 'person',
+      computed: {
+        thing: function () {
+          return 'thing';
+        }
+      }
+    });
+
+    DS.defineResource({
+      name: 'dog',
+      computed: {
+        thing: [function () {
+          return 'thing';
+        }]
+      }
+    });
+
+    DS.inject('person', {
+      id: 1
+    });
+
+    DS.inject('dog', {
+      id: 1
+    });
+
+    var person = DS.get('person', 1);
+    var dog = DS.get('dog', 1);
+
+    assert.deepEqual(JSON.stringify(person), JSON.stringify({
+      id: 1,
+      thing: 'thing'
+    }));
+    assert.equal(person.thing, 'thing');
+    assert.equal(dog.thing, 'thing');
+    assert.equal(lifecycle.beforeInject.callCount, 2, 'beforeInject should have been called twice');
+    assert.equal(lifecycle.afterInject.callCount, 2, 'afterInject should have been called twice');
   });
   it('should work if idAttribute is a computed property computed property', function (done) {
     DS.defineResource({

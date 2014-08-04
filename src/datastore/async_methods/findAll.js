@@ -31,7 +31,7 @@ function _findAll(utils, resourceName, params, options) {
     _this = this,
     queryHash = utils.toJson(params);
 
-  if (options.bypassCache) {
+  if (options.bypassCache || !options.cacheResponse) {
     delete resource.completedQueries[queryHash];
   }
 

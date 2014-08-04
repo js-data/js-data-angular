@@ -1,7 +1,18 @@
-##### 0.10.4 - xx July 2014
+##### 0.10.4 - 04 August 2014
+
+###### Breaking API changes
+- #110 - `DS.refresh` now always returns a promise
 
 ###### Backwards compatible API changes
 - #103 - Add `upsert` option to `DS.create`
+- #107 - Computed properties no dependencies
+
+###### Backwards compatible bug fixes
+- #104 - Only hijack $rootScope digest when Object.observe is unavailable
+- #105 - prototype methods shouldn't be included in change sets
+- #106 - cacheResponse: false should force bypassCache to true
+- #108 - Computed properties array syntax and primary id
+- #110 - `DS.refresh` should still return a promise if the item isn't already in the data store
 
 ##### 0.10.3 - 24 July 2014
 

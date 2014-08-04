@@ -22,17 +22,14 @@ function _inject(definition, resource, attrs) {
             compute = true;
           }
         });
+        compute = compute || !fn.deps.length;
         if (compute) {
           var args = [];
           angular.forEach(fn.deps, function (dep) {
             args.push(item[dep]);
           });
           // recompute property
-          if (angular.isFunction(fn)) {
-            item[field] = fn.apply(item, args);
-          } else {
-            item[field] = fn[fn.length - 1].apply(item, args);
-          }
+          item[field] = fn[fn.length - 1].apply(item, args);
         }
       });
     }
@@ -52,21 +49,23 @@ function _inject(definition, resource, attrs) {
     }
   } else {
     // check if "idAttribute" is a computed property
-    if (definition.computed && definition.computed[definition.idAttribute]) {
+    var c = definition.computed;
+    var idA = definition.idAttribute;
+    if (c && c[idA]) {
       var args = [];
-      angular.forEach(definition.computed[definition.idAttribute].deps, function (dep) {
+      angular.forEach(c[idA].deps, function (dep) {
         args.push(attrs[dep]);
       });
-      attrs[definition.idAttribute] = definition.computed[definition.idAttribute].apply(attrs, args);
+      attrs[idA] = c[idA][c[idA].length - 1].apply(attrs, args);
     }
-    if (!(definition.idAttribute in attrs)) {
+    if (!(idA in attrs)) {
       var error = new _this.errors.R(errorPrefix + 'attrs: Must contain the property specified by `idAttribute`!');
       $log.error(error);
       throw error;
     } else {
       try {
         definition.beforeInject(definition.name, attrs);
-        var id = attrs[definition.idAttribute];
+        var id = attrs[idA];
         var item = this.get(definition.name, id);
 
         if (!item) {

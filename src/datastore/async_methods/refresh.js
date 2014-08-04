@@ -15,17 +15,19 @@ var errorPrefix = 'DS.refresh(resourceName, id[, options]): ';
  *
  * ```js
  *  // Exists in the data store, but we want a fresh copy
- *  DS.get('document', 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f');
+ *  DS.get('document', 5);
  *
- *  DS.refresh('document', 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f')
+ *  DS.refresh('document', 5)
  *  .then(function (document) {
  *      document; // The fresh copy
  *  });
  *
  *  // Does not exist in the data store
- *  DS.get('document', 'aab7ff66-e21e-46e2-8be8-264d82aee535');
+ *  DS.get('document', 6); // undefined
  *
- *  DS.refresh('document', 'aab7ff66-e21e-46e2-8be8-264d82aee535'); // false
+ *  DS.refresh('document', 6).then(function (document) {
+ *      document; // undeinfed
+ *  }); // false
  * ```
  *
  * ## Throws
@@ -36,8 +38,7 @@ var errorPrefix = 'DS.refresh(resourceName, id[, options]): ';
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to refresh from the server.
  * @param {object=} options Optional configuration passed through to `DS.find` if it is called.
- * @returns {false|Promise} `false` if the item doesn't already exist in the data store. A `Promise` if the item does
- * exist in the data store and is being refreshed.
+ * @returns {Promise} A Promise created by the $q server.
  *
  * ## Resolves with:
  *
@@ -65,7 +66,9 @@ function refresh(resourceName, id, options) {
     if (this.get(resourceName, id)) {
       return this.find(resourceName, id, options);
     } else {
-      return false;
+      var deferred = this.$q.defer();
+      deferred.resolve();
+      return deferred.promise;
     }
   }
 }

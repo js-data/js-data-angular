@@ -702,12 +702,15 @@ function DSProvider() {
       DSUtils.deepFreeze(DS.errors);
       DSUtils.deepFreeze(DS.utils);
 
-      $rootScope.$watch(function () {
-        // Throttle angular-data's digest loop to tenths of a second
-        return new Date().getTime() / 100 | 0;
-      }, function () {
-        DS.digest();
-      });
+      if (typeof Object.observe !== 'function' ||
+        typeof Array.observe !== 'function') {
+        $rootScope.$watch(function () {
+          // Throttle angular-data's digest loop to tenths of a second
+          return new Date().getTime() / 100 | 0;
+        }, function () {
+          DS.digest();
+        });
+      }
 
       return DS;
     }
