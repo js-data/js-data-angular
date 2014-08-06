@@ -26,7 +26,7 @@ var errorPrefix = 'DS.save(resourceName, id[, options]): ';
  * ```
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
- * @param {string|number} id The primary key of the item to retrieve.
+ * @param {string|number} id The primary key of the item to save.
  * @param {object=} options Optional configuration. Properties::
  *
  * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
