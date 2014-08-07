@@ -27,8 +27,7 @@ var errorPrefix = 'DS.create(resourceName, attrs[, options]): ';
  * ```
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
- * @param {object} attrs The attributes with which to update the item of the type specified by `resourceName` that has
- * the primary key specified by `id`.
+ * @param {object} attrs The attributes with which to create the item of the type specified by `resourceName`.
  * @param {object=} options Configuration options. Properties:
  *
  * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
