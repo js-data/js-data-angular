@@ -1,7 +1,7 @@
 /**
 * @author Jason Dobry <jason.dobry@gmail.com>
 * @file angular-data.js
-* @version 0.10.4 - Homepage <http://angular-data.pseudobry.com/>
+* @version 0.10.5 - Homepage <http://angular-data.pseudobry.com/>
 * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>
 * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
 *
@@ -2030,7 +2030,9 @@ function DSLocalStorageProvider() {
 module.exports = DSLocalStorageProvider;
 
 },{}],38:[function(require,module,exports){
-var errorPrefix = 'DS.create(resourceName, attrs[, options]): ';
+function errorPrefix(resourceName) {
+  return 'DS.create(' + resourceName + ', attrs[, options]): ';
+}
 
 /**
  * @doc method
@@ -2059,8 +2061,7 @@ var errorPrefix = 'DS.create(resourceName, attrs[, options]): ';
  * ```
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
- * @param {object} attrs The attributes with which to update the item of the type specified by `resourceName` that has
- * the primary key specified by `id`.
+ * @param {object} attrs The attributes with which to create the item of the type specified by `resourceName`.
  * @param {object=} options Configuration options. Properties:
  *
  * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
@@ -2085,9 +2086,9 @@ function create(resourceName, attrs, options) {
     options = options || {};
 
     if (!this.definitions[resourceName]) {
-      throw new this.errors.NER(errorPrefix + resourceName);
+      throw new this.errors.NER(errorPrefix(resourceName) + resourceName);
     } else if (!this.utils.isObject(attrs)) {
-      throw new this.errors.IA(errorPrefix + 'attrs: Must be an object!');
+      throw new this.errors.IA(errorPrefix(resourceName) + 'attrs: Must be an object!');
     }
     var definition = this.definitions[resourceName];
     var resource = this.store[resourceName];
@@ -2148,7 +2149,9 @@ function create(resourceName, attrs, options) {
 module.exports = create;
 
 },{}],39:[function(require,module,exports){
-var errorPrefix = 'DS.destroy(resourceName, id): ';
+function errorPrefix(resourceName, id) {
+  return 'DS.destroy(' + resourceName + ', ' + id + '): ';
+}
 
 /**
  * @doc method
@@ -2200,14 +2203,14 @@ function destroy(resourceName, id, options) {
     options = options || {};
 
     if (!this.definitions[resourceName]) {
-      throw new this.errors.NER(errorPrefix + resourceName);
+      throw new this.errors.NER(errorPrefix(resourceName, id) + resourceName);
     } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-      throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
+      throw new this.errors.IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
     }
 
     var item = this.get(resourceName, id);
     if (!item) {
-      throw new this.errors.R(errorPrefix + 'id: "' + id + '" not found!');
+      throw new this.errors.R(errorPrefix(resourceName, id) + 'id: "' + id + '" not found!');
     }
 
     var definition = this.definitions[resourceName];
@@ -2238,7 +2241,9 @@ function destroy(resourceName, id, options) {
 module.exports = destroy;
 
 },{}],40:[function(require,module,exports){
-var errorPrefix = 'DS.destroyAll(resourceName, params[, options]): ';
+function errorPrefix(resourceName) {
+  return 'DS.destroyAll(' + resourceName + ', params[, options]): ';
+}
 
 /**
  * @doc method
@@ -2304,11 +2309,11 @@ function destroyAll(resourceName, params, options) {
     options = options || {};
 
     if (!this.definitions[resourceName]) {
-      throw new this.errors.NER(errorPrefix + resourceName);
+      throw new this.errors.NER(errorPrefix(resourceName) + resourceName);
     } else if (!this.utils.isObject(params)) {
-      throw new IA(errorPrefix + 'params: Must be an object!');
+      throw new IA(errorPrefix(resourceName) + 'params: Must be an object!');
     } else if (!this.utils.isObject(options)) {
-      throw new IA(errorPrefix + 'options: Must be an object!');
+      throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
     }
 
     var definition = this.definitions[resourceName];
@@ -2331,7 +2336,9 @@ function destroyAll(resourceName, params, options) {
 module.exports = destroyAll;
 
 },{}],41:[function(require,module,exports){
-var errorPrefix = 'DS.find(resourceName, id[, options]): ';
+function errorPrefix(resourceName, id) {
+  return 'DS.find(' + resourceName + ', ' + id + '[, options]): ';
+}
 
 /**
  * @doc method
@@ -2387,11 +2394,11 @@ function find(resourceName, id, options) {
     options = options || {};
 
     if (!this.definitions[resourceName]) {
-      throw new this.errors.NER(errorPrefix + resourceName);
+      throw new this.errors.NER(errorPrefix(resourceName, id) + resourceName);
     } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-      throw new IA(errorPrefix + 'id: Must be a string or a number!');
+      throw new IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
     } else if (!this.utils.isObject(options)) {
-      throw new IA(errorPrefix + 'options: Must be an object!');
+      throw new IA(errorPrefix(resourceName, id) + 'options: Must be an object!');
     }
 
     if (!('cacheResponse' in options)) {
@@ -2439,12 +2446,14 @@ function find(resourceName, id, options) {
 module.exports = find;
 
 },{}],42:[function(require,module,exports){
-var errorPrefix = 'DS.findAll(resourceName, params[, options]): ';
+function errorPrefix(resourceName) {
+  return 'DS.findAll(' + resourceName + ', params[, options]): ';
+}
 
-function processResults(utils, data, resourceName, queryHash) {
-  var resource = this.store[resourceName],
-    idAttribute = this.definitions[resourceName].idAttribute,
-    date = new Date().getTime();
+function processResults(data, resourceName, queryHash) {
+  var resource = this.store[resourceName];
+  var idAttribute = this.definitions[resourceName].idAttribute;
+  var date = new Date().getTime();
 
   data = data || [];
 
@@ -2453,24 +2462,31 @@ function processResults(utils, data, resourceName, queryHash) {
   resource.completedQueries[queryHash] = date;
 
   // Update modified timestamp of collection
-  resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
+  resource.collectionModified = this.utils.updateTimestamp(resource.collectionModified);
 
   // Merge the new values into the cache
   var injected = this.inject(resourceName, data);
 
   // Make sure each object is added to completedQueries
-  angular.forEach(injected, function (item) {
-    resource.completedQueries[item[idAttribute]] = date;
-  });
+  if (this.utils.isArray(injected)) {
+    angular.forEach(injected, function (item) {
+      if (item && item[idAttribute]) {
+        resource.completedQueries[item[idAttribute]] = date;
+      }
+    });
+  } else {
+    this.$log.warn(errorPrefix(resourceName) + 'response is expected to be an array!');
+    resource.completedQueries[injected[idAttribute]] = date;
+  }
 
   return injected;
 }
 
-function _findAll(utils, resourceName, params, options) {
-  var definition = this.definitions[resourceName],
-    resource = this.store[resourceName],
-    _this = this,
-    queryHash = utils.toJson(params);
+function _findAll(resourceName, params, options) {
+  var definition = this.definitions[resourceName];
+  var resource = this.store[resourceName];
+  var _this = this;
+  var queryHash = _this.utils.toJson(params);
 
   if (options.bypassCache || !options.cacheResponse) {
     delete resource.completedQueries[queryHash];
@@ -2487,7 +2503,7 @@ function _findAll(utils, resourceName, params, options) {
           var data = definition.deserialize(resourceName, res);
           if (options.cacheResponse) {
             try {
-              return processResults.apply(_this, [utils, data, resourceName, queryHash]);
+              return processResults.apply(_this, [data, resourceName, queryHash]);
             } catch (err) {
               return _this.$q.reject(err);
             }
@@ -2580,11 +2596,11 @@ function findAll(resourceName, params, options) {
     params = params || {};
 
     if (!this.definitions[resourceName]) {
-      throw new this.errors.NER(errorPrefix + resourceName);
+      throw new this.errors.NER(errorPrefix(resourceName) + resourceName);
     } else if (!this.utils.isObject(params)) {
-      throw new IA(errorPrefix + 'params: Must be an object!');
+      throw new IA(errorPrefix(resourceName) + 'params: Must be an object!');
     } else if (!this.utils.isObject(options)) {
-      throw new IA(errorPrefix + 'options: Must be an object!');
+      throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
     }
 
     if (!('cacheResponse' in options)) {
@@ -2592,7 +2608,7 @@ function findAll(resourceName, params, options) {
     }
 
     promise = promise.then(function () {
-      return _findAll.apply(_this, [_this.utils, resourceName, params, options]);
+      return _findAll.apply(_this, [resourceName, params, options]);
     });
     deferred.resolve();
   } catch (err) {
@@ -2708,7 +2724,9 @@ module.exports = {
 };
 
 },{"./create":38,"./destroy":39,"./destroyAll":40,"./find":41,"./findAll":42,"./loadRelations":44,"./refresh":45,"./save":46,"./update":47,"./updateAll":48}],44:[function(require,module,exports){
-var errorPrefix = 'DS.loadRelations(resourceName, instance(Id), relations[, options]): ';
+function errorPrefix(resourceName) {
+  return 'DS.loadRelations(' + resourceName + ', instance(Id), relations[, options]): ';
+}
 
 /**
  * @doc method
@@ -2781,13 +2799,13 @@ function loadRelations(resourceName, instance, relations, options) {
     }
 
     if (!this.definitions[resourceName]) {
-      throw new this.errors.NER(errorPrefix + resourceName);
+      throw new this.errors.NER(errorPrefix(resourceName) + resourceName);
     } else if (!this.utils.isObject(instance)) {
-      throw new IA(errorPrefix + 'instance(Id): Must be a string, number or object!');
+      throw new IA(errorPrefix(resourceName) + 'instance(Id): Must be a string, number or object!');
     } else if (!this.utils.isArray(relations)) {
-      throw new IA(errorPrefix + 'relations: Must be a string or an array!');
+      throw new IA(errorPrefix(resourceName) + 'relations: Must be a string or an array!');
     } else if (!this.utils.isObject(options)) {
-      throw new IA(errorPrefix + 'options: Must be an object!');
+      throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
     }
 
     var definition = this.definitions[resourceName];
@@ -2844,7 +2862,9 @@ function loadRelations(resourceName, instance, relations, options) {
 module.exports = loadRelations;
 
 },{}],45:[function(require,module,exports){
-var errorPrefix = 'DS.refresh(resourceName, id[, options]): ';
+function errorPrefix(resourceName, id) {
+  return 'DS.refresh(' + resourceName + ', ' + id + '[, options]): ';
+}
 
 /**
  * @doc method
@@ -2901,11 +2921,11 @@ function refresh(resourceName, id, options) {
   options = options || {};
 
   if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix + resourceName);
+    throw new this.errors.NER(errorPrefix(resourceName, id) + resourceName);
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new IA(errorPrefix + 'id: Must be a string or a number!');
+    throw new IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
   } else if (!this.utils.isObject(options)) {
-    throw new IA(errorPrefix + 'options: Must be an object!');
+    throw new IA(errorPrefix(resourceName, id) + 'options: Must be an object!');
   } else {
     options.bypassCache = true;
 
@@ -2922,7 +2942,9 @@ function refresh(resourceName, id, options) {
 module.exports = refresh;
 
 },{}],46:[function(require,module,exports){
-var errorPrefix = 'DS.save(resourceName, id[, options]): ';
+function errorPrefix(resourceName, id) {
+  return 'DS.save(' + resourceName + ', ' + id + '[, options]): ';
+}
 
 /**
  * @doc method
@@ -2950,7 +2972,7 @@ var errorPrefix = 'DS.save(resourceName, id[, options]): ';
  * ```
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
- * @param {string|number} id The primary key of the item to retrieve.
+ * @param {string|number} id The primary key of the item to save.
  * @param {object=} options Optional configuration. Properties::
  *
  * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
@@ -2978,16 +3000,16 @@ function save(resourceName, id, options) {
     options = options || {};
 
     if (!this.definitions[resourceName]) {
-      throw new this.errors.NER(errorPrefix + resourceName);
+      throw new this.errors.NER(errorPrefix(resourceName, id) + resourceName);
     } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-      throw new IA(errorPrefix + 'id: Must be a string or a number!');
+      throw new IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
     } else if (!this.utils.isObject(options)) {
-      throw new IA(errorPrefix + 'options: Must be an object!');
+      throw new IA(errorPrefix(resourceName, id) + 'options: Must be an object!');
     }
 
     var item = this.get(resourceName, id);
     if (!item) {
-      throw new this.errors.R(errorPrefix + 'id: "' + id + '" not found!');
+      throw new this.errors.R(errorPrefix(resourceName, id) + 'id: "' + id + '" not found!');
     }
 
     var definition = this.definitions[resourceName];
@@ -3058,7 +3080,9 @@ function save(resourceName, id, options) {
 module.exports = save;
 
 },{}],47:[function(require,module,exports){
-var errorPrefix = 'DS.update(resourceName, id, attrs[, options]): ';
+function errorPrefix(resourceName, id) {
+  return 'DS.update(' + resourceName + ', ' + id + ', attrs[, options]): ';
+}
 
 /**
  * @doc method
@@ -3115,13 +3139,13 @@ function update(resourceName, id, attrs, options) {
     options = options || {};
 
     if (!this.definitions[resourceName]) {
-      throw new this.errors.NER(errorPrefix + resourceName);
+      throw new this.errors.NER(errorPrefix(resourceName, id) + resourceName);
     } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-      throw new IA(errorPrefix + 'id: Must be a string or a number!');
+      throw new IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
     } else if (!this.utils.isObject(attrs)) {
-      throw new IA(errorPrefix + 'attrs: Must be an object!');
+      throw new IA(errorPrefix(resourceName, id) + 'attrs: Must be an object!');
     } else if (!this.utils.isObject(options)) {
-      throw new IA(errorPrefix + 'options: Must be an object!');
+      throw new IA(errorPrefix(resourceName, id) + 'options: Must be an object!');
     }
 
     var definition = this.definitions[resourceName];
@@ -3174,7 +3198,9 @@ function update(resourceName, id, attrs, options) {
 module.exports = update;
 
 },{}],48:[function(require,module,exports){
-var errorPrefix = 'DS.updateAll(resourceName, attrs, params[, options]): ';
+function errorPrefix(resourceName) {
+  return 'DS.updateAll(' + resourceName + ', attrs, params[, options]): ';
+}
 
 /**
  * @doc method
@@ -3245,13 +3271,13 @@ function updateAll(resourceName, attrs, params, options) {
     options = options || {};
 
     if (!this.definitions[resourceName]) {
-      throw new this.errors.NER(errorPrefix + resourceName);
+      throw new this.errors.NER(errorPrefix(resourceName) + resourceName);
     } else if (!this.utils.isObject(attrs)) {
-      throw new IA(errorPrefix + 'attrs: Must be an object!');
+      throw new IA(errorPrefix(resourceName) + 'attrs: Must be an object!');
     } else if (!this.utils.isObject(params)) {
-      throw new IA(errorPrefix + 'params: Must be an object!');
+      throw new IA(errorPrefix(resourceName) + 'params: Must be an object!');
     } else if (!this.utils.isObject(options)) {
-      throw new IA(errorPrefix + 'options: Must be an object!');
+      throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
     }
 
     var definition = this.definitions[resourceName];
@@ -4021,7 +4047,9 @@ function DSProvider() {
 module.exports = DSProvider;
 
 },{"../utils":68,"./async_methods":43,"./sync_methods":61}],50:[function(require,module,exports){
-var errorPrefix = 'DS.bindAll(scope, expr, resourceName, params[, cb]): ';
+function errorPrefix(resourceName) {
+  return 'DS.bindAll(scope, expr, ' + resourceName + ', params[, cb]): ';
+}
 
 /**
  * @doc method
@@ -4070,13 +4098,13 @@ function bindOne(scope, expr, resourceName, params, cb) {
   var IA = this.errors.IA;
 
   if (!this.utils.isObject(scope)) {
-    throw new IA(errorPrefix + 'scope: Must be an object!');
+    throw new IA(errorPrefix(resourceName) + 'scope: Must be an object!');
   } else if (!this.utils.isString(expr)) {
-    throw new IA(errorPrefix + 'expr: Must be a string!');
+    throw new IA(errorPrefix(resourceName) + 'expr: Must be a string!');
   } else if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix + resourceName);
+    throw new this.errors.NER(errorPrefix(resourceName) + resourceName);
   } else if (!this.utils.isObject(params)) {
-    throw new IA(errorPrefix + 'params: Must be an object!');
+    throw new IA(errorPrefix(resourceName) + 'params: Must be an object!');
   }
 
   var _this = this;
@@ -4103,7 +4131,9 @@ function bindOne(scope, expr, resourceName, params, cb) {
 module.exports = bindOne;
 
 },{}],51:[function(require,module,exports){
-var errorPrefix = 'DS.bindOne(scope, expr, resourceName, id[, cb]): ';
+function errorPrefix(resourceName) {
+  return 'DS.bindOne(scope, expr, ' + resourceName + ', id[, cb]): ';
+}
 
 /**
  * @doc method
@@ -4140,13 +4170,13 @@ function bindOne(scope, expr, resourceName, id, cb) {
   var IA = this.errors.IA;
 
   if (!this.utils.isObject(scope)) {
-    throw new IA(errorPrefix + 'scope: Must be an object!');
+    throw new IA(errorPrefix(resourceName) + 'scope: Must be an object!');
   } else if (!this.utils.isString(expr)) {
-    throw new IA(errorPrefix + 'expr: Must be a string!');
+    throw new IA(errorPrefix(resourceName) + 'expr: Must be a string!');
   } else if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix + resourceName);
+    throw new this.errors.NER(errorPrefix(resourceName) + resourceName);
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new IA(errorPrefix + 'id: Must be a string or a number!');
+    throw new IA(errorPrefix(resourceName) + 'id: Must be a string or a number!');
   }
 
   var _this = this;
@@ -4173,7 +4203,9 @@ function bindOne(scope, expr, resourceName, id, cb) {
 module.exports = bindOne;
 
 },{}],52:[function(require,module,exports){
-var errorPrefix = 'DS.changes(resourceName, id): ';
+function errorPrefix(resourceName) {
+  return 'DS.changes(' + resourceName + ', id): ';
+}
 
 /**
  * @doc method
@@ -4210,9 +4242,9 @@ var errorPrefix = 'DS.changes(resourceName, id): ';
  */
 function changes(resourceName, id) {
   if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix + resourceName);
+    throw new this.errors.NER(errorPrefix(resourceName) + resourceName);
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
+    throw new this.errors.IA(errorPrefix(resourceName) + 'id: Must be a string or a number!');
   }
 
   var item = this.get(resourceName, id);
@@ -4237,7 +4269,9 @@ function changes(resourceName, id) {
 module.exports = changes;
 
 },{}],53:[function(require,module,exports){
-var errorPrefix = 'DS.createInstance(resourceName[, attrs][, options]): ';
+function errorPrefix(resourceName) {
+  return 'DS.createInstance(' + resourceName + '[, attrs][, options]): ';
+}
 
 /**
  * @doc method
@@ -4282,11 +4316,11 @@ function createInstance(resourceName, attrs, options) {
   options = options || {};
 
   if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix + resourceName);
+    throw new this.errors.NER(errorPrefix(resourceName) + resourceName);
   } else if (attrs && !this.utils.isObject(attrs)) {
-    throw new IA(errorPrefix + 'attrs: Must be an object!');
+    throw new IA(errorPrefix(resourceName) + 'attrs: Must be an object!');
   } else if (!this.utils.isObject(options)) {
-    throw new IA(errorPrefix + 'options: Must be an object!');
+    throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
   }
 
   if (!('useClass' in options)) {
@@ -4577,7 +4611,9 @@ function digest() {
 module.exports = digest;
 
 },{"../../../lib/observe-js/observe-js":1}],56:[function(require,module,exports){
-var errorPrefix = 'DS.eject(resourceName, id): ';
+function errorPrefix(resourceName, id) {
+  return 'DS.eject(' + resourceName + ', ' + id + '): ';
+}
 
 function _eject(definition, resource, id) {
   var found = false;
@@ -4632,9 +4668,9 @@ function _eject(definition, resource, id) {
  */
 function eject(resourceName, id) {
   if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix + resourceName);
+    throw new this.errors.NER(errorPrefix(resourceName, id) + resourceName);
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
+    throw new this.errors.IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
   }
 
   var resource = this.store[resourceName];
@@ -4655,7 +4691,9 @@ function eject(resourceName, id) {
 module.exports = eject;
 
 },{}],57:[function(require,module,exports){
-var errorPrefix = 'DS.ejectAll(resourceName[, params]): ';
+function errorPrefix(resourceName) {
+  return 'DS.ejectAll(' + resourceName + '[, params]): ';
+}
 
 function _ejectAll(definition, resource, params) {
   var queryHash = this.utils.toJson(params);
@@ -4734,9 +4772,9 @@ function ejectAll(resourceName, params) {
   params = params || {};
 
   if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix + resourceName);
+    throw new this.errors.NER(errorPrefix(resourceName) + resourceName);
   } else if (!this.utils.isObject(params)) {
-    throw new this.errors.IA(errorPrefix + 'params: Must be an object!');
+    throw new this.errors.IA(errorPrefix(resourceName) + 'params: Must be an object!');
   }
 
   var _this = this;
@@ -4763,7 +4801,9 @@ function ejectAll(resourceName, params) {
 module.exports = ejectAll;
 
 },{}],58:[function(require,module,exports){
-var errorPrefix = 'DS.filter(resourceName[, params][, options]): ';
+function errorPrefix(resourceName) {
+  return 'DS.filter(' + resourceName + '[, params][, options]): ';
+}
 
 /**
  * @doc method
@@ -4810,11 +4850,11 @@ function filter(resourceName, params, options) {
   options = options || {};
 
   if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix + resourceName);
+    throw new this.errors.NER(errorPrefix(resourceName) + resourceName);
   } else if (params && !this.utils.isObject(params)) {
-    throw new IA(errorPrefix + 'params: Must be an object!');
+    throw new IA(errorPrefix(resourceName) + 'params: Must be an object!');
   } else if (!this.utils.isObject(options)) {
-    throw new IA(errorPrefix + 'options: Must be an object!');
+    throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
   }
 
   var definition = this.definitions[resourceName];
@@ -4846,7 +4886,9 @@ function filter(resourceName, params, options) {
 module.exports = filter;
 
 },{}],59:[function(require,module,exports){
-var errorPrefix = 'DS.get(resourceName, id[, options]): ';
+function errorPrefix(resourceName, id) {
+  return 'DS.get(' + resourceName + ', ' + id + '): ';
+}
 
 /**
  * @doc method
@@ -4886,11 +4928,11 @@ function get(resourceName, id, options) {
   options = options || {};
 
   if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix + resourceName);
+    throw new this.errors.NER(errorPrefix(resourceName, id) + resourceName);
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new IA(errorPrefix + 'id: Must be a string or a number!');
+    throw new IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
   } else if (!this.utils.isObject(options)) {
-    throw new IA(errorPrefix + 'options: Must be an object!');
+    throw new IA(errorPrefix(resourceName, id) + 'options: Must be an object!');
   }
   var _this = this;
 
@@ -4909,7 +4951,9 @@ function get(resourceName, id, options) {
 module.exports = get;
 
 },{}],60:[function(require,module,exports){
-var errorPrefix = 'DS.hasChanges(resourceName, id): ';
+function errorPrefix(resourceName, id) {
+  return 'DS.hasChanges(' + resourceName + ', ' + id + '): ';
+}
 
 function diffIsEmpty(utils, diff) {
   return !(utils.isEmpty(diff.added) &&
@@ -4951,9 +4995,9 @@ function diffIsEmpty(utils, diff) {
  */
 function hasChanges(resourceName, id) {
   if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix + resourceName);
+    throw new this.errors.NER(errorPrefix(resourceName, id) + resourceName);
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
+    throw new this.errors.IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
   }
 
   // return resource from cache
@@ -5122,7 +5166,9 @@ module.exports = {
 
 },{"./bindAll":50,"./bindOne":51,"./changes":52,"./createInstance":53,"./defineResource":54,"./digest":55,"./eject":56,"./ejectAll":57,"./filter":58,"./get":59,"./hasChanges":60,"./inject":62,"./lastModified":63,"./lastSaved":64,"./previous":65}],62:[function(require,module,exports){
 var observe = require('../../../lib/observe-js/observe-js');
-var errorPrefix = 'DS.inject(resourceName, attrs[, options]): ';
+function errorPrefix(resourceName) {
+  return 'DS.inject(' + resourceName + ', attrs[, options]): ';
+}
 
 function _inject(definition, resource, attrs) {
   var _this = this;
@@ -5182,7 +5228,7 @@ function _inject(definition, resource, attrs) {
       attrs[idA] = c[idA][c[idA].length - 1].apply(attrs, args);
     }
     if (!(idA in attrs)) {
-      var error = new _this.errors.R(errorPrefix + 'attrs: Must contain the property specified by `idAttribute`!');
+      var error = new _this.errors.R(errorPrefix(definition.name) + 'attrs: Must contain the property specified by `idAttribute`!');
       $log.error(error);
       throw error;
     } else {
@@ -5242,7 +5288,7 @@ function _injectRelations(definition, injected) {
         try {
           injected[def.localField] = _this.inject(relationName, injected[def.localField]);
         } catch (err) {
-          _this.$log.error(errorPrefix + 'Failed to inject ' + type + ' relation: "' + relationName + '"!', err);
+          _this.$log.error(errorPrefix(definition.name) + 'Failed to inject ' + type + ' relation: "' + relationName + '"!', err);
         }
       }
     });
@@ -5300,11 +5346,11 @@ function inject(resourceName, attrs, options) {
   options = options || {};
 
   if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix + resourceName);
+    throw new this.errors.NER(errorPrefix(resourceName) + resourceName);
   } else if (!this.utils.isObject(attrs) && !this.utils.isArray(attrs)) {
-    throw new IA(errorPrefix + 'attrs: Must be an object or an array!');
+    throw new IA(errorPrefix(resourceName) + 'attrs: Must be an object or an array!');
   } else if (!this.utils.isObject(options)) {
-    throw new IA(errorPrefix + 'options: Must be an object!');
+    throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
   }
 
   var definition = this.definitions[resourceName];
@@ -5329,7 +5375,9 @@ function inject(resourceName, attrs, options) {
 module.exports = inject;
 
 },{"../../../lib/observe-js/observe-js":1}],63:[function(require,module,exports){
-var errorPrefix = 'DS.lastModified(resourceName[, id]): ';
+function errorPrefix(resourceName, id) {
+  return 'DS.lastModified(' + resourceName + '[, ' + id + ']): ';
+}
 
 /**
  * @doc method
@@ -5366,9 +5414,9 @@ var errorPrefix = 'DS.lastModified(resourceName[, id]): ';
  */
 function lastModified(resourceName, id) {
   if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix + resourceName);
+    throw new this.errors.NER(errorPrefix(resourceName, id) + resourceName);
   } else if (id && !this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
+    throw new this.errors.IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
   }
   if (id) {
     if (!(id in this.store[resourceName].modified)) {
@@ -5382,7 +5430,9 @@ function lastModified(resourceName, id) {
 module.exports = lastModified;
 
 },{}],64:[function(require,module,exports){
-var errorPrefix = 'DS.lastSaved(resourceName[, id]): ';
+function errorPrefix(resourceName, id) {
+  return 'DS.lastSaved(' + resourceName + '[, ' + id + ']): ';
+}
 
 /**
  * @doc method
@@ -5425,9 +5475,9 @@ var errorPrefix = 'DS.lastSaved(resourceName[, id]): ';
  */
 function lastSaved(resourceName, id) {
   if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix + resourceName);
+    throw new this.errors.NER(errorPrefix(resourceName, id) + resourceName);
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
+    throw new this.errors.IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
   }
   if (!(id in this.store[resourceName].saved)) {
     this.store[resourceName].saved[id] = 0;
@@ -5438,7 +5488,9 @@ function lastSaved(resourceName, id) {
 module.exports = lastSaved;
 
 },{}],65:[function(require,module,exports){
-var errorPrefix = 'DS.previous(resourceName, id): ';
+function errorPrefix(resourceName, id) {
+  return 'DS.previous(' + resourceName + '[, ' + id + ']): ';
+}
 
 /**
  * @doc method
@@ -5476,9 +5528,9 @@ var errorPrefix = 'DS.previous(resourceName, id): ';
  */
 function previous(resourceName, id) {
   if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix + resourceName);
+    throw new this.errors.NER(errorPrefix(resourceName, id) + resourceName);
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
+    throw new this.errors.IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
   }
 
   // return resource from cache

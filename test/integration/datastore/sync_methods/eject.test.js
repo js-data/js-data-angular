@@ -1,17 +1,19 @@
 describe('DS.eject(resourceName, id)', function () {
-  var errorPrefix = 'DS.eject(resourceName, id): ';
+  function errorPrefix(resourceName, id) {
+    return 'DS.eject(' + resourceName + ', ' + id + '): ';
+  }
 
   beforeEach(startInjector);
 
   it('should throw an error when method pre-conditions are not met', function () {
     assert.throws(function () {
       DS.eject('does not exist', 5);
-    }, DS.errors.NonexistentResourceError, errorPrefix + 'does not exist is not a registered resource!');
+    }, DS.errors.NonexistentResourceError, errorPrefix('does not exist', 5) + 'does not exist is not a registered resource!');
 
     angular.forEach(TYPES_EXCEPT_STRING_OR_NUMBER, function (key) {
       assert.throws(function () {
         DS.eject('post', key);
-      }, DS.errors.IllegalArgumentError, errorPrefix + 'id: Must be a string or a number!');
+      }, DS.errors.IllegalArgumentError, errorPrefix('post', key) + 'id: Must be a string or a number!');
     });
   });
   it('should do nothing if the item is not in the store', function () {

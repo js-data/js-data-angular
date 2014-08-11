@@ -1,24 +1,26 @@
 describe('DS.refresh(resourceName, id[, options]): ', function () {
-  var errorPrefix = 'DS.refresh(resourceName, id[, options]): ';
+  function errorPrefix(resourceName, id) {
+    return 'DS.refresh(' + resourceName + ', ' + id + '[, options]): ';
+  }
 
   beforeEach(startInjector);
 
   it('should throw an error when method pre-conditions are not met', function () {
     assert.throws(function () {
       DS.refresh('does not exist', 5);
-    }, DS.errors.NonexistentResourceError, errorPrefix + 'does not exist is not a registered resource!');
+    }, DS.errors.NonexistentResourceError, errorPrefix('does not exist', 5) + 'does not exist is not a registered resource!');
 
     angular.forEach(TYPES_EXCEPT_STRING_OR_NUMBER, function (key) {
       assert.throws(function () {
         DS.refresh('post', key);
-      }, DS.errors.IllegalArgumentError, errorPrefix + 'id: Must be a string or a number!');
+      }, DS.errors.IllegalArgumentError, errorPrefix('post', key) + 'id: Must be a string or a number!');
     });
 
     angular.forEach(TYPES_EXCEPT_OBJECT, function (key) {
       if (key) {
         assert.throws(function () {
           DS.refresh('post', 5, key);
-        }, DS.errors.IllegalArgumentError, errorPrefix + 'options: Must be an object!');
+        }, DS.errors.IllegalArgumentError, errorPrefix('post', 5) + 'options: Must be an object!');
       }
     });
   });

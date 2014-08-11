@@ -1,4 +1,6 @@
-var errorPrefix = 'DS.ejectAll(resourceName[, params]): ';
+function errorPrefix(resourceName) {
+  return 'DS.ejectAll(' + resourceName + '[, params]): ';
+}
 
 function _ejectAll(definition, resource, params) {
   var queryHash = this.utils.toJson(params);
@@ -77,9 +79,9 @@ function ejectAll(resourceName, params) {
   params = params || {};
 
   if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix + resourceName);
+    throw new this.errors.NER(errorPrefix(resourceName) + resourceName);
   } else if (!this.utils.isObject(params)) {
-    throw new this.errors.IA(errorPrefix + 'params: Must be an object!');
+    throw new this.errors.IA(errorPrefix(resourceName) + 'params: Must be an object!');
   }
 
   var _this = this;

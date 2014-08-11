@@ -1,4 +1,6 @@
-var errorPrefix = 'DS.updateAll(resourceName, attrs, params[, options]): ';
+function errorPrefix(resourceName) {
+  return 'DS.updateAll(' + resourceName + ', attrs, params[, options]): ';
+}
 
 /**
  * @doc method
@@ -69,13 +71,13 @@ function updateAll(resourceName, attrs, params, options) {
     options = options || {};
 
     if (!this.definitions[resourceName]) {
-      throw new this.errors.NER(errorPrefix + resourceName);
+      throw new this.errors.NER(errorPrefix(resourceName) + resourceName);
     } else if (!this.utils.isObject(attrs)) {
-      throw new IA(errorPrefix + 'attrs: Must be an object!');
+      throw new IA(errorPrefix(resourceName) + 'attrs: Must be an object!');
     } else if (!this.utils.isObject(params)) {
-      throw new IA(errorPrefix + 'params: Must be an object!');
+      throw new IA(errorPrefix(resourceName) + 'params: Must be an object!');
     } else if (!this.utils.isObject(options)) {
-      throw new IA(errorPrefix + 'options: Must be an object!');
+      throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
     }
 
     var definition = this.definitions[resourceName];

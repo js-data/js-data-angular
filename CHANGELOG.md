@@ -1,3 +1,11 @@
+##### 0.10.5 - 11 August 2014
+
+###### Backwards compatible API changes
+- #114 - Include resourceName in error messages
+
+###### Backwards compatible bug fixes
+- #113 - FindAll with object as a result
+
 ##### 0.10.4 - 04 August 2014
 
 ###### Breaking API changes

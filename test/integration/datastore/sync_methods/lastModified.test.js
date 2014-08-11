@@ -1,18 +1,20 @@
 describe('DS.lastModified(resourceName[, id])', function () {
-  var errorPrefix = 'DS.lastModified(resourceName[, id]): ';
+  function errorPrefix(resourceName, id) {
+    return 'DS.lastModified(' + resourceName + '[, ' + id + ']): ';
+  }
 
   beforeEach(startInjector);
 
   it('should throw an error when method pre-conditions are not met', function () {
     assert.throws(function () {
       DS.lastModified('does not exist', {});
-    }, DS.errors.NonexistentResourceError, errorPrefix + 'does not exist is not a registered resource!');
+    }, DS.errors.NonexistentResourceError, errorPrefix('does not exist', {}) + 'does not exist is not a registered resource!');
 
     angular.forEach(TYPES_EXCEPT_STRING_OR_NUMBER, function (key) {
       if (key) {
         assert.throws(function () {
           DS.lastModified('post', key);
-        }, DS.errors.IllegalArgumentError, errorPrefix + 'id: Must be a string or a number!');
+        }, DS.errors.IllegalArgumentError, errorPrefix('post', key) + 'id: Must be a string or a number!');
       }
     });
   });

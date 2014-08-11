@@ -1,18 +1,20 @@
 describe('DS.filter(resourceName[, params][, options])', function () {
-  var errorPrefix = 'DS.filter(resourceName[, params][, options]): ';
+  function errorPrefix(resourceName) {
+    return 'DS.filter(' + resourceName + '[, params][, options]): ';
+  }
 
   beforeEach(startInjector);
 
   it('should throw an error when method pre-conditions are not met', function () {
     assert.throws(function () {
       DS.filter('does not exist');
-    }, DS.errors.NonexistentResourceError, errorPrefix + 'does not exist is not a registered resource!');
+    }, DS.errors.NonexistentResourceError, errorPrefix('does not exist') + 'does not exist is not a registered resource!');
 
     angular.forEach(TYPES_EXCEPT_OBJECT, function (key) {
       if (key) {
         assert.throws(function () {
           DS.filter('post', key);
-        }, DS.errors.IllegalArgumentError, errorPrefix + 'params: Must be an object!');
+        }, DS.errors.IllegalArgumentError, errorPrefix('post') + 'params: Must be an object!');
       }
     });
 
@@ -22,7 +24,7 @@ describe('DS.filter(resourceName[, params][, options])', function () {
       if (key) {
         assert.throws(function () {
           DS.filter('post', {}, key);
-        }, DS.errors.IllegalArgumentError, errorPrefix + 'options: Must be an object!');
+        }, DS.errors.IllegalArgumentError, errorPrefix('post') + 'options: Must be an object!');
       }
     });
 

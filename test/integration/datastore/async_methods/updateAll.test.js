@@ -1,5 +1,7 @@
 describe('DS.updateAll(resourceName, attrs, params[, options])', function () {
-  var errorPrefix = 'DS.updateAll(resourceName, attrs, params[, options]): ';
+  function errorPrefix(resourceName) {
+    return 'DS.updateAll(' + resourceName + ', attrs, params[, options]): ';
+  }
 
   beforeEach(startInjector);
 
@@ -8,7 +10,7 @@ describe('DS.updateAll(resourceName, attrs, params[, options])', function () {
       fail('should have rejected');
     }, function (err) {
       assert.isTrue(err instanceof DS.errors.NonexistentResourceError);
-      assert.equal(err.message, errorPrefix + 'does not exist is not a registered resource!');
+      assert.equal(err.message, errorPrefix('does not exist') + 'does not exist is not a registered resource!');
     });
 
     angular.forEach(TYPES_EXCEPT_OBJECT, function (key) {
@@ -17,7 +19,7 @@ describe('DS.updateAll(resourceName, attrs, params[, options])', function () {
           fail('should have rejected');
         }, function (err) {
           assert.isTrue(err instanceof DS.errors.IllegalArgumentError);
-          assert.equal(err.message, errorPrefix + 'attrs: Must be an object!');
+          assert.equal(err.message, errorPrefix('post') + 'attrs: Must be an object!');
         });
       }
     });
@@ -28,7 +30,7 @@ describe('DS.updateAll(resourceName, attrs, params[, options])', function () {
           fail('should have rejected');
         }, function (err) {
           assert.isTrue(err instanceof DS.errors.IllegalArgumentError);
-          assert.equal(err.message, errorPrefix + 'params: Must be an object!');
+          assert.equal(err.message, errorPrefix('post') + 'params: Must be an object!');
         });
       }
     });
@@ -39,7 +41,7 @@ describe('DS.updateAll(resourceName, attrs, params[, options])', function () {
           fail('should have rejected');
         }, function (err) {
           assert.isTrue(err instanceof DS.errors.IllegalArgumentError);
-          assert.equal(err.message, errorPrefix + 'options: Must be an object!');
+          assert.equal(err.message, errorPrefix('post') + 'options: Must be an object!');
         });
       }
     });

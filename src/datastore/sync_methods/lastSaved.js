@@ -1,4 +1,6 @@
-var errorPrefix = 'DS.lastSaved(resourceName[, id]): ';
+function errorPrefix(resourceName, id) {
+  return 'DS.lastSaved(' + resourceName + '[, ' + id + ']): ';
+}
 
 /**
  * @doc method
@@ -41,9 +43,9 @@ var errorPrefix = 'DS.lastSaved(resourceName[, id]): ';
  */
 function lastSaved(resourceName, id) {
   if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix + resourceName);
+    throw new this.errors.NER(errorPrefix(resourceName, id) + resourceName);
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
+    throw new this.errors.IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
   }
   if (!(id in this.store[resourceName].saved)) {
     this.store[resourceName].saved[id] = 0;

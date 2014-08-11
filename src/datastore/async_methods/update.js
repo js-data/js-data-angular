@@ -1,4 +1,6 @@
-var errorPrefix = 'DS.update(resourceName, id, attrs[, options]): ';
+function errorPrefix(resourceName, id) {
+  return 'DS.update(' + resourceName + ', ' + id + ', attrs[, options]): ';
+}
 
 /**
  * @doc method
@@ -55,13 +57,13 @@ function update(resourceName, id, attrs, options) {
     options = options || {};
 
     if (!this.definitions[resourceName]) {
-      throw new this.errors.NER(errorPrefix + resourceName);
+      throw new this.errors.NER(errorPrefix(resourceName, id) + resourceName);
     } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-      throw new IA(errorPrefix + 'id: Must be a string or a number!');
+      throw new IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
     } else if (!this.utils.isObject(attrs)) {
-      throw new IA(errorPrefix + 'attrs: Must be an object!');
+      throw new IA(errorPrefix(resourceName, id) + 'attrs: Must be an object!');
     } else if (!this.utils.isObject(options)) {
-      throw new IA(errorPrefix + 'options: Must be an object!');
+      throw new IA(errorPrefix(resourceName, id) + 'options: Must be an object!');
     }
 
     var definition = this.definitions[resourceName];

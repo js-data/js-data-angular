@@ -1,4 +1,6 @@
-var errorPrefix = 'DS.create(resourceName, attrs[, options]): ';
+function errorPrefix(resourceName) {
+  return 'DS.create(' + resourceName + ', attrs[, options]): ';
+}
 
 /**
  * @doc method
@@ -52,9 +54,9 @@ function create(resourceName, attrs, options) {
     options = options || {};
 
     if (!this.definitions[resourceName]) {
-      throw new this.errors.NER(errorPrefix + resourceName);
+      throw new this.errors.NER(errorPrefix(resourceName) + resourceName);
     } else if (!this.utils.isObject(attrs)) {
-      throw new this.errors.IA(errorPrefix + 'attrs: Must be an object!');
+      throw new this.errors.IA(errorPrefix(resourceName) + 'attrs: Must be an object!');
     }
     var definition = this.definitions[resourceName];
     var resource = this.store[resourceName];

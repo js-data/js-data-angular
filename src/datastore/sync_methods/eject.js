@@ -1,4 +1,6 @@
-var errorPrefix = 'DS.eject(resourceName, id): ';
+function errorPrefix(resourceName, id) {
+  return 'DS.eject(' + resourceName + ', ' + id + '): ';
+}
 
 function _eject(definition, resource, id) {
   var found = false;
@@ -53,9 +55,9 @@ function _eject(definition, resource, id) {
  */
 function eject(resourceName, id) {
   if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix + resourceName);
+    throw new this.errors.NER(errorPrefix(resourceName, id) + resourceName);
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
+    throw new this.errors.IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
   }
 
   var resource = this.store[resourceName];

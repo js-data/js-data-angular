@@ -1,4 +1,6 @@
-var errorPrefix = 'DS.lastModified(resourceName[, id]): ';
+function errorPrefix(resourceName, id) {
+  return 'DS.lastModified(' + resourceName + '[, ' + id + ']): ';
+}
 
 /**
  * @doc method
@@ -35,9 +37,9 @@ var errorPrefix = 'DS.lastModified(resourceName[, id]): ';
  */
 function lastModified(resourceName, id) {
   if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix + resourceName);
+    throw new this.errors.NER(errorPrefix(resourceName, id) + resourceName);
   } else if (id && !this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
+    throw new this.errors.IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
   }
   if (id) {
     if (!(id in this.store[resourceName].modified)) {

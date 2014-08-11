@@ -1,5 +1,7 @@
 describe('DS.save(resourceName, id[, options])', function () {
-  var errorPrefix = 'DS.save(resourceName, id[, options]): ';
+  function errorPrefix(resourceName, id) {
+    return 'DS.save(' + resourceName + ', ' + id + '[, options]): ';
+  }
 
   beforeEach(startInjector);
 
@@ -8,7 +10,7 @@ describe('DS.save(resourceName, id[, options])', function () {
       fail('should have rejected');
     }, function (err) {
       assert.isTrue(err instanceof DS.errors.NonexistentResourceError);
-      assert.equal(err.message, errorPrefix + 'does not exist is not a registered resource!');
+      assert.equal(err.message, errorPrefix('does not exist', 5) + 'does not exist is not a registered resource!');
     });
 
     angular.forEach(TYPES_EXCEPT_STRING_OR_NUMBER, function (key) {
@@ -16,7 +18,7 @@ describe('DS.save(resourceName, id[, options])', function () {
         fail('should have rejected');
       }, function (err) {
         assert.isTrue(err instanceof DS.errors.IllegalArgumentError);
-        assert.equal(err.message, errorPrefix + 'id: Must be a string or a number!');
+        assert.equal(err.message, errorPrefix('post', key) + 'id: Must be a string or a number!');
       });
     });
 
@@ -26,7 +28,7 @@ describe('DS.save(resourceName, id[, options])', function () {
           fail('should have rejected');
         }, function (err) {
           assert.isTrue(err instanceof DS.errors.IllegalArgumentError);
-          assert.equal(err.message, errorPrefix + 'options: Must be an object!');
+          assert.equal(err.message, errorPrefix('post', 5) + 'options: Must be an object!');
         });
       }
     });
@@ -70,7 +72,7 @@ describe('DS.save(resourceName, id[, options])', function () {
       fail('should not have succeeded');
     }, function (err) {
       assert.isTrue(err instanceof DS.errors.RuntimeError);
-      assert.equal(err.message, errorPrefix + 'id: "6" not found!');
+      assert.equal(err.message, errorPrefix('post', 6) + 'id: "6" not found!');
     });
 
     assert.equal(lifecycle.beforeInject.callCount, 2, 'beforeInject should have been called');
@@ -149,7 +151,7 @@ describe('DS.save(resourceName, id[, options])', function () {
       fail('should not have succeeded');
     }, function (err) {
       assert.isTrue(err instanceof DS.errors.RuntimeError);
-      assert.equal(err.message, errorPrefix + 'id: "6" not found!');
+      assert.equal(err.message, errorPrefix('post', 6) + 'id: "6" not found!');
     });
 
     assert.equal(lifecycle.beforeInject.callCount, 2, 'beforeInject should have been called');

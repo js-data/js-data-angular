@@ -1,5 +1,7 @@
 describe('DS.create(resourceName, attrs[, options])', function () {
-  var errorPrefix = 'DS.create(resourceName, attrs[, options]): ';
+  function errorPrefix(resourceName) {
+    return 'DS.create(' + resourceName + ', attrs[, options]): ';
+  }
 
   beforeEach(startInjector);
 
@@ -8,7 +10,7 @@ describe('DS.create(resourceName, attrs[, options])', function () {
       fail('should have rejected');
     }, function (err) {
       assert.isTrue(err instanceof DS.errors.NonexistentResourceError);
-      assert.equal(err.message, errorPrefix + 'fruit loops is not a registered resource!');
+      assert.equal(err.message, errorPrefix('fruit loops') + 'fruit loops is not a registered resource!');
     });
 
     angular.forEach(TYPES_EXCEPT_OBJECT, function (key) {
@@ -16,7 +18,7 @@ describe('DS.create(resourceName, attrs[, options])', function () {
         fail('should have rejected');
       }, function (err) {
         assert.isTrue(err instanceof DS.errors.IllegalArgumentError);
-        assert.equal(err.message, errorPrefix + 'attrs: Must be an object!');
+        assert.equal(err.message, errorPrefix('post') + 'attrs: Must be an object!');
       });
     });
   });

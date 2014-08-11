@@ -1,18 +1,20 @@
 describe('DS.ejectAll(resourceName[, params])', function () {
-  var errorPrefix = 'DS.ejectAll(resourceName[, params]): ';
+  function errorPrefix(resourceName) {
+    return 'DS.ejectAll(' + resourceName + '[, params]): ';
+  }
 
   beforeEach(startInjector);
 
   it('should throw an error when method pre-conditions are not met', function () {
     assert.throws(function () {
       DS.ejectAll('does not exist');
-    }, DS.errors.NonexistentResourceError, errorPrefix + 'does not exist is not a registered resource!');
+    }, DS.errors.NonexistentResourceError, errorPrefix('does not exist') + 'does not exist is not a registered resource!');
 
     angular.forEach(TYPES_EXCEPT_OBJECT, function (key) {
       if (key) {
         assert.throws(function () {
           DS.ejectAll('post', key);
-        }, DS.errors.IllegalArgumentError, errorPrefix + 'params: Must be an object!');
+        }, DS.errors.IllegalArgumentError, errorPrefix('post') + 'params: Must be an object!');
       }
     });
   });

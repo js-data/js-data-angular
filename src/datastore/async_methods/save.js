@@ -1,4 +1,6 @@
-var errorPrefix = 'DS.save(resourceName, id[, options]): ';
+function errorPrefix(resourceName, id) {
+  return 'DS.save(' + resourceName + ', ' + id + '[, options]): ';
+}
 
 /**
  * @doc method
@@ -54,16 +56,16 @@ function save(resourceName, id, options) {
     options = options || {};
 
     if (!this.definitions[resourceName]) {
-      throw new this.errors.NER(errorPrefix + resourceName);
+      throw new this.errors.NER(errorPrefix(resourceName, id) + resourceName);
     } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-      throw new IA(errorPrefix + 'id: Must be a string or a number!');
+      throw new IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
     } else if (!this.utils.isObject(options)) {
-      throw new IA(errorPrefix + 'options: Must be an object!');
+      throw new IA(errorPrefix(resourceName, id) + 'options: Must be an object!');
     }
 
     var item = this.get(resourceName, id);
     if (!item) {
-      throw new this.errors.R(errorPrefix + 'id: "' + id + '" not found!');
+      throw new this.errors.R(errorPrefix(resourceName, id) + 'id: "' + id + '" not found!');
     }
 
     var definition = this.definitions[resourceName];

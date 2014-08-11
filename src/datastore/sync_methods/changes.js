@@ -1,4 +1,6 @@
-var errorPrefix = 'DS.changes(resourceName, id): ';
+function errorPrefix(resourceName) {
+  return 'DS.changes(' + resourceName + ', id): ';
+}
 
 /**
  * @doc method
@@ -35,9 +37,9 @@ var errorPrefix = 'DS.changes(resourceName, id): ';
  */
 function changes(resourceName, id) {
   if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix + resourceName);
+    throw new this.errors.NER(errorPrefix(resourceName) + resourceName);
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
+    throw new this.errors.IA(errorPrefix(resourceName) + 'id: Must be a string or a number!');
   }
 
   var item = this.get(resourceName, id);

@@ -1,30 +1,32 @@
 describe('DS.inject(resourceName, attrs[, options])', function () {
-  var errorPrefix = 'DS.inject(resourceName, attrs[, options]): ';
+  function errorPrefix(resourceName) {
+    return 'DS.inject(' + resourceName + ', attrs[, options]): ';
+  }
 
   beforeEach(startInjector);
 
   it('should throw an error when method pre-conditions are not met', function () {
     assert.throws(function () {
       DS.inject('does not exist', {});
-    }, DS.errors.NonexistentResourceError, errorPrefix + 'does not exist is not a registered resource!');
+    }, DS.errors.NonexistentResourceError, errorPrefix('does not exist') + 'does not exist is not a registered resource!');
 
     angular.forEach(TYPES_EXCEPT_OBJECT, function (key) {
       assert.throws(function () {
         DS.inject('post', key);
-      }, DS.errors.IllegalArgumentError, errorPrefix + 'attrs: Must be an object or an array!');
+      }, DS.errors.IllegalArgumentError, errorPrefix('post') + 'attrs: Must be an object or an array!');
     });
 
     angular.forEach(TYPES_EXCEPT_OBJECT, function (key) {
       if (key) {
         assert.throws(function () {
           DS.inject('post', {}, key);
-        }, DS.errors.IllegalArgumentError, errorPrefix + 'options: Must be an object!');
+        }, DS.errors.IllegalArgumentError, errorPrefix('post') + 'options: Must be an object!');
       }
     });
 
     assert.throws(function () {
       DS.inject('post', {});
-    }, DS.errors.RuntimeError, errorPrefix + 'attrs: Must contain the property specified by `idAttribute`!');
+    }, DS.errors.RuntimeError, errorPrefix('post') + 'attrs: Must contain the property specified by `idAttribute`!');
   });
   it('should inject an item into the store', function () {
 

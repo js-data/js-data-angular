@@ -1,4 +1,6 @@
-var errorPrefix = 'DS.get(resourceName, id[, options]): ';
+function errorPrefix(resourceName, id) {
+  return 'DS.get(' + resourceName + ', ' + id + '): ';
+}
 
 /**
  * @doc method
@@ -38,11 +40,11 @@ function get(resourceName, id, options) {
   options = options || {};
 
   if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix + resourceName);
+    throw new this.errors.NER(errorPrefix(resourceName, id) + resourceName);
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new IA(errorPrefix + 'id: Must be a string or a number!');
+    throw new IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
   } else if (!this.utils.isObject(options)) {
-    throw new IA(errorPrefix + 'options: Must be an object!');
+    throw new IA(errorPrefix(resourceName, id) + 'options: Must be an object!');
   }
   var _this = this;
 

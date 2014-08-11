@@ -1,4 +1,6 @@
-var errorPrefix = 'DS.bindOne(scope, expr, resourceName, id[, cb]): ';
+function errorPrefix(resourceName) {
+  return 'DS.bindOne(scope, expr, ' + resourceName + ', id[, cb]): ';
+}
 
 /**
  * @doc method
@@ -35,13 +37,13 @@ function bindOne(scope, expr, resourceName, id, cb) {
   var IA = this.errors.IA;
 
   if (!this.utils.isObject(scope)) {
-    throw new IA(errorPrefix + 'scope: Must be an object!');
+    throw new IA(errorPrefix(resourceName) + 'scope: Must be an object!');
   } else if (!this.utils.isString(expr)) {
-    throw new IA(errorPrefix + 'expr: Must be a string!');
+    throw new IA(errorPrefix(resourceName) + 'expr: Must be a string!');
   } else if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix + resourceName);
+    throw new this.errors.NER(errorPrefix(resourceName) + resourceName);
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new IA(errorPrefix + 'id: Must be a string or a number!');
+    throw new IA(errorPrefix(resourceName) + 'id: Must be a string or a number!');
   }
 
   var _this = this;

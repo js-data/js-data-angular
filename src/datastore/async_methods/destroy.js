@@ -1,4 +1,6 @@
-var errorPrefix = 'DS.destroy(resourceName, id): ';
+function errorPrefix(resourceName, id) {
+  return 'DS.destroy(' + resourceName + ', ' + id + '): ';
+}
 
 /**
  * @doc method
@@ -50,14 +52,14 @@ function destroy(resourceName, id, options) {
     options = options || {};
 
     if (!this.definitions[resourceName]) {
-      throw new this.errors.NER(errorPrefix + resourceName);
+      throw new this.errors.NER(errorPrefix(resourceName, id) + resourceName);
     } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-      throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
+      throw new this.errors.IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
     }
 
     var item = this.get(resourceName, id);
     if (!item) {
-      throw new this.errors.R(errorPrefix + 'id: "' + id + '" not found!');
+      throw new this.errors.R(errorPrefix(resourceName, id) + 'id: "' + id + '" not found!');
     }
 
     var definition = this.definitions[resourceName];

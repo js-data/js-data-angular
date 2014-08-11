@@ -1,5 +1,7 @@
 describe('DS.bindOne(scope, expr, resourceName, id[, cb])', function () {
-  var errorPrefix = 'DS.bindOne(scope, expr, resourceName, id[, cb]): ';
+  function errorPrefix(resourceName) {
+    return 'DS.bindOne(scope, expr, ' + resourceName + ', id[, cb]): ';
+  }
 
   var $rootScope, $scope;
 
@@ -16,23 +18,23 @@ describe('DS.bindOne(scope, expr, resourceName, id[, cb])', function () {
     angular.forEach(TYPES_EXCEPT_OBJECT, function (key) {
       assert.throws(function () {
         DS.bindOne(key);
-      }, DS.errors.IllegalArgumentError, errorPrefix + 'scope: Must be an object!');
+      }, DS.errors.IllegalArgumentError, errorPrefix() + 'scope: Must be an object!');
     });
 
     angular.forEach(TYPES_EXCEPT_STRING, function (key) {
       assert.throws(function () {
         DS.bindOne($scope, key);
-      }, DS.errors.IllegalArgumentError, errorPrefix + 'expr: Must be a string!');
+      }, DS.errors.IllegalArgumentError, errorPrefix() + 'expr: Must be a string!');
     });
 
     assert.throws(function () {
       DS.bindOne($scope, 'post', 'does not exist', {});
-    }, DS.errors.NonexistentResourceError, errorPrefix + 'does not exist is not a registered resource!');
+    }, DS.errors.NonexistentResourceError, errorPrefix('does not exist') + 'does not exist is not a registered resource!');
 
     angular.forEach(TYPES_EXCEPT_STRING_OR_NUMBER, function (key) {
       assert.throws(function () {
         DS.bindOne($scope, 'post', 'post', key);
-      }, DS.errors.IllegalArgumentError, errorPrefix + 'id: Must be a string or a number!');
+      }, DS.errors.IllegalArgumentError, errorPrefix('post') + 'id: Must be a string or a number!');
     });
   });
   it('should bind an item in the data store to the scope', function () {

@@ -1,4 +1,6 @@
-var errorPrefix = 'DS.createInstance(resourceName[, attrs][, options]): ';
+function errorPrefix(resourceName) {
+  return 'DS.createInstance(' + resourceName + '[, attrs][, options]): ';
+}
 
 /**
  * @doc method
@@ -43,11 +45,11 @@ function createInstance(resourceName, attrs, options) {
   options = options || {};
 
   if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix + resourceName);
+    throw new this.errors.NER(errorPrefix(resourceName) + resourceName);
   } else if (attrs && !this.utils.isObject(attrs)) {
-    throw new IA(errorPrefix + 'attrs: Must be an object!');
+    throw new IA(errorPrefix(resourceName) + 'attrs: Must be an object!');
   } else if (!this.utils.isObject(options)) {
-    throw new IA(errorPrefix + 'options: Must be an object!');
+    throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
   }
 
   if (!('useClass' in options)) {

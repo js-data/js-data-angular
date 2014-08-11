@@ -1,17 +1,19 @@
 describe('DS.previous(resourceName, id)', function () {
-  var errorPrefix = 'DS.previous(resourceName, id): ';
+  function errorPrefix(resourceName, id) {
+    return 'DS.previous(' + resourceName + '[, ' + id + ']): ';
+  }
 
   beforeEach(startInjector);
 
   it('should throw an error when method pre-conditions are not met', function () {
     assert.throws(function () {
       DS.previous('does not exist', {});
-    }, DS.errors.NonexistentResourceError, errorPrefix + 'does not exist is not a registered resource!');
+    }, DS.errors.NonexistentResourceError, errorPrefix('does not exist', {}) + 'does not exist is not a registered resource!');
 
     angular.forEach(TYPES_EXCEPT_STRING_OR_NUMBER, function (key) {
       assert.throws(function () {
         DS.previous('post', key);
-      }, DS.errors.IllegalArgumentError, errorPrefix + 'id: Must be a string or a number!');
+      }, DS.errors.IllegalArgumentError, errorPrefix('post', key) + 'id: Must be a string or a number!');
     });
   });
   it('should return false if the item is not in the store', function () {

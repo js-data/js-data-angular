@@ -1,4 +1,6 @@
-var errorPrefix = 'DS.loadRelations(resourceName, instance(Id), relations[, options]): ';
+function errorPrefix(resourceName) {
+  return 'DS.loadRelations(' + resourceName + ', instance(Id), relations[, options]): ';
+}
 
 /**
  * @doc method
@@ -71,13 +73,13 @@ function loadRelations(resourceName, instance, relations, options) {
     }
 
     if (!this.definitions[resourceName]) {
-      throw new this.errors.NER(errorPrefix + resourceName);
+      throw new this.errors.NER(errorPrefix(resourceName) + resourceName);
     } else if (!this.utils.isObject(instance)) {
-      throw new IA(errorPrefix + 'instance(Id): Must be a string, number or object!');
+      throw new IA(errorPrefix(resourceName) + 'instance(Id): Must be a string, number or object!');
     } else if (!this.utils.isArray(relations)) {
-      throw new IA(errorPrefix + 'relations: Must be a string or an array!');
+      throw new IA(errorPrefix(resourceName) + 'relations: Must be a string or an array!');
     } else if (!this.utils.isObject(options)) {
-      throw new IA(errorPrefix + 'options: Must be an object!');
+      throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
     }
 
     var definition = this.definitions[resourceName];

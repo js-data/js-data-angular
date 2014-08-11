@@ -1,4 +1,6 @@
-var errorPrefix = 'DS.hasChanges(resourceName, id): ';
+function errorPrefix(resourceName, id) {
+  return 'DS.hasChanges(' + resourceName + ', ' + id + '): ';
+}
 
 function diffIsEmpty(utils, diff) {
   return !(utils.isEmpty(diff.added) &&
@@ -40,9 +42,9 @@ function diffIsEmpty(utils, diff) {
  */
 function hasChanges(resourceName, id) {
   if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix + resourceName);
+    throw new this.errors.NER(errorPrefix(resourceName, id) + resourceName);
   } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IA(errorPrefix + 'id: Must be a string or a number!');
+    throw new this.errors.IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
   }
 
   // return resource from cache

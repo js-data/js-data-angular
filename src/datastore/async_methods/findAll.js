@@ -1,9 +1,11 @@
-var errorPrefix = 'DS.findAll(resourceName, params[, options]): ';
+function errorPrefix(resourceName) {
+  return 'DS.findAll(' + resourceName + ', params[, options]): ';
+}
 
-function processResults(utils, data, resourceName, queryHash) {
-  var resource = this.store[resourceName],
-    idAttribute = this.definitions[resourceName].idAttribute,
-    date = new Date().getTime();
+function processResults(data, resourceName, queryHash) {
+  var resource = this.store[resourceName];
+  var idAttribute = this.definitions[resourceName].idAttribute;
+  var date = new Date().getTime();
 
   data = data || [];
 
@@ -12,24 +14,31 @@ function processResults(utils, data, resourceName, queryHash) {
   resource.completedQueries[queryHash] = date;
 
   // Update modified timestamp of collection
-  resource.collectionModified = utils.updateTimestamp(resource.collectionModified);
+  resource.collectionModified = this.utils.updateTimestamp(resource.collectionModified);
 
   // Merge the new values into the cache
   var injected = this.inject(resourceName, data);
 
   // Make sure each object is added to completedQueries
-  angular.forEach(injected, function (item) {
-    resource.completedQueries[item[idAttribute]] = date;
-  });
+  if (this.utils.isArray(injected)) {
+    angular.forEach(injected, function (item) {
+      if (item && item[idAttribute]) {
+        resource.completedQueries[item[idAttribute]] = date;
+      }
+    });
+  } else {
+    this.$log.warn(errorPrefix(resourceName) + 'response is expected to be an array!');
+    resource.completedQueries[injected[idAttribute]] = date;
+  }
 
   return injected;
 }
 
-function _findAll(utils, resourceName, params, options) {
-  var definition = this.definitions[resourceName],
-    resource = this.store[resourceName],
-    _this = this,
-    queryHash = utils.toJson(params);
+function _findAll(resourceName, params, options) {
+  var definition = this.definitions[resourceName];
+  var resource = this.store[resourceName];
+  var _this = this;
+  var queryHash = _this.utils.toJson(params);
 
   if (options.bypassCache || !options.cacheResponse) {
     delete resource.completedQueries[queryHash];
@@ -46,7 +55,7 @@ function _findAll(utils, resourceName, params, options) {
           var data = definition.deserialize(resourceName, res);
           if (options.cacheResponse) {
             try {
-              return processResults.apply(_this, [utils, data, resourceName, queryHash]);
+              return processResults.apply(_this, [data, resourceName, queryHash]);
             } catch (err) {
               return _this.$q.reject(err);
             }
@@ -139,11 +148,11 @@ function findAll(resourceName, params, options) {
     params = params || {};
 
     if (!this.definitions[resourceName]) {
-      throw new this.errors.NER(errorPrefix + resourceName);
+      throw new this.errors.NER(errorPrefix(resourceName) + resourceName);
     } else if (!this.utils.isObject(params)) {
-      throw new IA(errorPrefix + 'params: Must be an object!');
+      throw new IA(errorPrefix(resourceName) + 'params: Must be an object!');
     } else if (!this.utils.isObject(options)) {
-      throw new IA(errorPrefix + 'options: Must be an object!');
+      throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
     }
 
     if (!('cacheResponse' in options)) {
@@ -151,7 +160,7 @@ function findAll(resourceName, params, options) {
     }
 
     promise = promise.then(function () {
-      return _findAll.apply(_this, [_this.utils, resourceName, params, options]);
+      return _findAll.apply(_this, [resourceName, params, options]);
     });
     deferred.resolve();
   } catch (err) {

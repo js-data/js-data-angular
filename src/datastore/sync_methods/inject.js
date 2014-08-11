@@ -1,5 +1,7 @@
 var observe = require('../../../lib/observe-js/observe-js');
-var errorPrefix = 'DS.inject(resourceName, attrs[, options]): ';
+function errorPrefix(resourceName) {
+  return 'DS.inject(' + resourceName + ', attrs[, options]): ';
+}
 
 function _inject(definition, resource, attrs) {
   var _this = this;
@@ -59,7 +61,7 @@ function _inject(definition, resource, attrs) {
       attrs[idA] = c[idA][c[idA].length - 1].apply(attrs, args);
     }
     if (!(idA in attrs)) {
-      var error = new _this.errors.R(errorPrefix + 'attrs: Must contain the property specified by `idAttribute`!');
+      var error = new _this.errors.R(errorPrefix(definition.name) + 'attrs: Must contain the property specified by `idAttribute`!');
       $log.error(error);
       throw error;
     } else {
@@ -119,7 +121,7 @@ function _injectRelations(definition, injected) {
         try {
           injected[def.localField] = _this.inject(relationName, injected[def.localField]);
         } catch (err) {
-          _this.$log.error(errorPrefix + 'Failed to inject ' + type + ' relation: "' + relationName + '"!', err);
+          _this.$log.error(errorPrefix(definition.name) + 'Failed to inject ' + type + ' relation: "' + relationName + '"!', err);
         }
       }
     });
@@ -177,11 +179,11 @@ function inject(resourceName, attrs, options) {
   options = options || {};
 
   if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix + resourceName);
+    throw new this.errors.NER(errorPrefix(resourceName) + resourceName);
   } else if (!this.utils.isObject(attrs) && !this.utils.isArray(attrs)) {
-    throw new IA(errorPrefix + 'attrs: Must be an object or an array!');
+    throw new IA(errorPrefix(resourceName) + 'attrs: Must be an object or an array!');
   } else if (!this.utils.isObject(options)) {
-    throw new IA(errorPrefix + 'options: Must be an object!');
+    throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
   }
 
   var definition = this.definitions[resourceName];

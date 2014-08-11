@@ -1,5 +1,7 @@
 describe('DS.destroy(resourceName, id)', function () {
-  var errorPrefix = 'DS.destroy(resourceName, id): ';
+  function errorPrefix(resourceName, id) {
+    return 'DS.destroy(' + resourceName + ', ' + id + '): ';
+  }
 
   beforeEach(startInjector);
 
@@ -8,7 +10,7 @@ describe('DS.destroy(resourceName, id)', function () {
       fail('should have rejected');
     }, function (err) {
       assert.isTrue(err instanceof DS.errors.NonexistentResourceError);
-      assert.equal(err.message, errorPrefix + 'does not exist is not a registered resource!');
+      assert.equal(err.message, errorPrefix('does not exist', 5) + 'does not exist is not a registered resource!');
     });
 
     angular.forEach(TYPES_EXCEPT_STRING_OR_NUMBER, function (key) {
@@ -16,7 +18,7 @@ describe('DS.destroy(resourceName, id)', function () {
         fail('should have rejected');
       }, function (err) {
         assert.isTrue(err instanceof DS.errors.IllegalArgumentError);
-        assert.equal(err.message, errorPrefix + 'id: Must be a string or a number!');
+        assert.equal(err.message, errorPrefix('post', key) + 'id: Must be a string or a number!');
       });
     });
   });

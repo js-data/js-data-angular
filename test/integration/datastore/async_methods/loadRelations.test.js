@@ -1,5 +1,7 @@
 describe('DS.loadRelations(resourceName, instance(Id), relations[, options]): ', function () {
-  var errorPrefix = 'DS.loadRelations(resourceName, instance(Id), relations[, options]): ';
+  function errorPrefix(resourceName) {
+    return 'DS.loadRelations(' + resourceName + ', instance(Id), relations[, options]): ';
+  }
 
   beforeEach(startInjector);
 
@@ -8,7 +10,7 @@ describe('DS.loadRelations(resourceName, instance(Id), relations[, options]): ',
       fail('should have rejected');
     }, function (err) {
       assert.isTrue(err instanceof DS.errors.NonexistentResourceError);
-      assert.equal(err.message, errorPrefix + 'does not exist is not a registered resource!');
+      assert.equal(err.message, errorPrefix('does not exist') + 'does not exist is not a registered resource!');
     });
 
     angular.forEach(TYPES_EXCEPT_STRING_OR_NUMBER_OBJECT, function (key) {
@@ -19,7 +21,7 @@ describe('DS.loadRelations(resourceName, instance(Id), relations[, options]): ',
         fail('should have rejected');
       }, function (err) {
         assert.isTrue(err instanceof DS.errors.IllegalArgumentError);
-        assert.equal(err.message, errorPrefix + 'instance(Id): Must be a string, number or object!');
+        assert.equal(err.message, errorPrefix('user') + 'instance(Id): Must be a string, number or object!');
       });
     });
 
@@ -29,7 +31,7 @@ describe('DS.loadRelations(resourceName, instance(Id), relations[, options]): ',
           fail('should have rejected');
         }, function (err) {
           assert.isTrue(err instanceof DS.errors.IllegalArgumentError);
-          assert.equal(err.message, errorPrefix + 'relations: Must be a string or an array!');
+          assert.equal(err.message, errorPrefix('user') + 'relations: Must be a string or an array!');
         });
       }
     });
@@ -40,7 +42,7 @@ describe('DS.loadRelations(resourceName, instance(Id), relations[, options]): ',
           fail('should have rejected');
         }, function (err) {
           assert.isTrue(err instanceof DS.errors.IllegalArgumentError);
-          assert.equal(err.message, errorPrefix + 'options: Must be an object!');
+          assert.equal(err.message, errorPrefix('user') + 'options: Must be an object!');
         });
       }
     });
