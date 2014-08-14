@@ -1,6 +1,7 @@
 ##### 0.10.5 - 11 August 2014
 
 ###### Backwards compatible API changes
+- #111 - DSHttpAdapter default $http config
 - #114 - Include resourceName in error messages
 
 ###### Backwards compatible bug fixes

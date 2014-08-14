@@ -7,7 +7,7 @@ __master:__ [0.10.5](http://angular-data-next.pseudobry.com/)
 
 Angular-data is approaching 1.0.0 Beta. The API is stabilizing and angular-data is well tested.
 
-Angular-data is being used in production, though it's not 1.0.0. If you want to use Angular-data, keep an eye on the changelog. 1.0.0 will introduce strict semver (minor number is bumped for breaking changes right now).
+Angular-data is being used in production, though it's not 1.0.0. If you want to use Angular-data, keep an eye on the changelog. 1.0.0 will introduce strict semver (until then, minor number is bumped for breaking changes).
 
 Roadmap:
 - Even more adapters

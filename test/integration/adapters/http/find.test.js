@@ -33,4 +33,24 @@ describe('DSHttpAdapter.find(resourceConfig, id, options)', function () {
 
     assert.equal(lifecycle.queryTransform.callCount, 0, 'queryTransform should not have been called');
   });
+
+  it('should use default configs', function () {
+    $httpBackend.expectGET('api/posts/1?test=test').respond(200, p1);
+
+    DSHttpAdapter.defaults.$httpConfig.params = { test: 'test' };
+
+    DSHttpAdapter.find({
+      baseUrl: 'api',
+      endpoint: 'posts'
+    }, 1).then(function (data) {
+      assert.deepEqual(data.data, p1, 'post should have been found');
+    }, function (err) {
+      console.error(err.stack);
+      fail('should not have rejected');
+    });
+
+    $httpBackend.flush();
+
+    delete DSHttpAdapter.defaults.$httpConfig.params;
+  });
 });

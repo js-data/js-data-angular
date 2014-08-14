@@ -1448,7 +1448,31 @@ function DSHttpAdapterProvider() {
      */
     queryTransform: function (resourceName, params) {
       return params;
-    }
+    },
+
+    /**
+     * @doc property
+     * @id DSHttpAdapterProvider.properties:defaults.$httpConfig
+     * @name defaults.$httpConfig
+     * @description
+     * Default `$http` configuration options used whenever `DSHttpAdapter` uses `$http`.
+     *
+     * ## Example:
+     * ```js
+     * angular.module('myApp', function (DSHttpAdapterProvider) {
+     *   angular.extend(DSHttpAdapterProvider.defaults.httpConfig, {
+     *     interceptor: [...],
+     *     headers: {
+     *       common: {
+     *         Authorization: 'Basic YmVlcDpib29w'
+     *       }
+     *     },
+     *     timeout: 20000
+     *   });
+     * });
+     * ```
+     */
+    $httpConfig: {}
   };
 
   this.$get = ['$http', '$log', 'DSUtils', function ($http, $log, DSUtils) {
@@ -1726,6 +1750,7 @@ function DSHttpAdapterProvider() {
     function HTTP(config) {
       var start = new Date().getTime();
 
+      config = DSUtils.deepMixIn(config, defaults.$httpConfig);
       return $http(config).then(function (data) {
         $log.debug(data.config.method + ' request:' + data.config.url + ' Time taken: ' + (new Date().getTime() - start) + 'ms', arguments);
         return data;
@@ -4094,7 +4119,7 @@ function errorPrefix(resourceName) {
  *
  * @returns {function} Scope $watch deregistration function.
  */
-function bindOne(scope, expr, resourceName, params, cb) {
+function bindAll(scope, expr, resourceName, params, cb) {
   var IA = this.errors.IA;
 
   if (!this.utils.isObject(scope)) {
@@ -4128,7 +4153,7 @@ function bindOne(scope, expr, resourceName, params, cb) {
   }
 }
 
-module.exports = bindOne;
+module.exports = bindAll;
 
 },{}],51:[function(require,module,exports){
 function errorPrefix(resourceName) {
