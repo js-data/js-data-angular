@@ -323,7 +323,7 @@ module.exports = function (grunt) {
         domainName: 'angular-data.pseudobry.com'
       },
       discussions: {
-        shortName: 'angular-data',
+        shortName: 'angulardata',
         url: 'http://angular-data.pseudobry.com',
         dev: dev
       }
