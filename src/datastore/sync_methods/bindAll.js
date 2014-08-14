@@ -46,26 +46,25 @@ function errorPrefix(resourceName) {
  * @returns {function} Scope $watch deregistration function.
  */
 function bindAll(scope, expr, resourceName, params, cb) {
-  var IA = this.errors.IA;
+  var DS = this;
+  var IA = DS.errors.IA;
 
-  if (!this.utils.isObject(scope)) {
+  if (!DS.utils.isObject(scope)) {
     throw new IA(errorPrefix(resourceName) + 'scope: Must be an object!');
-  } else if (!this.utils.isString(expr)) {
+  } else if (!DS.utils.isString(expr)) {
     throw new IA(errorPrefix(resourceName) + 'expr: Must be a string!');
-  } else if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix(resourceName) + resourceName);
-  } else if (!this.utils.isObject(params)) {
+  } else if (!DS.definitions[resourceName]) {
+    throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
+  } else if (!DS.utils.isObject(params)) {
     throw new IA(errorPrefix(resourceName) + 'params: Must be an object!');
   }
 
-  var _this = this;
-
   try {
     return scope.$watch(function () {
-      return _this.lastModified(resourceName);
+      return DS.lastModified(resourceName);
     }, function () {
-      var items = _this.filter(resourceName, params);
-      _this.utils.set(scope, expr, items);
+      var items = DS.filter(resourceName, params);
+      DS.utils.set(scope, expr, items);
       if (cb) {
         cb(null, items);
       }

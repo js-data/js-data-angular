@@ -567,6 +567,27 @@ Defaults.prototype.deserialize = function (resourceName, data) {
 };
 
 /**
+ * @doc property
+ * @id DSProvider.properties:defaults.events
+ * @name DSProvider.properties:defaults.events
+ * @description
+ * Whether to broadcast, emit, or disable DS events on the `$rootScope`.
+ *
+ * Possible values are: `"broadcast"`, `"emit"`, `"none"`.
+ *
+ * `"broadcast"` events will be [broadcasted](https://code.angularjs.org/1.2.22/docs/api/ng/type/$rootScope.Scope#$broadcast) on the `$rootScope`.
+ *
+ * `"emit"` events will be [emitted](https://code.angularjs.org/1.2.22/docs/api/ng/type/$rootScope.Scope#$emit) on the `$rootScope`.
+ *
+ * `"none"` events will be will neither be broadcasted nor emitted.
+ *
+ * Current events are `"DS.inject"` and `"DS.eject"`.
+ *
+ * Overridable per resource.
+ */
+Defaults.prototype.events = 'broadcast';
+
+/**
  * @doc function
  * @id DSProvider
  * @name DSProvider
@@ -585,6 +606,7 @@ function DSProvider() {
    * - `{string}` - `baseUrl` - The url relative to which all AJAX requests will be made.
    * - `{string}` - `idAttribute` - Default: `"id"` - The attribute that specifies the primary key for resources.
    * - `{string}` - `defaultAdapter` - Default: `"DSHttpAdapter"`
+   * - `{string}` - `events` - Default: `"broadcast"` [DSProvider.defaults.events](/documentation/api/angular-data/DSProvider.properties:defaults.events)
    * - `{function}` - `filter` - Default: See [angular-data query language](/documentation/guide/queries/custom).
    * - `{function}` - `beforeValidate` - See [DSProvider.defaults.beforeValidate](/documentation/api/angular-data/DSProvider.properties:defaults.beforeValidate). Default: No-op
    * - `{function}` - `validate` - See [DSProvider.defaults.validate](/documentation/api/angular-data/DSProvider.properties:defaults.validate). Default: No-op
@@ -628,6 +650,16 @@ function DSProvider() {
        * See the [guide](/documentation/guide/overview/index).
        */
       var DS = {
+        notify: function (definition, event) {
+          var args = Array.prototype.slice.call(arguments, 2);
+          args.unshift(definition.name);
+          args.unshift('DS.' + event);
+          if (definition.events === 'broadcast') {
+            $rootScope.$broadcast.apply($rootScope, args);
+          } else if (definition.events === 'emit') {
+            $rootScope.$emit.apply($rootScope, args);
+          }
+        },
         $rootScope: $rootScope,
         $log: $log,
         $q: $q,

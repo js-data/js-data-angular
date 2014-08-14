@@ -36,18 +36,19 @@ function errorPrefix(resourceName, id) {
  * `resourceName` with the given primary key was modified.
  */
 function lastModified(resourceName, id) {
-  if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix(resourceName, id) + resourceName);
-  } else if (id && !this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
+  var DS = this;
+  if (!DS.definitions[resourceName]) {
+    throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
+  } else if (id && !DS.utils.isString(id) && !DS.utils.isNumber(id)) {
+    throw new DS.errors.IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
   }
   if (id) {
-    if (!(id in this.store[resourceName].modified)) {
-      this.store[resourceName].modified[id] = 0;
+    if (!(id in DS.store[resourceName].modified)) {
+      DS.store[resourceName].modified[id] = 0;
     }
-    return this.store[resourceName].modified[id];
+    return DS.store[resourceName].modified[id];
   }
-  return this.store[resourceName].collectionModified;
+  return DS.store[resourceName].collectionModified;
 }
 
 module.exports = lastModified;

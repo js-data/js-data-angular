@@ -36,26 +36,25 @@ function errorPrefix(resourceName) {
  * @returns {object} The changes of the item of the type specified by `resourceName` with the primary key specified by `id`.
  */
 function changes(resourceName, id) {
-  if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix(resourceName) + resourceName);
-  } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IA(errorPrefix(resourceName) + 'id: Must be a string or a number!');
+  var DS = this;
+  if (!DS.definitions[resourceName]) {
+    throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
+  } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {
+    throw new DS.errors.IA(errorPrefix(resourceName) + 'id: Must be a string or a number!');
   }
 
-  var item = this.get(resourceName, id);
-  var _this = this;
-
+  var item = DS.get(resourceName, id);
   if (item) {
-    this.store[resourceName].observers[id].deliver();
-    var diff = this.utils.diffObjectFromOldObject(item, this.store[resourceName].previousAttributes[id]);
-    this.utils.forOwn(diff, function (changeset, name) {
+    DS.store[resourceName].observers[id].deliver();
+    var diff = DS.utils.diffObjectFromOldObject(item, DS.store[resourceName].previousAttributes[id]);
+    DS.utils.forOwn(diff, function (changeset, name) {
       var toKeep = [];
-      _this.utils.forOwn(changeset, function (value, field) {
+      DS.utils.forOwn(changeset, function (value, field) {
         if (!angular.isFunction(value)) {
           toKeep.push(field);
         }
       });
-      diff[name] = _this.utils.pick(diff[name], toKeep);
+      diff[name] = DS.utils.pick(diff[name], toKeep);
     });
     return diff;
   }

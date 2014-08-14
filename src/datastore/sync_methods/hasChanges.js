@@ -41,15 +41,16 @@ function diffIsEmpty(utils, diff) {
  * @returns {boolean} Whether the item of the type specified by `resourceName` with the primary key specified by `id` has changes.
  */
 function hasChanges(resourceName, id) {
-  if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix(resourceName, id) + resourceName);
-  } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
+  var DS = this;
+  if (!DS.definitions[resourceName]) {
+    throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
+  } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {
+    throw new DS.errors.IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
   }
 
   // return resource from cache
-  if (this.get(resourceName, id)) {
-    return diffIsEmpty(this.utils, this.changes(resourceName, id));
+  if (DS.get(resourceName, id)) {
+    return diffIsEmpty(DS.utils, DS.changes(resourceName, id));
   } else {
     return false;
   }

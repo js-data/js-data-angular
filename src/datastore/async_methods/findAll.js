@@ -3,8 +3,9 @@ function errorPrefix(resourceName) {
 }
 
 function processResults(data, resourceName, queryHash) {
-  var resource = this.store[resourceName];
-  var idAttribute = this.definitions[resourceName].idAttribute;
+  var DS = this;
+  var resource = DS.store[resourceName];
+  var idAttribute = DS.definitions[resourceName].idAttribute;
   var date = new Date().getTime();
 
   data = data || [];
@@ -14,20 +15,20 @@ function processResults(data, resourceName, queryHash) {
   resource.completedQueries[queryHash] = date;
 
   // Update modified timestamp of collection
-  resource.collectionModified = this.utils.updateTimestamp(resource.collectionModified);
+  resource.collectionModified = DS.utils.updateTimestamp(resource.collectionModified);
 
   // Merge the new values into the cache
-  var injected = this.inject(resourceName, data);
+  var injected = DS.inject(resourceName, data);
 
   // Make sure each object is added to completedQueries
-  if (this.utils.isArray(injected)) {
+  if (DS.utils.isArray(injected)) {
     angular.forEach(injected, function (item) {
       if (item && item[idAttribute]) {
         resource.completedQueries[item[idAttribute]] = date;
       }
     });
   } else {
-    this.$log.warn(errorPrefix(resourceName) + 'response is expected to be an array!');
+    DS.$log.warn(errorPrefix(resourceName) + 'response is expected to be an array!');
     resource.completedQueries[injected[idAttribute]] = date;
   }
 
@@ -35,10 +36,10 @@ function processResults(data, resourceName, queryHash) {
 }
 
 function _findAll(resourceName, params, options) {
-  var definition = this.definitions[resourceName];
-  var resource = this.store[resourceName];
-  var _this = this;
-  var queryHash = _this.utils.toJson(params);
+  var DS = this;
+  var definition = DS.definitions[resourceName];
+  var resource = DS.store[resourceName];
+  var queryHash = DS.utils.toJson(params);
 
   if (options.bypassCache || !options.cacheResponse) {
     delete resource.completedQueries[queryHash];
@@ -50,27 +51,27 @@ function _findAll(resourceName, params, options) {
     if (!(queryHash in resource.pendingQueries)) {
 
       // This particular query has never even been made
-      resource.pendingQueries[queryHash] = _this.adapters[options.adapter || definition.defaultAdapter].findAll(definition, params, options)
+      resource.pendingQueries[queryHash] = DS.adapters[options.adapter || definition.defaultAdapter].findAll(definition, params, options)
         .then(function (res) {
           var data = definition.deserialize(resourceName, res);
           if (options.cacheResponse) {
             try {
-              return processResults.apply(_this, [data, resourceName, queryHash]);
+              return processResults.apply(DS, [data, resourceName, queryHash]);
             } catch (err) {
-              return _this.$q.reject(err);
+              return DS.$q.reject(err);
             }
           } else {
             return data;
           }
         }, function (err) {
           delete resource.pendingQueries[queryHash];
-          return _this.$q.reject(err);
+          return DS.$q.reject(err);
         });
     }
 
     return resource.pendingQueries[queryHash];
   } else {
-    return this.filter(resourceName, params, options);
+    return DS.filter(resourceName, params, options);
   }
 }
 
@@ -137,21 +138,21 @@ function _findAll(resourceName, params, options) {
  * - `{NonexistentResourceError}`
  */
 function findAll(resourceName, params, options) {
-  var deferred = this.$q.defer();
+  var DS = this;
+  var deferred = DS.$q.defer();
   var promise = deferred.promise;
 
   try {
-    var IA = this.errors.IA;
-    var _this = this;
+    var IA = DS.errors.IA;
 
     options = options || {};
     params = params || {};
 
-    if (!this.definitions[resourceName]) {
-      throw new this.errors.NER(errorPrefix(resourceName) + resourceName);
-    } else if (!this.utils.isObject(params)) {
+    if (!DS.definitions[resourceName]) {
+      throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
+    } else if (!DS.utils.isObject(params)) {
       throw new IA(errorPrefix(resourceName) + 'params: Must be an object!');
-    } else if (!this.utils.isObject(options)) {
+    } else if (!DS.utils.isObject(options)) {
       throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
     }
 
@@ -160,7 +161,7 @@ function findAll(resourceName, params, options) {
     }
 
     promise = promise.then(function () {
-      return _findAll.apply(_this, [resourceName, params, options]);
+      return _findAll.apply(DS, [resourceName, params, options]);
     });
     deferred.resolve();
   } catch (err) {

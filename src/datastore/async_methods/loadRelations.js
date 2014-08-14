@@ -56,54 +56,54 @@ function errorPrefix(resourceName) {
  * - `{NonexistentResourceError}`
  */
 function loadRelations(resourceName, instance, relations, options) {
-  var deferred = this.$q.defer();
+  var DS = this;
+  var deferred = DS.$q.defer();
   var promise = deferred.promise;
 
   try {
-    var IA = this.errors.IA;
+    var IA = DS.errors.IA;
 
     options = options || {};
 
     if (angular.isString(instance) || angular.isNumber(instance)) {
-      instance = this.get(resourceName, instance);
+      instance = DS.get(resourceName, instance);
     }
 
     if (angular.isString(relations)) {
       relations = [relations];
     }
 
-    if (!this.definitions[resourceName]) {
-      throw new this.errors.NER(errorPrefix(resourceName) + resourceName);
-    } else if (!this.utils.isObject(instance)) {
+    if (!DS.definitions[resourceName]) {
+      throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
+    } else if (!DS.utils.isObject(instance)) {
       throw new IA(errorPrefix(resourceName) + 'instance(Id): Must be a string, number or object!');
-    } else if (!this.utils.isArray(relations)) {
+    } else if (!DS.utils.isArray(relations)) {
       throw new IA(errorPrefix(resourceName) + 'relations: Must be a string or an array!');
-    } else if (!this.utils.isObject(options)) {
+    } else if (!DS.utils.isObject(options)) {
       throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
     }
 
-    var definition = this.definitions[resourceName];
-    var _this = this;
+    var definition = DS.definitions[resourceName];
     var tasks = [];
     var fields = [];
 
-    _this.utils.forOwn(definition.relations, function (relation, type) {
-      _this.utils.forOwn(relation, function (def, relationName) {
-        if (_this.utils.contains(relations, relationName)) {
+    DS.utils.forOwn(definition.relations, function (relation, type) {
+      DS.utils.forOwn(relation, function (def, relationName) {
+        if (DS.utils.contains(relations, relationName)) {
           var task;
           var params = {};
           params[def.foreignKey] = instance[definition.idAttribute];
 
           if (type === 'hasMany') {
-            task = _this.findAll(relationName, params, options);
+            task = DS.findAll(relationName, params, options);
           } else if (type === 'hasOne') {
             if (def.localKey && instance[def.localKey]) {
-              task = _this.find(relationName, instance[def.localKey], options);
+              task = DS.find(relationName, instance[def.localKey], options);
             } else if (def.foreignKey) {
-              task = _this.findAll(relationName, params, options);
+              task = DS.findAll(relationName, params, options);
             }
           } else {
-            task = _this.find(relationName, instance[def.localKey], options);
+            task = DS.find(relationName, instance[def.localKey], options);
           }
 
           if (task) {
@@ -116,7 +116,7 @@ function loadRelations(resourceName, instance, relations, options) {
 
     promise = promise
       .then(function () {
-        return _this.$q.all(tasks);
+        return DS.$q.all(tasks);
       })
       .then(function (loadedRelations) {
         angular.forEach(fields, function (field, index) {

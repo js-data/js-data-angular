@@ -1,8 +1,9 @@
-##### 0.10.5 - 11 August 2014
+##### 0.10.5 - 14 August 2014
 
 ###### Backwards compatible API changes
 - #111 - DSHttpAdapter default $http config
 - #114 - Include resourceName in error messages
+- #117 - Event system
 
 ###### Backwards compatible bug fixes
 - #113 - FindAll with object as a result

@@ -47,19 +47,20 @@ function errorPrefix(resourceName, id) {
  * - `{NonexistentResourceError}`
  */
 function find(resourceName, id, options) {
-  var deferred = this.$q.defer();
+  var DS = this;
+  var deferred = DS.$q.defer();
   var promise = deferred.promise;
 
   try {
-    var IA = this.errors.IA;
+    var IA = DS.errors.IA;
 
     options = options || {};
 
-    if (!this.definitions[resourceName]) {
-      throw new this.errors.NER(errorPrefix(resourceName, id) + resourceName);
-    } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+    if (!DS.definitions[resourceName]) {
+      throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
+    } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {
       throw new IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
-    } else if (!this.utils.isObject(options)) {
+    } else if (!DS.utils.isObject(options)) {
       throw new IA(errorPrefix(resourceName, id) + 'options: Must be an object!');
     }
 
@@ -67,9 +68,8 @@ function find(resourceName, id, options) {
       options.cacheResponse = true;
     }
 
-    var definition = this.definitions[resourceName];
-    var resource = this.store[resourceName];
-    var _this = this;
+    var definition = DS.definitions[resourceName];
+    var resource = DS.store[resourceName];
 
     if (options.bypassCache || !options.cacheResponse) {
       delete resource.completedQueries[id];
@@ -77,26 +77,26 @@ function find(resourceName, id, options) {
 
     if (!(id in resource.completedQueries)) {
       if (!(id in resource.pendingQueries)) {
-        promise = resource.pendingQueries[id] = _this.adapters[options.adapter || definition.defaultAdapter].find(definition, id, options)
+        promise = resource.pendingQueries[id] = DS.adapters[options.adapter || definition.defaultAdapter].find(definition, id, options)
           .then(function (res) {
             var data = definition.deserialize(resourceName, res);
             if (options.cacheResponse) {
               // Query is no longer pending
               delete resource.pendingQueries[id];
               resource.completedQueries[id] = new Date().getTime();
-              return _this.inject(resourceName, data);
+              return DS.inject(resourceName, data);
             } else {
               return data;
             }
           }, function (err) {
             delete resource.pendingQueries[id];
-            return _this.$q.reject(err);
+            return DS.$q.reject(err);
           });
       }
 
       return resource.pendingQueries[id];
     } else {
-      deferred.resolve(_this.get(resourceName, id));
+      deferred.resolve(DS.get(resourceName, id));
     }
   } catch (err) {
     deferred.reject(err);

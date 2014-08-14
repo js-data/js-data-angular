@@ -62,26 +62,26 @@ function errorPrefix(resourceName) {
  * - `{NonexistentResourceError}`
  */
 function updateAll(resourceName, attrs, params, options) {
-  var deferred = this.$q.defer();
+  var DS = this;
+  var deferred = DS.$q.defer();
   var promise = deferred.promise;
 
   try {
-    var IA = this.errors.IA;
+    var IA = DS.errors.IA;
 
     options = options || {};
 
-    if (!this.definitions[resourceName]) {
-      throw new this.errors.NER(errorPrefix(resourceName) + resourceName);
-    } else if (!this.utils.isObject(attrs)) {
+    if (!DS.definitions[resourceName]) {
+      throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
+    } else if (!DS.utils.isObject(attrs)) {
       throw new IA(errorPrefix(resourceName) + 'attrs: Must be an object!');
-    } else if (!this.utils.isObject(params)) {
+    } else if (!DS.utils.isObject(params)) {
       throw new IA(errorPrefix(resourceName) + 'params: Must be an object!');
-    } else if (!this.utils.isObject(options)) {
+    } else if (!DS.utils.isObject(options)) {
       throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
     }
 
-    var definition = this.definitions[resourceName];
-    var _this = this;
+    var definition = DS.definitions[resourceName];
 
     if (!('cacheResponse' in options)) {
       options.cacheResponse = true;
@@ -89,26 +89,26 @@ function updateAll(resourceName, attrs, params, options) {
 
     promise = promise
       .then(function (attrs) {
-        return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
+        return DS.$q.promisify(definition.beforeValidate)(resourceName, attrs);
       })
       .then(function (attrs) {
-        return _this.$q.promisify(definition.validate)(resourceName, attrs);
+        return DS.$q.promisify(definition.validate)(resourceName, attrs);
       })
       .then(function (attrs) {
-        return _this.$q.promisify(definition.afterValidate)(resourceName, attrs);
+        return DS.$q.promisify(definition.afterValidate)(resourceName, attrs);
       })
       .then(function (attrs) {
-        return _this.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
+        return DS.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
       })
       .then(function (attrs) {
-        return _this.adapters[options.adapter || definition.defaultAdapter].updateAll(definition, definition.serialize(resourceName, attrs), params, options);
+        return DS.adapters[options.adapter || definition.defaultAdapter].updateAll(definition, definition.serialize(resourceName, attrs), params, options);
       })
       .then(function (res) {
-        return _this.$q.promisify(definition.afterUpdate)(resourceName, definition.deserialize(resourceName, res));
+        return DS.$q.promisify(definition.afterUpdate)(resourceName, definition.deserialize(resourceName, res));
       })
       .then(function (data) {
         if (options.cacheResponse) {
-          return _this.inject(definition.name, data, options);
+          return DS.inject(definition.name, data, options);
         } else {
           return data;
         }

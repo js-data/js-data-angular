@@ -47,30 +47,30 @@ function errorPrefix(resourceName, id) {
  * - `{NonexistentResourceError}`
  */
 function save(resourceName, id, options) {
-  var deferred = this.$q.defer();
+  var DS = this;
+  var deferred = DS.$q.defer();
   var promise = deferred.promise;
 
   try {
-    var IA = this.errors.IA;
+    var IA = DS.errors.IA;
 
     options = options || {};
 
-    if (!this.definitions[resourceName]) {
-      throw new this.errors.NER(errorPrefix(resourceName, id) + resourceName);
-    } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+    if (!DS.definitions[resourceName]) {
+      throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
+    } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {
       throw new IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
-    } else if (!this.utils.isObject(options)) {
+    } else if (!DS.utils.isObject(options)) {
       throw new IA(errorPrefix(resourceName, id) + 'options: Must be an object!');
     }
 
-    var item = this.get(resourceName, id);
+    var item = DS.get(resourceName, id);
     if (!item) {
-      throw new this.errors.R(errorPrefix(resourceName, id) + 'id: "' + id + '" not found!');
+      throw new DS.errors.R(errorPrefix(resourceName, id) + 'id: "' + id + '" not found!');
     }
 
-    var definition = this.definitions[resourceName];
-    var resource = this.store[resourceName];
-    var _this = this;
+    var definition = DS.definitions[resourceName];
+    var resource = DS.store[resourceName];
 
     if (!('cacheResponse' in options)) {
       options.cacheResponse = true;
@@ -78,22 +78,22 @@ function save(resourceName, id, options) {
 
     promise = promise
       .then(function (attrs) {
-        return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
+        return DS.$q.promisify(definition.beforeValidate)(resourceName, attrs);
       })
       .then(function (attrs) {
-        return _this.$q.promisify(definition.validate)(resourceName, attrs);
+        return DS.$q.promisify(definition.validate)(resourceName, attrs);
       })
       .then(function (attrs) {
-        return _this.$q.promisify(definition.afterValidate)(resourceName, attrs);
+        return DS.$q.promisify(definition.afterValidate)(resourceName, attrs);
       })
       .then(function (attrs) {
-        return _this.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
+        return DS.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
       })
       .then(function (attrs) {
         if (options.changesOnly) {
           resource.observers[id].deliver();
           var toKeep = [],
-            changes = _this.changes(resourceName, id);
+            changes = DS.changes(resourceName, id);
 
           for (var key in changes.added) {
             toKeep.push(key);
@@ -101,25 +101,25 @@ function save(resourceName, id, options) {
           for (key in changes.changed) {
             toKeep.push(key);
           }
-          changes = _this.utils.pick(attrs, toKeep);
-          if (_this.utils.isEmpty(changes)) {
+          changes = DS.utils.pick(attrs, toKeep);
+          if (DS.utils.isEmpty(changes)) {
             // no changes, return
             return attrs;
           } else {
             attrs = changes;
           }
         }
-        return _this.adapters[options.adapter || definition.defaultAdapter].update(definition, id, definition.serialize(resourceName, attrs), options);
+        return DS.adapters[options.adapter || definition.defaultAdapter].update(definition, id, definition.serialize(resourceName, attrs), options);
       })
       .then(function (res) {
-        return _this.$q.promisify(definition.afterUpdate)(resourceName, definition.deserialize(resourceName, res));
+        return DS.$q.promisify(definition.afterUpdate)(resourceName, definition.deserialize(resourceName, res));
       })
       .then(function (data) {
         if (options.cacheResponse) {
-          var saved = _this.inject(definition.name, data, options);
-          resource.previousAttributes[id] = _this.utils.deepMixIn({}, saved);
-          resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
-          return _this.get(resourceName, id);
+          var saved = DS.inject(definition.name, data, options);
+          resource.previousAttributes[id] = DS.utils.deepMixIn({}, saved);
+          resource.saved[id] = DS.utils.updateTimestamp(resource.saved[id]);
+          return DS.get(resourceName, id);
         } else {
           return data;
         }

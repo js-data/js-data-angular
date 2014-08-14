@@ -56,31 +56,31 @@ function errorPrefix(resourceName) {
  * - `{NonexistentResourceError}`
  */
 function destroyAll(resourceName, params, options) {
-  var deferred = this.$q.defer();
+  var DS = this;
+  var deferred = DS.$q.defer();
   var promise = deferred.promise;
 
   try {
-    var _this = this;
-    var IA = this.errors.IA;
+    var IA = DS.errors.IA;
 
     options = options || {};
 
-    if (!this.definitions[resourceName]) {
-      throw new this.errors.NER(errorPrefix(resourceName) + resourceName);
-    } else if (!this.utils.isObject(params)) {
+    if (!DS.definitions[resourceName]) {
+      throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
+    } else if (!DS.utils.isObject(params)) {
       throw new IA(errorPrefix(resourceName) + 'params: Must be an object!');
-    } else if (!this.utils.isObject(options)) {
+    } else if (!DS.utils.isObject(options)) {
       throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
     }
 
-    var definition = this.definitions[resourceName];
+    var definition = DS.definitions[resourceName];
 
     promise = promise
       .then(function () {
-        return _this.adapters[options.adapter || definition.defaultAdapter].destroyAll(definition, params, options);
+        return DS.adapters[options.adapter || definition.defaultAdapter].destroyAll(definition, params, options);
       })
       .then(function () {
-        return _this.ejectAll(resourceName, params);
+        return DS.ejectAll(resourceName, params);
       });
     deferred.resolve();
   } catch (err) {

@@ -42,15 +42,16 @@ function errorPrefix(resourceName, id) {
  * @returns {number} The timestamp of the last time the item of type `resourceName` with the given primary key was saved.
  */
 function lastSaved(resourceName, id) {
-  if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix(resourceName, id) + resourceName);
-  } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
+  var DS = this;
+  if (!DS.definitions[resourceName]) {
+    throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
+  } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {
+    throw new DS.errors.IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
   }
-  if (!(id in this.store[resourceName].saved)) {
-    this.store[resourceName].saved[id] = 0;
+  if (!(id in DS.store[resourceName].saved)) {
+    DS.store[resourceName].saved[id] = 0;
   }
-  return this.store[resourceName].saved[id];
+  return DS.store[resourceName].saved[id];
 }
 
 module.exports = lastSaved;

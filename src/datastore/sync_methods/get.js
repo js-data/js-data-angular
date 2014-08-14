@@ -35,24 +35,23 @@ function errorPrefix(resourceName, id) {
  * @returns {object} The item of the type specified by `resourceName` with the primary key specified by `id`.
  */
 function get(resourceName, id, options) {
-  var IA = this.errors.IA;
+  var DS = this;
+  var IA = DS.errors.IA;
 
   options = options || {};
 
-  if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix(resourceName, id) + resourceName);
-  } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+  if (!DS.definitions[resourceName]) {
+    throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
+  } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {
     throw new IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
-  } else if (!this.utils.isObject(options)) {
+  } else if (!DS.utils.isObject(options)) {
     throw new IA(errorPrefix(resourceName, id) + 'options: Must be an object!');
   }
-  var _this = this;
-
   // cache miss, request resource from server
-  var item = this.store[resourceName].index.get(id);
+  var item = DS.store[resourceName].index.get(id);
   if (!item && options.loadFromServer) {
-    this.find(resourceName, id).then(null, function (err) {
-      return _this.$q.reject(err);
+    DS.find(resourceName, id).then(null, function (err) {
+      return DS.$q.reject(err);
     });
   }
 

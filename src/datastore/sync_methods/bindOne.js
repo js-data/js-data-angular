@@ -34,26 +34,25 @@ function errorPrefix(resourceName) {
  * @returns {function} Scope $watch deregistration function.
  */
 function bindOne(scope, expr, resourceName, id, cb) {
-  var IA = this.errors.IA;
+  var DS = this;
+  var IA = DS.errors.IA;
 
-  if (!this.utils.isObject(scope)) {
+  if (!DS.utils.isObject(scope)) {
     throw new IA(errorPrefix(resourceName) + 'scope: Must be an object!');
-  } else if (!this.utils.isString(expr)) {
+  } else if (!DS.utils.isString(expr)) {
     throw new IA(errorPrefix(resourceName) + 'expr: Must be a string!');
-  } else if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix(resourceName) + resourceName);
-  } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+  } else if (!DS.definitions[resourceName]) {
+    throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
+  } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {
     throw new IA(errorPrefix(resourceName) + 'id: Must be a string or a number!');
   }
 
-  var _this = this;
-
   try {
     return scope.$watch(function () {
-      return _this.lastModified(resourceName, id);
+      return DS.lastModified(resourceName, id);
     }, function () {
-      var item = _this.get(resourceName, id);
-      _this.utils.set(scope, expr, item);
+      var item = DS.get(resourceName, id);
+      DS.utils.set(scope, expr, item);
       if (cb) {
         cb(null, item);
       }

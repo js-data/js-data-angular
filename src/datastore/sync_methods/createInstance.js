@@ -39,16 +39,17 @@ function errorPrefix(resourceName) {
  * @returns {object} The new instance
  */
 function createInstance(resourceName, attrs, options) {
-  var IA = this.errors.IA;
+  var DS = this;
+  var IA = DS.errors.IA;
 
   attrs = attrs || {};
   options = options || {};
 
-  if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix(resourceName) + resourceName);
-  } else if (attrs && !this.utils.isObject(attrs)) {
+  if (!DS.definitions[resourceName]) {
+    throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
+  } else if (attrs && !DS.utils.isObject(attrs)) {
     throw new IA(errorPrefix(resourceName) + 'attrs: Must be an object!');
-  } else if (!this.utils.isObject(options)) {
+  } else if (!DS.utils.isObject(options)) {
     throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
   }
 
@@ -59,12 +60,12 @@ function createInstance(resourceName, attrs, options) {
   var item;
 
   if (options.useClass) {
-    var Func = this.definitions[resourceName][this.definitions[resourceName].class];
+    var Func = DS.definitions[resourceName][DS.definitions[resourceName].class];
     item = new Func();
   } else {
     item = {};
   }
-  return this.utils.deepMixIn(item, attrs);
+  return DS.utils.deepMixIn(item, attrs);
 }
 
 module.exports = createInstance;

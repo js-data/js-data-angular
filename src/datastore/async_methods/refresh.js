@@ -52,23 +52,24 @@ function errorPrefix(resourceName, id) {
  * - `{NonexistentResourceError}`
  */
 function refresh(resourceName, id, options) {
-  var IA = this.errors.IA;
+  var DS = this;
+  var IA = DS.errors.IA;
 
   options = options || {};
 
-  if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix(resourceName, id) + resourceName);
-  } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
+  if (!DS.definitions[resourceName]) {
+    throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
+  } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {
     throw new IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
-  } else if (!this.utils.isObject(options)) {
+  } else if (!DS.utils.isObject(options)) {
     throw new IA(errorPrefix(resourceName, id) + 'options: Must be an object!');
   } else {
     options.bypassCache = true;
 
-    if (this.get(resourceName, id)) {
-      return this.find(resourceName, id, options);
+    if (DS.get(resourceName, id)) {
+      return DS.find(resourceName, id, options);
     } else {
-      var deferred = this.$q.defer();
+      var deferred = DS.$q.defer();
       deferred.resolve();
       return deferred.promise;
     }

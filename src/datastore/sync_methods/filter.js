@@ -42,20 +42,21 @@ function errorPrefix(resourceName) {
  * @returns {array} The filtered collection of items of the type specified by `resourceName`.
  */
 function filter(resourceName, params, options) {
-  var IA = this.errors.IA;
+  var DS = this;
+  var IA = DS.errors.IA;
 
   options = options || {};
 
-  if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix(resourceName) + resourceName);
-  } else if (params && !this.utils.isObject(params)) {
+  if (!DS.definitions[resourceName]) {
+    throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
+  } else if (params && !DS.utils.isObject(params)) {
     throw new IA(errorPrefix(resourceName) + 'params: Must be an object!');
-  } else if (!this.utils.isObject(options)) {
+  } else if (!DS.utils.isObject(options)) {
     throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
   }
 
-  var definition = this.definitions[resourceName];
-  var resource = this.store[resourceName];
+  var definition = DS.definitions[resourceName];
+  var resource = DS.store[resourceName];
 
   // Protect against null
   params = params || {};
@@ -66,18 +67,18 @@ function filter(resourceName, params, options) {
     options.allowSimpleWhere = true;
   }
 
-  var queryHash = this.utils.toJson(params);
+  var queryHash = DS.utils.toJson(params);
 
   if (!(queryHash in resource.completedQueries) && options.loadFromServer) {
     // This particular query has never been completed
 
     if (!resource.pendingQueries[queryHash]) {
       // This particular query has never even been started
-      this.findAll(resourceName, params, options);
+      DS.findAll(resourceName, params, options);
     }
   }
 
-  return definition.defaultFilter.call(this, resource.collection, resourceName, params, options);
+  return definition.defaultFilter.call(DS, resource.collection, resourceName, params, options);
 }
 
 module.exports = filter;

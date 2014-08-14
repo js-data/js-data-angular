@@ -3,16 +3,21 @@ function errorPrefix(resourceName) {
 }
 
 function _ejectAll(definition, resource, params) {
-  var queryHash = this.utils.toJson(params);
-  var items = this.filter(definition.name, params);
-  var ids = this.utils.toLookup(items, definition.idAttribute);
-  var _this = this;
+  var DS = this;
+  var queryHash = DS.utils.toJson(params);
+  var items = DS.filter(definition.name, params);
+  var ids = DS.utils.toLookup(items, definition.idAttribute);
 
   angular.forEach(ids, function (item, id) {
-    _this.eject(definition.name, id);
+    DS.eject(definition.name, id);
   });
 
   delete resource.completedQueries[queryHash];
+  resource.collectionModified = DS.utils.updateTimestamp(resource.collectionModified);
+
+  DS.notify(definition, 'eject', items);
+
+  return items;
 }
 
 /**
@@ -74,35 +79,36 @@ function _ejectAll(definition, resource, params) {
  *  - `{number=}` - `skip` - Skip clause.
  *  - `{number=}` - `offset` - Same as skip.
  *  - `{string|array=}` - `orderBy` - OrderBy clause.
+ *
+ * @returns {array} The items that were ejected from the data store.
  */
 function ejectAll(resourceName, params) {
+  var DS = this;
   params = params || {};
 
-  if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix(resourceName) + resourceName);
-  } else if (!this.utils.isObject(params)) {
-    throw new this.errors.IA(errorPrefix(resourceName) + 'params: Must be an object!');
+  if (!DS.definitions[resourceName]) {
+    throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
+  } else if (!DS.utils.isObject(params)) {
+    throw new DS.errors.IA(errorPrefix(resourceName) + 'params: Must be an object!');
   }
 
-  var _this = this;
-  var resource = this.store[resourceName];
-  var queryHash = this.utils.toJson(params);
+  var definition = DS.definitions[resourceName];
+  var resource = DS.store[resourceName];
+  var ejected;
 
-  delete resource.completedQueries[queryHash];
-
-  if (this.utils.isEmpty(params)) {
+  if (DS.utils.isEmpty(params)) {
     resource.completedQueries = {};
   }
 
-  if (!this.$rootScope.$$phase) {
-    this.$rootScope.$apply(function () {
-      _ejectAll.apply(_this, [_this.definitions[resourceName], resource, params]);
-      resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
+  if (!DS.$rootScope.$$phase) {
+    DS.$rootScope.$apply(function () {
+      ejected = _ejectAll.apply(DS, [definition, resource, params]);
     });
   } else {
-    _ejectAll.apply(_this, [_this.definitions[resourceName], resource, params]);
-    resource.collectionModified = this.utils.updateTimestamp(resource.collectionModified);
+    ejected = _ejectAll.apply(DS, [definition, resource, params]);
   }
+
+  return ejected;
 }
 
 module.exports = ejectAll;

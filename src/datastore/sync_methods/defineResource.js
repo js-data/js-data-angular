@@ -100,25 +100,25 @@ var methodsToProxy = [
  * See [DSProvider.defaults](/documentation/api/angular-data/DSProvider.properties:defaults).
  */
 function defineResource(definition) {
-  var IA = this.errors.IA;
   var DS = this;
+  var IA = DS.errors.IA;
 
-  if (this.utils.isString(definition)) {
+  if (DS.utils.isString(definition)) {
     definition = definition.replace(/\s/gi, '');
     definition = {
       name: definition
     };
   }
-  if (!this.utils.isObject(definition)) {
+  if (!DS.utils.isObject(definition)) {
     throw new IA(errorPrefix + 'definition: Must be an object!');
-  } else if (!this.utils.isString(definition.name)) {
+  } else if (!DS.utils.isString(definition.name)) {
     throw new IA(errorPrefix + 'definition.name: Must be a string!');
-  } else if (definition.idAttribute && !this.utils.isString(definition.idAttribute)) {
+  } else if (definition.idAttribute && !DS.utils.isString(definition.idAttribute)) {
     throw new IA(errorPrefix + 'definition.idAttribute: Must be a string!');
-  } else if (definition.endpoint && !this.utils.isString(definition.endpoint)) {
+  } else if (definition.endpoint && !DS.utils.isString(definition.endpoint)) {
     throw new IA(errorPrefix + 'definition.endpoint: Must be a string!');
-  } else if (this.store[definition.name]) {
-    throw new this.errors.R(errorPrefix + definition.name + ' is already registered!');
+  } else if (DS.store[definition.name]) {
+    throw new DS.errors.R(errorPrefix + definition.name + ' is already registered!');
   }
 
   try {
@@ -224,8 +224,8 @@ function defineResource(definition) {
     return def;
   } catch (err) {
     DS.$log.error(err);
-    delete this.definitions[definition.name];
-    delete this.store[definition.name];
+    delete DS.definitions[definition.name];
+    delete DS.store[definition.name];
     throw err;
   }
 }

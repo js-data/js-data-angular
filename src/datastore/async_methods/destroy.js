@@ -45,38 +45,38 @@ function errorPrefix(resourceName, id) {
  * - `{NonexistentResourceError}`
  */
 function destroy(resourceName, id, options) {
-  var deferred = this.$q.defer();
+  var DS = this;
+  var deferred = DS.$q.defer();
   var promise = deferred.promise;
 
   try {
     options = options || {};
 
-    if (!this.definitions[resourceName]) {
-      throw new this.errors.NER(errorPrefix(resourceName, id) + resourceName);
-    } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-      throw new this.errors.IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
+    if (!DS.definitions[resourceName]) {
+      throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
+    } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {
+      throw new DS.errors.IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
     }
 
-    var item = this.get(resourceName, id);
+    var item = DS.get(resourceName, id);
     if (!item) {
-      throw new this.errors.R(errorPrefix(resourceName, id) + 'id: "' + id + '" not found!');
+      throw new DS.errors.R(errorPrefix(resourceName, id) + 'id: "' + id + '" not found!');
     }
 
-    var definition = this.definitions[resourceName];
-    var _this = this;
+    var definition = DS.definitions[resourceName];
 
     promise = promise
       .then(function (attrs) {
-        return _this.$q.promisify(definition.beforeDestroy)(resourceName, attrs);
+        return DS.$q.promisify(definition.beforeDestroy)(resourceName, attrs);
       })
       .then(function () {
-        return _this.adapters[options.adapter || definition.defaultAdapter].destroy(definition, id, options);
+        return DS.adapters[options.adapter || definition.defaultAdapter].destroy(definition, id, options);
       })
       .then(function () {
-        return _this.$q.promisify(definition.afterDestroy)(resourceName, item);
+        return DS.$q.promisify(definition.afterDestroy)(resourceName, item);
       })
       .then(function () {
-        _this.eject(resourceName, id);
+        DS.eject(resourceName, id);
         return id;
       });
     deferred.resolve(item);

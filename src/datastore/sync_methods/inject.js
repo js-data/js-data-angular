@@ -1,22 +1,22 @@
 var observe = require('../../../lib/observe-js/observe-js');
 function errorPrefix(resourceName) {
-  return 'DS.inject(' + resourceName + ', attrs[, options]): ';
+  return 'DS.inject(' + resourceName + ', attrs): ';
 }
 
 function _inject(definition, resource, attrs) {
-  var _this = this;
-  var $log = _this.$log;
+  var DS = this;
+  var $log = DS.$log;
 
   function _react(added, removed, changed, oldValueFn) {
     var target = this;
     var innerId = (oldValueFn && oldValueFn(definition.idAttribute)) ? oldValueFn(definition.idAttribute) : target[definition.idAttribute];
 
-    resource.modified[innerId] = _this.utils.updateTimestamp(resource.modified[innerId]);
-    resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
+    resource.modified[innerId] = DS.utils.updateTimestamp(resource.modified[innerId]);
+    resource.collectionModified = DS.utils.updateTimestamp(resource.collectionModified);
 
     if (definition.computed) {
-      var item = _this.get(definition.name, innerId);
-      _this.utils.forOwn(definition.computed, function (fn, field) {
+      var item = DS.get(definition.name, innerId);
+      DS.utils.forOwn(definition.computed, function (fn, field) {
         var compute = false;
         // check if required fields changed
         angular.forEach(fn.deps, function (dep) {
@@ -44,10 +44,10 @@ function _inject(definition, resource, attrs) {
   }
 
   var injected;
-  if (_this.utils.isArray(attrs)) {
+  if (DS.utils.isArray(attrs)) {
     injected = [];
     for (var i = 0; i < attrs.length; i++) {
-      injected.push(_inject.call(_this, definition, resource, attrs[i]));
+      injected.push(_inject.call(DS, definition, resource, attrs[i]));
     }
   } else {
     // check if "idAttribute" is a computed property
@@ -61,14 +61,14 @@ function _inject(definition, resource, attrs) {
       attrs[idA] = c[idA][c[idA].length - 1].apply(attrs, args);
     }
     if (!(idA in attrs)) {
-      var error = new _this.errors.R(errorPrefix(definition.name) + 'attrs: Must contain the property specified by `idAttribute`!');
+      var error = new DS.errors.R(errorPrefix(definition.name) + 'attrs: Must contain the property specified by `idAttribute`!');
       $log.error(error);
       throw error;
     } else {
       try {
         definition.beforeInject(definition.name, attrs);
         var id = attrs[idA];
-        var item = this.get(definition.name, id);
+        var item = DS.get(definition.name, id);
 
         if (!item) {
           if (definition.methods || definition.useClass) {
@@ -82,8 +82,8 @@ function _inject(definition, resource, attrs) {
           }
           resource.previousAttributes[id] = {};
 
-          _this.utils.deepMixIn(item, attrs);
-          _this.utils.deepMixIn(resource.previousAttributes[id], attrs);
+          DS.utils.deepMixIn(item, attrs);
+          DS.utils.deepMixIn(resource.previousAttributes[id], attrs);
 
           resource.collection.push(item);
 
@@ -93,7 +93,7 @@ function _inject(definition, resource, attrs) {
 
           _react.call(item, {}, {}, {});
         } else {
-          _this.utils.deepMixIn(item, attrs);
+          DS.utils.deepMixIn(item, attrs);
           if (typeof resource.index.touch === 'function') {
             resource.index.touch(id);
           } else {
@@ -101,7 +101,7 @@ function _inject(definition, resource, attrs) {
           }
           resource.observers[id].deliver();
         }
-        resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
+        resource.saved[id] = DS.utils.updateTimestamp(resource.saved[id]);
         definition.afterInject(definition.name, item);
         injected = item;
       } catch (err) {
@@ -114,14 +114,14 @@ function _inject(definition, resource, attrs) {
 }
 
 function _injectRelations(definition, injected) {
-  var _this = this;
-  _this.utils.forOwn(definition.relations, function (relation, type) {
-    _this.utils.forOwn(relation, function (def, relationName) {
-      if (_this.definitions[relationName] && injected[def.localField]) {
+  var DS = this;
+  DS.utils.forOwn(definition.relations, function (relation, type) {
+    DS.utils.forOwn(relation, function (def, relationName) {
+      if (DS.definitions[relationName] && injected[def.localField]) {
         try {
-          injected[def.localField] = _this.inject(relationName, injected[def.localField]);
+          injected[def.localField] = DS.inject(relationName, injected[def.localField]);
         } catch (err) {
-          _this.$log.error(errorPrefix(definition.name) + 'Failed to inject ' + type + ' relation: "' + relationName + '"!', err);
+          DS.$log.error(errorPrefix(definition.name) + 'Failed to inject ' + type + ' relation: "' + relationName + '"!', err);
         }
       }
     });
@@ -134,7 +134,7 @@ function _injectRelations(definition, injected) {
  * @name inject
  * @description
  * Inject the given item into the data store as the specified type. If `attrs` is an array, inject each item into the
- * data store. Injecting an item into the data store does not save it to the server.
+ * data store. Injecting an item into the data store does not save it to the server. Emits a `"DS.inject"` event.
  *
  * ## Signature:
  * ```js
@@ -161,6 +161,10 @@ function _injectRelations(definition, injected) {
  * DS.filter('document'); // [ { title: 'How to Cook', id: 45 }, { title: 'How to Eat', id: 46 } ]
  * ```
  *
+ * ```js
+ * $rootScope.$on('DS.inject', function ($event, resourceName, injected) {...});
+ * ```
+ *
  * ## Throws
  *
  * - `{IllegalArgumentError}`
@@ -169,38 +173,34 @@ function _injectRelations(definition, injected) {
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {object|array} attrs The item or collection of items to inject into the data store.
- * @param {object=} options Optional configuration.
  * @returns {object|array} A reference to the item that was injected into the data store or an array of references to
  * the items that were injected into the data store.
  */
-function inject(resourceName, attrs, options) {
-  var IA = this.errors.IA;
+function inject(resourceName, attrs) {
+  var DS = this;
+  var IA = DS.errors.IA;
 
-  options = options || {};
-
-  if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix(resourceName) + resourceName);
-  } else if (!this.utils.isObject(attrs) && !this.utils.isArray(attrs)) {
+  if (!DS.definitions[resourceName]) {
+    throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
+  } else if (!DS.utils.isObject(attrs) && !DS.utils.isArray(attrs)) {
     throw new IA(errorPrefix(resourceName) + 'attrs: Must be an object or an array!');
-  } else if (!this.utils.isObject(options)) {
-    throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
   }
-
-  var definition = this.definitions[resourceName];
-  var resource = this.store[resourceName];
-  var _this = this;
-
+  var definition = DS.definitions[resourceName];
+  var resource = DS.store[resourceName];
   var injected;
-  if (!this.$rootScope.$$phase) {
-    this.$rootScope.$apply(function () {
-      injected = _inject.call(_this, definition, resource, attrs);
+
+  if (!DS.$rootScope.$$phase) {
+    DS.$rootScope.$apply(function () {
+      injected = _inject.call(DS, definition, resource, attrs);
     });
   } else {
-    injected = _inject.call(_this, definition, resource, attrs);
+    injected = _inject.call(DS, definition, resource, attrs);
   }
   if (definition.relations) {
-    _injectRelations.call(_this, definition, injected);
+    _injectRelations.call(DS, definition, injected);
   }
+
+  DS.notify(definition, 'inject', injected);
 
   return injected;
 }

@@ -1,6 +1,6 @@
-describe('DS.inject(resourceName, attrs[, options])', function () {
+describe('DS.inject(resourceName, attrs)', function () {
   function errorPrefix(resourceName) {
-    return 'DS.inject(' + resourceName + ', attrs[, options]): ';
+    return 'DS.inject(' + resourceName + ', attrs): ';
   }
 
   beforeEach(startInjector);
@@ -14,14 +14,6 @@ describe('DS.inject(resourceName, attrs[, options])', function () {
       assert.throws(function () {
         DS.inject('post', key);
       }, DS.errors.IllegalArgumentError, errorPrefix('post') + 'attrs: Must be an object or an array!');
-    });
-
-    angular.forEach(TYPES_EXCEPT_OBJECT, function (key) {
-      if (key) {
-        assert.throws(function () {
-          DS.inject('post', {}, key);
-        }, DS.errors.IllegalArgumentError, errorPrefix('post') + 'options: Must be an object!');
-      }
     });
 
     assert.throws(function () {
@@ -70,6 +62,90 @@ describe('DS.inject(resourceName, attrs[, options])', function () {
     assert.deepEqual(DS.get('post', 6), p2);
     assert.deepEqual(DS.get('post', 7), p3);
     assert.deepEqual(DS.get('post', 8), p4);
+  });
+  it('should broadcast', function (done) {
+    var child = $rootScope.$new();
+    var deregister = child.$on('DS.inject', function ($event, resourceName, injected) {
+      assert.equal(resourceName, 'post');
+      assert.deepEqual(injected, p1);
+    });
+
+    assert.doesNotThrow(function () {
+      DS.inject('post', p1);
+    });
+
+    assert.deepEqual(DS.get('post', 5), p1);
+    setTimeout(function () {
+      deregister();
+      child.$destroy();
+      done();
+    }, 300);
+  });
+  it('should emit', function (done) {
+    var Cat = DS.defineResource({
+      name: 'cat',
+      events: 'emit'
+    });
+    var child = $rootScope.$new();
+    var deregister = $rootScope.$on('DS.inject', function ($event, resourceName, injected) {
+      assert.equal(resourceName, 'cat');
+      assert.deepEqual(injected, {
+        name: 'Sam',
+        id: 1
+      });
+    });
+    var deregister2 = child.$on('DS.inject', function () {
+      fail('should not have been called');
+    });
+
+    assert.doesNotThrow(function () {
+      Cat.inject({
+        name: 'Sam',
+        id: 1
+      });
+    });
+
+    assert.deepEqual(Cat.get(1), {
+      name: 'Sam',
+      id: 1
+    });
+    setTimeout(function () {
+      deregister();
+      deregister2();
+      child.$destroy();
+      done();
+    }, 300);
+  });
+  it('should neither broadcast nor emit', function (done) {
+    var Cat = DS.defineResource({
+      name: 'cat',
+      events: 'none'
+    });
+    var child = $rootScope.$new();
+    var deregister = $rootScope.$on('DS.inject', function () {
+      fail('should not have been called');
+    });
+    var deregister2 = child.$on('DS.inject', function () {
+      fail('should not have been called');
+    });
+
+    assert.doesNotThrow(function () {
+      Cat.inject({
+        name: 'Sam',
+        id: 1
+      });
+    });
+
+    assert.deepEqual(Cat.get(1), {
+      name: 'Sam',
+      id: 1
+    });
+    setTimeout(function () {
+      deregister();
+      deregister2();
+      child.$destroy();
+      done();
+    }, 300);
   });
   it('should inject relations', function () {
     // can inject items without relations

@@ -3,9 +3,11 @@ function errorPrefix(resourceName, id) {
 }
 
 function _eject(definition, resource, id) {
+  var item;
   var found = false;
   for (var i = 0; i < resource.collection.length; i++) {
     if (resource.collection[i][definition.idAttribute] == id) {
+      item = resource.collection[i];
       found = true;
       break;
     }
@@ -17,8 +19,14 @@ function _eject(definition, resource, id) {
 
     resource.index.remove(id);
     delete resource.previousAttributes[id];
+    delete resource.completedQueries[id];
     delete resource.modified[id];
     delete resource.saved[id];
+    resource.collectionModified = this.utils.updateTimestamp(resource.collectionModified);
+
+    this.notify(definition, 'eject', item);
+
+    return item;
   }
 }
 
@@ -45,6 +53,10 @@ function _eject(definition, resource, id) {
  * DS.get('document', 45); // undefined
  * ```
  *
+ * ```js
+ * $rootScope.$on('DS.eject', function ($event, resourceName, ejected) {...});
+ * ```
+ *
  * ## Throws
  *
  * - `{IllegalArgumentError}`
@@ -52,27 +64,28 @@ function _eject(definition, resource, id) {
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to eject.
+ * @returns {object} A reference to the item that was ejected from the data store.
  */
 function eject(resourceName, id) {
-  if (!this.definitions[resourceName]) {
-    throw new this.errors.NER(errorPrefix(resourceName, id) + resourceName);
-  } else if (!this.utils.isString(id) && !this.utils.isNumber(id)) {
-    throw new this.errors.IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
+  var DS = this;
+  if (!DS.definitions[resourceName]) {
+    throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
+  } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {
+    throw new DS.errors.IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
   }
+  var definition = DS.definitions[resourceName];
+  var resource = DS.store[resourceName];
+  var ejected;
 
-  var resource = this.store[resourceName];
-  var _this = this;
-
-  if (!this.$rootScope.$$phase) {
-    this.$rootScope.$apply(function () {
-      _eject(_this.definitions[resourceName], resource, id);
-      resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
+  if (!DS.$rootScope.$$phase) {
+    DS.$rootScope.$apply(function () {
+      ejected = _eject.call(DS, definition, resource, id);
     });
   } else {
-    _eject(_this.definitions[resourceName], resource, id);
-    resource.collectionModified = _this.utils.updateTimestamp(resource.collectionModified);
+    ejected = _eject.call(DS, definition, resource, id);
   }
-  delete this.store[resourceName].completedQueries[id];
+
+  return ejected;
 }
 
 module.exports = eject;

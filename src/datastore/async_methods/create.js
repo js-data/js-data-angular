@@ -47,20 +47,20 @@ function errorPrefix(resourceName) {
  * - `{NonexistentResourceError}`
  */
 function create(resourceName, attrs, options) {
-  var deferred = this.$q.defer();
+  var DS = this;
+  var deferred = DS.$q.defer();
   var promise = deferred.promise;
 
   try {
     options = options || {};
 
-    if (!this.definitions[resourceName]) {
-      throw new this.errors.NER(errorPrefix(resourceName) + resourceName);
-    } else if (!this.utils.isObject(attrs)) {
-      throw new this.errors.IA(errorPrefix(resourceName) + 'attrs: Must be an object!');
+    if (!DS.definitions[resourceName]) {
+      throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
+    } else if (!DS.utils.isObject(attrs)) {
+      throw new DS.errors.IA(errorPrefix(resourceName) + 'attrs: Must be an object!');
     }
-    var definition = this.definitions[resourceName];
-    var resource = this.store[resourceName];
-    var _this = this;
+    var definition = DS.definitions[resourceName];
+    var resource = DS.store[resourceName];
 
     if (!('cacheResponse' in options)) {
       options.cacheResponse = true;
@@ -71,35 +71,35 @@ function create(resourceName, attrs, options) {
     }
 
     if (options.upsert && attrs[definition.idAttribute]) {
-      promise = this.update(resourceName, attrs[definition.idAttribute], attrs, options);
+      promise = DS.update(resourceName, attrs[definition.idAttribute], attrs, options);
     } else {
       promise = promise
         .then(function (attrs) {
-          return _this.$q.promisify(definition.beforeValidate)(resourceName, attrs);
+          return DS.$q.promisify(definition.beforeValidate)(resourceName, attrs);
         })
         .then(function (attrs) {
-          return _this.$q.promisify(definition.validate)(resourceName, attrs);
+          return DS.$q.promisify(definition.validate)(resourceName, attrs);
         })
         .then(function (attrs) {
-          return _this.$q.promisify(definition.afterValidate)(resourceName, attrs);
+          return DS.$q.promisify(definition.afterValidate)(resourceName, attrs);
         })
         .then(function (attrs) {
-          return _this.$q.promisify(definition.beforeCreate)(resourceName, attrs);
+          return DS.$q.promisify(definition.beforeCreate)(resourceName, attrs);
         })
         .then(function (attrs) {
-          return _this.adapters[options.adapter || definition.defaultAdapter].create(definition, definition.serialize(resourceName, attrs), options);
+          return DS.adapters[options.adapter || definition.defaultAdapter].create(definition, definition.serialize(resourceName, attrs), options);
         })
         .then(function (res) {
-          return _this.$q.promisify(definition.afterCreate)(resourceName, definition.deserialize(resourceName, res));
+          return DS.$q.promisify(definition.afterCreate)(resourceName, definition.deserialize(resourceName, res));
         })
         .then(function (data) {
           if (options.cacheResponse) {
-            var created = _this.inject(definition.name, data);
+            var created = DS.inject(definition.name, data);
             var id = created[definition.idAttribute];
             resource.completedQueries[id] = new Date().getTime();
-            resource.previousAttributes[id] = _this.utils.deepMixIn({}, created);
-            resource.saved[id] = _this.utils.updateTimestamp(resource.saved[id]);
-            return _this.get(definition.name, id);
+            resource.previousAttributes[id] = DS.utils.deepMixIn({}, created);
+            resource.saved[id] = DS.utils.updateTimestamp(resource.saved[id]);
+            return DS.get(definition.name, id);
           } else {
             return data;
           }
