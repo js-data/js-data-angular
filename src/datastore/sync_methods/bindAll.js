@@ -45,7 +45,7 @@ function errorPrefix(resourceName) {
  *
  * @returns {function} Scope $watch deregistration function.
  */
-function bindOne(scope, expr, resourceName, params, cb) {
+function bindAll(scope, expr, resourceName, params, cb) {
   var IA = this.errors.IA;
 
   if (!this.utils.isObject(scope)) {
@@ -79,4 +79,4 @@ function bindOne(scope, expr, resourceName, params, cb) {
   }
 }
 
-module.exports = bindOne;
+module.exports = bindAll;
