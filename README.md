@@ -16,7 +16,7 @@ Roadmap:
 - See [Design Doc](https://docs.google.com/document/d/1o069KLuBH4jpwm1FCLZFwKMgM73Xi8_1JyjhSxVpidM/edit?usp=sharing) for other juicy reading material
 
 ## Documentation
-[pseudobry.com/angular-data](http://www.pseudobry.com/angular-data)
+[angular-data.pseudobry.com](http://angular-data.pseudobry.com)
 
 ## Changelog
 [CHANGELOG.md](https://github.com/jmdobry/angular-data/blob/master/CHANGELOG.md)
