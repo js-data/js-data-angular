@@ -55,7 +55,8 @@ describe('DSCacheFactory integration', function () {
       endpoint: '/comments',
       deleteOnExpire: 'aggressive',
       recycleFreq: 10,
-      maxAge: 20
+      maxAge: 20,
+      onExpire: sinon.spy()
     });
 
     $httpBackend.expectGET('http://test.angular-cache.com/comments/5').respond(200, {
@@ -85,10 +86,32 @@ describe('DSCacheFactory integration', function () {
     setTimeout(function () {
       assert.isUndefined(DS.get('Comment', 5));
 
+      assert.equal(DS.definitions.Comment.onExpire.callCount, 1, 'onExpire should have been called once');
+      assert.isTrue(DS.definitions.Comment.onExpire.calledWithExactly('5', {
+        id: 5,
+        text: 'test'
+      }), 'onExpire should have been called with the right arguments');
       assert.equal(lifecycle.beforeInject.callCount, 1, 'beforeInject should have been called');
       assert.equal(lifecycle.afterInject.callCount, 1, 'afterInject should have been called');
       assert.equal(lifecycle.serialize.callCount, 0, 'serialize should have been called');
       assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
+
+      $httpBackend.expectGET('http://test.angular-cache.com/comments/5').respond(200, {
+        id: 5,
+        text: 'test'
+      });
+
+      DS.find('Comment', 5).then(function (comment) {
+        assert.deepEqual(comment, {
+          id: 5,
+          text: 'test'
+        });
+      }, function (err) {
+        console.error(err.stack);
+        fail('Should not have rejected!');
+      });
+
+      $httpBackend.flush();
 
       done();
     }, 100);

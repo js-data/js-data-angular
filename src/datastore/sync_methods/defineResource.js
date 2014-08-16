@@ -142,7 +142,10 @@ function defineResource(definition) {
       cacheFlushInterval: def.cacheFlushInterval || null,
       deleteOnExpire: def.deleteOnExpire || 'none',
       onExpire: function (id) {
-        DS.eject(def.name, id);
+        var item = DS.eject(def.name, id);
+        if (DS.utils.isFunction(def.onExpire)) {
+          def.onExpire(id, item);
+        }
       },
       capacity: Number.MAX_VALUE,
       storageMode: 'memory',

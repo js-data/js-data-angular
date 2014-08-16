@@ -1,7 +1,7 @@
 /**
 * @author Jason Dobry <jason.dobry@gmail.com>
 * @file angular-data.js
-* @version 0.10.5 - Homepage <http://angular-data.pseudobry.com/>
+* @version 0.10.6 - Homepage <http://angular-data.pseudobry.com/>
 * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>
 * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
 *
@@ -4542,7 +4542,10 @@ function defineResource(definition) {
       cacheFlushInterval: def.cacheFlushInterval || null,
       deleteOnExpire: def.deleteOnExpire || 'none',
       onExpire: function (id) {
-        DS.eject(def.name, id);
+        var item = DS.eject(def.name, id);
+        if (DS.utils.isFunction(def.onExpire)) {
+          def.onExpire(id, item);
+        }
       },
       capacity: Number.MAX_VALUE,
       storageMode: 'memory',

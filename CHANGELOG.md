@@ -1,3 +1,8 @@
+##### 0.10.6 - xx August 2014
+
+###### Backwards compatible API changes
+- #120 - When using DSCacheFactory, allow onExpire to be specified
+
 ##### 0.10.5 - 14 August 2014
 
 ###### Backwards compatible API changes

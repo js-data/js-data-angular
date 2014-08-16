@@ -117,6 +117,19 @@ module.exports = function (grunt) {
           ]
         }
       },
+      DSCacheFactory: {
+        browsers: ['Firefox', 'PhantomJS'],
+        options: {
+          files: [
+            'bower_components/angular/angular.js',
+            'bower_components/angular-mocks/angular-mocks.js',
+            'bower_components/angular-cache/dist/angular-cache.js',
+            'dist/angular-data.js',
+            'karma.start.js',
+            'test/integration/datastore/DSCacheFactory.test.js'
+          ]
+        }
+      },
       ci: {
         browsers: ['Firefox', 'PhantomJS'],
         exclude: [
@@ -356,7 +369,7 @@ module.exports = function (grunt) {
     grunt.file.write('dist/angular-data.js', file);
   });
 
-  grunt.registerTask('test', ['build', 'karma:ci', 'karma:cacheFactory', 'karma:min']);
+  grunt.registerTask('test', ['build', 'karma:ci', 'karma:cacheFactory', 'karma:DSCacheFactory', 'karma:min']);
   grunt.registerTask('doc', ['clean:doc', 'docular', 'concat', 'copy', 'clean:afterDoc', 'uglify:scripts']);
   grunt.registerTask('build', [
     'clean',
