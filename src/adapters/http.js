@@ -41,8 +41,8 @@ function DSHttpAdapterProvider() {
      *
      * ## Example:
      * ```js
-     * angular.module('myApp', function (DSHttpAdapterProvider) {
-     *   angular.extend(DSHttpAdapterProvider.defaults.httpConfig, {
+     * angular.module('myApp').config(function (DSHttpAdapterProvider) {
+     *   angular.extend(DSHttpAdapterProvider.defaults.$httpConfig, {
      *     interceptor: [...],
      *     headers: {
      *       common: {
