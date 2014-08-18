@@ -115,15 +115,21 @@ function _inject(definition, resource, attrs) {
 
 function _injectRelations(definition, injected) {
   var DS = this;
-  DS.utils.forOwn(definition.relations, function (relation, type) {
-    DS.utils.forOwn(relation, function (def, relationName) {
-      if (DS.definitions[relationName] && injected[def.localField]) {
-        try {
-          injected[def.localField] = DS.inject(relationName, injected[def.localField]);
-        } catch (err) {
-          DS.$log.error(errorPrefix(definition.name) + 'Failed to inject ' + type + ' relation: "' + relationName + '"!', err);
-        }
+  DS.utils.forOwn(definition.relations, function (relatedModels, type) {
+    DS.utils.forOwn(relatedModels, function (defs, relationName) {
+      if (!DS.utils.isArray(defs)) {
+        defs = [defs];
       }
+
+      defs.forEach(function (def) {
+        if (DS.definitions[relationName] && injected[def.localField]) {
+          try {
+            injected[def.localField] = DS.inject(relationName, injected[def.localField]);
+          } catch (err) {
+            DS.$log.error(errorPrefix(definition.name) + 'Failed to inject ' + type + ' relation: "' + relationName + '"!', err);
+          }
+        }
+      });
     });
   });
 }

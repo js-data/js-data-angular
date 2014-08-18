@@ -69,6 +69,17 @@ describe('DS.loadRelations(resourceName, instance(Id), relations[, options]): ',
     }, fail);
 
     $httpBackend.flush();
+
+    // try a comment that has a belongsTo relationship to multiple users:
+    DS.inject('comment', comment19);
+    $httpBackend.expectGET('http://test.angular-cache.com/user/20').respond(200, user20);
+    $httpBackend.expectGET('http://test.angular-cache.com/user/19').respond(200, user19);
+    DS.loadRelations('comment', 19, ['user']).then(function (comment) {
+      assert.deepEqual(comment.user, user20);
+      assert.deepEqual(comment.approvedByUser, user19);
+    }, fail);
+    $httpBackend.flush();
+
   });
   it('should get an item from the server but not store it if cacheResponse is false', function () {
     DS.inject('user', {
