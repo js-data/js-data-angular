@@ -7,7 +7,10 @@ describe('DSHttpAdapter.updateAll(resourceConfig, attrs, params, options)', func
 
     DSHttpAdapter.updateAll({
       baseUrl: 'api',
-      endpoint: 'posts'
+      endpoint: 'posts',
+      getEndpoint: function () {
+        return 'posts';
+      }
     }, { author: 'John', age: 30 }).then(function (data) {
       assert.deepEqual(data.data, [p1], 'posts should have been updated');
     }, function (err) {
@@ -21,7 +24,10 @@ describe('DSHttpAdapter.updateAll(resourceConfig, attrs, params, options)', func
 
     DSHttpAdapter.updateAll({
       baseUrl: 'api',
-      endpoint: 'posts'
+      endpoint: 'posts',
+      getEndpoint: function () {
+        return 'posts';
+      }
     }, { author: 'John', age: 30 }, {
       where: {
         author: {

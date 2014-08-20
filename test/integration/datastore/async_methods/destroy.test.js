@@ -42,4 +42,43 @@ describe('DS.destroy(resourceName, id)', function () {
     assert.equal(DS.lastModified('post', 5), 0);
     assert.equal(DS.lastSaved('post', 5), 0);
   });
+  it('should handle nested resources', function () {
+    var testComment = {
+      id: 5,
+      content: 'test'
+    };
+    var testComment2 = {
+      id: 6,
+      content: 'test',
+      approvedBy: 4
+    };
+
+    DS.inject('comment', testComment);
+
+    $httpBackend.expectDELETE('http://test.angular-cache.com/user/4/comment/5').respond(204);
+
+    DS.destroy('comment', 5, {
+      parentKey: 4
+    }).then(function () {
+    }, function (err) {
+      console.log(err);
+      fail('Should not have failed!');
+    });
+
+    $httpBackend.flush();
+
+    $httpBackend.expectDELETE('http://test.angular-cache.com/user/4/comment/6').respond(204);
+
+    DS.inject('comment', testComment2);
+
+    DS.destroy('comment', 6, {
+      bypassCache: true
+    }).then(function () {
+    }, function (err) {
+      console.log(err);
+      fail('Should not have failed!');
+    });
+
+    $httpBackend.flush();
+  });
 });

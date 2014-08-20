@@ -113,4 +113,36 @@ describe('DS.find(resourceName, id[, options]): ', function () {
 
     $httpBackend.flush();
   });
+  it('should handle nested resources', function () {
+    var testComment = {
+      id: 5,
+      content: 'test',
+      approvedBy: 4
+    };
+    $httpBackend.expectGET('http://test.angular-cache.com/user/4/comment/5').respond(200, testComment);
+
+    DS.find('comment', 5, {
+      parentKey: 4
+    }).then(function (comment) {
+      assert.deepEqual(comment, testComment);
+      assert.deepEqual(comment, DS.get('comment', 5));
+    }, function () {
+      fail('Should not have failed!');
+    });
+
+    $httpBackend.flush();
+
+    $httpBackend.expectGET('http://test.angular-cache.com/user/4/comment/5').respond(200, testComment);
+
+    DS.find('comment', 5, {
+      bypassCache: true
+    }).then(function (comment) {
+      assert.deepEqual(comment, testComment);
+      assert.deepEqual(comment, DS.get('comment', 5));
+    }, function () {
+      fail('Should not have failed!');
+    });
+
+    $httpBackend.flush();
+  });
 });

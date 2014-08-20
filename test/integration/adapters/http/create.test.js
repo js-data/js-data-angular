@@ -10,7 +10,10 @@ describe('DSHttpAdapter.create(resourceConfig, attrs, options)', function () {
 
     DSHttpAdapter.create({
       baseUrl: 'api',
-      endpoint: 'posts'
+      endpoint: 'posts',
+      getEndpoint: function () {
+        return 'posts';
+      }
     }, { author: 'John', age: 30 }).then(function (data) {
       assert.deepEqual(data.data, p1, 'post should have been created');
     }, function (err) {
@@ -27,7 +30,10 @@ describe('DSHttpAdapter.create(resourceConfig, attrs, options)', function () {
 
     DSHttpAdapter.create({
       baseUrl: 'api',
-      endpoint: 'posts'
+      endpoint: 'posts',
+      getEndpoint: function () {
+        return 'posts';
+      }
     }, { author: 'John', age: 30 }, { baseUrl: 'api2' }).then(function (data) {
       assert.deepEqual(data.data, p1, 'post should have been created');
     }, function (err) {

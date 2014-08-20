@@ -138,4 +138,44 @@ describe('DS.create(resourceName, attrs[, options])', function () {
       email: 'sally@test.com'
     });
   });
+  it('should handle nested resources', function () {
+    var testComment = {
+      id: 5,
+      content: 'test',
+      approvedBy: 4
+    };
+    var testComment2 = {
+      id: 6,
+      content: 'test',
+      approvedBy: 4
+    };
+    $httpBackend.expectPOST('http://test.angular-cache.com/user/4/comment').respond(200, testComment);
+
+    DS.create('comment', {
+      content: 'test',
+      approvedBy: 4
+    }).then(function (comment) {
+      assert.deepEqual(comment, testComment);
+      assert.deepEqual(comment, DS.get('comment', 5));
+    }, function () {
+      fail('Should not have failed!');
+    });
+
+    $httpBackend.flush();
+
+    $httpBackend.expectPOST('http://test.angular-cache.com/user/4/comment').respond(200, testComment2);
+
+    DS.create('comment', {
+      content: 'test'
+    }, {
+      parentKey: 4
+    }).then(function (comment) {
+      assert.deepEqual(comment, testComment2);
+      assert.deepEqual(comment, DS.get('comment', 6));
+    }, function () {
+      fail('Should not have failed!');
+    });
+
+    $httpBackend.flush();
+  });
 });

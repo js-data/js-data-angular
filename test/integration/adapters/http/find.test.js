@@ -7,7 +7,10 @@ describe('DSHttpAdapter.find(resourceConfig, id, options)', function () {
 
     DSHttpAdapter.find({
       baseUrl: 'api',
-      endpoint: 'posts'
+      endpoint: 'posts',
+      getEndpoint: function () {
+        return 'posts';
+      }
     }, 1).then(function (data) {
       assert.deepEqual(data.data, p1, 'post should have been found');
     }, function (err) {
@@ -21,7 +24,10 @@ describe('DSHttpAdapter.find(resourceConfig, id, options)', function () {
 
     DSHttpAdapter.find({
       baseUrl: 'api',
-      endpoint: 'posts'
+      endpoint: 'posts',
+      getEndpoint: function () {
+        return 'posts';
+      }
     }, 1, { baseUrl: 'api2' }).then(function (data) {
       assert.deepEqual(data.data, p1, 'post should have been found');
     }, function (err) {
@@ -41,7 +47,10 @@ describe('DSHttpAdapter.find(resourceConfig, id, options)', function () {
 
     DSHttpAdapter.find({
       baseUrl: 'api',
-      endpoint: 'posts'
+      endpoint: 'posts',
+      getEndpoint: function () {
+        return 'posts';
+      }
     }, 1).then(function (data) {
       assert.deepEqual(data.data, p1, 'post should have been found');
     }, function (err) {

@@ -1794,7 +1794,7 @@ function DSHttpAdapterProvider() {
     function create(resourceConfig, attrs, options) {
       options = options || {};
       return this.POST(
-        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint),
+        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(attrs, options)),
         attrs,
         options
       );
@@ -1803,7 +1803,7 @@ function DSHttpAdapterProvider() {
     function destroy(resourceConfig, id, options) {
       options = options || {};
       return this.DEL(
-        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
+        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id, options), id),
         options
       );
     }
@@ -1816,7 +1816,7 @@ function DSHttpAdapterProvider() {
         DSUtils.deepMixIn(options.params, params);
       }
       return this.DEL(
-        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint),
+        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(null, options)),
         options
       );
     }
@@ -1824,7 +1824,7 @@ function DSHttpAdapterProvider() {
     function find(resourceConfig, id, options) {
       options = options || {};
       return this.GET(
-        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
+        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id, options), id),
         options
       );
     }
@@ -1837,7 +1837,7 @@ function DSHttpAdapterProvider() {
         DSUtils.deepMixIn(options.params, params);
       }
       return this.GET(
-        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint),
+        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(null, options)),
         options
       );
     }
@@ -1845,7 +1845,7 @@ function DSHttpAdapterProvider() {
     function update(resourceConfig, id, attrs, options) {
       options = options || {};
       return this.PUT(
-        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
+        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id), id),
         attrs,
         options
       );
@@ -1859,7 +1859,7 @@ function DSHttpAdapterProvider() {
         DSUtils.deepMixIn(options.params, params);
       }
       return this.PUT(
-        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint),
+        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(null, options)),
         attrs,
         options
       );
@@ -4507,6 +4507,7 @@ var methodsToProxy = [
  */
 function defineResource(definition) {
   var DS = this;
+  var definitions = DS.definitions;
   var IA = DS.errors.IA;
 
   if (DS.utils.isString(definition)) {
@@ -4530,9 +4531,43 @@ function defineResource(definition) {
   try {
     // Inherit from global defaults
     Resource.prototype = DS.defaults;
-    DS.definitions[definition.name] = new Resource(DS.utils, definition);
+    definitions[definition.name] = new Resource(DS.utils, definition);
 
-    var def = DS.definitions[definition.name];
+    var def = definitions[definition.name];
+
+    // Setup nested parent configuration
+    if (def.relations && def.relations.belongsTo) {
+      DS.utils.forOwn(def.relations.belongsTo, function (relatedModel, modelName) {
+        if (!DS.utils.isArray(relatedModel)) {
+          relatedModel = [relatedModel];
+        }
+        DS.utils.forEach(relatedModel, function (relation) {
+          if (relation.parent) {
+            def.parent = modelName;
+            def.parentKey = relation.localKey;
+          }
+        });
+      });
+    }
+
+    def.getEndpoint = function (attrs, options) {
+      var parent = this.parent;
+      var parentKey = this.parentKey;
+      options = options || {};
+      if (!('nested' in options)) {
+        options.nested = true;
+      }
+      if (parent && parentKey && definitions[parent] && options.nested) {
+        if (DS.utils.isObject(attrs) && parentKey in attrs) {
+          return DS.utils.makePath(definitions[parent].getEndpoint(attrs, options), attrs[parentKey], this.endpoint);
+        } else if ((DS.utils.isNumber(attrs) || DS.utils.isString(attrs)) && DS.get(this.name, attrs) && parentKey in DS.get(this.name, attrs)) {
+          return DS.utils.makePath(definitions[parent].getEndpoint(attrs, options), DS.get(this.name, attrs)[parentKey], this.endpoint);
+        } else if (options && options.parentKey) {
+          return DS.utils.makePath(definitions[parent].getEndpoint(attrs, options), options.parentKey, this.endpoint);
+        }
+      }
+      return this.endpoint;
+    };
 
     // Remove this in v0.11.0 and make a breaking change notice
     // the the `filter` option has been renamed to `defaultFilter`
@@ -4633,7 +4668,7 @@ function defineResource(definition) {
     return def;
   } catch (err) {
     DS.$log.error(err);
-    delete DS.definitions[definition.name];
+    delete definitions[definition.name];
     delete DS.store[definition.name];
     throw err;
   }
@@ -5866,6 +5901,7 @@ module.exports = [function () {
     pascalCase: require('mout/string/pascalCase'),
     deepMixIn: require('mout/object/deepMixIn'),
     forOwn: require('mout/object/forOwn'),
+    forEach: angular.forEach,
     pick: require('mout/object/pick'),
     set: require('mout/object/set'),
     contains: require('mout/array/contains'),

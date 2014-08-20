@@ -7,7 +7,10 @@ describe('DSHttpAdapter.findAll(resourceConfig, params, options)', function () {
 
     DSHttpAdapter.findAll({
       baseUrl: 'api',
-      endpoint: 'posts'
+      endpoint: 'posts',
+      getEndpoint: function () {
+        return 'posts';
+      }
     }, {}).then(function (data) {
       assert.deepEqual(data.data, [p1], 'posts should have been found');
     }, function (err) {
@@ -21,7 +24,10 @@ describe('DSHttpAdapter.findAll(resourceConfig, params, options)', function () {
 
     DSHttpAdapter.findAll({
       baseUrl: 'api',
-      endpoint: 'posts'
+      endpoint: 'posts',
+      getEndpoint: function () {
+        return 'posts';
+      }
     }, {
       where: {
         author: {

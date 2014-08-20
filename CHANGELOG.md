@@ -1,6 +1,7 @@
 ##### 1.0.0-beta.1 - xx August 2014
 
 ###### Backwards compatible API changes
+- #40 - Support for nested resource endpoints
 - #118, #122 - Multiple relationships to the same model
 - #120 - When using DSCacheFactory, allow onExpire to be specified
 

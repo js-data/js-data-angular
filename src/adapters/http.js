@@ -376,7 +376,7 @@ function DSHttpAdapterProvider() {
     function create(resourceConfig, attrs, options) {
       options = options || {};
       return this.POST(
-        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint),
+        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(attrs, options)),
         attrs,
         options
       );
@@ -385,7 +385,7 @@ function DSHttpAdapterProvider() {
     function destroy(resourceConfig, id, options) {
       options = options || {};
       return this.DEL(
-        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
+        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id, options), id),
         options
       );
     }
@@ -398,7 +398,7 @@ function DSHttpAdapterProvider() {
         DSUtils.deepMixIn(options.params, params);
       }
       return this.DEL(
-        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint),
+        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(null, options)),
         options
       );
     }
@@ -406,7 +406,7 @@ function DSHttpAdapterProvider() {
     function find(resourceConfig, id, options) {
       options = options || {};
       return this.GET(
-        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
+        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id, options), id),
         options
       );
     }
@@ -419,7 +419,7 @@ function DSHttpAdapterProvider() {
         DSUtils.deepMixIn(options.params, params);
       }
       return this.GET(
-        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint),
+        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(null, options)),
         options
       );
     }
@@ -427,7 +427,7 @@ function DSHttpAdapterProvider() {
     function update(resourceConfig, id, attrs, options) {
       options = options || {};
       return this.PUT(
-        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
+        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id), id),
         attrs,
         options
       );
@@ -441,7 +441,7 @@ function DSHttpAdapterProvider() {
         DSUtils.deepMixIn(options.params, params);
       }
       return this.PUT(
-        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint),
+        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(null, options)),
         attrs,
         options
       );

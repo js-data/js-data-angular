@@ -190,6 +190,7 @@ function startInjector() {
               localKey: 'userId'
             },
             {
+              parent: true,
               localField: 'approvedByUser',
               localKey: 'approvedBy'
             }

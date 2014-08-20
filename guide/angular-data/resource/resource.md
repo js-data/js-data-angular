@@ -301,7 +301,12 @@ DS.defineResource({
     belongsTo: {
       organization: {
         localKey: 'organizationId',
-        localField: 'organization'
+        localField: 'organization',
+        
+        // if you add this to a belongsTo relation
+        // then angular-data will attempt to use
+        // a nested url structure, e.g. /organization/15/user/4
+        parent: true
       }
     }
   }
@@ -412,6 +417,45 @@ You can configure your server to also return the `comment` and `organization` re
 ```
 
 If you've told angular-data about the relations, then the comments and organization will be injected into the data store in addition to the user.
+
+## Nested Resource Endpoints
+
+Add `parent: true` to a belongsTo relationship to activate nested resource endpoints for the resource. Angular-data will attempt to find the appropriate key in order to build the url. If the parent key cannot be found then angular-data will resort to a non-nested url unless you manually provide the id of the parent.
+
+Example:
+
+```js
+DS.defineResource({
+  name: 'comment',
+  relations: {
+    belongsTo: {
+      post: {
+        parent: true,
+        localKey: 'postId',
+        localField: 'post'
+      }
+    }
+  }
+});
+
+// The comment isn't in the data store yet, so angular-data wouldn't know 
+// what the id of the parent "post" would be, so we pass it in manually
+DS.find('comment', 5, { parentKey: 4 }); // GET /post/4/comment/5
+
+// vs 
+
+DS.find('comment', 5); // GET /comment/5
+
+DS.inject('comment', { id: 1, postId: 2 });
+
+// We don't have to provide the parentKey here
+// because angular-data found it in the comment
+DS.update('comment', 1, { content: 'stuff' }); // PUT /post/2/comment/1
+
+// If you don't want the nested for just one of the calls then
+// you can do the following:
+DS.update('comment', 1, { content: 'stuff' }, { nested: false ); // PUT /comment/1
+```
 
 @doc overview
 @id computed

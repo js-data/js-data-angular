@@ -7,7 +7,10 @@ describe('DSHttpAdapter.destroy(resourceConfig, id, options)', function () {
 
     DSHttpAdapter.destroy({
       baseUrl: 'api',
-      endpoint: 'posts'
+      endpoint: 'posts',
+      getEndpoint: function () {
+        return 'posts';
+      }
     }, 1).then(function (data) {
       assert.deepEqual(data.data, 1, 'post should have been deleted');
     }, function (err) {
@@ -21,7 +24,10 @@ describe('DSHttpAdapter.destroy(resourceConfig, id, options)', function () {
 
     DSHttpAdapter.destroy({
       baseUrl: 'api',
-      endpoint: 'posts'
+      endpoint: 'posts',
+      getEndpoint: function () {
+        return 'posts';
+      }
     }, 1, { baseUrl: 'api2' }).then(function (data) {
       assert.deepEqual(data.data, 1, 'post should have been deleted');
     }, function (err) {

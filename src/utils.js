@@ -13,6 +13,7 @@ module.exports = [function () {
     pascalCase: require('mout/string/pascalCase'),
     deepMixIn: require('mout/object/deepMixIn'),
     forOwn: require('mout/object/forOwn'),
+    forEach: angular.forEach,
     pick: require('mout/object/pick'),
     set: require('mout/object/set'),
     contains: require('mout/array/contains'),

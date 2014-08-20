@@ -7,7 +7,10 @@ describe('DSHttpAdapter.destroyAll(resourceConfig, params, options)', function (
 
     DSHttpAdapter.destroyAll({
       baseUrl: 'api',
-      endpoint: 'posts'
+      endpoint: 'posts',
+      getEndpoint: function () {
+        return 'posts';
+      }
     }, {}).then(function (data) {
       assert.isUndefined(data.data, 'posts should have been found');
     }, function (err) {
@@ -21,7 +24,10 @@ describe('DSHttpAdapter.destroyAll(resourceConfig, params, options)', function (
 
     DSHttpAdapter.destroyAll({
       baseUrl: 'api',
-      endpoint: 'posts'
+      endpoint: 'posts',
+      getEndpoint: function () {
+        return 'posts';
+      }
     }, {
       where: {
         author: {

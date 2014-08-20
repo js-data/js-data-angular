@@ -10,7 +10,10 @@ describe('DSHttpAdapter.update(resourceConfig, id, attrs, options)', function ()
 
     DSHttpAdapter.update({
       baseUrl: 'api',
-      endpoint: 'posts'
+      endpoint: 'posts',
+      getEndpoint: function () {
+        return 'posts';
+      }
     }, 1, { author: 'John', age: 30 }).then(function (data) {
       assert.deepEqual(data.data, p1, 'post 5 should have been updated');
     }, function (err) {
@@ -27,7 +30,10 @@ describe('DSHttpAdapter.update(resourceConfig, id, attrs, options)', function ()
 
     DSHttpAdapter.update({
       baseUrl: 'api',
-      endpoint: 'posts'
+      endpoint: 'posts',
+      getEndpoint: function () {
+        return 'posts';
+      }
     }, 1, { author: 'John', age: 30 }, { baseUrl: 'api2' }).then(function (data) {
       assert.deepEqual(data.data, p1, 'post 5 should have been updated');
     }, function (err) {
