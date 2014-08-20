@@ -8,7 +8,9 @@
 module.exports = function (grunt) {
   'use strict';
 
-  require('jit-grunt')(grunt);
+  require('jit-grunt')(grunt, {
+    coveralls: 'grunt-karma-coveralls'
+  });
   require('time-grunt')(grunt);
 
   var dev = process.cwd().indexOf('/home/jdobry/angular-data') === -1;
