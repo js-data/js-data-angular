@@ -76,4 +76,31 @@ describe('DS.destroyAll(resourceName, params[, options]): ', function () {
 
     assert.deepEqual(DS.filter('post', {}), [], 'The posts should not be in the store yet');
   });
+  it('should handle nested resources', function () {
+    $httpBackend.expectDELETE('http://test.angular-cache.com/user/4/comment?content=test').respond(204);
+
+    DS.destroyAll('comment', {
+      content: 'test'
+    }, {
+      parentKey: 4
+    }).then(function () {
+    }, function (err) {
+      console.log(err);
+      fail('Should not have failed!');
+    });
+
+    $httpBackend.flush();
+
+    $httpBackend.expectDELETE('http://test.angular-cache.com/comment?content=test').respond(204);
+
+    DS.destroyAll('comment', {
+      content: 'test'
+    }).then(function () {
+    }, function (err) {
+      console.log(err);
+      fail('Should not have failed!');
+    });
+
+    $httpBackend.flush();
+  });
 });

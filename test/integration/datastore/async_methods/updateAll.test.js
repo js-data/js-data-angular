@@ -96,4 +96,58 @@ describe('DS.updateAll(resourceName, attrs, params[, options])', function () {
     assert.equal(lifecycle.serialize.callCount, 2, 'serialize should have been called');
     assert.equal(lifecycle.deserialize.callCount, 2, 'deserialize should have been called');
   });
+  it('should handle nested resources', function () {
+    var testComment = {
+      id: 5,
+      content: 'stuff',
+      approvedBy: 4
+    };
+    var testComment2 = {
+      id: 6,
+      content: 'stuff',
+      approvedBy: 4
+    };
+    $httpBackend.expectPUT('http://test.angular-cache.com/user/4/comment?content=test').respond(200, [testComment, testComment2]);
+
+    DS.inject('comment', testComment);
+
+    DS.updateAll('comment', {
+      content: 'stuff'
+    }, {
+      content: 'test'
+    }, {
+      parentKey: 4
+    }).then(function (comments) {
+      assert.deepEqual(comments, [testComment, testComment2]);
+      assert.deepEqual(comments, DS.filter('comment', {
+        content: 'stuff'
+      }));
+    }, function () {
+      fail('Should not have failed!');
+    });
+
+    $httpBackend.flush();
+
+    DS.ejectAll('comment');
+
+    $httpBackend.expectPUT('http://test.angular-cache.com/comment?content=test').respond(200, [testComment, testComment2]);
+
+    DS.inject('comment', testComment2);
+
+    DS.updateAll('comment', {
+      content: 'stuff'
+    }, {
+      content: 'test'
+    }).then(function (comments) {
+      assert.deepEqual(comments, [testComment, testComment2]);
+      assert.deepEqual(comments, DS.filter('comment', {
+        content: 'stuff',
+        sort: 'id'
+      }));
+    }, function () {
+      fail('Should not have failed!');
+    });
+
+    $httpBackend.flush();
+  });
 });
