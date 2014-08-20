@@ -2,7 +2,7 @@
 var $rootScope, $q, $log, $timeout, DSHttpAdapterProvider, DSProvider, DSLocalStorageAdapter, DS, DSUtils, DSHttpAdapter, app, $httpBackend, p1, p2, p3, p4, p5;
 
 var user1, organization2, comment3, profile4;
-var comment11, comment12, comment13, organization14, profile15, user10, user16, user17, user18, organization15, user20, comment19, user22, profile21;
+var comment11, comment12, comment13, organization14, profile15, user10, user16, user17, user18, organization15, user19, user20, comment19, user22, profile21;
 
 var lifecycle = {};
 
@@ -184,10 +184,16 @@ function startInjector() {
       name: 'comment',
       relations: {
         belongsTo: {
-          user: {
-            localField: 'user',
-            localKey: 'userId'
-          }
+          user: [
+            {
+              localField: 'user',
+              localKey: 'userId'
+            },
+            {
+              localField: 'approvedByUser',
+              localKey: 'approvedBy'
+            }
+          ]
         }
       }
     });
@@ -294,6 +300,10 @@ function startInjector() {
         user18
       ]
     };
+    user19 = {
+      id: 19,
+      name: 'test user 19'
+    };
     user20 = {
       id: 20,
       name: 'test user 20'
@@ -301,6 +311,8 @@ function startInjector() {
     comment19 = {
       content: 'test comment 19',
       id: 19,
+      approvedBy: 19,
+      approvedByUser: user19,
       userId: 20,
       user: user20
     };

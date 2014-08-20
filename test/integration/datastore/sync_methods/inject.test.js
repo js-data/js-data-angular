@@ -185,6 +185,7 @@ describe('DS.inject(resourceName, attrs)', function () {
 
     // comment19 relations
     assert.deepEqual(DS.get('user', 20), user20);
+    assert.deepEqual(DS.get('user', 19), user19);
 
     // profile21 relations
     assert.deepEqual(DS.get('user', 22), user22);

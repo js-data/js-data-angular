@@ -87,30 +87,36 @@ function loadRelations(resourceName, instance, relations, options) {
     var tasks = [];
     var fields = [];
 
-    DS.utils.forOwn(definition.relations, function (relation, type) {
-      DS.utils.forOwn(relation, function (def, relationName) {
-        if (DS.utils.contains(relations, relationName)) {
-          var task;
-          var params = {};
-          params[def.foreignKey] = instance[definition.idAttribute];
-
-          if (type === 'hasMany') {
-            task = DS.findAll(relationName, params, options);
-          } else if (type === 'hasOne') {
-            if (def.localKey && instance[def.localKey]) {
-              task = DS.find(relationName, instance[def.localKey], options);
-            } else if (def.foreignKey) {
-              task = DS.findAll(relationName, params, options);
-            }
-          } else {
-            task = DS.find(relationName, instance[def.localKey], options);
-          }
-
-          if (task) {
-            tasks.push(task);
-            fields.push(def.localField);
-          }
+    DS.utils.forOwn(definition.relations, function (relatedModels, type) {
+      DS.utils.forOwn(relatedModels, function (defs, relationName) {
+        if (!DS.utils.isArray(defs)) {
+          defs = [defs];
         }
+
+        defs.forEach(function (def) {
+          if (DS.utils.contains(relations, relationName)) {
+            var task;
+            var params = {};
+            params[def.foreignKey] = instance[definition.idAttribute];
+
+            if (type === 'hasMany') {
+              task = DS.findAll(relationName, params, options);
+            } else if (type === 'hasOne') {
+              if (def.localKey && instance[def.localKey]) {
+                task = DS.find(relationName, instance[def.localKey], options);
+              } else if (def.foreignKey) {
+                task = DS.findAll(relationName, params, options);
+              }
+            } else {
+              task = DS.find(relationName, instance[def.localKey], options);
+            }
+
+            if (task) {
+              tasks.push(task);
+              fields.push(def.localField);
+            }
+          }
+        });
       });
     });
 
