@@ -1,22 +1,71 @@
 ## angular-data
 
-__Data store for Angular.js.__
+Inspired by [Ember Data](https://github.com/emberjs/data), Angular-data is the model layer Angular is missing. It consists of a convenient in-memory cache for interacting with your various resources, and several adapters for communicating with various persistence layers.
+
+By default angular-data uses the http adapter–perfect for communicating with your RESTful backend. It includes a localStorage adapter, and another [localforage adapter](https://github.com/jmdobry/angular-data-localForage) is also available. More adapters are coming, and you're free to implement your own.
+
+Unlike Backbone and Ember Models, angular-data does not require the use of getters and setters, and doesn't wrap your data with custom classes if you don't want it to. Angular-data's internal dirty-checking (via [observe-js](https://github.com/Polymer/observe-js) or `Object.observe` in supporting browsers) allows for powerful use cases and an easy avenue for implementing your own [3-way data-binding](https://www.firebase.com/blog/2013-10-04-firebase-angular-data-binding.html).
+
+Supporting relations, computed properties, model lifecycle control and a slew of other features, angular-data is the tool for giving your data the respect it deserves.
 
 __Latest Release:__ [0.10.5](http://angular-data.pseudobry.com/)
-__master:__ [0.10.6](http://angular-data-next.pseudobry.com/)
+__master:__ [1.0.0-beta.1](http://angular-data-next.pseudobry.com/)
 
 Angular-data is approaching 1.0.0 Beta. The API is stabilizing and angular-data is well tested.
 
-Angular-data is being used in production, though it's not 1.0.0. If you want to use Angular-data, keep an eye on the changelog. 1.0.0 will introduce strict semver (until then, minor number is bumped for breaking changes).
+Although angular-data is being used in production, it's not 1.0.0. If you want to use Angular-data, keep an eye on the changelog. 1.0.0 will introduce strict semver (until then, minor number is bumped for breaking changes).
 
-Roadmap:
-- Even more adapters
-- Nested Resources
-- See [issues](https://github.com/jmdobry/angular-data/issues?page=1&state=open) for what's in development
-- See [Design Doc](https://docs.google.com/document/d/1o069KLuBH4jpwm1FCLZFwKMgM73Xi8_1JyjhSxVpidM/edit?usp=sharing) for other juicy reading material
 
 ## Documentation
-[angular-data.pseudobry.com](http://angular-data.pseudobry.com)
+[http://angular-data.pseudobry.com](http://angular-data.pseudobry.com)
+
+## Quick Start
+`bower install angular-data` or `npm install angular-data`.
+
+```js
+var app = angular.module('myApp', ['angular-data.DS']);
+```
+
+```js
+app.factory('User', function (DS) {
+  // Simplest resource definition
+  return DS.defineResource('user');
+});
+```
+
+```js
+app.controller('friendsCtrl', function ($scope, $routeParams, User) {
+  // it's up to your server to know how to interpret this query
+  // or you can teach angular-data how to understand your servers' query language
+  var query = {
+    where: {
+      friendIds: {
+        in: $routeParams.id
+      }
+    }
+  };
+  
+  User.find($routeParams.id);
+  User.findAll(query);
+  
+  // My goodness this was easy
+  User.bindOne($scope, 'me', $routeParams.id);
+  User.bindAll($scope, 'friends', query);
+  
+  // Long form
+  $scope.$watch(function () {
+    return User.lastModified($routeParams.id);
+  }, function () {
+    $scope.me = User.get($routeParams.id);
+  });
+  $scope.$watch(function () {
+    // Changes when anything in the User collection is modified
+    return User.lastModified();
+  }, function () {
+    $scope.friends = User.filter(query);
+  });
+});
+```
 
 ## Changelog
 [CHANGELOG.md](https://github.com/jmdobry/angular-data/blob/master/CHANGELOG.md)
@@ -35,7 +84,7 @@ Roadmap:
 
 [Design Doc](https://docs.google.com/document/d/1o069KLuBH4jpwm1FCLZFwKMgM73Xi8_1JyjhSxVpidM/edit?usp=sharing) - Design document for Angular-data.
 
-[Contributing Guide](https://github.com/jmdobry/angular-data/blob/master/CONTRIBUTING.md)
+[Contributing Guide](#Contributing)
 
 ## Project Status
 
@@ -47,6 +96,21 @@ Roadmap:
 | Code Climate | [![Code Climate](https://codeclimate.com/github/jmdobry/angular-data.png)](https://codeclimate.com/github/jmdobry/angular-data) |
 | Dependency Status | [![Dependency Status](https://gemnasium.com/jmdobry/angular-data.png)](https://gemnasium.com/jmdobry/angular-data) |
 | Coverage | [![Coverage Status](https://coveralls.io/repos/jmdobry/angular-data/badge.png?branch=master)](https://coveralls.io/r/jmdobry/angular-data?branch=master) |
+
+## Contributing
+
+First, feel free to contact me with questions. [Mailing List](https://groups.google.com/forum/?fromgroups#!forum/angular-data). [Issues](https://github.com/jmdobry/angular-data/issues).
+
+1. Contribute to the issue that is the reason you'll be developing in the first place
+1. Fork angular-data
+1. `git clone https://github.com/<you>/angular-data.git`
+1. `cd angular-data; npm install; bower install;`
+1. `grunt go` (builds and starts a watch)
+1. (in another terminal) `grunt karma:dev` (runs the tests)
+1. Write your code, including relevant documentation and tests
+1. Submit a PR and we'll review
+
+## License
 
 Copyright (C) 2014 Jason Dobry
 

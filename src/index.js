@@ -6,7 +6,7 @@
    * @id angular-data
    * @name angular-data
    * @description
-   * __Version:__ 0.10.0
+   * __Version:__ 1.0.0-beta.1
    *
    * ## Install
    *
@@ -25,7 +25,7 @@
    * Load `dist/angular-data.js` or `dist/angular-data.min.js` onto your web page after Angular.js.
    *
    * #### Manual download
-   * Download angular-data-<%= pkg.version %>.js from the [Releases](https://github.com/jmdobry/angular-data/releases)
+   * Download angular-data from the [Releases](https://github.com/jmdobry/angular-data/releases)
    * section of the angular-data GitHub project.
    *
    * ## Load into Angular

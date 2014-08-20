@@ -1,7 +1,7 @@
 /**
 * @author Jason Dobry <jason.dobry@gmail.com>
 * @file angular-data.js
-* @version 0.10.6 - Homepage <http://angular-data.pseudobry.com/>
+* @version 1.0.0-beta.1 - Homepage <http://angular-data.pseudobry.com/>
 * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>
 * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
 *
@@ -1459,8 +1459,8 @@ function DSHttpAdapterProvider() {
      *
      * ## Example:
      * ```js
-     * angular.module('myApp', function (DSHttpAdapterProvider) {
-     *   angular.extend(DSHttpAdapterProvider.defaults.httpConfig, {
+     * angular.module('myApp').config(function (DSHttpAdapterProvider) {
+     *   angular.extend(DSHttpAdapterProvider.defaults.$httpConfig, {
      *     interceptor: [...],
      *     headers: {
      *       common: {
@@ -2839,30 +2839,36 @@ function loadRelations(resourceName, instance, relations, options) {
     var tasks = [];
     var fields = [];
 
-    DS.utils.forOwn(definition.relations, function (relation, type) {
-      DS.utils.forOwn(relation, function (def, relationName) {
-        if (DS.utils.contains(relations, relationName)) {
-          var task;
-          var params = {};
-          params[def.foreignKey] = instance[definition.idAttribute];
-
-          if (type === 'hasMany') {
-            task = DS.findAll(relationName, params, options);
-          } else if (type === 'hasOne') {
-            if (def.localKey && instance[def.localKey]) {
-              task = DS.find(relationName, instance[def.localKey], options);
-            } else if (def.foreignKey) {
-              task = DS.findAll(relationName, params, options);
-            }
-          } else {
-            task = DS.find(relationName, instance[def.localKey], options);
-          }
-
-          if (task) {
-            tasks.push(task);
-            fields.push(def.localField);
-          }
+    DS.utils.forOwn(definition.relations, function (relatedModels, type) {
+      DS.utils.forOwn(relatedModels, function (defs, relationName) {
+        if (!DS.utils.isArray(defs)) {
+          defs = [defs];
         }
+
+        defs.forEach(function (def) {
+          if (DS.utils.contains(relations, relationName)) {
+            var task;
+            var params = {};
+            params[def.foreignKey] = instance[definition.idAttribute];
+
+            if (type === 'hasMany') {
+              task = DS.findAll(relationName, params, options);
+            } else if (type === 'hasOne') {
+              if (def.localKey && instance[def.localKey]) {
+                task = DS.find(relationName, instance[def.localKey], options);
+              } else if (def.foreignKey) {
+                task = DS.findAll(relationName, params, options);
+              }
+            } else {
+              task = DS.find(relationName, instance[def.localKey], options);
+            }
+
+            if (task) {
+              tasks.push(task);
+              fields.push(def.localField);
+            }
+          }
+        });
       });
     });
 
@@ -5362,15 +5368,21 @@ function _inject(definition, resource, attrs) {
 
 function _injectRelations(definition, injected) {
   var DS = this;
-  DS.utils.forOwn(definition.relations, function (relation, type) {
-    DS.utils.forOwn(relation, function (def, relationName) {
-      if (DS.definitions[relationName] && injected[def.localField]) {
-        try {
-          injected[def.localField] = DS.inject(relationName, injected[def.localField]);
-        } catch (err) {
-          DS.$log.error(errorPrefix(definition.name) + 'Failed to inject ' + type + ' relation: "' + relationName + '"!', err);
-        }
+  DS.utils.forOwn(definition.relations, function (relatedModels, type) {
+    DS.utils.forOwn(relatedModels, function (defs, relationName) {
+      if (!DS.utils.isArray(defs)) {
+        defs = [defs];
       }
+
+      defs.forEach(function (def) {
+        if (DS.definitions[relationName] && injected[def.localField]) {
+          try {
+            injected[def.localField] = DS.inject(relationName, injected[def.localField]);
+          } catch (err) {
+            DS.$log.error(errorPrefix(definition.name) + 'Failed to inject ' + type + ' relation: "' + relationName + '"!', err);
+          }
+        }
+      });
     });
   });
 }
@@ -5764,7 +5776,7 @@ module.exports = [function () {
    * @id angular-data
    * @name angular-data
    * @description
-   * __Version:__ 0.10.0
+   * __Version:__ 1.0.0-beta.1
    *
    * ## Install
    *
@@ -5783,7 +5795,7 @@ module.exports = [function () {
    * Load `dist/angular-data.js` or `dist/angular-data.min.js` onto your web page after Angular.js.
    *
    * #### Manual download
-   * Download angular-data-<%= pkg.version %>.js from the [Releases](https://github.com/jmdobry/angular-data/releases)
+   * Download angular-data from the [Releases](https://github.com/jmdobry/angular-data/releases)
    * section of the angular-data GitHub project.
    *
    * ## Load into Angular

@@ -311,10 +311,18 @@ DS.defineResource({
   name: 'organization',
   relations: {
     hasMany: {
-      user: {
-        localField: 'users',
-        foreignKey: 'organizationId'
-      }
+      // this is an example of multiple relations
+      // of the same type to the same resource
+      user: [
+        {
+          localField: 'users',
+          foreignKey: 'organizationId'
+        },
+        {
+          localField: 'owners',
+          foreignKey: 'organizationId'
+        }
+      ]
     }
   }
 });
@@ -344,7 +352,7 @@ DS.defineResource({
 });
 ```
 
-`DS.inject` can be called by you, and is also used internally by `find`, `findAll`, `create`, `update`, `updateAll`, `save` and `refresh`.
+You can manually load items into the data store via `DS.inject`.
 
 ## Loading relations
 
@@ -426,7 +434,7 @@ DS.defineResource('user', {
     // you computed properties to work after you've
     // minified your code
     initials: function (first, last) {
-        return first.toUppercase()[0] + '. ' + last.toUppercase()[0] + '.';
+      return first.toUppercase()[0] + '. ' + last.toUppercase()[0] + '.';
     }
   }
 });

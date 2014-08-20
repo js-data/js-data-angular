@@ -1,7 +1,11 @@
-##### 0.10.6 - xx August 2014
+##### 1.0.0-beta.1 - xx August 2014
 
 ###### Backwards compatible API changes
+- #118, #122 - Multiple relationships to the same model
 - #120 - When using DSCacheFactory, allow onExpire to be specified
+
+###### Other
+- #121 - Documentation errors
 
 ##### 0.10.5 - 14 August 2014
 

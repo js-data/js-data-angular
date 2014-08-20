@@ -1,238 +1,264 @@
 <div class="span12">
-    <div class="row">
-        <div class="span12">
-            <div class="jumbotron">
-                <h1>Respect your data</h1>
+<div class="row">
+<div class="span12">
+<div class="jumbotron">
+    <h1>Respect your data</h1>
 
-                <p class="lead">Give your data the treatment it deserves with a data store built for Angular.js.</p>
-                <a class="btn btn-large btn-success" href="/documentation/guide/angular-data/overview">Show me!</a>
-            </div>
+    <p class="lead">Give your data the treatment it deserves with a data store built for Angular.js.</p>
+    <a class="btn btn-large btn-success" href="/documentation/guide/angular-data/overview">Show me!</a>
 
-            <div class="row-fluid home-lists">
-                <div class="span4">
-                    <h1>Benefits</h1>
-                    <ul>
-                        <li>Less code to write</li>
-                        <li>Less code to test</li>
-                        <li>Less code to maintain</li>
-                        <li>Less code that can break</li>
-                        <li>Improved sense of well-being</li>
-                    </ul>
-                </div>
-                <div class="span4">
-                    <h1>Features</h1>
-                    <ul>
-                        <li>CRUD operations</li>
-                        <li>Data management</li>
-                        <li>Model lifecycle hooks</li>
-                        <li>Pluggable Adapters</li>
-                        <li>Computable Properties</li>
-                        <li>Custom JSON serializers/deserializers</li>
-                        <li>Query system for querying server/cache</li>
-                        <li>Add custom behavior</li>
-                        <li>Easy binding to scope</li>
-                    </ul>
-                </div>
-                <div class="span4">
-                    <h1>Roadmap</h1>
-                    <ul>
-                        <li>Even more adapters</li>
-                        <li>Nested Resources</li>
-                        <li>You tell me!</li>
-                    </ul>
-                </div>
-            </div>
+    <p>
+        Inspired by <a href="https://github.com/emberjs/data" target="_blank">Ember Data</a>, angular-data is the model
+        layer Angular is missing. It consists of a convenient in-memory cache for interacting with your various
+        resources, and several adapters for communicating with various persistence layers.
+    </p>
 
-            <p style="color: #d14; font-size: 16px;">This software is approaching beta!</p>
+    <p>
+        By default angular-data uses the http adapter–perfect for communicating with your RESTful backend. It includes a
+        localStorage adapter, and another <a href="https://github.com/jmdobry/angular-data-localForage" target="_blank">localforage
+        adapter</a> is also available. More adapters are coming, and you're free to implement your own.
+    </p>
 
-            <h1>
-                Project Status
-            </h1>
-            <table>
-                <thead>
-                <tr>
-                    <th>Project</th>
-                    <th>angular-data</th>
-                    <th>angular-data-mocks</th>
-                    <th>angular-cache</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>Branch</td>
-                    <td>master</td>
-                    <td>master</td>
-                    <td>master</td>
-                </tr>
-                <tr>
-                    <td>Bower</td>
-                    <td>
-                        <a href="http://badge.fury.io/bo/angular-data">
-                            <img src="https://badge.fury.io/bo/angular-data.png" alt="Bower version"
-                                 style="max-width:100%;">
-                        </a>
-                    </td>
-                    <td>
-                        <a href="http://badge.fury.io/bo/angular-data-mocks">
-                            <img src="https://badge.fury.io/bo/angular-data-mocks.png" alt="Bower version"
-                                 style="max-width:100%;">
-                        </a>
-                    </td>
-                    <td>
-                        <a href="http://badge.fury.io/bo/angular-cache">
-                            <img src="https://badge.fury.io/bo/angular-cache.png" alt="Bower version"
-                                 style="max-width:100%;">
-                        </a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>NPM</td>
-                    <td>
-                        <a href="http://badge.fury.io/js/angular-data">
-                            <img src="https://badge.fury.io/js/angular-data.png" alt="NPM version"
-                                 style="max-width:100%;">
-                        </a>
-                    </td>
-                    <td>
-                        <a href="http://badge.fury.io/js/angular-data-mocks">
-                            <img src="https://badge.fury.io/js/angular-data-mocks.png" alt="NPM version"
-                                 style="max-width:100%;">
-                        </a>
-                    </td>
-                    <td>
-                        <a href="http://badge.fury.io/js/angular-cache">
-                            <img src="https://badge.fury.io/js/angular-cache.png" alt="NPM version"
-                                 style="max-width:100%;">
-                        </a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Build Status</td>
-                    <td>
-                        <a href="https://travis-ci.org/jmdobry/angular-data">
-                            <img src="https://travis-ci.org/jmdobry/angular-data.png?branch=master"
-                                 alt="Build Status" style="max-width:100%;">
-                        </a>
-                    </td>
-                    <td>
-                        <a href="https://travis-ci.org/jmdobry/angular-data-mocks">
-                            <img src="https://travis-ci.org/jmdobry/angular-data-mocks.png?branch=master"
-                                 alt="Build Status" style="max-width:100%;">
-                        </a>
-                    </td>
-                    <td>
-                        <a href="https://travis-ci.org/jmdobry/angular-cache">
-                            <img src="https://travis-ci.org/jmdobry/angular-cache.png?branch=master"
-                                 alt="Build Status" style="max-width:100%;">
-                        </a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Code Climate</td>
-                    <td>
-                        <a href="https://codeclimate.com/github/jmdobry/angular-data">
-                            <img src="https://codeclimate.com/github/jmdobry/angular-data.png" alt="Code Climate"
-                                 style="max-width:100%;">
-                        </a>
-                    </td>
-                    <td>
-                        <a href="https://codeclimate.com/github/jmdobry/angular-data-mocks">
-                            <img src="https://codeclimate.com/github/jmdobry/angular-data-mocks.png" alt="Code Climate"
-                                 style="max-width:100%;">
-                        </a>
-                    </td>
-                    <td>
-                        <a href="https://codeclimate.com/github/jmdobry/angular-cache">
-                            <img src="https://codeclimate.com/github/jmdobry/angular-cache.png" alt="Code Climate"
-                                 style="max-width:100%;">
-                        </a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Dependency Status</td>
-                    <td>
-                        <a href="https://gemnasium.com/jmdobry/angular-data">
-                            <img src="https://gemnasium.com/jmdobry/angular-data.png" alt="Dependency Status"
-                                 style="max-width:100%;">
-                        </a>
-                    </td>
-                    <td>
-                        <a href="https://gemnasium.com/jmdobry/angular-data-mocks">
-                            <img src="https://gemnasium.com/jmdobry/angular-data-mocks.png" alt="Dependency Status"
-                                 style="max-width:100%;">
-                        </a>
-                    </td>
-                    <td>
-                        <a href="https://gemnasium.com/jmdobry/angular-cache">
-                            <img src="https://gemnasium.com/jmdobry/angular-cache.png" alt="Dependency Status"
-                                 style="max-width:100%;">
-                        </a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Coverage</td>
-                    <td>
-                        <a href="https://coveralls.io/r/jmdobry/angular-data?branch=master">
-                            <img src="https://coveralls.io/repos/jmdobry/angular-data/badge.png?branch=master"
-                                 alt="Coverage Status" style="max-width:100%;">
-                        </a>
-                    </td>
-                    <td>
-                        <a href="https://coveralls.io/r/jmdobry/angular-data-mocks?branch=master">
-                            <img src="https://coveralls.io/repos/jmdobry/angular-data-mocks/badge.png?branch=master"
-                                 alt="Coverage Status" style="max-width:100%;">
-                        </a>
-                    </td>
-                    <td>
-                        <a href="https://coveralls.io/r/jmdobry/angular-cache?branch=master">
-                            <img src="https://coveralls.io/repos/jmdobry/angular-cache/badge.png?branch=master"
-                                 alt="Coverage Status" style="max-width:100%;">
-                        </a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>License</td>
-                    <td>
-                        <a href="https://github.com/jmdobry/angular-data/blob/master/LICENSE">MIT License</a>
-                    </td>
-                    <td>
-                        <a href="https://github.com/jmdobry/angular-data-mocks/blob/master/LICENSE">MIT License</a>
-                    </td>
-                    <td>
-                        <a href="https://github.com/jmdobry/angular-cache/blob/master/LICENSE">MIT License</a>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+    <p>
+        Unlike Backbone and Ember Models, angular-data does not require the use of getters and setters, and doesn't wrap
+        your data with custom classes if you don't want it to. Angular-data's internal dirty-checking (via
+        <a href="https://github.com/Polymer/observe-js" target="_blank">observe-js</a> or `Object.observe` in supporting
+        browsers) allows for powerful use cases and an easy avenue for implementing your own <a
+            href="https://www.firebase.com/blog/2013-10-04-firebase-angular-data-binding.html" target="_blank">3-way
+        data-binding</a>.
+    </p>
 
-            <h1>
-                <a name="license" href="#license"></a>License
-            </h1>
+    <p>
+        Supporting relations, computed properties, model lifecycle control and a slew of other features, angular-data is
+        the tool for giving your data the respect it deserves.
+    </p>
+</div>
 
-            <p>Copyright (C) 2014 Jason Dobry</p>
-
-            <p>
-                Permission is hereby granted, free of charge, to any person obtaining a copy of
-                this software and associated documentation files (the "Software"), to deal in
-                the Software without restriction, including without limitation the rights to
-                use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-                of the Software, and to permit persons to whom the Software is furnished to do
-                so, subject to the following conditions:
-            </p>
-
-            <p>
-                The above copyright notice and this permission notice shall be included in all
-                copies or substantial portions of the Software.
-            </p>
-
-            <p>
-                THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-                IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-                FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-                COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-                IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-                CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-            </p>
-        </div>
+<div class="row-fluid home-lists">
+    <div class="span4">
+        <h1>Benefits</h1>
+        <ul>
+            <li>Less code to write</li>
+            <li>Less code to test</li>
+            <li>Less code to maintain</li>
+            <li>Less code that can break</li>
+            <li>Improved sense of well-being</li>
+        </ul>
     </div>
+    <div class="span4">
+        <h1>Features</h1>
+        <ul>
+            <li>CRUD operations</li>
+            <li>Data management</li>
+            <li>Model lifecycle hooks</li>
+            <li>Pluggable Adapters</li>
+            <li>Computable Properties</li>
+            <li>Custom JSON serializers/deserializers</li>
+            <li>Query system for querying server/cache</li>
+            <li>Add custom behavior</li>
+            <li>Easy binding to scope</li>
+        </ul>
+    </div>
+    <div class="span4">
+        <h1>Roadmap</h1>
+        <ul>
+            <li>Even more adapters</li>
+            <li>Nested Resources</li>
+            <li>You tell me!</li>
+        </ul>
+    </div>
+</div>
+
+<p style="color: #d14; font-size: 16px;">This software is approaching beta!</p>
+
+<h1>
+    Project Status
+</h1>
+<table>
+    <thead>
+    <tr>
+        <th>Project</th>
+        <th>angular-data</th>
+        <th>angular-data-mocks</th>
+        <th>angular-cache</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Branch</td>
+        <td>master</td>
+        <td>master</td>
+        <td>master</td>
+    </tr>
+    <tr>
+        <td>Bower</td>
+        <td>
+            <a href="http://badge.fury.io/bo/angular-data">
+                <img src="https://badge.fury.io/bo/angular-data.png" alt="Bower version"
+                     style="max-width:100%;">
+            </a>
+        </td>
+        <td>
+            <a href="http://badge.fury.io/bo/angular-data-mocks">
+                <img src="https://badge.fury.io/bo/angular-data-mocks.png" alt="Bower version"
+                     style="max-width:100%;">
+            </a>
+        </td>
+        <td>
+            <a href="http://badge.fury.io/bo/angular-cache">
+                <img src="https://badge.fury.io/bo/angular-cache.png" alt="Bower version"
+                     style="max-width:100%;">
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>NPM</td>
+        <td>
+            <a href="http://badge.fury.io/js/angular-data">
+                <img src="https://badge.fury.io/js/angular-data.png" alt="NPM version"
+                     style="max-width:100%;">
+            </a>
+        </td>
+        <td>
+            <a href="http://badge.fury.io/js/angular-data-mocks">
+                <img src="https://badge.fury.io/js/angular-data-mocks.png" alt="NPM version"
+                     style="max-width:100%;">
+            </a>
+        </td>
+        <td>
+            <a href="http://badge.fury.io/js/angular-cache">
+                <img src="https://badge.fury.io/js/angular-cache.png" alt="NPM version"
+                     style="max-width:100%;">
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>Build Status</td>
+        <td>
+            <a href="https://travis-ci.org/jmdobry/angular-data">
+                <img src="https://travis-ci.org/jmdobry/angular-data.png?branch=master"
+                     alt="Build Status" style="max-width:100%;">
+            </a>
+        </td>
+        <td>
+            <a href="https://travis-ci.org/jmdobry/angular-data-mocks">
+                <img src="https://travis-ci.org/jmdobry/angular-data-mocks.png?branch=master"
+                     alt="Build Status" style="max-width:100%;">
+            </a>
+        </td>
+        <td>
+            <a href="https://travis-ci.org/jmdobry/angular-cache">
+                <img src="https://travis-ci.org/jmdobry/angular-cache.png?branch=master"
+                     alt="Build Status" style="max-width:100%;">
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>Code Climate</td>
+        <td>
+            <a href="https://codeclimate.com/github/jmdobry/angular-data">
+                <img src="https://codeclimate.com/github/jmdobry/angular-data.png" alt="Code Climate"
+                     style="max-width:100%;">
+            </a>
+        </td>
+        <td>
+            <a href="https://codeclimate.com/github/jmdobry/angular-data-mocks">
+                <img src="https://codeclimate.com/github/jmdobry/angular-data-mocks.png" alt="Code Climate"
+                     style="max-width:100%;">
+            </a>
+        </td>
+        <td>
+            <a href="https://codeclimate.com/github/jmdobry/angular-cache">
+                <img src="https://codeclimate.com/github/jmdobry/angular-cache.png" alt="Code Climate"
+                     style="max-width:100%;">
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>Dependency Status</td>
+        <td>
+            <a href="https://gemnasium.com/jmdobry/angular-data">
+                <img src="https://gemnasium.com/jmdobry/angular-data.png" alt="Dependency Status"
+                     style="max-width:100%;">
+            </a>
+        </td>
+        <td>
+            <a href="https://gemnasium.com/jmdobry/angular-data-mocks">
+                <img src="https://gemnasium.com/jmdobry/angular-data-mocks.png" alt="Dependency Status"
+                     style="max-width:100%;">
+            </a>
+        </td>
+        <td>
+            <a href="https://gemnasium.com/jmdobry/angular-cache">
+                <img src="https://gemnasium.com/jmdobry/angular-cache.png" alt="Dependency Status"
+                     style="max-width:100%;">
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>Coverage</td>
+        <td>
+            <a href="https://coveralls.io/r/jmdobry/angular-data?branch=master">
+                <img src="https://coveralls.io/repos/jmdobry/angular-data/badge.png?branch=master"
+                     alt="Coverage Status" style="max-width:100%;">
+            </a>
+        </td>
+        <td>
+            <a href="https://coveralls.io/r/jmdobry/angular-data-mocks?branch=master">
+                <img src="https://coveralls.io/repos/jmdobry/angular-data-mocks/badge.png?branch=master"
+                     alt="Coverage Status" style="max-width:100%;">
+            </a>
+        </td>
+        <td>
+            <a href="https://coveralls.io/r/jmdobry/angular-cache?branch=master">
+                <img src="https://coveralls.io/repos/jmdobry/angular-cache/badge.png?branch=master"
+                     alt="Coverage Status" style="max-width:100%;">
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>License</td>
+        <td>
+            <a href="https://github.com/jmdobry/angular-data/blob/master/LICENSE">MIT License</a>
+        </td>
+        <td>
+            <a href="https://github.com/jmdobry/angular-data-mocks/blob/master/LICENSE">MIT License</a>
+        </td>
+        <td>
+            <a href="https://github.com/jmdobry/angular-cache/blob/master/LICENSE">MIT License</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<h1>
+    <a name="license" href="#license"></a>License
+</h1>
+
+<p>Copyright (C) 2014 Jason Dobry</p>
+
+<p>
+    Permission is hereby granted, free of charge, to any person obtaining a copy of
+    this software and associated documentation files (the "Software"), to deal in
+    the Software without restriction, including without limitation the rights to
+    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+    of the Software, and to permit persons to whom the Software is furnished to do
+    so, subject to the following conditions:
+</p>
+
+<p>
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+</p>
+
+<p>
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+    FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+    COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+    IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+    CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+</p>
+</div>
+</div>
 </div>
