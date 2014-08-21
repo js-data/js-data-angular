@@ -41,9 +41,13 @@ describe('DSHttpAdapter.find(resourceConfig, id, options)', function () {
   });
 
   it('should use default configs', function () {
-    $httpBackend.expectGET('api/posts/1?test=test').respond(200, p1);
+    $httpBackend.expectGET('api/posts/1?test=test', {
+      Authorization: 'test',
+      Accept: 'application/json, text/plain, */*'
+    }).respond(200, p1);
 
     DSHttpAdapter.defaults.$httpConfig.params = { test: 'test' };
+    DSHttpAdapter.defaults.$httpConfig.headers = { Authorization: 'test' };
 
     DSHttpAdapter.find({
       baseUrl: 'api',
@@ -61,5 +65,6 @@ describe('DSHttpAdapter.find(resourceConfig, id, options)', function () {
     $httpBackend.flush();
 
     delete DSHttpAdapter.defaults.$httpConfig.params;
+    delete DSHttpAdapter.defaults.$httpConfig.headers;
   });
 });
