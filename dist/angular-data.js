@@ -1845,7 +1845,7 @@ function DSHttpAdapterProvider() {
     function update(resourceConfig, id, attrs, options) {
       options = options || {};
       return this.PUT(
-        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id), id),
+        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id, options), id),
         attrs,
         options
       );
