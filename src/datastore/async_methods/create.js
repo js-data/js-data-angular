@@ -30,7 +30,7 @@ function errorPrefix(resourceName) {
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {object} attrs The attributes with which to create the item of the type specified by `resourceName`.
- * @param {object=} options Configuration options. Passed directly to the adapter's `create` method. Properties:
+ * @param {object=} options Configuration options. Also passed along to the adapter's `create` method. Properties:
  *
  * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
  * - `{boolean=}` - `upsert` - If `attrs` already contains a primary key, then attempt to call `DS.update` instead. Default: `true`.

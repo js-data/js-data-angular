@@ -1,6 +1,6 @@
 describe('DS.destroy(resourceName, id)', function () {
   function errorPrefix(resourceName, id) {
-    return 'DS.destroy(' + resourceName + ', ' + id + '): ';
+    return 'DS.destroy(' + resourceName + ', ' + id + '[, options]): ';
   }
 
   beforeEach(startInjector);

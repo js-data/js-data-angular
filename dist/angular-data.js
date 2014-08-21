@@ -2087,7 +2087,7 @@ function errorPrefix(resourceName) {
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {object} attrs The attributes with which to create the item of the type specified by `resourceName`.
- * @param {object=} options Configuration options. Passed directly to the adapter's `create` method. Properties:
+ * @param {object=} options Configuration options. Also passed along to the adapter's `create` method. Properties:
  *
  * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
  * - `{boolean=}` - `upsert` - If `attrs` already contains a primary key, then attempt to call `DS.update` instead. Default: `true`.
@@ -2175,7 +2175,7 @@ module.exports = create;
 
 },{}],39:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
-  return 'DS.destroy(' + resourceName + ', ' + id + '): ';
+  return 'DS.destroy(' + resourceName + ', ' + id + '[, options]): ';
 }
 
 /**
@@ -2183,31 +2183,28 @@ function errorPrefix(resourceName, id) {
  * @id DS.async_methods:destroy
  * @name destroy
  * @description
- * Delete the item of the type specified by `resourceName` with the primary key specified by `id` from the data store
- * and the server.
+ * The "D" in "CRUD". Delegate to the `destroy` method of whatever adapter is being used (http by default) eject the
+ * appropriate item from the data store.
  *
  * ## Signature:
  * ```js
- * DS.destroy(resourceName, id);
+ * DS.destroy(resourceName, id[, options]);
  * ```
  *
  * ## Example:
  *
  * ```js
- * DS.destroy('document', 'aab7ff66-e21e-46e2-8be8-264d82aee535')
- *  .then(function (id) {
- *      id; // 'aab7ff66-e21e-46e2-8be8-264d82aee535'
+ * DS.destroy('document', 5).then(function (id) {
+ *   id; // 5
  *
- *      // The document is gone
- *      DS.get('document', 'aab7ff66-e21e-46e2-8be8-264d82aee535'); // undefined
- *  }, function (err) {
- *      // Handle error
- *  });
+ *   // The document is gone
+ *   DS.get('document', 5); // undefined
+ * });
  * ```
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to remove.
- * @param {object=} options Configuration options.
+ * @param {object=} options Configuration options. Also passed along to the adapter's `destroy` method.
  * @returns {Promise} Promise produced by the `$q` service.
  *
  * ## Resolves with:
@@ -2224,11 +2221,12 @@ function destroy(resourceName, id, options) {
   var DS = this;
   var deferred = DS.$q.defer();
   var promise = deferred.promise;
+  var definition = DS.definitions[resourceName];
 
   try {
     options = options || {};
 
-    if (!DS.definitions[resourceName]) {
+    if (!definition) {
       throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
     } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {
       throw new DS.errors.IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
@@ -2238,8 +2236,6 @@ function destroy(resourceName, id, options) {
     if (!item) {
       throw new DS.errors.R(errorPrefix(resourceName, id) + 'id: "' + id + '" not found!');
     }
-
-    var definition = DS.definitions[resourceName];
 
     promise = promise
       .then(function (attrs) {
