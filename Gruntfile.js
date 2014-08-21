@@ -146,82 +146,91 @@ module.exports = function (grunt) {
     },
 
     concat: {
-      libs: {
-        src: [
-          'doc/resources/js/jquery.js',
-          'doc/resources/js/jquery.goto.js',
-          'doc/resources/js/jquery.cookie.js',
-          'doc/resources/angular/angular.js',
-          'doc/resources/angular/angular-bootstrap.js',
-          'doc/resources/angular/angular-bootstrap-prettify.js',
-          'doc/resources/angular/angular-cookies.js',
-          'doc/resources/angular/angular-resource.js',
-          'doc/resources/angular/angular-sanitize.js'
+      dist: {
+        files: [
+          {
+            src: [
+              'doc/resources/js/jquery.js',
+              'doc/resources/js/jquery.goto.js',
+              'doc/resources/js/jquery.cookie.js',
+              'doc/resources/angular/angular.js',
+              'doc/resources/angular/angular-route.js',
+              'doc/resources/libraries/angular-bootstrap.js',
+              'doc/resources/angular/angular-cookies.js',
+              'doc/resources/angular/angular-resource.js',
+              'doc/resources/angular/angular-sanitize.js'
 
-        ],
-        dest: 'doc/resources/js/libs.js'
-      },
-      scripts: {
-        src: [
-          'doc/resources/js/docs_module_begin.js',
-          'guide/angular-data.js',
-          'doc/resources/doc_api_resources/doc_api.js',
-          'doc/resources/js/docs_module_end.js',
-          'doc/documentation/docs-metadata.js',
-          'doc/documentation/groups-metadata.js',
-          'doc/documentation/layout-metadata.js'
+            ],
+            dest: 'doc/resources/js/libs.js'
+          },
+          {
+            src: [
+              'bower_components/bootstrap/dist/css/bootstrap.min.css',
+              'doc/resources/css/font-awesome.css',
+              'doc/resources/css/docular.css',
+              'doc/resources/css/custom.css',
+              'guide/angular-data.css'
+            ],
+            dest: 'doc/resources/css/styles.css'
+          },
+          {
+            src: [
+              'doc/resources/js/docs_module_begin.js',
+              'doc/resources/js/controllers/index.js',
+              'doc/resources/js/directives/index.js',
+              'doc/resources/js/services/index.js',
+              'doc/resources/js/directives/doc.js',
+              'doc/resources/js/docs_module_end.js',
+              'doc/documentation/docs-metadata.js',
+              'doc/documentation/groups-metadata.js',
+              'doc/documentation/layout-metadata.js'
 
-        ],
-        dest: 'doc/resources/js/scripts.js'
-      },
-      css: {
-        src: [
-          'doc/resources/css/bootstrap.min.css',
-          'doc/resources/css/font-awesome.css',
-          'doc/resources/css/docular.css',
-          'doc/resources/css/custom.css',
-          'doc/resources/doc_api_resources/doc_api.css',
-          'guide/angular-data.css'
-        ],
-        dest: 'doc/resources/css/styles.css'
+            ],
+            dest: 'doc/resources/js/scripts.js'
+          }
+        ]
       }
     },
 
     copy: {
-      favicon: {
-        expand: true,
-        cwd: 'guide/',
-        src: 'favicon.ico',
-        dest: 'doc/',
-        flatten: true
-      },
-      index: {
-        expand: true,
-        cwd: 'guide/',
-        src: 'index.html',
-        dest: 'doc/',
-        flatten: true
-      },
-      data_white: {
-        expand: true,
-        cwd: 'guide/',
-        src: 'data_white.png',
-        dest: 'doc/resources/img/',
-        flatten: true
-      },
-      chart: {
-        expand: true,
-        cwd: 'guide/',
-        src: 'chart.png',
-        dest: 'doc/resources/img/',
-        flatten: true
-      },
-      cream_dust: {
-        expand: true,
-        cwd: 'guide/',
-        src: 'cream_dust.png',
-        dest: 'doc/resources/img/',
-        flatten: true
+      dist: {
+        files: [
+          {
+            expand: true,
+            cwd: 'guide/',
+            src: 'index.html',
+            dest: 'doc/',
+            flatten: true
+          },
+          {
+            expand: true,
+            cwd: 'guide/',
+            src: 'data_grey.png',
+            dest: 'doc/resources/img/',
+            flatten: true
+          },
+          {
+            expand: true,
+            cwd: 'guide/',
+            src: 'chart.png',
+            dest: 'doc/resources/img/',
+            flatten: true
+          },
+          {
+            expand: true,
+            cwd: 'guide/',
+            src: 'cream_dust.png',
+            dest: 'doc/resources/img/',
+            flatten: true
+          },
+          {
+            expand: true,
+            cwd: 'guide/',
+            src: 'favicon.ico',
+            dest: 'doc/',
+            flatten: true
+          }
+        ]
       }
     },
     docular: {
@@ -372,7 +381,7 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('test', ['build', 'karma:ci', 'karma:cacheFactory', 'karma:DSCacheFactory', 'karma:min']);
-  grunt.registerTask('doc', ['clean:doc', 'docular', 'concat', 'copy', 'clean:afterDoc', 'uglify:scripts']);
+  grunt.registerTask('doc', ['clean:doc', 'docular', 'concat', 'copy', 'uglify:scripts']);
   grunt.registerTask('build', [
     'clean',
     'jshint',

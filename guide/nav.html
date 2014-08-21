@@ -1,13 +1,23 @@
-<div class="navbar navbar-fixed-top main-nav">
-    <div class="navbar-inner">
-        <div class="container">
-            <a class="brand" href="/" style="padding-top: 6px; padding-bottom: 6px; color: #0088cc;">
-                <img class="logo-small" src="/resources/img/data_white.png" style="height: 27px">&nbsp;
+<nav class="navbar navbar-inverse navbar-fixed-top main-nav" id="main-header">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse"
+                    data-target=".navbar-header-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" data-ng-href="/"
+               style="padding-top: 6px; padding-bottom: 6px; color: #0088cc;">
+                <img class="logo-small" src="/resources/img/data_grey.png" style="height: 27px">&nbsp;
                 angular-data
-                <small style="font-size:11px; color: #fff;">Data store and caching for Angular.js</small>
+                <small>Data store and caching for Angular.js</small>
             </a>
+        </div>
 
-            <ul class="nav pull-right">
+        <div class="navbar-collapse collapse navbar-header-collapse">
+            <ul class="nav navbar-nav pull-right">
                 <li>
                     <a href="/" tabindex="1">
                         <i class="icon-home icon-white"></i> Home
@@ -145,4 +155,4 @@
             </ul>
         </div>
     </div>
-</div>
+</nav>

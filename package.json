@@ -27,7 +27,6 @@
     "grunt-contrib-jshint": "^0.10.0",
     "grunt-contrib-uglify": "^0.5.1",
     "grunt-contrib-watch": "^0.6.1",
-    "grunt-docular": "^0.1.2",
     "grunt-karma": "^0.8.3",
     "grunt-karma-coveralls": "^2.5.1",
     "karma": "^0.12.22",
@@ -41,7 +40,8 @@
     "karma-sinon": "^1.0.3",
     "karma-spec-reporter": "^0.0.13",
     "time-grunt": "^0.4.0",
-    "jit-grunt": "^0.8.0"
+    "jit-grunt": "^0.8.0",
+    "grunt-docular": "^0.1.4"
   },
   "scripts": {
     "test": "grunt test"

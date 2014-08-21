@@ -6,13 +6,14 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta name="Description" content="An in-browser data store for Angular.js.">
+    <meta name="Description"
+        content="An in-browser data store for Angular.js.">
     <meta name="Keywords"
         content="model, schema, angular, angular.js, data, datastore, adapter, store">
     <meta name="fragment" content="!">
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
-    <title ng-bind-template="angular-data: {{partialTitle}}">angular-data</title>
-
+    <title ng-bind-template="angular-data: {{mainpage.partialTitle}}">angular-data</title>
+    <base href="/">
+    <link href='http://fonts.googleapis.com/css?family=Nunito:400,300,700' rel='stylesheet' type='text/css'>
     <script type="text/javascript">
 
         // dynamically add base tag as well as css and javascript files.
@@ -22,14 +23,8 @@
 
             /*============ INITIALIZATION =============*/
 
-            var baseURL = '/'
-
             var path = function(name) {
-                if (production) {
-                    return name.replace(/\.js$/, '.min.js');
-                } else {
-                    return name;
-                }
+                return name;
             };
 
             window.addTag = function (name, attributes, sync) {
@@ -55,26 +50,49 @@
                     })(node);
             };
 
-            var indexFile = (location.pathname.match(/\/(index[^\.]*\.html)/) || ['', ''])[1],
-                rUrl = /(#!\/|api|guide|misc|tutorial|cookbook|index[^\.]*\.html).*$/,
-                baseUrl = location.href.replace(location.pathname, ''),
-                jQuery = true,
-                debug = /index[^\.]*-debug\.html$/.test(baseUrl) && 3==7,
-                production = (location.hostname === 'docs.angularjs.org' && 3==9),
-                sync = true,
-                angularVersion = {
-                    current: '"NG_VERSION_FULL"', // rewrite during build
-                    stable: '"NG_VERSION_STABLE"'
-                };
+            var sync = true;
 
 
-            /*============ HERE WE LOAD THE CONFIGURABLE BASEURL ============*/
+            addTag('script', {src: 'documentation/docular-configuration.js'}, sync);
 
-            addTag('script', {src: '/documentation/docular-configuration.js'}, sync);
 
-            addTag('link', {rel: 'stylesheet', href: '/resources/css/styles.css', type: 'text/css'});
-            addTag('script', {src: '/resources/js/libs.min.js'}, sync);
-            addTag('script', {src: '/resources/js/scripts.js'}, sync);
+            /*============ ADD ALL THE BASE STYLING  =============*/
+
+            addTag('link', {rel: 'stylesheet', href: 'resources/css/styles.css', type: 'text/css'});
+
+            /*=========== LOAD DOC API UI_RESOURCES FOR STYLING ===========*/
+
+            addTag('link', {rel: 'stylesheet', href: 'resources/doc_api_resources/doc_api.css', type: 'text/css'});
+
+            /*=========== BEHAVIOR/LIBRARIES ============*/
+
+            addTag('script', {src: path('resources/js/libs.min.js')}, sync);
+
+            /*=========== Highlighter ======== */
+
+            addTag('script', {src: '//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.1/highlight.min.js'}, sync)
+            addTag('link', {rel: 'stylesheet', href: '//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.1/styles/github.min.css', type: 'text/css'});
+            //At some point this could be autocompiled.
+            var languages = [
+                'css',
+                'scss',
+                'markdown',
+                'ruby',
+                'java',
+                'php',
+                'xml',
+                'sql',
+                'bash'
+            ];
+
+            for(var i = 0, l = languages.length; i < l; i++) {
+                var lang = languages[i];
+                addTag('script', {src: '//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.1/languages/' + lang + '.min.js'}, sync)
+            }
+
+            addTag('script', {src: 'resources/js/scripts.js'}, sync);
+
+
         })();
 
         //google analytics array
@@ -96,21 +114,21 @@
 
     <header class="header" ng-include src="'resources/docular-partials/docular_partial_navigation.html'"></header>
 
-    <div role="main" class="container body">
+    <div role="main" class="body" data-ng-class="{ container: mainpage.partialTitle !== 'Home' }">
 
         <div class="row clear-navbar"></div>
 
         <div class="row hide-source-container" ng-show="mode == 'show-source'" class="hide-source-container">
-            <div class="span12">
+            <div class="col-sm-12">
                 <hide-source></hide-source>
                 <div ng-bind-html-unsafe="currentSourceContent"></div>
             </div>
         </div>
 
         <div class="row">
-            <div class="span12">
+            <div class="col-sm-12">
                 <!--[if lt IE 7]>
-                <p class="alert alert-error">Your browser is <em>ancient!</em>
+                <p class="alert alert-danger">Your browser is <em>ancient!</em>
                   <a href="http://browsehappy.com/">Upgrade to a different browser</a> or
                   <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to
                   experience this site.
@@ -127,91 +145,30 @@
             </div>
         </div>
 
-
-        <!-- HERE WE LOAD THE PARTIAL THAT IS CONFIGURABLE. THIS IS A SORT OF SPLASH PAGE THAT IS CUSTOMIZEABLE -->
-        <div class="row partial-home" ng-show="mode == 'home'" ng-include src="'resources/docular-partials/docular_partial_home.html'"></div>
-
-        <!-- HERE WE LOAD THE PARTIAL FOR THE BLANK PAGE AT THE ROOT OF A GROUP (GROUP INDEX) THIS IS CUSTOMIZEABLE -->
-        <div class="row partial-group-index" ng-show="mode == 'groupindex'" ng-include src="'resources/docular-partials/docular_partial_group_index.html'"></div>
-
-        <!-- HERE IS THE BASE MARKUP FOR WHEN DOCUMENTATION IS BEING SHOWN -->
-        <div class="row" ng-show="mode == 'documentation'" ng-class="loadingClass()">
-            <div class="span3">
-
-                <form class="well form-search" ng-submit="submitForm()">
-
-                    <div class="dropdown search" ng-class="{open: focused && bestMatch.rank > 0 && bestMatch.page != currentPage}">
-                        <input type="text" ng-model="search" placeholder="search the docs" tabindex="1" accesskey="s" class="input-medium search-query" focused="focused">
-                        <ul class="dropdown-menu">
-                            <li>
-                                <a href="{{bestMatch.page.url}}">{{bestMatch.page.shortName}}</a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div class="spacer"></div>
-                    <div ng-show="search">Filtered results:</div>
-
-                    <!-- here we just render regular pages -->
-                    <div class="overview-items" ng-show="pages.length">
-                        <ul class="nav nav-list" ng-hide="page">
-                            <li ng-repeat="page in pages" ng-class="navClass(page)">
-                                <a href="{{page.url}}" tabindex="2">{{page.shortName}}</a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- here we just render modules -->
-                    <ul class="nav nav-list well" ng-repeat="module in modules">
-
-                        <li class="nav-header module">
-                            <button type="button" class="module-visibility btn" ng-class="visibilityClass(module)" ng-click="toggleVisible()">
-                                <i ng-class="iconClass(module)"></i>
-                            </button>
-                            <a class="guide" href="{{module.guideURL}}">module</a>
-                            <a class="code module-name" href="{{module.codeURL}}">{{module.name}}</a>
-                        </li>
-
-                        <!-- TODO: make this semantic (root level scope is the issue) -->
-                        <span ng-repeat="section in module.sections | orderBy:'order'" class="module-section {{module.visible}}">
-                            <li class="nav-header section">
-                                <span class="section-count">{{section.pages.length}}</span>
-                                <a href="{{section.link}}" class="guide">{{section.name}}</a>
-                            </li>
-                            <li ng-repeat="page in section.pages" ng-class="navClass(page)" class="doc-listing">
-                                <a href="{{page.url}}" tabindex="2">{{page.shortName}}</a>
-                            </li>
-                        </span>
-
-                    </ul>
-
-                </form>
-            </div>
-
-            <div class="span9">
-
-                <ul class="breadcrumb">
-                    <li ng-repeat="crumb in breadcrumb">
-                        <span ng-hide="crumb.url">{{crumb.name}}</span>
-                        <a ng-show="crumb.url" href="{{crumb.url}}">{{crumb.name}}</a>
-                        <span ng-show="crumb.url || crumb.divider" class="divider">/</span>
-                    </li>
-                </ul>
-
-                <view-source></view-source>
-
-                <div ng-include src="currentPage.partialUrl" onload="afterPartialLoaded()" autoscroll class="content"></div>
-
-                <div id="disqus" class="disqus" ng-show="discussionsEnabled">
-                    <h2>Discussion</h2>
-                    <div id="disqus_thread" class="content-panel-content"></div>
-                </div>
-            </div>
-
-        </div>
+		<ng-view></ng-view>
 
     </div>
 
+    <div id="fader" ng-show="subpage" style="display: none"></div>
+        <div id="subpage" ng-show="subpage" style="display: none">
+            <div>
+                <h2>Would you like full offline support for this AngularJS Docs App?</h2>
+                <a ng-click="subpage=false">&#10005;</a>
+                <p>
+                    If you want to be able to access the entire AngularJS documentation offline, click the
+                    button below. This will reload the current page and trigger background downloads of all the
+                    necessary files (approximately 3.5MB). The next time you load the docs, the browser will
+                    use these cached files.
+                    <br><br>
+                    This feature is supported on all modern browsers, except for IE9 which lacks application
+                    cache support.
+                </p>
+                <button id="cacheButton" ng-click="enableOffline()">Let me have them all!</button>
+            </div>
+        </div>
+    </div>
+
     <footer class="footer" ng-include src="'resources/docular-partials/docular_partial_footer.html'"></footer>
+
 </body>
 </html>

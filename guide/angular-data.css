@@ -1,11 +1,75 @@
 body {
     background-size: auto;
     background: url(/resources/img/cream_dust.png) repeat repeat;
-    font-family: 'Open sans', Arial, Helvetica, sans-serif;
+    font-family: 'Nunito', Arial, Helvetica, sans-serif;
+    font-weight: 300;
 }
 
-.main-nav {
+h1, h2, h3, h4, h5, h6, p, a, small {
+    font-family: 'Nunito', Arial, Helvetica, sans-serif;
+    font-weight: 300;
+}
+
+#home-page .row {
+
+}
+
+#home-section-1 {
+    background-color: #0088cc;
+    color: #fff;
+    margin-top: -20px;
+}
+
+#home-section-2, #home-section-3, #home-section-4 {
+    padding: 5em 0;
+    font-size: 17px;
+}
+
+#home-section-3 {
+    background-color: #0088cc;
+    color: #fff;
+}
+
+#home-section-3 li {
+    list-style: none;
+}
+
+#home-section-3 li:before {
+    font-family: 'FontAwesome';
+    content: '\f054';
+    margin: 0 5px 0 -15px;
+}
+
+#home-section-5 {
+    padding: 5em 0;
+    background-color: #0088cc;
+    color: #fff;
+    margin-bottom: -60px;
+}
+
+#main-header {
     border-bottom: 2px solid #0088cc;
+}
+
+#main-header li {
+    border: none;
+}
+
+#main-header li > a:hover, #main-header li > a:focus, #main-header li > a.active {
+    color: #000;
+}
+
+#main-header .dropdown-menu li > a {
+    font-weight: 300;
+}
+
+#main-header .dropdown-menu li > a:hover, #main-header .dropdown-menu .active > a, #main-header .dropdown-menu .active > a:hover {
+    color: #fff;
+}
+
+#main-header.navbar-inverse .navbar-nav > .open > a, #main-header.navbar-inverse .navbar-nav > .open > a:hover, #main-header.navbar-inverse .navbar-nav > .open > a:focus {
+    background-color: #0088cc;
+    color: #fff !important;
 }
 
 .main-nav .dropdown-menu {
@@ -16,11 +80,33 @@ body {
     content: " ";
     position: absolute;
     z-index: -1;
-    top: 5px;
     left: 0px;
+    width: 100%;
     right: 0px;
     bottom: -4px;
-    border: 2px solid #11c8fa;
+    border: 1px solid #11C8FA;
+}
+
+ul.navbar-nav {
+    margin-bottom: 0;
+}
+
+.footer .navbar-nav {
+    float: none;
+}
+
+.navbar.navbar-inverse {
+    min-height: 42px;
+    background-color: #fff;
+}
+
+.navbar-brand {
+    height: 42px;
+}
+
+.navbar-brand small {
+    font-size: 12px;
+    color: #737373;
 }
 
 a {
@@ -35,7 +121,7 @@ a:hover {
     color: #0088cc;
 }
 
-.nav-list .active>a, .nav-list .active>a:hover {
+.nav-list .active > a, .nav-list .active > a:hover {
     background-color: #0088cc;
 }
 
@@ -43,7 +129,7 @@ a:hover {
     background: #0088cc;
 }
 
-.dropdown-menu li>a:hover, .dropdown-menu .active>a, .dropdown-menu .active>a:hover {
+.dropdown-menu li > a:hover, .dropdown-menu .active > a, .dropdown-menu .active > a:hover {
     color: #ffffff;
     text-decoration: none;
     background-color: #0088cc;
@@ -52,6 +138,7 @@ a:hover {
 .footer {
     border-top: 2px solid #0088cc;
     position: relative;
+    padding: 0;
 }
 
 .footer:before {
@@ -69,16 +156,22 @@ a:hover {
     color: #fff;
 }
 
-.footer .nav>li>a:hover {
+.footer li.button-item {
+    height: 50px;
+    padding-top: 15px;
+}
+
+.footer .nav > li > a:hover {
     text-decoration: underline;
 }
 
-.nav>li>a:hover {
+.nav > li > a:hover {
     background: none;
 }
 
 .jumbotron {
     margin: 80px 0;
+    background-color: transparent;
     text-align: center;
 }
 
@@ -99,4 +192,9 @@ a:hover {
 
 .home-lists li {
     font-size: 16px;
+}
+
+li.nav-header.module {
+    background-color: #0088cc;
+    color: #fff;
 }
