@@ -4547,20 +4547,29 @@ function defineResource(definition) {
     def.getEndpoint = function (attrs, options) {
       var parent = this.parent;
       var parentKey = this.parentKey;
+      var item;
+      var endpoint;
       options = options || {};
-      if (!('nested' in options)) {
-        options.nested = true;
-      }
-      if (parent && parentKey && definitions[parent] && options.nested) {
+      options.params = options.params || {};
+      if (parent && parentKey && definitions[parent] && options.params[parentKey] !== false) {
+        if (DS.utils.isNumber(attrs) || DS.utils.isString(attrs)) {
+          item = DS.get(this.name, attrs);
+        }
         if (DS.utils.isObject(attrs) && parentKey in attrs) {
-          return DS.utils.makePath(definitions[parent].getEndpoint(attrs, options), attrs[parentKey], this.endpoint);
-        } else if ((DS.utils.isNumber(attrs) || DS.utils.isString(attrs)) && DS.get(this.name, attrs) && parentKey in DS.get(this.name, attrs)) {
-          return DS.utils.makePath(definitions[parent].getEndpoint(attrs, options), DS.get(this.name, attrs)[parentKey], this.endpoint);
-        } else if (options && options.parentKey) {
-          return DS.utils.makePath(definitions[parent].getEndpoint(attrs, options), options.parentKey, this.endpoint);
+          delete options.params[parentKey];
+          endpoint = DS.utils.makePath(definitions[parent].getEndpoint(attrs, options), attrs[parentKey], this.endpoint);
+        } else if (item && parentKey in item) {
+          delete options.params[parentKey];
+          endpoint = DS.utils.makePath(definitions[parent].getEndpoint(attrs, options), item[parentKey], this.endpoint);
+        } else if (options && options.params[parentKey]) {
+          endpoint = DS.utils.makePath(definitions[parent].getEndpoint(attrs, options), options.params[parentKey], this.endpoint);
+          delete options.params[parentKey];
         }
       }
-      return this.endpoint;
+      if (options.params[parentKey] === false) {
+        delete options.params[parentKey];
+      }
+      return endpoint || this.endpoint;
     };
 
     // Remove this in v0.11.0 and make a breaking change notice

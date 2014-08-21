@@ -138,7 +138,7 @@ function startInjector() {
         hasMany: {
           comment: {
             localField: 'comments',
-            foreignKey: 'userId'
+            foreignKey: 'approvedBy'
           }
         },
         hasOne: {

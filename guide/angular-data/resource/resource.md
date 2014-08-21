@@ -440,7 +440,7 @@ DS.defineResource({
 
 // The comment isn't in the data store yet, so angular-data wouldn't know 
 // what the id of the parent "post" would be, so we pass it in manually
-DS.find('comment', 5, { parentKey: 4 }); // GET /post/4/comment/5
+DS.find('comment', 5, { params: { postId: 4 } }); // GET /post/4/comment/5
 
 // vs 
 
@@ -454,7 +454,7 @@ DS.update('comment', 1, { content: 'stuff' }); // PUT /post/2/comment/1
 
 // If you don't want the nested for just one of the calls then
 // you can do the following:
-DS.update('comment', 1, { content: 'stuff' }, { nested: false ); // PUT /comment/1
+DS.update('comment', 1, { content: 'stuff' }, { params: { postId: false } }); // PUT /comment/1
 ```
 
 @doc overview

@@ -58,10 +58,11 @@ describe('DS.destroy(resourceName, id)', function () {
     $httpBackend.expectDELETE('http://test.angular-cache.com/user/4/comment/5').respond(204);
 
     DS.destroy('comment', 5, {
-      parentKey: 4
+      params: {
+        approvedBy: 4
+      }
     }).then(function () {
-    }, function (err) {
-      console.log(err);
+    }, function () {
       fail('Should not have failed!');
     });
 
@@ -74,8 +75,7 @@ describe('DS.destroy(resourceName, id)', function () {
     DS.destroy('comment', 6, {
       bypassCache: true
     }).then(function () {
-    }, function (err) {
-      console.log(err);
+    }, function () {
       fail('Should not have failed!');
     });
 
@@ -86,10 +86,11 @@ describe('DS.destroy(resourceName, id)', function () {
     DS.inject('comment', testComment2);
 
     DS.destroy('comment', 6, {
-      nested: false
+      params: {
+        approvedBy: false
+      }
     }).then(function () {
-    }, function (err) {
-      console.log(err);
+    }, function () {
       fail('Should not have failed!');
     });
 

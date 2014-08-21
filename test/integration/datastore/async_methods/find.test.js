@@ -122,7 +122,9 @@ describe('DS.find(resourceName, id[, options]): ', function () {
     $httpBackend.expectGET('http://test.angular-cache.com/user/4/comment/5').respond(200, testComment);
 
     DS.find('comment', 5, {
-      parentKey: 4
+      params: {
+        approvedBy: 4
+      }
     }).then(function (comment) {
       assert.deepEqual(comment, testComment);
       assert.deepEqual(comment, DS.get('comment', 5));
@@ -148,8 +150,10 @@ describe('DS.find(resourceName, id[, options]): ', function () {
     $httpBackend.expectGET('http://test.angular-cache.com/comment/5').respond(200, testComment);
 
     DS.find('comment', 5, {
-      nested: false,
-      bypassCache: true
+      bypassCache: true,
+      params: {
+        approvedBy: false
+      }
     }).then(function (comment) {
       assert.deepEqual(comment, testComment);
       assert.deepEqual(comment, DS.get('comment', 5));

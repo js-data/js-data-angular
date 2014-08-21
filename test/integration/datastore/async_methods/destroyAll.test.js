@@ -82,7 +82,9 @@ describe('DS.destroyAll(resourceName, params[, options]): ', function () {
     DS.destroyAll('comment', {
       content: 'test'
     }, {
-      parentKey: 4
+      params: {
+        approvedBy: 4
+      }
     }).then(function () {
     }, function (err) {
       console.log(err);
@@ -108,8 +110,9 @@ describe('DS.destroyAll(resourceName, params[, options]): ', function () {
     DS.destroyAll('comment', {
       content: 'test'
     }, {
-      parentKey: 4,
-      nested: false
+      params: {
+        approvedBy: false
+      }
     }).then(function () {
     }, function (err) {
       console.log(err);

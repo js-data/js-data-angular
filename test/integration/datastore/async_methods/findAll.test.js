@@ -250,7 +250,9 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
     DS.findAll('comment', {
       content: 'test'
     }, {
-      parentKey: 4
+      params: {
+        approvedBy: 4
+      }
     }).then(function (comments) {
       assert.deepEqual(comments, [testComment, testComment2]);
       assert.deepEqual(comments, DS.filter('comment', {
@@ -288,9 +290,10 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
     DS.findAll('comment', {
       content: 'test'
     }, {
-      parentKey: 4,
       bypassCache: true,
-      nested: false
+      params: {
+        approvedBy: false
+      }
     }).then(function (comments) {
       assert.deepEqual(comments, [testComment, testComment2]);
       assert.deepEqual(comments, DS.filter('comment', {

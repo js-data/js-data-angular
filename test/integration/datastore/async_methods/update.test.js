@@ -122,7 +122,9 @@ describe('DS.update(resourceName, id, attrs[, options])', function () {
     DS.update('comment', 6, {
       content: 'stuff'
     }, {
-      parentKey: 4
+      params: {
+        approvedBy: 4
+      }
     }).then(function (comment) {
       assert.deepEqual(comment, testComment2);
       assert.deepEqual(comment, DS.get('comment', 6));
@@ -139,8 +141,9 @@ describe('DS.update(resourceName, id, attrs[, options])', function () {
     DS.update('comment', 6, {
       content: 'stuff'
     }, {
-      parentKey: 4,
-      nested: false
+      params: {
+        approvedBy: false
+      }
     }).then(function (comment) {
       assert.deepEqual(comment, testComment2);
       assert.deepEqual(comment, DS.get('comment', 6));

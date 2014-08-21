@@ -50,15 +50,15 @@ describe('DS.loadRelations(resourceName, instance(Id), relations[, options]): ',
   it('should get an item from the server', function () {
     DS.inject('user', user10);
 
-    $httpBackend.expectGET('http://test.angular-cache.com/organization/14').respond(200, organization14);
-    $httpBackend.expectGET('http://test.angular-cache.com/comment?userId=10').respond(200, [
+    $httpBackend.expectGET('http://test.angular-cache.com/organization/14?userId=10').respond(200, organization14);
+    $httpBackend.expectGET('http://test.angular-cache.com/user/10/comment?userId=10').respond(200, [
       comment11,
       comment12,
       comment13
     ]);
     $httpBackend.expectGET('http://test.angular-cache.com/profile?userId=10').respond(200, profile15);
 
-    DS.loadRelations('user', 10, ['comment', 'profile', 'organization']).then(function (user) {
+    DS.loadRelations('user', 10, ['comment', 'profile', 'organization'], { params: { approvedBy: 10 } }).then(function (user) {
       assert.deepEqual(user.comments, [
         comment11,
         comment12,
@@ -79,7 +79,6 @@ describe('DS.loadRelations(resourceName, instance(Id), relations[, options]): ',
       assert.deepEqual(comment.approvedByUser, user19);
     }, fail);
     $httpBackend.flush();
-
   });
   it('should get an item from the server but not store it if cacheResponse is false', function () {
     DS.inject('user', {
@@ -88,8 +87,8 @@ describe('DS.loadRelations(resourceName, instance(Id), relations[, options]): ',
       organizationId: 14
     });
 
-    $httpBackend.expectGET('http://test.angular-cache.com/organization/14').respond(200, organization14);
-    $httpBackend.expectGET('http://test.angular-cache.com/comment?userId=10').respond(200, [
+    $httpBackend.expectGET('http://test.angular-cache.com/organization/14?userId=10').respond(200, organization14);
+    $httpBackend.expectGET('http://test.angular-cache.com/user/10/comment?userId=10').respond(200, [
       comment11,
       comment12,
       comment13
@@ -121,8 +120,8 @@ describe('DS.loadRelations(resourceName, instance(Id), relations[, options]): ',
       organizationId: 14
     });
 
-    $httpBackend.expectGET('http://test.angular-cache.com/organization/14').respond(404, 'Not Found');
-    $httpBackend.expectGET('http://test.angular-cache.com/comment?userId=10').respond(404, 'Not Found');
+    $httpBackend.expectGET('http://test.angular-cache.com/organization/14?userId=10').respond(404, 'Not Found');
+    $httpBackend.expectGET('http://test.angular-cache.com/user/10/comment?userId=10').respond(404, 'Not Found');
     $httpBackend.expectGET('http://test.angular-cache.com/profile?userId=10').respond(404, 'Not Found');
 
     DS.loadRelations('user', 10, ['comment', 'profile', 'organization']).then(function () {

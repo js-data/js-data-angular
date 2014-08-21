@@ -116,7 +116,9 @@ describe('DS.updateAll(resourceName, attrs, params[, options])', function () {
     }, {
       content: 'test'
     }, {
-      parentKey: 4
+      params: {
+        approvedBy: 4
+      }
     }).then(function (comments) {
       assert.deepEqual(comments, [testComment, testComment2]);
       assert.deepEqual(comments, DS.filter('comment', {
@@ -161,8 +163,9 @@ describe('DS.updateAll(resourceName, attrs, params[, options])', function () {
     }, {
       content: 'test'
     }, {
-      parentKey: 4,
-      nested: false
+      params: {
+        approvedBy: false
+      }
     }).then(function (comments) {
       assert.deepEqual(comments, [testComment, testComment2]);
       assert.deepEqual(comments, DS.filter('comment', {
