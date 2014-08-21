@@ -7,29 +7,28 @@ function errorPrefix(resourceName, id) {
  * @id DS.async_methods:refresh
  * @name refresh
  * @description
- * Like find(), except the resource is only refreshed from the server if it already exists in the data store.
+ * Like `DS.find`, except the resource is only refreshed from the adapter if it already exists in the data store.
  *
  * ## Signature:
  * ```js
- * DS.refresh(resourceName, id)
+ * DS.refresh(resourceName, id[, options])
  * ```
  * ## Example:
  *
  * ```js
- *  // Exists in the data store, but we want a fresh copy
- *  DS.get('document', 5);
+ * // Exists in the data store, but we want a fresh copy
+ * DS.get('document', 5);
  *
- *  DS.refresh('document', 5)
- *  .then(function (document) {
- *      document; // The fresh copy
- *  });
+ * DS.refresh('document', 5).then(function (document) {
+ *   document; // The fresh copy
+ * });
  *
- *  // Does not exist in the data store
- *  DS.get('document', 6); // undefined
+ * // Does not exist in the data store
+ * DS.get('document', 6); // undefined
  *
- *  DS.refresh('document', 6).then(function (document) {
- *      document; // undeinfed
- *  }); // false
+ * DS.refresh('document', 6).then(function (document) {
+ *   document; // undefined
+ * });
  * ```
  *
  * ## Throws
@@ -38,13 +37,14 @@ function errorPrefix(resourceName, id) {
  * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
- * @param {string|number} id The primary key of the item to refresh from the server.
- * @param {object=} options Optional configuration passed through to `DS.find` if it is called.
- * @returns {Promise} A Promise created by the $q server.
+ * @param {string|number} id The primary key of the item to refresh from the adapter.
+ * @param {object=} options Optional configuration. Also passed along to the adapter's `find` method.
+ * @returns {Promise} A Promise created by the $q service.
  *
  * ## Resolves with:
  *
- * - `{object}` - `item` - A reference to the refreshed item.
+ * - `{object|undefined}` - `item` - The item returned by the adapter or `undefined` if the item wasn't already in the
+ * data store.
  *
  * ## Rejects with:
  *

@@ -80,8 +80,8 @@ function _findAll(resourceName, params, options) {
  * @id DS.async_methods:findAll
  * @name findAll
  * @description
- * Asynchronously return the resource from the server filtered by the query. The results will be added to the data
- * store when it returns from the server.
+ * The "R" in "CRUD". Delegate to the `findAll` method of whichever adapter is being used (http by default) and inject
+ * the resulting collection into the data store.
  *
  * ## Signature:
  * ```js
@@ -91,29 +91,27 @@ function _findAll(resourceName, params, options) {
  * ## Example:
  *
  * ```js
- *  var params = {
- *      where: {
- *          author: {
- *              '==': 'John Anderson'
- *          }
- *      }
- *  };
+ * var params = {
+ *   where: {
+ *     author: {
+ *       '==': 'John Anderson'
+ *     }
+ *   }
+ * };
  *
- *  DS.findAll('document', params).then(function (documents) {
- *      documents;  // [{ id: '1', author: 'John Anderson', title: 'How to cook' },
- *                  //  { id: '2', author: 'John Anderson', title: 'How NOT to cook' }]
+ * DS.filter('document', params); // []
+ * DS.findAll('document', params).then(function (documents) {
+ *   documents;  // [{ id: '1', author: 'John Anderson', title: 'How to cook' },
+ *               //  { id: '2', author: 'John Anderson', title: 'How NOT to cook' }]
  *
- *      // The documents are now in the data store
- *      DS.filter('document', params); // [{ id: '1', author: 'John Anderson', title: 'How to cook' },
- *                                     //  { id: '2', author: 'John Anderson', title: 'How NOT to cook' }]
- *
- *  }, function (err) {
- *      // handle error
- *  });
+ *   // The documents are now in the data store
+ *   DS.filter('document', params); // [{ id: '1', author: 'John Anderson', title: 'How to cook' },
+ *                                  //  { id: '2', author: 'John Anderson', title: 'How NOT to cook' }]
+ * });
  * ```
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
- * @param {object=} params Parameter object that is serialized into the query string. Properties:
+ * @param {object=} params Parameter object that is serialized into the query string. Default properties:
  *
  * - `{object=}` - `where` - Where clause.
  * - `{number=}` - `limit` - Limit clause.
@@ -121,16 +119,16 @@ function _findAll(resourceName, params, options) {
  * - `{number=}` - `offset` - Same as skip.
  * - `{string|array=}` - `orderBy` - OrderBy clause.
  *
- * @param {object=} options Optional configuration. Properties:
+ * @param {object=} options Optional configuration. Also passed along to the adapter's `findAll` method. Properties:
  *
  * - `{boolean=}` - `bypassCache` - Bypass the cache. Default: `false`.
- * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
+ * - `{boolean=}` - `cacheResponse` - Inject the data returned by the adapter into the data store. Default: `true`.
  *
  * @returns {Promise} Promise produced by the `$q` service.
  *
  * ## Resolves with:
  *
- * - `{array}` - `items` - The collection of items returned by the server.
+ * - `{array}` - `items` - The collection of items returned by the adapter.
  *
  * ## Rejects with:
  *

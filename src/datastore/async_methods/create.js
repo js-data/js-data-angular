@@ -7,7 +7,7 @@ function errorPrefix(resourceName) {
  * @id DS.async_methods:create
  * @name create
  * @description
- * The "C" in "CRUD". Delegate to the `create` method of whatever adapter is being used (http by default) and inject the
+ * The "C" in "CRUD". Delegate to the `create` method of whichever adapter is being used (http by default) and inject the
  * result into the data store.
  *
  * ## Signature:
@@ -32,7 +32,7 @@ function errorPrefix(resourceName) {
  * @param {object} attrs The attributes with which to create the item of the type specified by `resourceName`.
  * @param {object=} options Configuration options. Also passed along to the adapter's `create` method. Properties:
  *
- * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
+ * - `{boolean=}` - `cacheResponse` - Inject the data returned by the adapter into the data store. Default: `true`.
  * - `{boolean=}` - `upsert` - If `attrs` already contains a primary key, then attempt to call `DS.update` instead. Default: `true`.
  *
  * @returns {Promise} Promise produced by the `$q` service.

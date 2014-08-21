@@ -2064,7 +2064,7 @@ function errorPrefix(resourceName) {
  * @id DS.async_methods:create
  * @name create
  * @description
- * The "C" in "CRUD". Delegate to the `create` method of whatever adapter is being used (http by default) and inject the
+ * The "C" in "CRUD". Delegate to the `create` method of whichever adapter is being used (http by default) and inject the
  * result into the data store.
  *
  * ## Signature:
@@ -2089,7 +2089,7 @@ function errorPrefix(resourceName) {
  * @param {object} attrs The attributes with which to create the item of the type specified by `resourceName`.
  * @param {object=} options Configuration options. Also passed along to the adapter's `create` method. Properties:
  *
- * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
+ * - `{boolean=}` - `cacheResponse` - Inject the data returned by the adapter into the data store. Default: `true`.
  * - `{boolean=}` - `upsert` - If `attrs` already contains a primary key, then attempt to call `DS.update` instead. Default: `true`.
  *
  * @returns {Promise} Promise produced by the `$q` service.
@@ -2183,7 +2183,7 @@ function errorPrefix(resourceName, id) {
  * @id DS.async_methods:destroy
  * @name destroy
  * @description
- * The "D" in "CRUD". Delegate to the `destroy` method of whatever adapter is being used (http by default) eject the
+ * The "D" in "CRUD". Delegate to the `destroy` method of whichever adapter is being used (http by default) and eject the
  * appropriate item from the data store.
  *
  * ## Signature:
@@ -2271,8 +2271,8 @@ function errorPrefix(resourceName) {
  * @id DS.async_methods:destroyAll
  * @name destroyAll
  * @description
- * Asynchronously return the resource from the server filtered by the query. The results will be added to the data
- * store when it returns from the server.
+ * The "D" in "CRUD". Delegate to the `destroyAll` method of whichever adapter is being used (http by default) and eject
+ * the appropriate items from the data store.
  *
  * ## Signature:
  * ```js
@@ -2282,21 +2282,18 @@ function errorPrefix(resourceName) {
  * ## Example:
  *
  * ```js
- *  var params = {
- *      where: {
- *          author: {
- *              '==': 'John Anderson'
- *          }
- *      }
- *  };
+ * var params = {
+ *   where: {
+ *     author: {
+ *       '==': 'John Anderson'
+ *     }
+ *   }
+ * };
  *
- *  DS.destroyAll('document', params).then(function (documents) {
- *      // The documents are gone from the data store
- *      DS.filter('document', params); // []
- *
- *  }, function (err) {
- *      // handle error
- *  });
+ * DS.destroyAll('document', params).then(function (documents) {
+ *   // The documents are gone from the data store
+ *   DS.filter('document', params); // []
+ * });
  * ```
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
@@ -2308,7 +2305,7 @@ function errorPrefix(resourceName) {
  *  - `{number=}` - `offset` - Same as skip.
  *  - `{string|array=}` - `orderBy` - OrderBy clause.
  *
- * @param {object=} options Optional configuration. Properties:
+ * @param {object=} options Optional configuration. Also passed along to the adapter's `destroyAll` method. Properties:
  *
  * - `{boolean=}` - `bypassCache` - Bypass the cache. Default: `false`.
  *
@@ -2323,21 +2320,20 @@ function destroyAll(resourceName, params, options) {
   var DS = this;
   var deferred = DS.$q.defer();
   var promise = deferred.promise;
+  var definition = DS.definitions[resourceName];
 
   try {
     var IA = DS.errors.IA;
 
     options = options || {};
 
-    if (!DS.definitions[resourceName]) {
+    if (!definition) {
       throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
     } else if (!DS.utils.isObject(params)) {
       throw new IA(errorPrefix(resourceName) + 'params: Must be an object!');
     } else if (!DS.utils.isObject(options)) {
       throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
     }
-
-    var definition = DS.definitions[resourceName];
 
     promise = promise
       .then(function () {
@@ -2366,8 +2362,8 @@ function errorPrefix(resourceName, id) {
  * @id DS.async_methods:find
  * @name find
  * @description
- * Asynchronously return the resource with the given id from the server. The result will be added to the data
- * store when it returns from the server.
+ * The "R" in "CRUD". Delegate to the `find` method of whichever adapter is being used (http by default) and inject the
+ * resulting item into the data store.
  *
  * ## Signature:
  * ```js
@@ -2377,28 +2373,27 @@ function errorPrefix(resourceName, id) {
  * ## Example:
  *
  * ```js
- *  DS.get('document', 5); // undefined
- *  DS.find('document', 5).then(function (document) {
- *      document; // { id: 5, author: 'John Anderson' }
+ * DS.get('document', 5); // undefined
+ * DS.find('document', 5).then(function (document) {
+ *   document; // { id: 5, author: 'John Anderson' }
  *
- *      DS.get('document', 5); // { id: 5, author: 'John Anderson' }
- *  }, function (err) {
- *      // Handled errors
- *  });
+ *   // the document is now in the data store
+ *   DS.get('document', 5); // { id: 5, author: 'John Anderson' }
+ * });
  * ```
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to retrieve.
- * @param {object=} options Optional configuration. Properties:
+ * @param {object=} options Optional configuration. Also passed along to the adapter's `find` method. Properties:
  *
  * - `{boolean=}` - `bypassCache` - Bypass the cache. Default: `false`.
- * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
+ * - `{boolean=}` - `cacheResponse` - Inject the data returned by the adapter into the data store. Default: `true`.
  *
  * @returns {Promise} Promise produced by the `$q` service.
  *
  * ## Resolves with:
  *
- * - `{object}` - `item` - The item with the primary key specified by `id`.
+ * - `{object}` - `item` - The item returned by the adapter.
  *
  * ## Rejects with:
  *
@@ -2549,8 +2544,8 @@ function _findAll(resourceName, params, options) {
  * @id DS.async_methods:findAll
  * @name findAll
  * @description
- * Asynchronously return the resource from the server filtered by the query. The results will be added to the data
- * store when it returns from the server.
+ * The "R" in "CRUD". Delegate to the `findAll` method of whichever adapter is being used (http by default) and inject
+ * the resulting collection into the data store.
  *
  * ## Signature:
  * ```js
@@ -2560,29 +2555,27 @@ function _findAll(resourceName, params, options) {
  * ## Example:
  *
  * ```js
- *  var params = {
- *      where: {
- *          author: {
- *              '==': 'John Anderson'
- *          }
- *      }
- *  };
+ * var params = {
+ *   where: {
+ *     author: {
+ *       '==': 'John Anderson'
+ *     }
+ *   }
+ * };
  *
- *  DS.findAll('document', params).then(function (documents) {
- *      documents;  // [{ id: '1', author: 'John Anderson', title: 'How to cook' },
- *                  //  { id: '2', author: 'John Anderson', title: 'How NOT to cook' }]
+ * DS.filter('document', params); // []
+ * DS.findAll('document', params).then(function (documents) {
+ *   documents;  // [{ id: '1', author: 'John Anderson', title: 'How to cook' },
+ *               //  { id: '2', author: 'John Anderson', title: 'How NOT to cook' }]
  *
- *      // The documents are now in the data store
- *      DS.filter('document', params); // [{ id: '1', author: 'John Anderson', title: 'How to cook' },
- *                                     //  { id: '2', author: 'John Anderson', title: 'How NOT to cook' }]
- *
- *  }, function (err) {
- *      // handle error
- *  });
+ *   // The documents are now in the data store
+ *   DS.filter('document', params); // [{ id: '1', author: 'John Anderson', title: 'How to cook' },
+ *                                  //  { id: '2', author: 'John Anderson', title: 'How NOT to cook' }]
+ * });
  * ```
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
- * @param {object=} params Parameter object that is serialized into the query string. Properties:
+ * @param {object=} params Parameter object that is serialized into the query string. Default properties:
  *
  * - `{object=}` - `where` - Where clause.
  * - `{number=}` - `limit` - Limit clause.
@@ -2590,16 +2583,16 @@ function _findAll(resourceName, params, options) {
  * - `{number=}` - `offset` - Same as skip.
  * - `{string|array=}` - `orderBy` - OrderBy clause.
  *
- * @param {object=} options Optional configuration. Properties:
+ * @param {object=} options Optional configuration. Also passed along to the adapter's `findAll` method. Properties:
  *
  * - `{boolean=}` - `bypassCache` - Bypass the cache. Default: `false`.
- * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
+ * - `{boolean=}` - `cacheResponse` - Inject the data returned by the adapter into the data store. Default: `true`.
  *
  * @returns {Promise} Promise produced by the `$q` service.
  *
  * ## Resolves with:
  *
- * - `{array}` - `items` - The collection of items returned by the server.
+ * - `{array}` - `items` - The collection of items returned by the adapter.
  *
  * ## Rejects with:
  *
@@ -2759,7 +2752,7 @@ function errorPrefix(resourceName) {
  *
  * ## Signature:
  * ```js
- * DS.loadRelations(resourceName, instance(Id), relations[, options])
+ * DS.loadRelations(resourceName, instance|id, relations[, options])
  * ```
  *
  * ## Examples:
@@ -2790,7 +2783,7 @@ function errorPrefix(resourceName) {
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number|object} instance The instance or the id of the instance for which relations are to be loaded.
  * @param {string|array=} relations The relation(s) to load.
- * @param {object=} options Optional configuration that is passed to the `find` and `findAll` methods that may be called.
+ * @param {object=} options Optional configuration. Also passed along to the adapter's `find` or `findAll` methods.
  *
  * @returns {Promise} Promise produced by the `$q` service.
  *
@@ -2899,29 +2892,28 @@ function errorPrefix(resourceName, id) {
  * @id DS.async_methods:refresh
  * @name refresh
  * @description
- * Like find(), except the resource is only refreshed from the server if it already exists in the data store.
+ * Like `DS.find`, except the resource is only refreshed from the adapter if it already exists in the data store.
  *
  * ## Signature:
  * ```js
- * DS.refresh(resourceName, id)
+ * DS.refresh(resourceName, id[, options])
  * ```
  * ## Example:
  *
  * ```js
- *  // Exists in the data store, but we want a fresh copy
- *  DS.get('document', 5);
+ * // Exists in the data store, but we want a fresh copy
+ * DS.get('document', 5);
  *
- *  DS.refresh('document', 5)
- *  .then(function (document) {
- *      document; // The fresh copy
- *  });
+ * DS.refresh('document', 5).then(function (document) {
+ *   document; // The fresh copy
+ * });
  *
- *  // Does not exist in the data store
- *  DS.get('document', 6); // undefined
+ * // Does not exist in the data store
+ * DS.get('document', 6); // undefined
  *
- *  DS.refresh('document', 6).then(function (document) {
- *      document; // undeinfed
- *  }); // false
+ * DS.refresh('document', 6).then(function (document) {
+ *   document; // undefined
+ * });
  * ```
  *
  * ## Throws
@@ -2930,13 +2922,14 @@ function errorPrefix(resourceName, id) {
  * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
- * @param {string|number} id The primary key of the item to refresh from the server.
- * @param {object=} options Optional configuration passed through to `DS.find` if it is called.
- * @returns {Promise} A Promise created by the $q server.
+ * @param {string|number} id The primary key of the item to refresh from the adapter.
+ * @param {object=} options Optional configuration. Also passed along to the adapter's `find` method.
+ * @returns {Promise} A Promise created by the $q service.
  *
  * ## Resolves with:
  *
- * - `{object}` - `item` - A reference to the refreshed item.
+ * - `{object|undefined}` - `item` - The item returned by the adapter or `undefined` if the item wasn't already in the
+ * data store.
  *
  * ## Rejects with:
  *
@@ -2980,7 +2973,8 @@ function errorPrefix(resourceName, id) {
  * @id DS.async_methods:save
  * @name save
  * @description
- * Save the item of the type specified by `resourceName` that has the primary key specified by `id`.
+ * The "U" in "CRUD". Persist a single item already in the store and in it's current form to whichever adapter is being
+ * used (http by default) and inject the resulting item into the data store.
  *
  * ## Signature:
  * ```js
@@ -2990,28 +2984,27 @@ function errorPrefix(resourceName, id) {
  * ## Example:
  *
  * ```js
- *  var document = DS.get('document', 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f');
+ * var document = DS.get('document', 5);
  *
- *  document.title = 'How to cook in style';
+ * document.title = 'How to cook in style';
  *
- *  DS.save('document', 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f')
- *  .then(function (document) {
- *      document; // A reference to the document that's been saved to the server
- *  });
+ * DS.save('document', 5).then(function (document) {
+ *   document; // A reference to the document that's been persisted via an adapter
+ * });
  * ```
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to save.
- * @param {object=} options Optional configuration. Properties::
+ * @param {object=} options Optional configuration. Also passed along to the adapter's `update` method. Properties:
  *
- * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
- * - `{boolean=}` - `changesOnly` - Only send changed and added values back to the server.
+ * - `{boolean=}` - `cacheResponse` - Inject the data returned by the adapter into the data store. Default: `true`.
+ * - `{boolean=}` - `changesOnly` - Only send changed and added values to the adapter. Default: `false`.
  *
  * @returns {Promise} Promise produced by the `$q` service.
  *
  * ## Resolves with:
  *
- * - `{object}` - `item` - A reference to the newly saved item.
+ * - `{object}` - `item` - The item returned by the adapter.
  *
  * ## Rejects with:
  *
@@ -3023,13 +3016,14 @@ function save(resourceName, id, options) {
   var DS = this;
   var deferred = DS.$q.defer();
   var promise = deferred.promise;
+  var definition = DS.definitions[resourceName];
 
   try {
     var IA = DS.errors.IA;
 
     options = options || {};
 
-    if (!DS.definitions[resourceName]) {
+    if (!definition) {
       throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
     } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {
       throw new IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
@@ -3042,7 +3036,6 @@ function save(resourceName, id, options) {
       throw new DS.errors.R(errorPrefix(resourceName, id) + 'id: "' + id + '" not found!');
     }
 
-    var definition = DS.definitions[resourceName];
     var resource = DS.store[resourceName];
 
     if (!('cacheResponse' in options)) {
@@ -3118,10 +3111,10 @@ function errorPrefix(resourceName, id) {
  * @id DS.async_methods:update
  * @name update
  * @description
- * Update the item of type `resourceName` and primary key `id` with `attrs`. This is useful when you want to update an
- * item that isn't already in the data store, or you don't want to update the item that's in the data store until the
- * server-side operation succeeds. This differs from `DS.save` which simply saves items in their current form that
- * already reside in the data store.
+ * The "U" in "CRUD". Update the item of type `resourceName` and primary key `id` with `attrs`. This is useful when you
+ * want to update an item that isn't already in the data store, or you don't want to update the item that's in the data
+ * store until the adapter operation succeeds. This differs from `DS.save` which simply saves items in their current
+ * form that already exist in the data store. The resulting item (by default) will be injected into the data store.
  *
  * ## Signature:
  * ```js
@@ -3131,27 +3124,28 @@ function errorPrefix(resourceName, id) {
  * ## Example:
  *
  * ```js
- *  DS.get('document', 5); // undefined
+ * DS.get('document', 5); // undefined
  *
- *  DS.update('document', 5, { title: 'How to cook in style' })
- *  .then(function (document) {
- *      document; // A reference to the document that's been saved to the server
- *                // and now resides in the data store
- *  });
+ * DS.update('document', 5, {
+ *   title: 'How to cook in style'
+ * }).then(function (document) {
+ *   document; // A reference to the document that's been saved via an adapter
+ *             // and now resides in the data store
+ * });
  * ```
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to update.
  * @param {object} attrs The attributes with which to update the item.
- * @param {object=} options Optional configuration. Properties:
+ * @param {object=} options Optional configuration. Also passed along to the adapter's `update` method. Properties:
  *
- * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
+ * - `{boolean=}` - `cacheResponse` - Inject the data returned by the adapter into the data store. Default: `true`.
  *
  * @returns {Promise} Promise produced by the `$q` service.
  *
  * ## Resolves with:
  *
- * - `{object}` - `item` - A reference to the newly saved item.
+ * - `{object}` - `item` - The item returned by the adapter.
  *
  * ## Rejects with:
  *
@@ -3236,9 +3230,10 @@ function errorPrefix(resourceName) {
  * @id DS.async_methods:updateAll
  * @name updateAll
  * @description
- * Update items of type `resourceName` with `attrs` according to the criteria specified by `params`. This is useful when
- * you want to update multiple items with the same attributes that aren't already in the data store, or you don't want
- * to update the items that are in the data store until the server-side operation succeeds.
+ * The "U" in "CRUD". Update items of type `resourceName` with `attrs` according to the criteria specified by `params`.
+ * This is useful when you want to update multiple items with the same attributes or you don't want to update the items
+ * in the data store until the adapter operation succeeds. The resulting items (by default) will be injected into the
+ * data store.
  *
  * ## Signature:
  * ```js
@@ -3248,26 +3243,29 @@ function errorPrefix(resourceName) {
  * ## Example:
  *
  * ```js
- *  DS.filter('document'); // []
+ * var params = {
+ *   where: {
+ *     author: {
+ *       '==': 'John Anderson'
+ *     }
+ *   }
+ * };
  *
- *  DS.updateAll('document', 5, { author: 'Sally' }, {
- *      where: {
- *          author: {
- *              '==': 'John Anderson'
- *          }
- *      }
- *  })
- *  .then(function (documents) {
- *      documents; // The documents that were updated on the server
- *                 // and now reside in the data store
+ * DS.filter('document', params); // []
  *
- *      documents[0].author; // "Sally"
- *  });
+ * DS.updateAll('document', 5, {
+ *   author: 'Sally'
+ * }, params).then(function (documents) {
+ *   documents; // The documents that were updated via an adapter
+ *              // and now reside in the data store
+ *
+ *   documents[0].author; // "Sally"
+ * });
  * ```
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {object} attrs The attributes with which to update the items.
- * @param {object} params Parameter object that is serialized into the query string. Properties:
+ * @param {object} params Parameter object that is serialized into the query string. Default properties:
  *
  *  - `{object=}` - `where` - Where clause.
  *  - `{number=}` - `limit` - Limit clause.
@@ -3275,15 +3273,15 @@ function errorPrefix(resourceName) {
  *  - `{number=}` - `offset` - Same as skip.
  *  - `{string|array=}` - `orderBy` - OrderBy clause.
  *
- * @param {object=} options Optional configuration. Properties:
+ * @param {object=} options Optional configuration. Also passed along to the adapter's `updateAll` method. Properties:
  *
- * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
+ * - `{boolean=}` - `cacheResponse` - Inject the items returned by the adapter into the data store. Default: `true`.
  *
  * @returns {Promise} Promise produced by the `$q` service.
  *
  * ## Resolves with:
  *
- * - `{object}` - `item` - A reference to the newly saved item.
+ * - `{array}` - `items` - The items returned by the adapter.
  *
  * ## Rejects with:
  *

@@ -7,7 +7,8 @@ function errorPrefix(resourceName, id) {
  * @id DS.async_methods:save
  * @name save
  * @description
- * Save the item of the type specified by `resourceName` that has the primary key specified by `id`.
+ * The "U" in "CRUD". Persist a single item already in the store and in it's current form to whichever adapter is being
+ * used (http by default) and inject the resulting item into the data store.
  *
  * ## Signature:
  * ```js
@@ -17,28 +18,27 @@ function errorPrefix(resourceName, id) {
  * ## Example:
  *
  * ```js
- *  var document = DS.get('document', 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f');
+ * var document = DS.get('document', 5);
  *
- *  document.title = 'How to cook in style';
+ * document.title = 'How to cook in style';
  *
- *  DS.save('document', 'ee7f3f4d-98d5-4934-9e5a-6a559b08479f')
- *  .then(function (document) {
- *      document; // A reference to the document that's been saved to the server
- *  });
+ * DS.save('document', 5).then(function (document) {
+ *   document; // A reference to the document that's been persisted via an adapter
+ * });
  * ```
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to save.
- * @param {object=} options Optional configuration. Properties::
+ * @param {object=} options Optional configuration. Also passed along to the adapter's `update` method. Properties:
  *
- * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
- * - `{boolean=}` - `changesOnly` - Only send changed and added values back to the server.
+ * - `{boolean=}` - `cacheResponse` - Inject the data returned by the adapter into the data store. Default: `true`.
+ * - `{boolean=}` - `changesOnly` - Only send changed and added values to the adapter. Default: `false`.
  *
  * @returns {Promise} Promise produced by the `$q` service.
  *
  * ## Resolves with:
  *
- * - `{object}` - `item` - A reference to the newly saved item.
+ * - `{object}` - `item` - The item returned by the adapter.
  *
  * ## Rejects with:
  *
@@ -50,13 +50,14 @@ function save(resourceName, id, options) {
   var DS = this;
   var deferred = DS.$q.defer();
   var promise = deferred.promise;
+  var definition = DS.definitions[resourceName];
 
   try {
     var IA = DS.errors.IA;
 
     options = options || {};
 
-    if (!DS.definitions[resourceName]) {
+    if (!definition) {
       throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
     } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {
       throw new IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
@@ -69,7 +70,6 @@ function save(resourceName, id, options) {
       throw new DS.errors.R(errorPrefix(resourceName, id) + 'id: "' + id + '" not found!');
     }
 
-    var definition = DS.definitions[resourceName];
     var resource = DS.store[resourceName];
 
     if (!('cacheResponse' in options)) {

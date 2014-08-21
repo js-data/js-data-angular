@@ -7,10 +7,10 @@ function errorPrefix(resourceName, id) {
  * @id DS.async_methods:update
  * @name update
  * @description
- * Update the item of type `resourceName` and primary key `id` with `attrs`. This is useful when you want to update an
- * item that isn't already in the data store, or you don't want to update the item that's in the data store until the
- * server-side operation succeeds. This differs from `DS.save` which simply saves items in their current form that
- * already reside in the data store.
+ * The "U" in "CRUD". Update the item of type `resourceName` and primary key `id` with `attrs`. This is useful when you
+ * want to update an item that isn't already in the data store, or you don't want to update the item that's in the data
+ * store until the adapter operation succeeds. This differs from `DS.save` which simply saves items in their current
+ * form that already exist in the data store. The resulting item (by default) will be injected into the data store.
  *
  * ## Signature:
  * ```js
@@ -20,27 +20,28 @@ function errorPrefix(resourceName, id) {
  * ## Example:
  *
  * ```js
- *  DS.get('document', 5); // undefined
+ * DS.get('document', 5); // undefined
  *
- *  DS.update('document', 5, { title: 'How to cook in style' })
- *  .then(function (document) {
- *      document; // A reference to the document that's been saved to the server
- *                // and now resides in the data store
- *  });
+ * DS.update('document', 5, {
+ *   title: 'How to cook in style'
+ * }).then(function (document) {
+ *   document; // A reference to the document that's been saved via an adapter
+ *             // and now resides in the data store
+ * });
  * ```
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to update.
  * @param {object} attrs The attributes with which to update the item.
- * @param {object=} options Optional configuration. Properties:
+ * @param {object=} options Optional configuration. Also passed along to the adapter's `update` method. Properties:
  *
- * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
+ * - `{boolean=}` - `cacheResponse` - Inject the data returned by the adapter into the data store. Default: `true`.
  *
  * @returns {Promise} Promise produced by the `$q` service.
  *
  * ## Resolves with:
  *
- * - `{object}` - `item` - A reference to the newly saved item.
+ * - `{object}` - `item` - The item returned by the adapter.
  *
  * ## Rejects with:
  *

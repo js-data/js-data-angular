@@ -7,8 +7,8 @@ function errorPrefix(resourceName, id) {
  * @id DS.async_methods:find
  * @name find
  * @description
- * Asynchronously return the resource with the given id from the server. The result will be added to the data
- * store when it returns from the server.
+ * The "R" in "CRUD". Delegate to the `find` method of whichever adapter is being used (http by default) and inject the
+ * resulting item into the data store.
  *
  * ## Signature:
  * ```js
@@ -18,28 +18,27 @@ function errorPrefix(resourceName, id) {
  * ## Example:
  *
  * ```js
- *  DS.get('document', 5); // undefined
- *  DS.find('document', 5).then(function (document) {
- *      document; // { id: 5, author: 'John Anderson' }
+ * DS.get('document', 5); // undefined
+ * DS.find('document', 5).then(function (document) {
+ *   document; // { id: 5, author: 'John Anderson' }
  *
- *      DS.get('document', 5); // { id: 5, author: 'John Anderson' }
- *  }, function (err) {
- *      // Handled errors
- *  });
+ *   // the document is now in the data store
+ *   DS.get('document', 5); // { id: 5, author: 'John Anderson' }
+ * });
  * ```
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to retrieve.
- * @param {object=} options Optional configuration. Properties:
+ * @param {object=} options Optional configuration. Also passed along to the adapter's `find` method. Properties:
  *
  * - `{boolean=}` - `bypassCache` - Bypass the cache. Default: `false`.
- * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
+ * - `{boolean=}` - `cacheResponse` - Inject the data returned by the adapter into the data store. Default: `true`.
  *
  * @returns {Promise} Promise produced by the `$q` service.
  *
  * ## Resolves with:
  *
- * - `{object}` - `item` - The item with the primary key specified by `id`.
+ * - `{object}` - `item` - The item returned by the adapter.
  *
  * ## Rejects with:
  *

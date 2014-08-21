@@ -7,9 +7,10 @@ function errorPrefix(resourceName) {
  * @id DS.async_methods:updateAll
  * @name updateAll
  * @description
- * Update items of type `resourceName` with `attrs` according to the criteria specified by `params`. This is useful when
- * you want to update multiple items with the same attributes that aren't already in the data store, or you don't want
- * to update the items that are in the data store until the server-side operation succeeds.
+ * The "U" in "CRUD". Update items of type `resourceName` with `attrs` according to the criteria specified by `params`.
+ * This is useful when you want to update multiple items with the same attributes or you don't want to update the items
+ * in the data store until the adapter operation succeeds. The resulting items (by default) will be injected into the
+ * data store.
  *
  * ## Signature:
  * ```js
@@ -19,26 +20,29 @@ function errorPrefix(resourceName) {
  * ## Example:
  *
  * ```js
- *  DS.filter('document'); // []
+ * var params = {
+ *   where: {
+ *     author: {
+ *       '==': 'John Anderson'
+ *     }
+ *   }
+ * };
  *
- *  DS.updateAll('document', 5, { author: 'Sally' }, {
- *      where: {
- *          author: {
- *              '==': 'John Anderson'
- *          }
- *      }
- *  })
- *  .then(function (documents) {
- *      documents; // The documents that were updated on the server
- *                 // and now reside in the data store
+ * DS.filter('document', params); // []
  *
- *      documents[0].author; // "Sally"
- *  });
+ * DS.updateAll('document', 5, {
+ *   author: 'Sally'
+ * }, params).then(function (documents) {
+ *   documents; // The documents that were updated via an adapter
+ *              // and now reside in the data store
+ *
+ *   documents[0].author; // "Sally"
+ * });
  * ```
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {object} attrs The attributes with which to update the items.
- * @param {object} params Parameter object that is serialized into the query string. Properties:
+ * @param {object} params Parameter object that is serialized into the query string. Default properties:
  *
  *  - `{object=}` - `where` - Where clause.
  *  - `{number=}` - `limit` - Limit clause.
@@ -46,15 +50,15 @@ function errorPrefix(resourceName) {
  *  - `{number=}` - `offset` - Same as skip.
  *  - `{string|array=}` - `orderBy` - OrderBy clause.
  *
- * @param {object=} options Optional configuration. Properties:
+ * @param {object=} options Optional configuration. Also passed along to the adapter's `updateAll` method. Properties:
  *
- * - `{boolean=}` - `cacheResponse` - Inject the data returned by the server into the data store. Default: `true`.
+ * - `{boolean=}` - `cacheResponse` - Inject the items returned by the adapter into the data store. Default: `true`.
  *
  * @returns {Promise} Promise produced by the `$q` service.
  *
  * ## Resolves with:
  *
- * - `{object}` - `item` - A reference to the newly saved item.
+ * - `{array}` - `items` - The items returned by the adapter.
  *
  * ## Rejects with:
  *

@@ -11,7 +11,7 @@ function errorPrefix(resourceName) {
  *
  * ## Signature:
  * ```js
- * DS.loadRelations(resourceName, instance(Id), relations[, options])
+ * DS.loadRelations(resourceName, instance|id, relations[, options])
  * ```
  *
  * ## Examples:
@@ -42,7 +42,7 @@ function errorPrefix(resourceName) {
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number|object} instance The instance or the id of the instance for which relations are to be loaded.
  * @param {string|array=} relations The relation(s) to load.
- * @param {object=} options Optional configuration that is passed to the `find` and `findAll` methods that may be called.
+ * @param {object=} options Optional configuration. Also passed along to the adapter's `find` or `findAll` methods.
  *
  * @returns {Promise} Promise produced by the `$q` service.
  *

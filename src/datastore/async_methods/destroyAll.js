@@ -7,8 +7,8 @@ function errorPrefix(resourceName) {
  * @id DS.async_methods:destroyAll
  * @name destroyAll
  * @description
- * Asynchronously return the resource from the server filtered by the query. The results will be added to the data
- * store when it returns from the server.
+ * The "D" in "CRUD". Delegate to the `destroyAll` method of whichever adapter is being used (http by default) and eject
+ * the appropriate items from the data store.
  *
  * ## Signature:
  * ```js
@@ -18,21 +18,18 @@ function errorPrefix(resourceName) {
  * ## Example:
  *
  * ```js
- *  var params = {
- *      where: {
- *          author: {
- *              '==': 'John Anderson'
- *          }
- *      }
- *  };
+ * var params = {
+ *   where: {
+ *     author: {
+ *       '==': 'John Anderson'
+ *     }
+ *   }
+ * };
  *
- *  DS.destroyAll('document', params).then(function (documents) {
- *      // The documents are gone from the data store
- *      DS.filter('document', params); // []
- *
- *  }, function (err) {
- *      // handle error
- *  });
+ * DS.destroyAll('document', params).then(function (documents) {
+ *   // The documents are gone from the data store
+ *   DS.filter('document', params); // []
+ * });
  * ```
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
@@ -44,7 +41,7 @@ function errorPrefix(resourceName) {
  *  - `{number=}` - `offset` - Same as skip.
  *  - `{string|array=}` - `orderBy` - OrderBy clause.
  *
- * @param {object=} options Optional configuration. Properties:
+ * @param {object=} options Optional configuration. Also passed along to the adapter's `destroyAll` method. Properties:
  *
  * - `{boolean=}` - `bypassCache` - Bypass the cache. Default: `false`.
  *
@@ -59,21 +56,20 @@ function destroyAll(resourceName, params, options) {
   var DS = this;
   var deferred = DS.$q.defer();
   var promise = deferred.promise;
+  var definition = DS.definitions[resourceName];
 
   try {
     var IA = DS.errors.IA;
 
     options = options || {};
 
-    if (!DS.definitions[resourceName]) {
+    if (!definition) {
       throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
     } else if (!DS.utils.isObject(params)) {
       throw new IA(errorPrefix(resourceName) + 'params: Must be an object!');
     } else if (!DS.utils.isObject(options)) {
       throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
     }
-
-    var definition = DS.definitions[resourceName];
 
     promise = promise
       .then(function () {
