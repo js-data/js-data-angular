@@ -80,5 +80,19 @@ describe('DS.destroy(resourceName, id)', function () {
     });
 
     $httpBackend.flush();
+
+    $httpBackend.expectDELETE('http://test.angular-cache.com/comment/6').respond(204);
+
+    DS.inject('comment', testComment2);
+
+    DS.destroy('comment', 6, {
+      nested: false
+    }).then(function () {
+    }, function (err) {
+      console.log(err);
+      fail('Should not have failed!');
+    });
+
+    $httpBackend.flush();
   });
 });

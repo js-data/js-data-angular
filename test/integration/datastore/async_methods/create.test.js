@@ -177,5 +177,21 @@ describe('DS.create(resourceName, attrs[, options])', function () {
     });
 
     $httpBackend.flush();
+
+    $httpBackend.expectPOST('http://test.angular-cache.com/comment').respond(200, testComment2);
+
+    DS.create('comment', {
+      content: 'test',
+      parentKey: 4
+    }, {
+      nested: false
+    }).then(function (comment) {
+      assert.deepEqual(comment, testComment2);
+      assert.deepEqual(comment, DS.get('comment', 6));
+    }, function () {
+      fail('Should not have failed!');
+    });
+
+    $httpBackend.flush();
   });
 });

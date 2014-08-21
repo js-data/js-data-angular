@@ -131,5 +131,23 @@ describe('DS.update(resourceName, id, attrs[, options])', function () {
     });
 
     $httpBackend.flush();
+
+    $httpBackend.expectPUT('http://test.angular-cache.com/comment/6').respond(200, testComment2);
+
+    DS.inject('comment', testComment2);
+
+    DS.update('comment', 6, {
+      content: 'stuff'
+    }, {
+      parentKey: 4,
+      nested: false
+    }).then(function (comment) {
+      assert.deepEqual(comment, testComment2);
+      assert.deepEqual(comment, DS.get('comment', 6));
+    }, function () {
+      fail('Should not have failed!');
+    });
+
+    $httpBackend.flush();
   });
 });

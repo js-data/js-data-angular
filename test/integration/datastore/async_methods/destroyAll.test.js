@@ -102,5 +102,20 @@ describe('DS.destroyAll(resourceName, params[, options]): ', function () {
     });
 
     $httpBackend.flush();
+
+    $httpBackend.expectDELETE('http://test.angular-cache.com/comment?content=test').respond(204);
+
+    DS.destroyAll('comment', {
+      content: 'test'
+    }, {
+      parentKey: 4,
+      nested: false
+    }).then(function () {
+    }, function (err) {
+      console.log(err);
+      fail('Should not have failed!');
+    });
+
+    $httpBackend.flush();
   });
 });

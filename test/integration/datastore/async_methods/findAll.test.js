@@ -280,5 +280,26 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
     });
 
     $httpBackend.flush();
+
+    DS.ejectAll('comment');
+
+    $httpBackend.expectGET('http://test.angular-cache.com/comment?content=test').respond(200, [testComment, testComment2]);
+
+    DS.findAll('comment', {
+      content: 'test'
+    }, {
+      parentKey: 4,
+      bypassCache: true,
+      nested: false
+    }).then(function (comments) {
+      assert.deepEqual(comments, [testComment, testComment2]);
+      assert.deepEqual(comments, DS.filter('comment', {
+        content: 'test'
+      }));
+    }, function () {
+      fail('Should not have failed!');
+    });
+
+    $httpBackend.flush();
   });
 });

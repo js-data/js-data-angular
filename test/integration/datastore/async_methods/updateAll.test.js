@@ -149,5 +149,30 @@ describe('DS.updateAll(resourceName, attrs, params[, options])', function () {
     });
 
     $httpBackend.flush();
+
+    DS.ejectAll('comment');
+
+    $httpBackend.expectPUT('http://test.angular-cache.com/comment?content=test').respond(200, [testComment, testComment2]);
+
+    DS.inject('comment', testComment2);
+
+    DS.updateAll('comment', {
+      content: 'stuff'
+    }, {
+      content: 'test'
+    }, {
+      parentKey: 4,
+      nested: false
+    }).then(function (comments) {
+      assert.deepEqual(comments, [testComment, testComment2]);
+      assert.deepEqual(comments, DS.filter('comment', {
+        content: 'stuff',
+        sort: 'id'
+      }));
+    }, function () {
+      fail('Should not have failed!');
+    });
+
+    $httpBackend.flush();
   });
 });
