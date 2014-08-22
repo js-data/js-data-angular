@@ -24,9 +24,20 @@ function DSHttpAdapterProvider() {
      * @description
      * Transform the angular-data query to something your server understands. You might just do this on the server instead.
      *
+     * ## Example:
+     * ```js
+     * DSHttpAdapterProvider.defaults.queryTransform = function (resourceName, params) {
+     *   if (params && params.userId) {
+     *     params.user_id = params.userId;
+     *     delete params.userId;
+     *   }
+     *   return params;
+     * };
+     * ```
+     *
      * @param {string} resourceName The name of the resource.
-     * @param {object} params Params sent through from `$http()`.
-     * @returns {*} Returns `params` as-is.
+     * @param {object} params Params that will be passed to `$http`.
+     * @returns {*} By default just returns `params` as-is.
      */
     queryTransform: function (resourceName, params) {
       return params;
@@ -45,9 +56,7 @@ function DSHttpAdapterProvider() {
      *   angular.extend(DSHttpAdapterProvider.defaults.$httpConfig, {
      *     interceptor: [...],
      *     headers: {
-     *       common: {
-     *         Authorization: 'Basic YmVlcDpib29w'
-     *       }
+     *       Authorization: 'Basic YmVlcDpib29w'
      *     },
      *     timeout: 20000
      *   });
@@ -82,121 +91,125 @@ function DSHttpAdapterProvider() {
        * @id DSHttpAdapter.methods:HTTP
        * @name HTTP
        * @description
-       * Wrapper for `$http()`.
+       * A wrapper for `$http()`.
        *
        * ## Signature:
        * ```js
-       * DS.HTTP(config)
+       * DSHttpAdapter.HTTP(config)
        * ```
        *
-       * ## Example:
-       *
-       * ```js
-       * works the same as $http()
-       * ```
-       *
-       * @param {object} config Configuration for the request.
-       * @returns {Promise} Promise produced by the `$q` service.
+       * @param {object} config Configuration object.
+       * @returns {Promise} Promise.
        */
-      HTTP: HTTP,
+      HTTP: function (config) {
+        var start = new Date().getTime();
+
+        config = DSUtils.deepMixIn(config, defaults.$httpConfig);
+        return $http(config).then(function (data) {
+          $log.debug(data.config.method + ' request:' + data.config.url + ' Time taken: ' + (new Date().getTime() - start) + 'ms', arguments);
+          return data;
+        });
+      },
 
       /**
        * @doc method
        * @id DSHttpAdapter.methods:GET
        * @name GET
        * @description
-       * Wrapper for `$http.get()`.
+       * A wrapper for `$http.get()`.
        *
        * ## Signature:
        * ```js
-       * DS.GET(url[, config])
-       * ```
-       *
-       * ## Example:
-       *
-       * ```js
-       * Works the same as $http.get()
+       * DSHttpAdapter.GET(url[, config])
        * ```
        *
        * @param {string} url The url of the request.
-       * @param {object=} config Configuration for the request.
-       * @returns {Promise} Promise produced by the `$q` service.
+       * @param {object=} config Optional configuration.
+       * @returns {Promise} Promise.
        */
-      GET: GET,
+      GET: function (url, config) {
+        config = config || {};
+        return HTTP(DSUtils.deepMixIn(config, {
+          url: url,
+          method: 'GET'
+        }));
+      },
 
       /**
        * @doc method
        * @id DSHttpAdapter.methods:POST
        * @name POST
        * @description
-       * Wrapper for `$http.post()`.
+       * A wrapper for `$http.post()`.
        *
        * ## Signature:
        * ```js
-       * DS.POST(url[, attrs][, config])
-       * ```
-       *
-       * ## Example:
-       *
-       * ```js
-       * Works the same as $http.post()
+       * DSHttpAdapter.POST(url[, attrs][, config])
        * ```
        *
        * @param {string} url The url of the request.
        * @param {object=} attrs Request payload.
-       * @param {object=} config Configuration for the request.
-       * @returns {Promise} Promise produced by the `$q` service.
+       * @param {object=} config Optional configuration.
+       * @returns {Promise} Promise.
        */
-      POST: POST,
+      POST: function (url, attrs, config) {
+        config = config || {};
+        return HTTP(DSUtils.deepMixIn(config, {
+          url: url,
+          data: attrs,
+          method: 'POST'
+        }));
+      },
 
       /**
        * @doc method
        * @id DSHttpAdapter.methods:PUT
        * @name PUT
        * @description
-       * Wrapper for `$http.put()`.
+       * A wrapper for `$http.put()`.
        *
        * ## Signature:
        * ```js
-       * DS.PUT(url[, attrs][, config])
-       * ```
-       *
-       * ## Example:
-       *
-       * ```js
-       * Works the same as $http.put()
+       * DSHttpAdapter.PUT(url[, attrs][, config])
        * ```
        *
        * @param {string} url The url of the request.
        * @param {object=} attrs Request payload.
-       * @param {object=} config Configuration for the request.
-       * @returns {Promise} Promise produced by the `$q` service.
+       * @param {object=} config Optional configuration.
+       * @returns {Promise} Promise.
        */
-      PUT: PUT,
+      PUT: function (url, attrs, config) {
+        config = config || {};
+        return HTTP(DSUtils.deepMixIn(config, {
+          url: url,
+          data: attrs || {},
+          method: 'PUT'
+        }));
+      },
 
       /**
        * @doc method
        * @id DSHttpAdapter.methods:DEL
        * @name DEL
        * @description
-       * Wrapper for `$http.delete()`.
+       * A wrapper for `$http.delete()`.
        *
        * ## Signature:
        * ```js
-       * DS.DEL(url[, config])
-       * ```
-       *
-       * ## Example:
-       *
-       * ```js
-       * Works the same as $http.delete
+       * DSHttpAdapter.DEL(url[, config])
        * ```
        *
        * @param {string} url The url of the request.
-       * @param {object} config Configuration for the request.
-       * @returns {Promise} Promise produced by the `$q` service.
+       * @param {object=} config Optional configuration.
+       * @returns {Promise} Promise.
        */
-      DEL: DEL,
+      DEL: function (url, config) {
+        config = config || {};
+        return this.HTTP(DSUtils.deepMixIn(config, {
+          url: url,
+          method: 'DELETE'
+        }));
+      },
 
       /**
        * @doc method
@@ -205,16 +218,29 @@ function DSHttpAdapterProvider() {
        * @description
        * Retrieve a single entity from the server.
        *
-       * Sends a `GET` request to `:baseUrl/:endpoint/:id`.
+       * Makes a `GET` request.
        *
-       * @param {object} resourceConfig Properties:
-       * - `{string}` - `baseUrl` - Base url.
-       * - `{string=}` - `endpoint` - Endpoint path for the resource.
-       * @param {string|number} id The primary key of the entity to retrieve.
-       * @param {object=} options Optional configuration. Refer to the documentation for `$http.get`.
+       * ## Signature:
+       * ```js
+       * DSHttpAdapter.find(resourceConfig, id[, options])
+       * ```
+       *
+       * @param {object} resourceConfig DS resource definition object:
+       * @param {string|number} id Primary key of the entity to update.
+       * @param {object=} options Optional configuration. Also passed along to `$http([config])`. Properties:
+       *
+       * - `{string=}` - `baseUrl` - Base url to use.
+       * - `{object=}` - `params` - Additional query string parameters to add to the url.
+       *
        * @returns {Promise} Promise.
        */
-      find: find,
+      find: function (resourceConfig, id, options) {
+        options = options || {};
+        return this.GET(
+          DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id, options), id),
+          options
+        );
+      },
 
       /**
        * @doc method
@@ -223,35 +249,66 @@ function DSHttpAdapterProvider() {
        * @description
        * Retrieve a collection of entities from the server.
        *
-       * Sends a `GET` request to `:baseUrl/:endpoint`.
+       * Makes a `GET` request.
        *
+       * ## Signature:
+       * ```js
+       * DSHttpAdapter.findAll(resourceConfig[, params][, options])
+       * ```
        *
-       * @param {object} resourceConfig Properties:
-       * - `{string}` - `baseUrl` - Base url.
-       * - `{string=}` - `endpoint` - Endpoint path for the resource.
+       * @param {object} resourceConfig DS resource definition object:
        * @param {object=} params Search query parameters. See the [query guide](/documentation/guide/queries/index).
-       * @param {object=} options Optional configuration. Refer to the documentation for `$http.get`.
+       * @param {object=} options Optional configuration. Also passed along to `$http([config])`. Properties:
+       *
+       * - `{string=}` - `baseUrl` - Base url to use.
+       * - `{object=}` - `params` - Additional query string parameters to add to the url.
+       *
        * @returns {Promise} Promise.
        */
-      findAll: findAll,
+      findAll: function (resourceConfig, params, options) {
+        options = options || {};
+        options.params = options.params || {};
+        if (params) {
+          params = defaults.queryTransform(resourceConfig.name, params);
+          DSUtils.deepMixIn(options.params, params);
+        }
+        return this.GET(
+          DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(null, options)),
+          options
+        );
+      },
 
       /**
        * @doc method
-       * @id DSHttpAdapter.methods:findAll
-       * @name find
+       * @id DSHttpAdapter.methods:create
+       * @name create
        * @description
        * Create a new entity on the server.
        *
-       * Sends a `POST` request to `:baseUrl/:endpoint`.
+       * Makes a `POST` request.
        *
-       * @param {object} resourceConfig Properties:
-       * - `{string}` - `baseUrl` - Base url.
-       * - `{string=}` - `endpoint` - Endpoint path for the resource.
-       * @param {object=} params Search query parameters. See the [query guide](/documentation/guide/queries/index).
-       * @param {object=} options Optional configuration. Refer to the documentation for `$http.post`.
+       * ## Signature:
+       * ```js
+       * DSHttpAdapter.create(resourceConfig, attrs[, options])
+       * ```
+       *
+       * @param {object} resourceConfig DS resource definition object:
+       * @param {object} attrs The attribute payload.
+       * @param {object=} options Optional configuration. Also passed along to `$http([config])`. Properties:
+       *
+       * - `{string=}` - `baseUrl` - Base url to use.
+       * - `{object=}` - `params` - Additional query string parameters to add to the url.
+       *
        * @returns {Promise} Promise.
        */
-      create: create,
+      create: function (resourceConfig, attrs, options) {
+        options = options || {};
+        return this.POST(
+          DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(attrs, options)),
+          attrs,
+          options
+        );
+      },
 
       /**
        * @doc method
@@ -260,17 +317,31 @@ function DSHttpAdapterProvider() {
        * @description
        * Update an entity on the server.
        *
-       * Sends a `PUT` request to `:baseUrl/:endpoint/:id`.
+       * Makes a `PUT` request.
        *
-       * @param {object} resourceConfig Properties:
-       * - `{string}` - `baseUrl` - Base url.
-       * - `{string=}` - `endpoint` - Endpoint path for the resource.
-       * @param {string|number} id The primary key of the entity to update.
-       * @param {object} attrs The attributes with which to update the entity. See the [query guide](/documentation/guide/queries/index).
-       * @param {object=} options Optional configuration. Refer to the documentation for `$http.put`.
+       * ## Signature:
+       * ```js
+       * DSHttpAdapter.update(resourceConfig, id, attrs[, options])
+       * ```
+       *
+       * @param {object} resourceConfig DS resource definition object:
+       * @param {string|number} id Primary key of the entity to update.
+       * @param {object} attrs The attribute payload.
+       * @param {object=} options Optional configuration. Also passed along to `$http([config])`. Properties:
+       *
+       * - `{string=}` - `baseUrl` - Base url to use.
+       * - `{object=}` - `params` - Additional query string parameters to add to the url.
+       *
        * @returns {Promise} Promise.
        */
-      update: update,
+      update: function (resourceConfig, id, attrs, options) {
+        options = options || {};
+        return this.PUT(
+          DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id, options), id),
+          attrs,
+          options
+        );
+      },
 
       /**
        * @doc method
@@ -279,173 +350,104 @@ function DSHttpAdapterProvider() {
        * @description
        * Update a collection of entities on the server.
        *
-       * Sends a `PUT` request to `:baseUrl/:endpoint`.
+       * Makes a `PUT` request.
        *
+       * ## Signature:
+       * ```js
+       * DSHttpAdapter.updateAll(resourceConfig, attrs[, params][, options])
+       * ```
        *
-       * @param {object} resourceConfig Properties:
-       * - `{string}` - `baseUrl` - Base url.
-       * - `{string=}` - `endpoint` - Endpoint path for the resource.
+       * @param {object} resourceConfig DS resource definition object:
+       * @param {object} attrs The attribute payload.
        * @param {object=} params Search query parameters. See the [query guide](/documentation/guide/queries/index).
-       * @param {object=} options Optional configuration. Refer to the documentation for `$http.put`.
+       * @param {object=} options Optional configuration. Also passed along to `$http([config])`. Properties:
+       *
+       * - `{string=}` - `baseUrl` - Base url to use.
+       * - `{object=}` - `params` - Additional query string parameters to add to the url.
+       *
        * @returns {Promise} Promise.
        */
-      updateAll: updateAll,
+      updateAll: function (resourceConfig, attrs, params, options) {
+        options = options || {};
+        options.params = options.params || {};
+        if (params) {
+          params = defaults.queryTransform(resourceConfig.name, params);
+          DSUtils.deepMixIn(options.params, params);
+        }
+        return this.PUT(
+          DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(null, options)),
+          attrs,
+          options
+        );
+      },
 
       /**
        * @doc method
        * @id DSHttpAdapter.methods:destroy
        * @name destroy
        * @description
-       * destroy an entity on the server.
+       * Delete an entity on the server.
        *
-       * Sends a `PUT` request to `:baseUrl/:endpoint/:id`.
+       * Makes a `DELETE` request.
        *
-       * @param {object} resourceConfig Properties:
-       * - `{string}` - `baseUrl` - Base url.
-       * - `{string=}` - `endpoint` - Endpoint path for the resource.
-       * @param {string|number} id The primary key of the entity to destroy.
-       * @param {object=} options Optional configuration. Refer to the documentation for `$http.delete`.
+       * ## Signature:
+       * ```js
+       * DSHttpAdapter.destroy(resourceConfig, id[, options)
+       * ```
+       *
+       * @param {object} resourceConfig DS resource definition object:
+       * @param {string|number} id Primary key of the entity to update.
+       * @param {object=} options Optional configuration. Also passed along to `$http([config])`. Properties:
+       *
+       * - `{string=}` - `baseUrl` - Base url to use.
+       * - `{object=}` - `params` - Additional query string parameters to add to the url.
+       *
        * @returns {Promise} Promise.
        */
-      destroy: destroy,
+      destroy: function (resourceConfig, id, options) {
+        options = options || {};
+        return this.DEL(
+          DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id, options), id),
+          options
+        );
+      },
 
       /**
        * @doc method
        * @id DSHttpAdapter.methods:destroyAll
        * @name destroyAll
        * @description
-       * Retrieve a collection of entities from the server.
+       * Delete a collection of entities on the server.
        *
-       * Sends a `DELETE` request to `:baseUrl/:endpoint`.
+       * Makes `DELETE` request.
        *
+       * ## Signature:
+       * ```js
+       * DSHttpAdapter.destroyAll(resourceConfig[, params][, options])
+       * ```
        *
-       * @param {object} resourceConfig Properties:
-       * - `{string}` - `baseUrl` - Base url.
-       * - `{string=}` - `endpoint` - Endpoint path for the resource.
+       * @param {object} resourceConfig DS resource definition object:
        * @param {object=} params Search query parameters. See the [query guide](/documentation/guide/queries/index).
-       * @param {object=} options Optional configuration. Refer to the documentation for `$http.delete`.
+       * @param {object=} options Optional configuration. Also passed along to `$http([config])`. Properties:
+       *
+       * - `{string=}` - `baseUrl` - Base url to use.
+       * - `{object=}` - `params` - Additional query string parameters to add to the url.
+       *
        * @returns {Promise} Promise.
        */
-      destroyAll: destroyAll
+      destroyAll: function (resourceConfig, params, options) {
+        options = options || {};
+        options.params = options.params || {};
+        if (params) {
+          params = defaults.queryTransform(resourceConfig.name, params);
+          DSUtils.deepMixIn(options.params, params);
+        }
+        return this.DEL(
+          DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(null, options)),
+          options
+        );
+      }
     };
-
-    function HTTP(config) {
-      var start = new Date().getTime();
-
-      config = DSUtils.deepMixIn(config, defaults.$httpConfig);
-      return $http(config).then(function (data) {
-        $log.debug(data.config.method + ' request:' + data.config.url + ' Time taken: ' + (new Date().getTime() - start) + 'ms', arguments);
-        return data;
-      });
-    }
-
-    function GET(url, config) {
-      config = config || {};
-      return HTTP(DSUtils.deepMixIn(config, {
-        url: url,
-        method: 'GET'
-      }));
-    }
-
-    function POST(url, attrs, config) {
-      config = config || {};
-      return HTTP(DSUtils.deepMixIn(config, {
-        url: url,
-        data: attrs,
-        method: 'POST'
-      }));
-    }
-
-    function PUT(url, attrs, config) {
-      config = config || {};
-      return HTTP(DSUtils.deepMixIn(config, {
-        url: url,
-        data: attrs,
-        method: 'PUT'
-      }));
-    }
-
-    function DEL(url, config) {
-      config = config || {};
-      return this.HTTP(DSUtils.deepMixIn(config, {
-        url: url,
-        method: 'DELETE'
-      }));
-    }
-
-    function create(resourceConfig, attrs, options) {
-      options = options || {};
-      return this.POST(
-        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(attrs, options)),
-        attrs,
-        options
-      );
-    }
-
-    function destroy(resourceConfig, id, options) {
-      options = options || {};
-      return this.DEL(
-        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id, options), id),
-        options
-      );
-    }
-
-    function destroyAll(resourceConfig, params, options) {
-      options = options || {};
-      options.params = options.params || {};
-      if (params) {
-        params = defaults.queryTransform(resourceConfig.name, params);
-        DSUtils.deepMixIn(options.params, params);
-      }
-      return this.DEL(
-        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(null, options)),
-        options
-      );
-    }
-
-    function find(resourceConfig, id, options) {
-      options = options || {};
-      return this.GET(
-        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id, options), id),
-        options
-      );
-    }
-
-    function findAll(resourceConfig, params, options) {
-      options = options || {};
-      options.params = options.params || {};
-      if (params) {
-        params = defaults.queryTransform(resourceConfig.name, params);
-        DSUtils.deepMixIn(options.params, params);
-      }
-      return this.GET(
-        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(null, options)),
-        options
-      );
-    }
-
-    function update(resourceConfig, id, attrs, options) {
-      options = options || {};
-      return this.PUT(
-        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id, options), id),
-        attrs,
-        options
-      );
-    }
-
-    function updateAll(resourceConfig, attrs, params, options) {
-      options = options || {};
-      options.params = options.params || {};
-      if (params) {
-        params = defaults.queryTransform(resourceConfig.name, params);
-        DSUtils.deepMixIn(options.params, params);
-      }
-      return this.PUT(
-        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(null, options)),
-        attrs,
-        options
-      );
-    }
   }];
 }
 

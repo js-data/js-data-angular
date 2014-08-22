@@ -1442,9 +1442,20 @@ function DSHttpAdapterProvider() {
      * @description
      * Transform the angular-data query to something your server understands. You might just do this on the server instead.
      *
+     * ## Example:
+     * ```js
+     * DSHttpAdapterProvider.defaults.queryTransform = function (resourceName, params) {
+     *   if (params && params.userId) {
+     *     params.user_id = params.userId;
+     *     delete params.userId;
+     *   }
+     *   return params;
+     * };
+     * ```
+     *
      * @param {string} resourceName The name of the resource.
-     * @param {object} params Params sent through from `$http()`.
-     * @returns {*} Returns `params` as-is.
+     * @param {object} params Params that will be passed to `$http`.
+     * @returns {*} By default just returns `params` as-is.
      */
     queryTransform: function (resourceName, params) {
       return params;
@@ -1463,9 +1474,7 @@ function DSHttpAdapterProvider() {
      *   angular.extend(DSHttpAdapterProvider.defaults.$httpConfig, {
      *     interceptor: [...],
      *     headers: {
-     *       common: {
-     *         Authorization: 'Basic YmVlcDpib29w'
-     *       }
+     *       Authorization: 'Basic YmVlcDpib29w'
      *     },
      *     timeout: 20000
      *   });
