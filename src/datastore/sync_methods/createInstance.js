@@ -4,7 +4,7 @@ function errorPrefix(resourceName) {
 
 /**
  * @doc method
- * @id DS.sync_methods:createInstance
+ * @id DS.sync methods:createInstance
  * @name createInstance
  * @description
  * Return a new instance of the specified resource.

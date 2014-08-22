@@ -40,7 +40,7 @@ var methodsToProxy = [
 
 /**
  * @doc method
- * @id DS.sync_methods:defineResource
+ * @id DS.sync methods:defineResource
  * @name defineResource
  * @description
  * Define a resource and register it with the data store.

@@ -2,151 +2,151 @@ module.exports = {
 
   /**
    * @doc method
-   * @id DS.sync_methods:bindOne
+   * @id DS.sync methods:bindOne
    * @name bindOne
    * @methodOf DS
    * @description
-   * See [DS.bindOne](/documentation/api/api/DS.sync_methods:bindOne).
+   * See [DS.bindOne](/documentation/api/api/DS.sync methods:bindOne).
    */
   bindOne: require('./bindOne'),
 
   /**
    * @doc method
-   * @id DS.sync_methods:bindAll
+   * @id DS.sync methods:bindAll
    * @name bindAll
    * @methodOf DS
    * @description
-   * See [DS.bindAll](/documentation/api/api/DS.sync_methods:bindAll).
+   * See [DS.bindAll](/documentation/api/api/DS.sync methods:bindAll).
    */
   bindAll: require('./bindAll'),
 
   /**
    * @doc method
-   * @id DS.sync_methods:createInstance
+   * @id DS.sync methods:createInstance
    * @name createInstance
    * @methodOf DS
    * @description
-   * See [DS.createInstance](/documentation/api/api/DS.sync_methods:createInstance).
+   * See [DS.createInstance](/documentation/api/api/DS.sync methods:createInstance).
    */
   createInstance: require('./createInstance'),
 
   /**
    * @doc method
-   * @id DS.sync_methods:defineResource
+   * @id DS.sync methods:defineResource
    * @name defineResource
    * @methodOf DS
    * @description
-   * See [DS.defineResource](/documentation/api/api/DS.sync_methods:defineResource).
+   * See [DS.defineResource](/documentation/api/api/DS.sync methods:defineResource).
    */
   defineResource: require('./defineResource'),
 
   /**
    * @doc method
-   * @id DS.sync_methods:eject
+   * @id DS.sync methods:eject
    * @name eject
    * @methodOf DS
    * @description
-   * See [DS.eject](/documentation/api/api/DS.sync_methods:eject).
+   * See [DS.eject](/documentation/api/api/DS.sync methods:eject).
    */
   eject: require('./eject'),
 
   /**
    * @doc method
-   * @id DS.sync_methods:ejectAll
+   * @id DS.sync methods:ejectAll
    * @name ejectAll
    * @methodOf DS
    * @description
-   * See [DS.ejectAll](/documentation/api/api/DS.sync_methods:ejectAll).
+   * See [DS.ejectAll](/documentation/api/api/DS.sync methods:ejectAll).
    */
   ejectAll: require('./ejectAll'),
 
   /**
    * @doc method
-   * @id DS.sync_methods:filter
+   * @id DS.sync methods:filter
    * @name filter
    * @methodOf DS
    * @description
-   * See [DS.filter](/documentation/api/api/DS.sync_methods:filter).
+   * See [DS.filter](/documentation/api/api/DS.sync methods:filter).
    */
   filter: require('./filter'),
 
   /**
    * @doc method
-   * @id DS.sync_methods:get
+   * @id DS.sync methods:get
    * @name get
    * @methodOf DS
    * @description
-   * See [DS.get](/documentation/api/api/DS.sync_methods:get).
+   * See [DS.get](/documentation/api/api/DS.sync methods:get).
    */
   get: require('./get'),
 
   /**
    * @doc method
-   * @id DS.sync_methods:inject
+   * @id DS.sync methods:inject
    * @name inject
    * @methodOf DS
    * @description
-   * See [DS.inject](/documentation/api/api/DS.sync_methods:inject).
+   * See [DS.inject](/documentation/api/api/DS.sync methods:inject).
    */
   inject: require('./inject'),
 
   /**
    * @doc method
-   * @id DS.sync_methods:lastModified
+   * @id DS.sync methods:lastModified
    * @name lastModified
    * @methodOf DS
    * @description
-   * See [DS.lastModified](/documentation/api/api/DS.sync_methods:lastModified).
+   * See [DS.lastModified](/documentation/api/api/DS.sync methods:lastModified).
    */
   lastModified: require('./lastModified'),
 
   /**
    * @doc method
-   * @id DS.sync_methods:lastSaved
+   * @id DS.sync methods:lastSaved
    * @name lastSaved
    * @methodOf DS
    * @description
-   * See [DS.lastSaved](/documentation/api/api/DS.sync_methods:lastSaved).
+   * See [DS.lastSaved](/documentation/api/api/DS.sync methods:lastSaved).
    */
   lastSaved: require('./lastSaved'),
 
   /**
    * @doc method
-   * @id DS.sync_methods:digest
+   * @id DS.sync methods:digest
    * @name digest
    * @methodOf DS
    * @description
-   * See [DS.digest](/documentation/api/api/DS.sync_methods:digest).
+   * See [DS.digest](/documentation/api/api/DS.sync methods:digest).
    */
   digest: require('./digest'),
 
   /**
    * @doc method
-   * @id DS.sync_methods:changes
+   * @id DS.sync methods:changes
    * @name changes
    * @methodOf DS
    * @description
-   * See [DS.changes](/documentation/api/api/DS.sync_methods:changes).
+   * See [DS.changes](/documentation/api/api/DS.sync methods:changes).
    */
   changes: require('./changes'),
 
   /**
    * @doc method
-   * @id DS.sync_methods:previous
+   * @id DS.sync methods:previous
    * @name previous
    * @methodOf DS
    * @description
-   * See [DS.previous](/documentation/api/api/DS.sync_methods:previous).
+   * See [DS.previous](/documentation/api/api/DS.sync methods:previous).
    */
   previous: require('./previous'),
 
   /**
    * @doc method
-   * @id DS.sync_methods:hasChanges
+   * @id DS.sync methods:hasChanges
    * @name hasChanges
    * @methodOf DS
    * @description
-   * See [DS.hasChanges](/documentation/api/api/DS.sync_methods:hasChanges).
+   * See [DS.hasChanges](/documentation/api/api/DS.sync methods:hasChanges).
    */
   hasChanges: require('./hasChanges')
 };

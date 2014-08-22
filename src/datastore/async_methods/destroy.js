@@ -4,7 +4,7 @@ function errorPrefix(resourceName, id) {
 
 /**
  * @doc method
- * @id DS.async_methods:destroy
+ * @id DS.async methods:destroy
  * @name destroy
  * @description
  * The "D" in "CRUD". Delegate to the `destroy` method of whichever adapter is being used (http by default) and eject the

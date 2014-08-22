@@ -4,7 +4,7 @@ function errorPrefix(resourceName) {
 
 /**
  * @doc method
- * @id DS.sync_methods:changes
+ * @id DS.sync methods:changes
  * @name changes
  * @description
  * Synchronously return the changes object of the item of the type specified by `resourceName` that has the primary key

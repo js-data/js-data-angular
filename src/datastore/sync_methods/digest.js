@@ -2,7 +2,7 @@ var observe = require('../../../lib/observe-js/observe-js');
 
 /**
  * @doc method
- * @id DS.sync_methods:digest
+ * @id DS.sync methods:digest
  * @name digest
  * @description
  * Trigger a digest loop that checks for changes and updates the `lastModified` timestamp if an object has changed.

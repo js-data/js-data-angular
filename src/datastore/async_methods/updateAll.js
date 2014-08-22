@@ -4,7 +4,7 @@ function errorPrefix(resourceName) {
 
 /**
  * @doc method
- * @id DS.async_methods:updateAll
+ * @id DS.async methods:updateAll
  * @name updateAll
  * @description
  * The "U" in "CRUD". Update items of type `resourceName` with `attrs` according to the criteria specified by `params`.

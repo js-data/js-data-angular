@@ -4,7 +4,7 @@ function errorPrefix(resourceName, id) {
 
 /**
  * @doc method
- * @id DS.sync_methods:previous
+ * @id DS.sync methods:previous
  * @name previous
  * @description
  * Synchronously return the previous attributes of the item of the type specified by `resourceName` that has the primary key

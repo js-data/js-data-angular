@@ -4,7 +4,7 @@ function errorPrefix(resourceName, id) {
 
 /**
  * @doc method
- * @id DS.async_methods:save
+ * @id DS.async methods:save
  * @name save
  * @description
  * The "U" in "CRUD". Persist a single item already in the store and in it's current form to whichever adapter is being

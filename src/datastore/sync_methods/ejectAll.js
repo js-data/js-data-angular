@@ -22,7 +22,7 @@ function _ejectAll(definition, resource, params) {
 
 /**
  * @doc method
- * @id DS.sync_methods:ejectAll
+ * @id DS.sync methods:ejectAll
  * @name ejectAll
  * @description
  * Eject all matching items of the specified type from the data store. Ejection only removes items from the data store

@@ -4,7 +4,7 @@ function errorPrefix(resourceName) {
 
 /**
  * @doc method
- * @id DS.sync_methods:filter
+ * @id DS.sync methods:filter
  * @name filter
  * @description
  * Synchronously filter items in the data store of the type specified by `resourceName`.
@@ -16,7 +16,7 @@ function errorPrefix(resourceName) {
  *
  * ## Example:
  *
- * For many examples see the [tests for DS.filter](https://github.com/jmdobry/angular-data/blob/master/test/integration/datastore/sync_methods/filter.test.js).
+ * For many examples see the [tests for DS.filter](https://github.com/jmdobry/angular-data/blob/master/test/integration/datastore/sync methods/filter.test.js).
  *
  * ## Throws
  *

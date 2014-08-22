@@ -4,7 +4,7 @@ function errorPrefix(resourceName) {
 
 /**
  * @doc method
- * @id DS.async_methods:loadRelations
+ * @id DS.async methods:loadRelations
  * @name loadRelations
  * @description
  * Asynchronously load the indicated relations of the given instance.

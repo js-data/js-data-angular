@@ -4,7 +4,7 @@ function errorPrefix(resourceName) {
 
 /**
  * @doc method
- * @id DS.async_methods:create
+ * @id DS.async methods:create
  * @name create
  * @description
  * The "C" in "CRUD". Delegate to the `create` method of whichever adapter is being used (http by default) and inject the

@@ -4,7 +4,7 @@ function errorPrefix(resourceName, id) {
 
 /**
  * @doc method
- * @id DS.sync_methods:lastSaved
+ * @id DS.sync methods:lastSaved
  * @name lastSaved
  * @description
  * Return the timestamp of the last time either the collection for `resourceName` or the item of type `resourceName`

@@ -1,6 +1,6 @@
 ## angular-data
 
-Inspired by [Ember Data](https://github.com/emberjs/data), Angular-data is the model layer Angular is missing. It consists of a convenient in-memory cache for interacting with your various resources, and several adapters for communicating with various persistence layers.
+Inspired by [Ember Data](https://github.com/emberjs/data), Angular-data is the model layer Angular is missing. It consists of a convenient in-memory cache for managing your data, and several adapters for communicating with various persistence layers.
 
 By default angular-data uses the http adapter–perfect for communicating with your RESTful backend. It includes a localStorage adapter, and another [localforage adapter](https://github.com/jmdobry/angular-data-localForage) is also available. More adapters are coming, and you're free to implement your own.
 
@@ -19,8 +19,19 @@ Although angular-data is being used in production, it's not 1.0.0. If you want t
 ## Documentation
 [http://angular-data.pseudobry.com](http://angular-data.pseudobry.com)
 
+## Project Status
+
+| Branch | Master |
+| ------ | ------ |
+| Bower | [![Bower version](https://badge.fury.io/bo/angular-data.png)](http://badge.fury.io/bo/angular-data) |
+| NPM | [![NPM version](https://badge.fury.io/js/angular-data.png)](http://badge.fury.io/js/angular-data) |
+| Build Status | [![Build Status](https://travis-ci.org/jmdobry/angular-data.png?branch=master)](https://travis-ci.org/jmdobry/angular-data) |
+| Code Climate | [![Code Climate](https://codeclimate.com/github/jmdobry/angular-data.png)](https://codeclimate.com/github/jmdobry/angular-data) |
+| Dependency Status | [![Dependency Status](https://gemnasium.com/jmdobry/angular-data.png)](https://gemnasium.com/jmdobry/angular-data) |
+| Coverage | [![Coverage Status](https://coveralls.io/repos/jmdobry/angular-data/badge.png?branch=master)](https://coveralls.io/r/jmdobry/angular-data?branch=master) |
+
 ## Quick Start
-`bower install angular-data` or `npm install angular-data`.
+`bower install --save angular-data` or `npm install --save angular-data`.
 
 ```js
 var app = angular.module('myApp', ['angular-data.DS']);
@@ -67,35 +78,33 @@ app.controller('friendsCtrl', function ($scope, $routeParams, User) {
 });
 ```
 
+## Guide
+- [Overview](/documentation/guide/angular-data/index)
+- [Basics](/documentation/guide/angular-data/overview)
+- [Defining Resources](/documentation/guide/angular-data-resource/basic)
+- [Asynchronous Methods](/documentation/guide/angular-data/asynchronous)
+- [Synchronous Methods](/documentation/guide/angular-data/synchronous)
+- [Queries & Filtering](/documentation/guide/angular-data/queries)
+- [Adapters](/documentation/guide/angular-data/adapters)
+- [How do I...?](/documentation/guide/angular-data/how)
+
+## API
+- [Overview](/documentation/api/angular-data/angular-data)
+- [DS](/documentation/api/angular-data/DS)
+- [DSHttpAdapter](/documentation/api/angular-data/DSHttpAdapter)
+
 ## Changelog
 [CHANGELOG.md](https://github.com/jmdobry/angular-data/blob/master/CHANGELOG.md)
 
 ## Version Migration
 [TRANSITION.md](https://github.com/jmdobry/angular-data/blob/master/TRANSITION.md)
 
-## Resources
-
-#### Community
-[Mailing List](https://groups.google.com/forum/?fromgroups#!forum/angular-data) - Ask your questions!
-
-[Issues](https://github.com/jmdobry/angular-data/issues) - Found a bug? Feature request? Submit an issue!
-
-[GitHub](https://github.com/jmdobry/angular-data) - View the source code for angular-data.
-
-[Design Doc](https://docs.google.com/document/d/1o069KLuBH4jpwm1FCLZFwKMgM73Xi8_1JyjhSxVpidM/edit?usp=sharing) - Design document for Angular-data.
-
-[Contributing Guide](#Contributing)
-
-## Project Status
-
-| Branch | Master |
-| ------ | ------ |
-| Bower | [![Bower version](https://badge.fury.io/bo/angular-data.png)](http://badge.fury.io/bo/angular-data) |
-| NPM | [![NPM version](https://badge.fury.io/js/angular-data.png)](http://badge.fury.io/js/angular-data) |
-| Build Status | [![Build Status](https://travis-ci.org/jmdobry/angular-data.png?branch=master)](https://travis-ci.org/jmdobry/angular-data) |
-| Code Climate | [![Code Climate](https://codeclimate.com/github/jmdobry/angular-data.png)](https://codeclimate.com/github/jmdobry/angular-data) |
-| Dependency Status | [![Dependency Status](https://gemnasium.com/jmdobry/angular-data.png)](https://gemnasium.com/jmdobry/angular-data) |
-| Coverage | [![Coverage Status](https://coveralls.io/repos/jmdobry/angular-data/badge.png?branch=master)](https://coveralls.io/r/jmdobry/angular-data?branch=master) |
+## Community
+- [Mailing List](https://groups.google.com/forum/?fromgroups#!forum/angular-data) - Ask your questions!
+- [Issues](https://github.com/jmdobry/angular-data/issues) - Found a bug? Feature request? Submit an issue!
+- [GitHub](https://github.com/jmdobry/angular-data) - View the source code for angular-data.
+- [Design Doc](https://docs.google.com/document/d/1o069KLuBH4jpwm1FCLZFwKMgM73Xi8_1JyjhSxVpidM/edit?usp=sharing) - Design document for Angular-data.
+- [Contributing Guide](#Contributing)
 
 ## Contributing
 

@@ -4,7 +4,7 @@ function errorPrefix(resourceName, id) {
 
 /**
  * @doc method
- * @id DS.sync_methods:get
+ * @id DS.sync methods:get
  * @name get
  * @description
  * Synchronously return the resource with the given id. The data store will forward the request to an adapter if

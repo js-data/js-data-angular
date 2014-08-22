@@ -13,40 +13,65 @@
     <div class="container">
         <div class="col-sm-12">
             <p>
+                <strong>Why angular-data?</strong>
+                <br>
                 Inspired by <a href="https://github.com/emberjs/data" target="_blank">Ember Data</a>, angular-data is
-                the
-                model
-                layer Angular is missing. It consists of a convenient in-memory cache for interacting with your various
-                resources, and several adapters for communicating with various persistence layers.
+                the model layer Angular is missing. It consists of a convenient in-memory cache for managing your data,
+                and several <a href="/documentation/guide/angular-data/adapters">adapters</a> for communicating with
+                various persistence layers.
             </p>
             <br>
 
             <p>
-                By default angular-data uses the http adapter–perfect for communicating with your RESTful backend. It
-                includes a
-                localStorage adapter, and another <a href="https://github.com/jmdobry/angular-data-localForage"
-                                                     target="_blank">localforage
+                By default angular-data uses the <a href="/documentation/guide/angular-data/adapters">http adapter</a>
+                which is perfect for communicating with your RESTful backend. It comes with a <a
+                    href="/documentation/guide/angular-data/adapters">localStorage adapter</a>, and
+                another <a href="https://github.com/jmdobry/angular-data-localForage" target="_blank">localforage
                 adapter</a> is also available. More adapters are coming, and you're free to implement your own.
             </p>
             <br>
 
             <p>
                 Unlike Backbone and Ember Models, angular-data does not require the use of getters and setters, and
-                doesn't
-                wrap
-                your data with custom classes if you don't want it to. Angular-data's internal dirty-checking (via
-                <a href="https://github.com/Polymer/observe-js" target="_blank">observe-js</a> or `Object.observe` in
-                supporting
-                browsers) allows for powerful use cases and an easy avenue for implementing your own <a
+                doesn't wrap your data with custom classes if you don't want it to. Angular-data's internal
+                dirty-checking (via <a href="https://github.com/Polymer/observe-js" target="_blank">observe-js</a> or
+                <code>Object.observe</code> in supporting browsers) allows for powerful use cases and an easy avenue for
+                implementing your own <a
                     href="https://www.firebase.com/blog/2013-10-04-firebase-angular-data-binding.html" target="_blank">3-way
                 data-binding</a>.
             </p>
             <br>
 
             <p>
-                Supporting relations, computed properties, model lifecycle control and a slew of other features,
-                angular-data is
-                the tool for giving your data the respect it deserves.
+                Supporting <a href="/documentation/guide/angular-data-resource/relations">relations</a>, <a
+                    href="/documentation/guide/angular-data-resource/computed">computed properties</a>, <a
+                    href="/documentation/guide/angular-data-resource/lifecycle">model lifecycle control</a> and a slew
+                of other features, angular-data is the tool for giving your data the respect it deserves.
+            </p>
+            <br>
+
+            <p>
+                <strong>angular-data.js vs angular-cache.js?</strong>
+                <br>
+                angular-data.js is the full data store that supports collections and communicating with persistence
+                layers. angular-cache.js is a simple key-value store and an api-compatible replacement for
+                <code>$cacheFactory</code> with advanced caching capabilities. Use one, or the other, or use both and
+                angular-data will be able to take advantage of some of the features of angular-cache.
+            </p>
+            <br>
+
+            <p>
+                <strong>How do I get it?</strong>
+                <br>
+                <code>npm install --save angular-data</code> or <code>bower install --save angular-data</code> then add
+                <code>angular-data.DS</code> as a dependency of your angular app.
+                <br>
+                <br>
+                <code>npm install --save angular-cache</code> or <code>bower install --save angular-cache</code> then add
+                <code>angular-data.DSCacheFactory</code> as a dependency of your angular app.
+                <br>
+                <br>
+                Angular-data does not require angular-cache in order to work.
             </p>
         </div>
     </div>

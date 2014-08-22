@@ -4,7 +4,7 @@ function errorPrefix(resourceName, id) {
 
 /**
  * @doc method
- * @id DS.async_methods:find
+ * @id DS.async methods:find
  * @name find
  * @description
  * The "R" in "CRUD". Delegate to the `find` method of whichever adapter is being used (http by default) and inject the

@@ -32,7 +32,7 @@ function _eject(definition, resource, id) {
 
 /**
  * @doc method
- * @id DS.sync_methods:eject
+ * @id DS.sync methods:eject
  * @name eject
  * @description
  * Eject the item of the specified type that has the given primary key from the data store. Ejection only removes items

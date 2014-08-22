@@ -1,13 +1,14 @@
 body {
     background-size: auto;
-    background: url(/resources/img/cream_dust.png) repeat repeat;
     font-family: 'Nunito', Arial, Helvetica, sans-serif;
     font-weight: 300;
+    text-shadow: none;
 }
 
 h1, h2, h3, h4, h5, h6, p, a, small {
     font-family: 'Nunito', Arial, Helvetica, sans-serif;
     font-weight: 300;
+    text-shadow: none;
 }
 
 #home-page .row {
@@ -197,4 +198,66 @@ a:hover {
 li.nav-header.module {
     background-color: #0088cc;
     color: #fff;
+}
+
+.well, .nav-list.well {
+    border: none;
+    box-shadow: none;
+}
+
+.nav-list.well {
+    background-color: #F5FBFF !important;
+}
+
+.well.form-search {
+    background-color: transparent;
+}
+
+.breadcrumb {
+    background-color: #F5FBFF;
+}
+
+.form-search > ul.nav > li.module {
+    background-color: #0088cc !important;
+    color: #fff !important;
+}
+
+.nav li.nav-header.module > a.guide, .form-search .well .nav-header a {
+    color: #fff !important;
+    text-shadow: none !important;
+}
+
+.form-search > ul.nav li.section, .rounded-list a {
+    background-color: #F5FBFF !important;
+}
+
+.form-search > ul.nav li.section a.guide {
+    color: #0088cc !important;
+}
+
+ul.breadcrumb li:first-child {
+    background-color: #F5FBFF;
+    background-image: none;
+    filter: none;
+    border: none;
+    box-shadow: none;
+    padding-right: 0;
+    margin-right: 0;
+}
+
+ul.breadcrumb li:first-child:hover {
+    background-color: #F5FBFF;
+}
+
+.content > h1 {
+    text-shadow: none;
+}
+
+ul.methods > li > h3, ul.properties > li > h3, ul.events > li > h3 {
+    background-color: #0088cc !important;
+    color: #fff !important;
+}
+
+ul.methods > li, ul.properties > li, ul.events > li {
+    background-color: #F5FBFF !important;
 }

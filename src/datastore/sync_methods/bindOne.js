@@ -4,7 +4,7 @@ function errorPrefix(resourceName) {
 
 /**
  * @doc method
- * @id DS.sync_methods:bindOne
+ * @id DS.sync methods:bindOne
  * @name bindOne
  * @description
  * Bind an item in the data store to `scope` under the property specified by `expr`.

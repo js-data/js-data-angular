@@ -4,7 +4,7 @@ function errorPrefix(resourceName, id) {
 
 /**
  * @doc method
- * @id DS.async_methods:refresh
+ * @id DS.async methods:refresh
  * @name refresh
  * @description
  * Like `DS.find`, except the resource is only refreshed from the adapter if it already exists in the data store.

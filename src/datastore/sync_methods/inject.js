@@ -136,7 +136,7 @@ function _injectRelations(definition, injected) {
 
 /**
  * @doc method
- * @id DS.sync_methods:inject
+ * @id DS.sync methods:inject
  * @name inject
  * @description
  * Inject the given item into the data store as the specified type. If `attrs` is an array, inject each item into the

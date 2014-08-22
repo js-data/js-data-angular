@@ -2061,7 +2061,7 @@ function errorPrefix(resourceName) {
 
 /**
  * @doc method
- * @id DS.async_methods:create
+ * @id DS.async methods:create
  * @name create
  * @description
  * The "C" in "CRUD". Delegate to the `create` method of whichever adapter is being used (http by default) and inject the
@@ -2180,7 +2180,7 @@ function errorPrefix(resourceName, id) {
 
 /**
  * @doc method
- * @id DS.async_methods:destroy
+ * @id DS.async methods:destroy
  * @name destroy
  * @description
  * The "D" in "CRUD". Delegate to the `destroy` method of whichever adapter is being used (http by default) and eject the
@@ -2268,7 +2268,7 @@ function errorPrefix(resourceName) {
 
 /**
  * @doc method
- * @id DS.async_methods:destroyAll
+ * @id DS.async methods:destroyAll
  * @name destroyAll
  * @description
  * The "D" in "CRUD". Delegate to the `destroyAll` method of whichever adapter is being used (http by default) and eject
@@ -2359,7 +2359,7 @@ function errorPrefix(resourceName, id) {
 
 /**
  * @doc method
- * @id DS.async_methods:find
+ * @id DS.async methods:find
  * @name find
  * @description
  * The "R" in "CRUD". Delegate to the `find` method of whichever adapter is being used (http by default) and inject the
@@ -2541,7 +2541,7 @@ function _findAll(resourceName, params, options) {
 
 /**
  * @doc method
- * @id DS.async_methods:findAll
+ * @id DS.async methods:findAll
  * @name findAll
  * @description
  * The "R" in "CRUD". Delegate to the `findAll` method of whichever adapter is being used (http by default) and inject
@@ -2639,101 +2639,101 @@ module.exports = findAll;
 module.exports = {
   /**
    * @doc method
-   * @id DS.async_methods:create
+   * @id DS.async methods:create
    * @name create
    * @methodOf DS
    * @description
-   * See [DS.create](/documentation/api/api/DS.async_methods:create).
+   * See [DS.create](/documentation/api/api/DS.async methods:create).
    */
   create: require('./create'),
 
   /**
    * @doc method
-   * @id DS.async_methods:destroy
+   * @id DS.async methods:destroy
    * @name destroy
    * @methodOf DS
    * @description
-   * See [DS.destroy](/documentation/api/api/DS.async_methods:destroy).
+   * See [DS.destroy](/documentation/api/api/DS.async methods:destroy).
    */
   destroy: require('./destroy'),
 
   /**
    * @doc method
-   * @id DS.async_methods:destroyAll
+   * @id DS.async methods:destroyAll
    * @name destroyAll
    * @methodOf DS
    * @description
-   * See [DS.destroyAll](/documentation/api/api/DS.async_methods:destroyAll).
+   * See [DS.destroyAll](/documentation/api/api/DS.async methods:destroyAll).
    */
   destroyAll: require('./destroyAll'),
 
   /**
    * @doc method
-   * @id DS.async_methods:find
+   * @id DS.async methods:find
    * @name find
    * @methodOf DS
    * @description
-   * See [DS.find](/documentation/api/api/DS.async_methods:find).
+   * See [DS.find](/documentation/api/api/DS.async methods:find).
    */
   find: require('./find'),
 
   /**
    * @doc method
-   * @id DS.async_methods:findAll
+   * @id DS.async methods:findAll
    * @name findAll
    * @methodOf DS
    * @description
-   * See [DS.findAll](/documentation/api/api/DS.async_methods:findAll).
+   * See [DS.findAll](/documentation/api/api/DS.async methods:findAll).
    */
   findAll: require('./findAll'),
 
   /**
    * @doc method
-   * @id DS.async_methods:loadRelations
+   * @id DS.async methods:loadRelations
    * @name loadRelations
    * @methodOf DS
    * @description
-   * See [DS.loadRelations](/documentation/api/api/DS.async_methods:loadRelations).
+   * See [DS.loadRelations](/documentation/api/api/DS.async methods:loadRelations).
    */
   loadRelations: require('./loadRelations'),
 
   /**
    * @doc method
-   * @id DS.async_methods:refresh
+   * @id DS.async methods:refresh
    * @name refresh
    * @methodOf DS
    * @description
-   * See [DS.refresh](/documentation/api/api/DS.async_methods:refresh).
+   * See [DS.refresh](/documentation/api/api/DS.async methods:refresh).
    */
   refresh: require('./refresh'),
 
   /**
    * @doc method
-   * @id DS.async_methods:save
+   * @id DS.async methods:save
    * @name save
    * @methodOf DS
    * @description
-   * See [DS.save](/documentation/api/api/DS.async_methods:save).
+   * See [DS.save](/documentation/api/api/DS.async methods:save).
    */
   save: require('./save'),
 
   /**
    * @doc method
-   * @id DS.async_methods:update
+   * @id DS.async methods:update
    * @name update
    * @methodOf DS
    * @description
-   * See [DS.update](/documentation/api/api/DS.async_methods:update).
+   * See [DS.update](/documentation/api/api/DS.async methods:update).
    */
   update: require('./update'),
 
   /**
    * @doc method
-   * @id DS.async_methods:updateAll
+   * @id DS.async methods:updateAll
    * @name updateAll
    * @methodOf DS
    * @description
-   * See [DS.updateAll](/documentation/api/api/DS.async_methods:updateAll).
+   * See [DS.updateAll](/documentation/api/api/DS.async methods:updateAll).
    */
   updateAll: require('./updateAll')
 };
@@ -2745,7 +2745,7 @@ function errorPrefix(resourceName) {
 
 /**
  * @doc method
- * @id DS.async_methods:loadRelations
+ * @id DS.async methods:loadRelations
  * @name loadRelations
  * @description
  * Asynchronously load the indicated relations of the given instance.
@@ -2889,7 +2889,7 @@ function errorPrefix(resourceName, id) {
 
 /**
  * @doc method
- * @id DS.async_methods:refresh
+ * @id DS.async methods:refresh
  * @name refresh
  * @description
  * Like `DS.find`, except the resource is only refreshed from the adapter if it already exists in the data store.
@@ -2970,7 +2970,7 @@ function errorPrefix(resourceName, id) {
 
 /**
  * @doc method
- * @id DS.async_methods:save
+ * @id DS.async methods:save
  * @name save
  * @description
  * The "U" in "CRUD". Persist a single item already in the store and in it's current form to whichever adapter is being
@@ -3108,7 +3108,7 @@ function errorPrefix(resourceName, id) {
 
 /**
  * @doc method
- * @id DS.async_methods:update
+ * @id DS.async methods:update
  * @name update
  * @description
  * The "U" in "CRUD". Update the item of type `resourceName` and primary key `id` with `attrs`. This is useful when you
@@ -3227,7 +3227,7 @@ function errorPrefix(resourceName) {
 
 /**
  * @doc method
- * @id DS.async_methods:updateAll
+ * @id DS.async methods:updateAll
  * @name updateAll
  * @description
  * The "U" in "CRUD". Update items of type `resourceName` with `attrs` according to the criteria specified by `params`.
@@ -4112,7 +4112,7 @@ function errorPrefix(resourceName) {
 
 /**
  * @doc method
- * @id DS.sync_methods:bindAll
+ * @id DS.sync methods:bindAll
  * @name bindAll
  * @description
  * Bind a collection of items in the data store to `scope` under the property specified by `expr` filtered by `params`.
@@ -4195,7 +4195,7 @@ function errorPrefix(resourceName) {
 
 /**
  * @doc method
- * @id DS.sync_methods:bindOne
+ * @id DS.sync methods:bindOne
  * @name bindOne
  * @description
  * Bind an item in the data store to `scope` under the property specified by `expr`.
@@ -4266,7 +4266,7 @@ function errorPrefix(resourceName) {
 
 /**
  * @doc method
- * @id DS.sync_methods:changes
+ * @id DS.sync methods:changes
  * @name changes
  * @description
  * Synchronously return the changes object of the item of the type specified by `resourceName` that has the primary key
@@ -4333,7 +4333,7 @@ function errorPrefix(resourceName) {
 
 /**
  * @doc method
- * @id DS.sync_methods:createInstance
+ * @id DS.sync methods:createInstance
  * @name createInstance
  * @description
  * Return a new instance of the specified resource.
@@ -4466,7 +4466,7 @@ var methodsToProxy = [
 
 /**
  * @doc method
- * @id DS.sync_methods:defineResource
+ * @id DS.sync methods:defineResource
  * @name defineResource
  * @description
  * Define a resource and register it with the data store.
@@ -4710,7 +4710,7 @@ var observe = require('../../../lib/observe-js/observe-js');
 
 /**
  * @doc method
- * @id DS.sync_methods:digest
+ * @id DS.sync methods:digest
  * @name digest
  * @description
  * Trigger a digest loop that checks for changes and updates the `lastModified` timestamp if an object has changed.
@@ -4776,7 +4776,7 @@ function _eject(definition, resource, id) {
 
 /**
  * @doc method
- * @id DS.sync_methods:eject
+ * @id DS.sync methods:eject
  * @name eject
  * @description
  * Eject the item of the specified type that has the given primary key from the data store. Ejection only removes items
@@ -4859,7 +4859,7 @@ function _ejectAll(definition, resource, params) {
 
 /**
  * @doc method
- * @id DS.sync_methods:ejectAll
+ * @id DS.sync methods:ejectAll
  * @name ejectAll
  * @description
  * Eject all matching items of the specified type from the data store. Ejection only removes items from the data store
@@ -4955,7 +4955,7 @@ function errorPrefix(resourceName) {
 
 /**
  * @doc method
- * @id DS.sync_methods:filter
+ * @id DS.sync methods:filter
  * @name filter
  * @description
  * Synchronously filter items in the data store of the type specified by `resourceName`.
@@ -4967,7 +4967,7 @@ function errorPrefix(resourceName) {
  *
  * ## Example:
  *
- * For many examples see the [tests for DS.filter](https://github.com/jmdobry/angular-data/blob/master/test/integration/datastore/sync_methods/filter.test.js).
+ * For many examples see the [tests for DS.filter](https://github.com/jmdobry/angular-data/blob/master/test/integration/datastore/sync methods/filter.test.js).
  *
  * ## Throws
  *
@@ -5038,7 +5038,7 @@ function errorPrefix(resourceName, id) {
 
 /**
  * @doc method
- * @id DS.sync_methods:get
+ * @id DS.sync methods:get
  * @name get
  * @description
  * Synchronously return the resource with the given id. The data store will forward the request to an adapter if
@@ -5108,7 +5108,7 @@ function diffIsEmpty(utils, diff) {
 
 /**
  * @doc method
- * @id DS.sync_methods:hasChanges
+ * @id DS.sync methods:hasChanges
  * @name hasChanges
  * @description
  * Synchronously return whether object of the item of the type specified by `resourceName` that has the primary key
@@ -5163,151 +5163,151 @@ module.exports = {
 
   /**
    * @doc method
-   * @id DS.sync_methods:bindOne
+   * @id DS.sync methods:bindOne
    * @name bindOne
    * @methodOf DS
    * @description
-   * See [DS.bindOne](/documentation/api/api/DS.sync_methods:bindOne).
+   * See [DS.bindOne](/documentation/api/api/DS.sync methods:bindOne).
    */
   bindOne: require('./bindOne'),
 
   /**
    * @doc method
-   * @id DS.sync_methods:bindAll
+   * @id DS.sync methods:bindAll
    * @name bindAll
    * @methodOf DS
    * @description
-   * See [DS.bindAll](/documentation/api/api/DS.sync_methods:bindAll).
+   * See [DS.bindAll](/documentation/api/api/DS.sync methods:bindAll).
    */
   bindAll: require('./bindAll'),
 
   /**
    * @doc method
-   * @id DS.sync_methods:createInstance
+   * @id DS.sync methods:createInstance
    * @name createInstance
    * @methodOf DS
    * @description
-   * See [DS.createInstance](/documentation/api/api/DS.sync_methods:createInstance).
+   * See [DS.createInstance](/documentation/api/api/DS.sync methods:createInstance).
    */
   createInstance: require('./createInstance'),
 
   /**
    * @doc method
-   * @id DS.sync_methods:defineResource
+   * @id DS.sync methods:defineResource
    * @name defineResource
    * @methodOf DS
    * @description
-   * See [DS.defineResource](/documentation/api/api/DS.sync_methods:defineResource).
+   * See [DS.defineResource](/documentation/api/api/DS.sync methods:defineResource).
    */
   defineResource: require('./defineResource'),
 
   /**
    * @doc method
-   * @id DS.sync_methods:eject
+   * @id DS.sync methods:eject
    * @name eject
    * @methodOf DS
    * @description
-   * See [DS.eject](/documentation/api/api/DS.sync_methods:eject).
+   * See [DS.eject](/documentation/api/api/DS.sync methods:eject).
    */
   eject: require('./eject'),
 
   /**
    * @doc method
-   * @id DS.sync_methods:ejectAll
+   * @id DS.sync methods:ejectAll
    * @name ejectAll
    * @methodOf DS
    * @description
-   * See [DS.ejectAll](/documentation/api/api/DS.sync_methods:ejectAll).
+   * See [DS.ejectAll](/documentation/api/api/DS.sync methods:ejectAll).
    */
   ejectAll: require('./ejectAll'),
 
   /**
    * @doc method
-   * @id DS.sync_methods:filter
+   * @id DS.sync methods:filter
    * @name filter
    * @methodOf DS
    * @description
-   * See [DS.filter](/documentation/api/api/DS.sync_methods:filter).
+   * See [DS.filter](/documentation/api/api/DS.sync methods:filter).
    */
   filter: require('./filter'),
 
   /**
    * @doc method
-   * @id DS.sync_methods:get
+   * @id DS.sync methods:get
    * @name get
    * @methodOf DS
    * @description
-   * See [DS.get](/documentation/api/api/DS.sync_methods:get).
+   * See [DS.get](/documentation/api/api/DS.sync methods:get).
    */
   get: require('./get'),
 
   /**
    * @doc method
-   * @id DS.sync_methods:inject
+   * @id DS.sync methods:inject
    * @name inject
    * @methodOf DS
    * @description
-   * See [DS.inject](/documentation/api/api/DS.sync_methods:inject).
+   * See [DS.inject](/documentation/api/api/DS.sync methods:inject).
    */
   inject: require('./inject'),
 
   /**
    * @doc method
-   * @id DS.sync_methods:lastModified
+   * @id DS.sync methods:lastModified
    * @name lastModified
    * @methodOf DS
    * @description
-   * See [DS.lastModified](/documentation/api/api/DS.sync_methods:lastModified).
+   * See [DS.lastModified](/documentation/api/api/DS.sync methods:lastModified).
    */
   lastModified: require('./lastModified'),
 
   /**
    * @doc method
-   * @id DS.sync_methods:lastSaved
+   * @id DS.sync methods:lastSaved
    * @name lastSaved
    * @methodOf DS
    * @description
-   * See [DS.lastSaved](/documentation/api/api/DS.sync_methods:lastSaved).
+   * See [DS.lastSaved](/documentation/api/api/DS.sync methods:lastSaved).
    */
   lastSaved: require('./lastSaved'),
 
   /**
    * @doc method
-   * @id DS.sync_methods:digest
+   * @id DS.sync methods:digest
    * @name digest
    * @methodOf DS
    * @description
-   * See [DS.digest](/documentation/api/api/DS.sync_methods:digest).
+   * See [DS.digest](/documentation/api/api/DS.sync methods:digest).
    */
   digest: require('./digest'),
 
   /**
    * @doc method
-   * @id DS.sync_methods:changes
+   * @id DS.sync methods:changes
    * @name changes
    * @methodOf DS
    * @description
-   * See [DS.changes](/documentation/api/api/DS.sync_methods:changes).
+   * See [DS.changes](/documentation/api/api/DS.sync methods:changes).
    */
   changes: require('./changes'),
 
   /**
    * @doc method
-   * @id DS.sync_methods:previous
+   * @id DS.sync methods:previous
    * @name previous
    * @methodOf DS
    * @description
-   * See [DS.previous](/documentation/api/api/DS.sync_methods:previous).
+   * See [DS.previous](/documentation/api/api/DS.sync methods:previous).
    */
   previous: require('./previous'),
 
   /**
    * @doc method
-   * @id DS.sync_methods:hasChanges
+   * @id DS.sync methods:hasChanges
    * @name hasChanges
    * @methodOf DS
    * @description
-   * See [DS.hasChanges](/documentation/api/api/DS.sync_methods:hasChanges).
+   * See [DS.hasChanges](/documentation/api/api/DS.sync methods:hasChanges).
    */
   hasChanges: require('./hasChanges')
 };
@@ -5451,7 +5451,7 @@ function _injectRelations(definition, injected) {
 
 /**
  * @doc method
- * @id DS.sync_methods:inject
+ * @id DS.sync methods:inject
  * @name inject
  * @description
  * Inject the given item into the data store as the specified type. If `attrs` is an array, inject each item into the
@@ -5535,7 +5535,7 @@ function errorPrefix(resourceName, id) {
 
 /**
  * @doc method
- * @id DS.sync_methods:lastModified
+ * @id DS.sync methods:lastModified
  * @name lastModified
  * @description
  * Return the timestamp of the last time either the collection for `resourceName` or the item of type `resourceName`
@@ -5592,7 +5592,7 @@ function errorPrefix(resourceName, id) {
 
 /**
  * @doc method
- * @id DS.sync_methods:lastSaved
+ * @id DS.sync methods:lastSaved
  * @name lastSaved
  * @description
  * Return the timestamp of the last time either the collection for `resourceName` or the item of type `resourceName`
@@ -5654,7 +5654,7 @@ function errorPrefix(resourceName, id) {
 
 /**
  * @doc method
- * @id DS.sync_methods:previous
+ * @id DS.sync methods:previous
  * @name previous
  * @description
  * Synchronously return the previous attributes of the item of the type specified by `resourceName` that has the primary key

@@ -44,8 +44,14 @@ module.exports = function (grunt) {
       jshintrc: '.jshintrc'
     },
     watch: {
-      files: ['src/**/*.js'],
-      tasks: ['build']
+      dist: {
+        files: ['src/**/*.js'],
+        tasks: ['build']
+      },
+      doc: {
+        files: ['src/**/*.js', 'guide/**/*'],
+        tasks: ['devdoc']
+      }
     },
     uglify: {
       main: {
@@ -198,36 +204,15 @@ module.exports = function (grunt) {
           {
             expand: true,
             cwd: 'guide/',
-            src: 'index.html',
+            src: ['index.html', 'favicon.ico'],
             dest: 'doc/',
             flatten: true
           },
           {
             expand: true,
             cwd: 'guide/',
-            src: 'data_grey.png',
+            src: ['data_grey.png'],
             dest: 'doc/resources/img/',
-            flatten: true
-          },
-          {
-            expand: true,
-            cwd: 'guide/',
-            src: 'chart.png',
-            dest: 'doc/resources/img/',
-            flatten: true
-          },
-          {
-            expand: true,
-            cwd: 'guide/',
-            src: 'cream_dust.png',
-            dest: 'doc/resources/img/',
-            flatten: true
-          },
-          {
-            expand: true,
-            cwd: 'guide/',
-            src: 'favicon.ico',
-            dest: 'doc/',
             flatten: true
           }
         ]
@@ -382,6 +367,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('test', ['build', 'karma:ci', 'karma:cacheFactory', 'karma:DSCacheFactory', 'karma:min']);
   grunt.registerTask('doc', ['clean:doc', 'docular', 'concat', 'copy', 'uglify:scripts']);
+  grunt.registerTask('devdoc', ['clean:doc', 'docular', 'concat', 'copy']);
   grunt.registerTask('build', [
     'clean',
     'jshint',
@@ -389,6 +375,7 @@ module.exports = function (grunt) {
     'banner',
     'uglify:main'
   ]);
-  grunt.registerTask('go', ['build', 'watch']);
+  grunt.registerTask('go', ['build', 'watch:dist']);
+  grunt.registerTask('godoc', ['devdoc', 'watch:doc']);
   grunt.registerTask('default', ['build']);
 };

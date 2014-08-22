@@ -10,7 +10,7 @@ function diffIsEmpty(utils, diff) {
 
 /**
  * @doc method
- * @id DS.sync_methods:hasChanges
+ * @id DS.sync methods:hasChanges
  * @name hasChanges
  * @description
  * Synchronously return whether object of the item of the type specified by `resourceName` that has the primary key

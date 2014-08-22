@@ -77,7 +77,7 @@ function _findAll(resourceName, params, options) {
 
 /**
  * @doc method
- * @id DS.async_methods:findAll
+ * @id DS.async methods:findAll
  * @name findAll
  * @description
  * The "R" in "CRUD". Delegate to the `findAll` method of whichever adapter is being used (http by default) and inject
