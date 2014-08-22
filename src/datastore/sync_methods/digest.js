@@ -6,7 +6,8 @@ var observe = require('../../../lib/observe-js/observe-js');
  * @name digest
  * @description
  * Trigger a digest loop that checks for changes and updates the `lastModified` timestamp if an object has changed.
- * Anything $watching `DS.lastModified(...)` will detect the updated timestamp and execute the callback function.
+ * Anything $watching `DS.lastModified(...)` will detect the updated timestamp and execute the callback function. If
+ * your browser supports `Object.observe` then this function has no effect.
  *
  * ## Signature:
  * ```js

@@ -24,6 +24,8 @@ function errorPrefix(resourceName, id) {
  *
  * d; // { author: 'Sally', id: 5 }
  *
+ * // You may have to do $scope.$apply() first
+ *
  * DS.previous('document', 5); // { author: 'John Anderson', id: 5 }
  * ```
  *

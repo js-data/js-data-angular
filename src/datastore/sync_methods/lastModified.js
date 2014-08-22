@@ -18,11 +18,11 @@ function errorPrefix(resourceName, id) {
  * ## Example:
  *
  * ```js
- *  DS.lastModified('document', 5); // undefined
+ * DS.lastModified('document', 5); // undefined
  *
- *  DS.find('document', 5).then(function (document) {
- *      DS.lastModified('document', 5); // 1234235825494
- *  });
+ * DS.find('document', 5).then(function (document) {
+ *   DS.lastModified('document', 5); // 1234235825494
+ * });
  * ```
  *
  * ## Throws
@@ -37,18 +37,19 @@ function errorPrefix(resourceName, id) {
  */
 function lastModified(resourceName, id) {
   var DS = this;
+  var resource = DS.store[resourceName];
   if (!DS.definitions[resourceName]) {
     throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
   } else if (id && !DS.utils.isString(id) && !DS.utils.isNumber(id)) {
     throw new DS.errors.IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
   }
   if (id) {
-    if (!(id in DS.store[resourceName].modified)) {
-      DS.store[resourceName].modified[id] = 0;
+    if (!(id in resource.modified)) {
+      resource.modified[id] = 0;
     }
-    return DS.store[resourceName].modified[id];
+    return resource.modified[id];
   }
-  return DS.store[resourceName].collectionModified;
+  return resource.collectionModified;
 }
 
 module.exports = lastModified;

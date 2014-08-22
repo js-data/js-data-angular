@@ -28,6 +28,8 @@ function diffIsEmpty(utils, diff) {
  *
  * d.author = 'Sally';
  *
+ * // You may have to do $scope.$apply() first
+ *
  * DS.hasChanges('document', 5); // true
  * ```
  *

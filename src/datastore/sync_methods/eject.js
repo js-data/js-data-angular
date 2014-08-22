@@ -36,7 +36,7 @@ function _eject(definition, resource, id) {
  * @name eject
  * @description
  * Eject the item of the specified type that has the given primary key from the data store. Ejection only removes items
- * from the data store and does not attempt to delete items on the server.
+ * from the data store and does not attempt to destroy items via an adapter.
  *
  * ## Signature:
  * ```js
@@ -68,12 +68,12 @@ function _eject(definition, resource, id) {
  */
 function eject(resourceName, id) {
   var DS = this;
-  if (!DS.definitions[resourceName]) {
+  var definition = DS.definitions[resourceName];
+  if (!definition) {
     throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
   } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {
     throw new DS.errors.IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
   }
-  var definition = DS.definitions[resourceName];
   var resource = DS.store[resourceName];
   var ejected;
 

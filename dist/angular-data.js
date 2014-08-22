@@ -4127,9 +4127,9 @@ function errorPrefix(resourceName) {
  * ```js
  * // bind the documents with ownerId of 5 to the 'docs' property of the $scope
  * var deregisterFunc = DS.bindAll($scope, 'docs', 'document', {
- *      where: {
- *          ownerId: 5
- *      }
+ *   where: {
+ *     ownerId: 5
+ *   }
  * });
  * ```
  *
@@ -4271,7 +4271,7 @@ function errorPrefix(resourceName) {
  * @description
  * Synchronously return the changes object of the item of the type specified by `resourceName` that has the primary key
  * specified by `id`. This object represents the diff between the item in its current state and the state of the item
- * the last time it was saved via an async adapter.
+ * the last time it was saved via an adapter.
  *
  * ## Signature:
  * ```js
@@ -4284,6 +4284,8 @@ function errorPrefix(resourceName) {
  * var d = DS.get('document', 5); // { author: 'John Anderson', id: 5 }
  *
  * d.author = 'Sally';
+ *
+ * // You might have to do $scope.$apply() first
  *
  * DS.changes('document', 5); // {...} Object describing changes
  * ```
@@ -4344,12 +4346,35 @@ function errorPrefix(resourceName) {
  * ## Example:
  *
  * ```js
- * // Thanks to createInstance, you don't have to do this anymore
- * var User = DS.definitions.user[DS.definitions.user.class];
+ * var User = DS.defineResource({
+ *   name: 'user',
+ *   methods: {
+ *     say: function () {
+ *       return 'hi';
+ *     }
+ *   }
+ * });
  *
- * var user = DS.createInstance('user');
+ * var user = User.createInstance();
+ * var user2 = DS.createInstance('user');
  *
- * user instanceof User; // true
+ * user instanceof User[User.class]; // true
+ * user2 instanceof User[User.class]; // true
+ *
+ * user.say(); // hi
+ * user2.say(); // hi
+ *
+ * var user3 = User.createInstance({ name: 'John' }, { useClass: false });
+ * var user4 = DS.createInstance('user', { name: 'John' }, { useClass: false });
+ *
+ * user3; // { name: 'John' }
+ * user3 instanceof User[User.class]; // false
+ *
+ * user4; // { name: 'John' }
+ * user4 instanceof User[User.class]; // false
+ *
+ * user3.say(); // TypeError: undefined is not a function
+ * user4.say(); // TypeError: undefined is not a function
  * ```
  *
  * ## Throws
@@ -4363,16 +4388,17 @@ function errorPrefix(resourceName) {
  *
  * - `{boolean=}` - `useClass` - Whether to use the resource's wrapper class. Default: `true`.
  *
- * @returns {object} The new instance
+ * @returns {object} The new instance.
  */
 function createInstance(resourceName, attrs, options) {
   var DS = this;
   var IA = DS.errors.IA;
+  var definition = DS.definitions[resourceName];
 
   attrs = attrs || {};
   options = options || {};
 
-  if (!DS.definitions[resourceName]) {
+  if (!definition) {
     throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
   } else if (attrs && !DS.utils.isObject(attrs)) {
     throw new IA(errorPrefix(resourceName) + 'attrs: Must be an object!');
@@ -4387,7 +4413,7 @@ function createInstance(resourceName, attrs, options) {
   var item;
 
   if (options.useClass) {
-    var Func = DS.definitions[resourceName][DS.definitions[resourceName].class];
+    var Func = definition[definition.class];
     item = new Func();
   } else {
     item = {};
@@ -4688,7 +4714,8 @@ var observe = require('../../../lib/observe-js/observe-js');
  * @name digest
  * @description
  * Trigger a digest loop that checks for changes and updates the `lastModified` timestamp if an object has changed.
- * Anything $watching `DS.lastModified(...)` will detect the updated timestamp and execute the callback function.
+ * Anything $watching `DS.lastModified(...)` will detect the updated timestamp and execute the callback function. If
+ * your browser supports `Object.observe` then this function has no effect.
  *
  * ## Signature:
  * ```js
@@ -4753,7 +4780,7 @@ function _eject(definition, resource, id) {
  * @name eject
  * @description
  * Eject the item of the specified type that has the given primary key from the data store. Ejection only removes items
- * from the data store and does not attempt to delete items on the server.
+ * from the data store and does not attempt to destroy items via an adapter.
  *
  * ## Signature:
  * ```js
@@ -4785,12 +4812,12 @@ function _eject(definition, resource, id) {
  */
 function eject(resourceName, id) {
   var DS = this;
-  if (!DS.definitions[resourceName]) {
+  var definition = DS.definitions[resourceName];
+  if (!definition) {
     throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
   } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {
     throw new DS.errors.IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
   }
-  var definition = DS.definitions[resourceName];
   var resource = DS.store[resourceName];
   var ejected;
 
@@ -4835,9 +4862,8 @@ function _ejectAll(definition, resource, params) {
  * @id DS.sync_methods:ejectAll
  * @name ejectAll
  * @description
- * Eject all matching items of the specified type from the data store. If query is specified then all items of the
- * specified type will be removed. Ejection only removes items from the data store and does not attempt to delete items
- * on the server.
+ * Eject all matching items of the specified type from the data store. Ejection only removes items from the data store
+ * and does not attempt to destroy items via an adapter.
  *
  * ## Signature:
  * ```js
@@ -4882,7 +4908,7 @@ function _ejectAll(definition, resource, params) {
  * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
- * @param {object} params Parameter object that is serialized into the query string. Properties:
+ * @param {object} params Parameter object that is used to filter items. Properties:
  *
  *  - `{object=}` - `where` - Where clause.
  *  - `{number=}` - `limit` - Limit clause.
@@ -4894,15 +4920,14 @@ function _ejectAll(definition, resource, params) {
  */
 function ejectAll(resourceName, params) {
   var DS = this;
+  var definition = DS.definitions[resourceName];
   params = params || {};
 
-  if (!DS.definitions[resourceName]) {
+  if (!definition) {
     throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
   } else if (!DS.utils.isObject(params)) {
     throw new DS.errors.IA(errorPrefix(resourceName) + 'params: Must be an object!');
   }
-
-  var definition = DS.definitions[resourceName];
   var resource = DS.store[resourceName];
   var ejected;
 
@@ -4942,9 +4967,7 @@ function errorPrefix(resourceName) {
  *
  * ## Example:
  *
- * ```js
- * TODO: filter(resourceName, params[, options]) example
- * ```
+ * For many examples see the [tests for DS.filter](https://github.com/jmdobry/angular-data/blob/master/test/integration/datastore/sync_methods/filter.test.js).
  *
  * ## Throws
  *
@@ -4952,7 +4975,7 @@ function errorPrefix(resourceName) {
  * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
- * @param {object=} params Parameter object that is serialized into the query string. Properties:
+ * @param {object=} params Parameter object that is used to filter items. Properties:
  *
  *  - `{object=}` - `where` - Where clause.
  *  - `{number=}` - `limit` - Limit clause.
@@ -4970,18 +4993,17 @@ function errorPrefix(resourceName) {
 function filter(resourceName, params, options) {
   var DS = this;
   var IA = DS.errors.IA;
+  var definition = DS.definitions[resourceName];
 
   options = options || {};
 
-  if (!DS.definitions[resourceName]) {
+  if (!definition) {
     throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
   } else if (params && !DS.utils.isObject(params)) {
     throw new IA(errorPrefix(resourceName) + 'params: Must be an object!');
   } else if (!DS.utils.isObject(options)) {
     throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
   }
-
-  var definition = DS.definitions[resourceName];
   var resource = DS.store[resourceName];
 
   // Protect against null
@@ -5019,8 +5041,8 @@ function errorPrefix(resourceName, id) {
  * @id DS.sync_methods:get
  * @name get
  * @description
- * Synchronously return the resource with the given id. The data store will forward the request to the server if the
- * item is not in the cache and `loadFromServer` is set to `true` in the options hash.
+ * Synchronously return the resource with the given id. The data store will forward the request to an adapter if
+ * `loadFromServer` is `true` in the options hash.
  *
  * ## Signature:
  * ```js
@@ -5040,7 +5062,7 @@ function errorPrefix(resourceName, id) {
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to retrieve.
- * @param {object=} options Optional configuration. Properties:
+ * @param {object=} options Optional configuration. Also passed along to `DS.find` if `loadFromServer` is `true`. Properties:
  *
  * - `{boolean=}` - `loadFromServer` - Send the query to server if it has not been sent yet. Default: `false`.
  *
@@ -5062,7 +5084,7 @@ function get(resourceName, id, options) {
   // cache miss, request resource from server
   var item = DS.store[resourceName].index.get(id);
   if (!item && options.loadFromServer) {
-    DS.find(resourceName, id).then(null, function (err) {
+    DS.find(resourceName, id, options).then(null, function (err) {
       return DS.$q.reject(err);
     });
   }
@@ -5103,6 +5125,8 @@ function diffIsEmpty(utils, diff) {
  * var d = DS.get('document', 5); // { author: 'John Anderson', id: 5 }
  *
  * d.author = 'Sally';
+ *
+ * // You may have to do $scope.$apply() first
  *
  * DS.hasChanges('document', 5); // true
  * ```
@@ -5525,11 +5549,11 @@ function errorPrefix(resourceName, id) {
  * ## Example:
  *
  * ```js
- *  DS.lastModified('document', 5); // undefined
+ * DS.lastModified('document', 5); // undefined
  *
- *  DS.find('document', 5).then(function (document) {
- *      DS.lastModified('document', 5); // 1234235825494
- *  });
+ * DS.find('document', 5).then(function (document) {
+ *   DS.lastModified('document', 5); // 1234235825494
+ * });
  * ```
  *
  * ## Throws
@@ -5544,18 +5568,19 @@ function errorPrefix(resourceName, id) {
  */
 function lastModified(resourceName, id) {
   var DS = this;
+  var resource = DS.store[resourceName];
   if (!DS.definitions[resourceName]) {
     throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
   } else if (id && !DS.utils.isString(id) && !DS.utils.isNumber(id)) {
     throw new DS.errors.IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
   }
   if (id) {
-    if (!(id in DS.store[resourceName].modified)) {
-      DS.store[resourceName].modified[id] = 0;
+    if (!(id in resource.modified)) {
+      resource.modified[id] = 0;
     }
-    return DS.store[resourceName].modified[id];
+    return resource.modified[id];
   }
-  return DS.store[resourceName].collectionModified;
+  return resource.collectionModified;
 }
 
 module.exports = lastModified;
@@ -5581,18 +5606,20 @@ function errorPrefix(resourceName, id) {
  * ## Example:
  *
  * ```js
- *  DS.lastModified('document', 5); // undefined
- *  DS.lastSaved('document', 5); // undefined
+ * DS.lastModified('document', 5); // undefined
+ * DS.lastSaved('document', 5); // undefined
  *
- *  DS.find('document', 5).then(function (document) {
- *      DS.lastModified('document', 5); // 1234235825494
- *      DS.lastSaved('document', 5); // 1234235825494
+ * DS.find('document', 5).then(function (document) {
+ *   DS.lastModified('document', 5); // 1234235825494
+ *   DS.lastSaved('document', 5); // 1234235825494
  *
- *      document.author = 'Sally';
+ *   document.author = 'Sally';
  *
- *      DS.lastModified('document', 5); // 1234304985344 - something different
- *      DS.lastSaved('document', 5); // 1234235825494 - still the same
- *  });
+ *   // You may have to call $scope.$apply() first
+ *
+ *   DS.lastModified('document', 5); // 1234304985344 - something different
+ *   DS.lastSaved('document', 5); // 1234235825494 - still the same
+ * });
  * ```
  *
  * ## Throws
@@ -5606,15 +5633,16 @@ function errorPrefix(resourceName, id) {
  */
 function lastSaved(resourceName, id) {
   var DS = this;
+  var resource = DS.store[resourceName];
   if (!DS.definitions[resourceName]) {
     throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
   } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {
     throw new DS.errors.IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
   }
-  if (!(id in DS.store[resourceName].saved)) {
-    DS.store[resourceName].saved[id] = 0;
+  if (!(id in resource.saved)) {
+    resource.saved[id] = 0;
   }
-  return DS.store[resourceName].saved[id];
+  return resource.saved[id];
 }
 
 module.exports = lastSaved;
@@ -5645,6 +5673,8 @@ function errorPrefix(resourceName, id) {
  * d.author = 'Sally';
  *
  * d; // { author: 'Sally', id: 5 }
+ *
+ * // You may have to do $scope.$apply() first
  *
  * DS.previous('document', 5); // { author: 'John Anderson', id: 5 }
  * ```

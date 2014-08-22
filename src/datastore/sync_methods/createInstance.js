@@ -17,12 +17,35 @@ function errorPrefix(resourceName) {
  * ## Example:
  *
  * ```js
- * // Thanks to createInstance, you don't have to do this anymore
- * var User = DS.definitions.user[DS.definitions.user.class];
+ * var User = DS.defineResource({
+ *   name: 'user',
+ *   methods: {
+ *     say: function () {
+ *       return 'hi';
+ *     }
+ *   }
+ * });
  *
- * var user = DS.createInstance('user');
+ * var user = User.createInstance();
+ * var user2 = DS.createInstance('user');
  *
- * user instanceof User; // true
+ * user instanceof User[User.class]; // true
+ * user2 instanceof User[User.class]; // true
+ *
+ * user.say(); // hi
+ * user2.say(); // hi
+ *
+ * var user3 = User.createInstance({ name: 'John' }, { useClass: false });
+ * var user4 = DS.createInstance('user', { name: 'John' }, { useClass: false });
+ *
+ * user3; // { name: 'John' }
+ * user3 instanceof User[User.class]; // false
+ *
+ * user4; // { name: 'John' }
+ * user4 instanceof User[User.class]; // false
+ *
+ * user3.say(); // TypeError: undefined is not a function
+ * user4.say(); // TypeError: undefined is not a function
  * ```
  *
  * ## Throws
@@ -36,16 +59,17 @@ function errorPrefix(resourceName) {
  *
  * - `{boolean=}` - `useClass` - Whether to use the resource's wrapper class. Default: `true`.
  *
- * @returns {object} The new instance
+ * @returns {object} The new instance.
  */
 function createInstance(resourceName, attrs, options) {
   var DS = this;
   var IA = DS.errors.IA;
+  var definition = DS.definitions[resourceName];
 
   attrs = attrs || {};
   options = options || {};
 
-  if (!DS.definitions[resourceName]) {
+  if (!definition) {
     throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
   } else if (attrs && !DS.utils.isObject(attrs)) {
     throw new IA(errorPrefix(resourceName) + 'attrs: Must be an object!');
@@ -60,7 +84,7 @@ function createInstance(resourceName, attrs, options) {
   var item;
 
   if (options.useClass) {
-    var Func = DS.definitions[resourceName][DS.definitions[resourceName].class];
+    var Func = definition[definition.class];
     item = new Func();
   } else {
     item = {};

@@ -16,9 +16,7 @@ function errorPrefix(resourceName) {
  *
  * ## Example:
  *
- * ```js
- * TODO: filter(resourceName, params[, options]) example
- * ```
+ * For many examples see the [tests for DS.filter](https://github.com/jmdobry/angular-data/blob/master/test/integration/datastore/sync_methods/filter.test.js).
  *
  * ## Throws
  *
@@ -26,7 +24,7 @@ function errorPrefix(resourceName) {
  * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
- * @param {object=} params Parameter object that is serialized into the query string. Properties:
+ * @param {object=} params Parameter object that is used to filter items. Properties:
  *
  *  - `{object=}` - `where` - Where clause.
  *  - `{number=}` - `limit` - Limit clause.
@@ -44,18 +42,17 @@ function errorPrefix(resourceName) {
 function filter(resourceName, params, options) {
   var DS = this;
   var IA = DS.errors.IA;
+  var definition = DS.definitions[resourceName];
 
   options = options || {};
 
-  if (!DS.definitions[resourceName]) {
+  if (!definition) {
     throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
   } else if (params && !DS.utils.isObject(params)) {
     throw new IA(errorPrefix(resourceName) + 'params: Must be an object!');
   } else if (!DS.utils.isObject(options)) {
     throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
   }
-
-  var definition = DS.definitions[resourceName];
   var resource = DS.store[resourceName];
 
   // Protect against null

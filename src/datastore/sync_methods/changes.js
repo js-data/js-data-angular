@@ -9,7 +9,7 @@ function errorPrefix(resourceName) {
  * @description
  * Synchronously return the changes object of the item of the type specified by `resourceName` that has the primary key
  * specified by `id`. This object represents the diff between the item in its current state and the state of the item
- * the last time it was saved via an async adapter.
+ * the last time it was saved via an adapter.
  *
  * ## Signature:
  * ```js
@@ -22,6 +22,8 @@ function errorPrefix(resourceName) {
  * var d = DS.get('document', 5); // { author: 'John Anderson', id: 5 }
  *
  * d.author = 'Sally';
+ *
+ * // You might have to do $scope.$apply() first
  *
  * DS.changes('document', 5); // {...} Object describing changes
  * ```

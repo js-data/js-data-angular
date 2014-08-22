@@ -19,9 +19,9 @@ function errorPrefix(resourceName) {
  * ```js
  * // bind the documents with ownerId of 5 to the 'docs' property of the $scope
  * var deregisterFunc = DS.bindAll($scope, 'docs', 'document', {
- *      where: {
- *          ownerId: 5
- *      }
+ *   where: {
+ *     ownerId: 5
+ *   }
  * });
  * ```
  *

@@ -25,9 +25,8 @@ function _ejectAll(definition, resource, params) {
  * @id DS.sync_methods:ejectAll
  * @name ejectAll
  * @description
- * Eject all matching items of the specified type from the data store. If query is specified then all items of the
- * specified type will be removed. Ejection only removes items from the data store and does not attempt to delete items
- * on the server.
+ * Eject all matching items of the specified type from the data store. Ejection only removes items from the data store
+ * and does not attempt to destroy items via an adapter.
  *
  * ## Signature:
  * ```js
@@ -72,7 +71,7 @@ function _ejectAll(definition, resource, params) {
  * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
- * @param {object} params Parameter object that is serialized into the query string. Properties:
+ * @param {object} params Parameter object that is used to filter items. Properties:
  *
  *  - `{object=}` - `where` - Where clause.
  *  - `{number=}` - `limit` - Limit clause.
@@ -84,15 +83,14 @@ function _ejectAll(definition, resource, params) {
  */
 function ejectAll(resourceName, params) {
   var DS = this;
+  var definition = DS.definitions[resourceName];
   params = params || {};
 
-  if (!DS.definitions[resourceName]) {
+  if (!definition) {
     throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
   } else if (!DS.utils.isObject(params)) {
     throw new DS.errors.IA(errorPrefix(resourceName) + 'params: Must be an object!');
   }
-
-  var definition = DS.definitions[resourceName];
   var resource = DS.store[resourceName];
   var ejected;
 

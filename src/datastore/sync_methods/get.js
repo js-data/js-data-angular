@@ -7,8 +7,8 @@ function errorPrefix(resourceName, id) {
  * @id DS.sync_methods:get
  * @name get
  * @description
- * Synchronously return the resource with the given id. The data store will forward the request to the server if the
- * item is not in the cache and `loadFromServer` is set to `true` in the options hash.
+ * Synchronously return the resource with the given id. The data store will forward the request to an adapter if
+ * `loadFromServer` is `true` in the options hash.
  *
  * ## Signature:
  * ```js
@@ -28,7 +28,7 @@ function errorPrefix(resourceName, id) {
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to retrieve.
- * @param {object=} options Optional configuration. Properties:
+ * @param {object=} options Optional configuration. Also passed along to `DS.find` if `loadFromServer` is `true`. Properties:
  *
  * - `{boolean=}` - `loadFromServer` - Send the query to server if it has not been sent yet. Default: `false`.
  *
@@ -50,7 +50,7 @@ function get(resourceName, id, options) {
   // cache miss, request resource from server
   var item = DS.store[resourceName].index.get(id);
   if (!item && options.loadFromServer) {
-    DS.find(resourceName, id).then(null, function (err) {
+    DS.find(resourceName, id, options).then(null, function (err) {
       return DS.$q.reject(err);
     });
   }
