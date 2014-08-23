@@ -4,9 +4,14 @@
 - #40 - Support for nested resource endpoints
 - #118, #122 - Multiple relationships to the same model
 - #120 - When using DSCacheFactory, allow onExpire to be specified
+- #132 - Inject relations for parent resource on create
+
+###### Backwards compatible bug fixes
+- #126 - injectRelations isn't running when injecting an array
 
 ###### Other
 - #121 - Documentation errors
+- #123 - Send query params with DS.find()
 - #124 - Documentation overhaul
 
 ##### 0.10.5 - 14 August 2014

@@ -115,7 +115,7 @@ describe('DS.create(resourceName, attrs[, options])', function () {
         email: 'sally@test.com'
       }
     }).then(function (user) {
-      assert.deepEqual(user, payload, 'user should have been created');
+      assert.deepEqual(user.id, payload.id, 'user should have been created');
 
       DS.find('user', 99); // should not trigger another http request
     }, function (err) {
@@ -131,12 +131,10 @@ describe('DS.create(resourceName, attrs[, options])', function () {
     assert.equal(lifecycle.afterInject.callCount, 2, 'afterInject should have been called twice');
     assert.equal(lifecycle.serialize.callCount, 1, 'serialize should have been called');
     assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
-    assert.deepEqual(DS.get('user', 99), payload);
-    assert.deepEqual(DS.get('profile', 999), {
-      id: 999,
-      userId: 99,
-      email: 'sally@test.com'
-    });
+    assert.deepEqual(DS.get('user', 99).id, payload.id);
+    assert.isObject(DS.get('user', 99).profile);
+    assert.deepEqual(DS.get('profile', 999).id, 999);
+    assert.isObject(DS.get('profile', 999).user);
   });
   it('should handle nested resources', function () {
     var testComment = {

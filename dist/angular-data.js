@@ -2904,6 +2904,7 @@ function loadRelations(resourceName, instance, relations, options) {
   var DS = this;
   var deferred = DS.$q.defer();
   var promise = deferred.promise;
+  var definition = DS.definitions[resourceName];
 
   try {
     var IA = DS.errors.IA;
@@ -2918,7 +2919,7 @@ function loadRelations(resourceName, instance, relations, options) {
       relations = [relations];
     }
 
-    if (!DS.definitions[resourceName]) {
+    if (!definition) {
       throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
     } else if (!DS.utils.isObject(instance)) {
       throw new IA(errorPrefix(resourceName) + 'instance(Id): Must be a string, number or object!');
@@ -2928,7 +2929,6 @@ function loadRelations(resourceName, instance, relations, options) {
       throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
     }
 
-    var definition = DS.definitions[resourceName];
     var tasks = [];
     var fields = [];
 
@@ -5532,7 +5532,7 @@ function _inject(definition, resource, attrs) {
   return injected;
 }
 
-function _injectRelations(definition, injected) {
+function _injectRelations(definition, injected, options) {
   var DS = this;
   DS.utils.forOwn(definition.relations, function (relatedModels, type) {
     DS.utils.forOwn(relatedModels, function (defs, relationName) {
@@ -5540,13 +5540,39 @@ function _injectRelations(definition, injected) {
         defs = [defs];
       }
 
-      defs.forEach(function (def) {
+      function _process(def, injected) {
         if (DS.definitions[relationName] && injected[def.localField]) {
           try {
-            injected[def.localField] = DS.inject(relationName, injected[def.localField]);
+            injected[def.localField] = DS.inject(relationName, injected[def.localField], options);
           } catch (err) {
             DS.$log.error(errorPrefix(definition.name) + 'Failed to inject ' + type + ' relation: "' + relationName + '"!', err);
           }
+        } else if (options.findBelongsTo) {
+          if (type === 'belongsTo') {
+            if (DS.utils.isArray(injected)) {
+              DS.utils.forEach(injected, function (injectedItem) {
+                var parent = injectedItem[def.localKey] ? DS.get(relationName, injectedItem[def.localKey]) : null;
+                if (parent) {
+                  injectedItem[def.localField] = parent;
+                }
+              });
+            } else {
+              var parent = injected[def.localKey] ? DS.get(relationName, injected[def.localKey]) : null;
+              if (parent) {
+                injected[def.localField] = parent;
+              }
+            }
+          }
+        }
+      }
+
+      defs.forEach(function (def) {
+        if (DS.utils.isArray(injected)) {
+          DS.utils.forEach(injected, function (injectedI) {
+            _process(def, injectedI);
+          });
+        } else {
+          _process(def, injected);
         }
       });
     });
@@ -5598,21 +5624,33 @@ function _injectRelations(definition, injected) {
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {object|array} attrs The item or collection of items to inject into the data store.
+ * @param {object=} options The item or collection of items to inject into the data store. Properties:
+ *
+ * - `{boolean=}` - `findBelongsTo` - Find and attach any existing "belongsTo" relationships to the newly injected item. Default: `true`.
+ *
  * @returns {object|array} A reference to the item that was injected into the data store or an array of references to
  * the items that were injected into the data store.
  */
-function inject(resourceName, attrs) {
+function inject(resourceName, attrs, options) {
   var DS = this;
   var IA = DS.errors.IA;
+
+  options = options || {};
 
   if (!DS.definitions[resourceName]) {
     throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
   } else if (!DS.utils.isObject(attrs) && !DS.utils.isArray(attrs)) {
     throw new IA(errorPrefix(resourceName) + 'attrs: Must be an object or an array!');
+  } else if (!DS.utils.isObject(options)) {
+    throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
   }
   var definition = DS.definitions[resourceName];
   var resource = DS.store[resourceName];
   var injected;
+
+  if (!('findBelongsTo' in options)) {
+    options.findBelongsTo = true;
+  }
 
   if (!DS.$rootScope.$$phase) {
     DS.$rootScope.$apply(function () {
@@ -5622,7 +5660,7 @@ function inject(resourceName, attrs) {
     injected = _inject.call(DS, definition, resource, attrs);
   }
   if (definition.relations) {
-    _injectRelations.call(DS, definition, injected);
+    _injectRelations.call(DS, definition, injected, options);
   }
 
   DS.notify(definition, 'inject', injected);

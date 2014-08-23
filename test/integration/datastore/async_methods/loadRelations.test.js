@@ -59,13 +59,14 @@ describe('DS.loadRelations(resourceName, instance(Id), relations[, options]): ',
     $httpBackend.expectGET('http://test.angular-cache.com/profile?userId=10').respond(200, profile15);
 
     DS.loadRelations('user', 10, ['comment', 'profile', 'organization'], { params: { approvedBy: 10 } }).then(function (user) {
-      assert.deepEqual(user.comments, [
-        comment11,
-        comment12,
-        comment13
-      ]);
-      assert.deepEqual(user.organization, organization14);
-      assert.deepEqual(user.profile, profile15);
+      assert.deepEqual(user.comments[0].id, DS.get('comment', user.comments[0].id).id);
+      assert.deepEqual(user.comments[0].user, DS.get('comment', user.comments[0].id).user);
+      assert.deepEqual(user.comments[1].id, DS.get('comment', user.comments[1].id).id);
+      assert.deepEqual(user.comments[1].user, DS.get('comment', user.comments[1].id).user);
+      assert.deepEqual(user.comments[2].id, DS.get('comment', user.comments[2].id).id);
+      assert.deepEqual(user.comments[2].user, DS.get('comment', user.comments[2].id).user);
+      assert.deepEqual(user.organization.id, DS.get('organization', 14).id);
+      assert.deepEqual(user.profile.id, DS.get('profile', 15).id);
     }, fail);
 
     $httpBackend.flush();

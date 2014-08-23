@@ -156,38 +156,45 @@ describe('DS.inject(resourceName, attrs)', function () {
 
     assert.deepEqual(DS.get('user', 1), user1);
     assert.deepEqual(DS.get('organization', 2), organization2);
-    assert.deepEqual(DS.get('comment', 3), comment3);
-    assert.deepEqual(DS.get('profile', 4), profile4);
+    assert.deepEqual(DS.get('comment', 3).id, comment3.id);
+    assert.deepEqual(DS.get('profile', 4).id, profile4.id);
 
     // can inject items with relations
-    DS.inject('user', user10);
+    DS.inject('user', user10, 0);
     DS.inject('organization', organization15);
     DS.inject('comment', comment19);
     DS.inject('profile', profile21);
 
     // originals
-    assert.deepEqual(DS.get('user', 10), user10);
-    assert.deepEqual(DS.get('organization', 15), organization15);
-    assert.deepEqual(DS.get('comment', 19), comment19);
-    assert.deepEqual(DS.get('profile', 21), profile21);
+    assert.equal(DS.get('user', 10).name, user10.name);
+    assert.equal(DS.get('user', 10).id, user10.id);
+    assert.equal(DS.get('user', 10).organizationId, user10.organizationId);
+    assert.isArray(DS.get('user', 10).comments);
+    assert.deepEqual(DS.get('organization', 15).name, organization15.name);
+    assert.deepEqual(DS.get('organization', 15).id, organization15.id);
+    assert.isArray(DS.get('organization', 15).users);
+    assert.deepEqual(DS.get('comment', 19).id, comment19.id);
+    assert.deepEqual(DS.get('comment', 19).content, comment19.content);
+    assert.deepEqual(DS.get('profile', 21).id, profile21.id);
+    assert.deepEqual(DS.get('profile', 21).content, profile21.content);
 
     // user10 relations
-    assert.deepEqual(DS.get('comment', 11), comment11);
-    assert.deepEqual(DS.get('comment', 12), comment12);
-    assert.deepEqual(DS.get('comment', 13), comment13);
-    assert.deepEqual(DS.get('organization', 14), organization14);
-    assert.deepEqual(DS.get('profile', 15), profile15);
+    assert.deepEqual(DS.get('comment', 11), DS.get('user', 10).comments[0]);
+    assert.deepEqual(DS.get('comment', 12), DS.get('user', 10).comments[1]);
+    assert.deepEqual(DS.get('comment', 13), DS.get('user', 10).comments[2]);
+    assert.deepEqual(DS.get('organization', 14), DS.get('user', 10).organization);
+    assert.deepEqual(DS.get('profile', 15), DS.get('user', 10).profile);
 
     // organization15 relations
-    assert.deepEqual(DS.get('user', 16), user16);
-    assert.deepEqual(DS.get('user', 17), user17);
-    assert.deepEqual(DS.get('user', 18), user18);
+    assert.deepEqual(DS.get('user', 16), DS.get('organization', 15).users[0]);
+    assert.deepEqual(DS.get('user', 17), DS.get('organization', 15).users[1]);
+    assert.deepEqual(DS.get('user', 18), DS.get('organization', 15).users[2]);
 
     // comment19 relations
-    assert.deepEqual(DS.get('user', 20), user20);
-    assert.deepEqual(DS.get('user', 19), user19);
+    assert.deepEqual(DS.get('user', 20), DS.get('comment', 19).user);
+    assert.deepEqual(DS.get('user', 19), DS.get('comment', 19).approvedByUser);
 
     // profile21 relations
-    assert.deepEqual(DS.get('user', 22), user22);
+    assert.deepEqual(DS.get('user', 22), DS.get('profile', 21).user);
   });
 });

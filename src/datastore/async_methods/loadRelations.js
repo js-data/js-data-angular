@@ -59,6 +59,7 @@ function loadRelations(resourceName, instance, relations, options) {
   var DS = this;
   var deferred = DS.$q.defer();
   var promise = deferred.promise;
+  var definition = DS.definitions[resourceName];
 
   try {
     var IA = DS.errors.IA;
@@ -73,7 +74,7 @@ function loadRelations(resourceName, instance, relations, options) {
       relations = [relations];
     }
 
-    if (!DS.definitions[resourceName]) {
+    if (!definition) {
       throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
     } else if (!DS.utils.isObject(instance)) {
       throw new IA(errorPrefix(resourceName) + 'instance(Id): Must be a string, number or object!');
@@ -83,7 +84,6 @@ function loadRelations(resourceName, instance, relations, options) {
       throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
     }
 
-    var definition = DS.definitions[resourceName];
     var tasks = [];
     var fields = [];
 
