@@ -159,6 +159,7 @@ module.exports = function (grunt) {
               'doc/resources/js/jquery.js',
               'doc/resources/js/jquery.goto.js',
               'doc/resources/js/jquery.cookie.js',
+              'bower_components/bootstrap/dist/js/bootstrap.min.js',
               'doc/resources/angular/angular.js',
               'doc/resources/angular/angular-route.js',
               'doc/resources/libraries/angular-bootstrap.js',
@@ -326,16 +327,16 @@ module.exports = function (grunt) {
       showAngularDocs: false,
       docular_partial_home: 'guide/home.html',
       docular_partial_navigation: 'guide/nav.html',
-      docular_partial_footer: 'guide/footer.html',
-      analytics: {
-        account: 'UA-34445126-2',
-        domainName: 'angular-data.pseudobry.com'
-      },
-      discussions: {
-        shortName: 'angulardata',
-        url: 'http://angular-data.pseudobry.com',
-        dev: dev
-      }
+      docular_partial_footer: 'guide/footer.html'//,
+//      analytics: {
+//        account: 'UA-34445126-2',
+//        domainName: 'angular-data.pseudobry.com'
+//      },
+//      discussions: {
+//        shortName: 'angulardata',
+//        url: 'http://angular-data.pseudobry.com',
+//        dev: dev
+//      }
     }
   });
 
