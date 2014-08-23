@@ -327,16 +327,16 @@ module.exports = function (grunt) {
       showAngularDocs: false,
       docular_partial_home: 'guide/home.html',
       docular_partial_navigation: 'guide/nav.html',
-      docular_partial_footer: 'guide/footer.html'//,
-//      analytics: {
-//        account: 'UA-34445126-2',
-//        domainName: 'angular-data.pseudobry.com'
-//      },
-//      discussions: {
-//        shortName: 'angulardata',
-//        url: 'http://angular-data.pseudobry.com',
-//        dev: dev
-//      }
+      docular_partial_footer: 'guide/footer.html',
+      analytics: {
+        account: 'UA-34445126-2',
+        domainName: 'angular-data.pseudobry.com'
+      },
+      discussions: {
+        shortName: 'angulardata',
+        url: 'http://angular-data.pseudobry.com',
+        dev: dev
+      }
     }
   });
 
