@@ -16,10 +16,10 @@ DS.get('document', 45); // undefined
 
 // asynchronous
 DS.find('document', 45).then(function (document) {
-	document; // { title: 'How to Cook', id: 45 }
+  document; // { title: 'How to Cook', id: 45 }
 
-	// document 45 has already been injected into the store at this point
-	DS.get('document', 45); // { title: 'How to Cook', id: 45 }
+  // document 45 has already been injected into the store at this point
+  DS.get('document', 45); // { title: 'How to Cook', id: 45 }
 });
 
 DS.get('document', 45); // still undefined, because the find operation has not completed yet
@@ -33,10 +33,10 @@ var document = DS.get('document', 45); // { title: 'How to Cook', id: 45 }
 document.title = 'How NOT to cook';
 
 DS.save('document', 45).then(function (document) {
-	document; // { title: 'How NOT to Cook', id: 45 }
+  document; // { title: 'How NOT to Cook', id: 45 }
 
-	// document 45 in the store has been updated
-	DS.get('document', 45); // { title: 'How NOT to Cook', id: 45 }
+  // document 45 in the store has been updated
+  DS.get('document', 45); // { title: 'How NOT to Cook', id: 45 }
 });
 
 DS.get('document', 45); // { title: 'How to Cook', id: 45 }

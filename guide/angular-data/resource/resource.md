@@ -58,22 +58,20 @@ An advanced resource definition:
 
 ```js
 var Document = DS.defineResource({
-	name: 'document',
-	idAttribute: '_id',
-	endpoint: 'documents',
-	baseUrl: 'https://example.com/api',
-	validate: function (attrs, cb) {
-		if (!angular.isObject(attrs) {
-			cb('Must be an object!');
-		} else if (!angular.isString(attrs.title)) {
-			cb('title must be a string!');
-		}
-	},
-	// the "meta" property is reserved for developer use
-	// it will never be used by the API
-	meta: {
-
-	}
+  name: 'document',
+  idAttribute: '_id',
+  endpoint: 'documents',
+  baseUrl: 'https://example.com/api',
+  validate: function (attrs, cb) {
+    if (!angular.isObject(attrs) {
+      cb('Must be an object!');
+    } else if (!angular.isString(attrs.title)) {
+      cb('title must be a string!');
+    }
+  },
+  // the "meta" property is reserved for developer use
+  // it will never be used by the API
+  meta: {}
 });
 ```
 
@@ -145,15 +143,15 @@ to `cb`. For example:
 
 ```js
 validate(resourceName, attrs, cb) {
-	console.log('hmm, looks good to me!');
-	cb(null, attrs); // no error
+  console.log('hmm, looks good to me!');
+  cb(null, attrs); // no error
 }
 ```
 
 ```js
 validate(resourceName, attrs, cb) {
-	console.log('something went wrong!');
-	cb('some error'); // error!
+  console.log('something went wrong!');
+  cb('some error'); // error!
 }
 ```
 
@@ -163,33 +161,33 @@ Finally, model lifecycle hooks can be defined at the global level or per-resourc
 
 ```js
 angular.module('myApp', ['angular-data.DS'])
-	.config(function (DSProvider) {
+  .config(function (DSProvider) {
 
-		// Global definition
-		DSProvider.defaults.beforeCreate = function (resourceName, attrs, cb) {
-			console.log('Global beforeCreate');
-			cb(null, attrs);
-		};
+    // Global definition
+    DSProvider.defaults.beforeCreate = function (resourceName, attrs, cb) {
+      console.log('Global beforeCreate');
+      cb(null, attrs);
+    };
 
-	})
-	.run(function (DS) {
+  })
+  .run(function (DS) {
 
-		DS.defineResource({
-			name: 'post',
+    DS.defineResource({
+      name: 'post',
 
-			// Local definition, overrides the global definition
-			beforeCreate = function (resourceName, attrs, cb) {
-				console.log('beforeCreate defined for ' + resourceName);
-				cb(null, attrs);
-			}
-		});
+      // Local definition, overrides the global definition
+      beforeCreate = function (resourceName, attrs, cb) {
+        console.log('beforeCreate defined for ' + resourceName);
+        cb(null, attrs);
+      }
+    });
 
-		// Will use the global definition
-		DS.defineResource({
-			name: 'comment'
-		});
+    // Will use the global definition
+    DS.defineResource({
+      name: 'comment'
+    });
 
-	});
+  });
 ```
 
 @doc overview
@@ -205,12 +203,12 @@ new resource. In this way you can add custom behavior to what will now be "insta
 ## Example:
 ```js
 DS.defineResource({
-	name: 'user',
-	methods: {
-		fullName: function () {
-			return this.first + ' ' + this.last;
-		}
-	}
+  name: 'user',
+  methods: {
+    fullName: function () {
+      return this.first + ' ' + this.last;
+    }
+  }
 });
 
 DS.inject('user', { id: 1, first: 'John', last: 'Anderson' });

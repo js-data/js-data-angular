@@ -11,30 +11,30 @@ synchronously query the items already in the data store. Here are some examples:
 Translates into a `GET` request to `/post`:
 ```js
 DS.findAll('post', {}).then(function (posts) {
-	posts; // [ { ... }, { ... }, ... , { ... } ]
+  posts; // [ { ... }, { ... }, ... , { ... } ]
 
-	DS.filter('post', {}); // returns all posts in the data store
+  DS.filter('post', {}); // returns all posts in the data store
 }).catch(function (err) {
-	err; // reason why query failed
+  err; // reason why query failed
 });
 ```
 
 Translates into a `GET` request to `/post?where={"author":{"==":"John Anderson"}}'` (url encoded of course):
 ```js
 var params = {
-    where: {
-        author: {
-            '==': 'John Anderson'
-        }
+  where: {
+    author: {
+      '==': 'John Anderson'
     }
+  }
 };
 
 DS.findAll('post', params).then(function (posts) {
-	posts; // [ { ... }, { ... }, ... , { ... } ]
+  posts; // [ { ... }, { ... }, ... , { ... } ]
 
-	DS.filter('post', params); // filters the posts already in the data store
+  DS.filter('post', params); // filters the posts already in the data store
 }).catch(function (err) {
-	err; // reason why query failed
+  err; // reason why query failed
 });
 ```
 
@@ -51,11 +51,11 @@ If the following `params` argument is passed to `DS.filter`:
 
 ```js
 var params = {
-    where: {
-        author: {
-            '==': 'John Anderson'
-        }
+  where: {
+    author: {
+      '==': 'John Anderson'
     }
+  }
 };
 
 DS.filter('post', params);
@@ -89,10 +89,10 @@ You can even override the filter per-resource:
 
 ```js
 DS.defineResource({
-	name: 'post',
-	defaultFilter: function (collection, resourceName, params, options) {
-		// …
-	}
+  name: 'post',
+  defaultFilter: function (collection, resourceName, params, options) {
+    // ...
+  }
 });
 ```
 

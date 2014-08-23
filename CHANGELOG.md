@@ -7,6 +7,7 @@
 
 ###### Other
 - #121 - Documentation errors
+- #124 - Documentation overhaul
 
 ##### 0.10.5 - 14 August 2014
 

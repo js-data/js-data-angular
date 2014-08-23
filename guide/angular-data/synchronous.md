@@ -18,14 +18,14 @@ of a `$watch` callback function, for example:
 
 ```js
 $scope.$watch(function () {
-	// Here we are watching the "lastModified" timestamp maintained by the data store for this particular document
+  // Here we are watching the "lastModified" timestamp maintained by the data store for this particular document
 
-	return DS.lastModified('document', 45);
+  return DS.lastModified('document', 45);
 }, function () {
-	// When this callback is executed, it means that the data store thinks the item changed
+  // When this callback is executed, it means that the data store thinks the item changed
 
-	// Retrieve the updated item from the data store's cache
-	$scope.myDoc = DS.get('document', 45);
+  // Retrieve the updated item from the data store's cache
+  $scope.myDoc = DS.get('document', 45);
 });
 ```
 

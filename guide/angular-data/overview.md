@@ -161,28 +161,28 @@ resource. A _resource definition_ can also specify functions to be executed duri
 
 ```js
 DS.defineResource({
-	name: 'post',
-	endpoint: 'posts',
-	idAttribute: '_id',
-	validate: function (resourceName, attrs, cb) {
-		if (!attrs.title) {
-			cb('Title is required');
-		} else {
-			cb(null, attrs);
-		}
-	}
+  name: 'post',
+  endpoint: 'posts',
+  idAttribute: '_id',
+  validate: function (resourceName, attrs, cb) {
+    if (!attrs.title) {
+      cb('Title is required');
+    } else {
+      cb(null, attrs);
+    }
+  }
 });
 ```
 
 `validate` will be executed at the beginning of the lifecycle initiated by a calls to `DS.create`, `DS.save`, etc.
 ```js
 DS.create('post', { author: 'Sally', title: 'Angular gotchas' })
-	.then(function (post) {
-		post; // { id: 65, author: 'Sally', title: 'Angular gotchas' }
-	});
+  .then(function (post) {
+    post; // { id: 65, author: 'Sally', title: 'Angular gotchas' }
+  });
 
 DS.create('post', { author: 'Sally' })
-	.then(null, function (err) {
-		err; // 'Title is required'
-	});
+  .then(null, function (err) {
+    err; // 'Title is required'
+  });
 ```

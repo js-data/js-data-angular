@@ -11,7 +11,10 @@ describe('DSLocalStorageAdapter.find(resourceConfig, id, options)', function () 
 
     DSLocalStorageAdapter.find({
       baseUrl: 'api',
-      endpoint: 'posts'
+      endpoint: 'posts',
+      getEndpoint: function () {
+        return 'posts';
+      }
     }, 1).then(function (data) {
       assert.deepEqual(data, p1, 'post should have been found');
 
@@ -23,7 +26,10 @@ describe('DSLocalStorageAdapter.find(resourceConfig, id, options)', function () 
 
       DSLocalStorageAdapter.find({
         baseUrl: 'api',
-        endpoint: 'posts'
+        endpoint: 'posts',
+        getEndpoint: function () {
+          return 'posts';
+        }
       }, 2, { baseUrl: 'api2' }).then(function (data) {
         assert.deepEqual(data, p2, 'post should have been found');
 

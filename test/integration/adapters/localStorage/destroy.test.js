@@ -11,7 +11,10 @@ describe('DSLocalStorageAdapter.destroy(resourceConfig, id, options)', function 
 
     DSLocalStorageAdapter.destroy({
       baseUrl: 'api',
-      endpoint: 'posts'
+      endpoint: 'posts',
+      getEndpoint: function () {
+        return 'posts';
+      }
     }, 1).then(function () {
       assert.isNull(localStorage.getItem(path), 'the item should be gone from localStorage');
 
@@ -21,7 +24,10 @@ describe('DSLocalStorageAdapter.destroy(resourceConfig, id, options)', function 
 
       DSLocalStorageAdapter.destroy({
         baseUrl: 'api',
-        endpoint: 'posts'
+        endpoint: 'posts',
+        getEndpoint: function () {
+          return 'posts';
+        }
       }, 1, { baseUrl: 'api2' }).then(function () {
         assert.isNull(localStorage.getItem(path), 'the item should be gone from localStorage');
         done();

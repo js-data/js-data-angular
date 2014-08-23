@@ -1,109 +1,276 @@
-/**
+/*!
  * @doc function
- * @id DSLocalStorageProvider
- * @name DSLocalStorageProvider
+ * @id DSLocalStorageAdapterProvider
+ * @name DSLocalStorageAdapterProvider
  */
-function DSLocalStorageProvider() {
+function DSLocalStorageAdapterProvider() {
 
-  this.$get = ['$q', 'DSUtils', function ($q, DSUtils) {
+  this.$get = ['$q', 'DSUtils', 'DSErrors', function ($q, DSUtils, DSErrors) {
 
     /**
      * @doc interface
-     * @id DSLocalStorage
-     * @name DSLocalStorage
+     * @id DSLocalStorageAdapter
+     * @name DSLocalStorageAdapter
      * @description
-     * Default adapter used by angular-data. This adapter uses AJAX and JSON to send/retrieve data to/from a server.
-     * Developers may provide custom adapters that implement the adapter interface.
+     * Adapter that uses `localStorage` as its persistence layer. The localStorage adapter does not support operations
+     * on collections because localStorage itself is a key-value store.
      */
     return {
+
       /**
        * @doc method
-       * @id DSLocalStorage.methods:find
+       * @id DSLocalStorageAdapter.methods:GET
+       * @name GET
+       * @description
+       * An asynchronous wrapper for `localStorage.getItem(key)`.
+       *
+       * ## Signature:
+       * ```js
+       * DSLocalStorageAdapter.GET(key)
+       * ```
+       *
+       * @param {string} key The key path of the item to retrieve.
+       * @returns {Promise} Promise.
+       */
+      GET: function (key) {
+        var deferred = $q.defer();
+        try {
+          var item = localStorage.getItem(key);
+          deferred.resolve(item ? angular.fromJson(item) : undefined);
+        } catch (err) {
+          deferred.reject(err);
+        }
+        return deferred.promise;
+      },
+
+      /**
+       * @doc method
+       * @id DSLocalStorageAdapter.methods:PUT
+       * @name PUT
+       * @description
+       * An asynchronous wrapper for `localStorage.setItem(key, value)`.
+       *
+       * ## Signature:
+       * ```js
+       * DSLocalStorageAdapter.PUT(key, value)
+       * ```
+       *
+       * @param {string} key The key to update.
+       * @param {object} value Attributes to put.
+       * @returns {Promise} Promise.
+       */
+      PUT: function (key, value) {
+        var DSLocalStorageAdapter = this;
+        return DSLocalStorageAdapter.GET(key).then(function (item) {
+          if (item) {
+            DSUtils.deepMixIn(item, value);
+          }
+          localStorage.setItem(key, angular.toJson(item || value));
+          return DSLocalStorageAdapter.GET(key);
+        });
+      },
+
+      /**
+       * @doc method
+       * @id DSLocalStorageAdapter.methods:DEL
+       * @name DEL
+       * @description
+       * An asynchronous wrapper for `localStorage.removeItem(key)`.
+       *
+       * ## Signature:
+       * ```js
+       * DSLocalStorageAdapter.DEL(key)
+       * ```
+       *
+       * @param {string} key The key to remove.
+       * @returns {Promise} Promise.
+       */
+      DEL: function (key) {
+        var deferred = $q.defer();
+        try {
+          localStorage.removeItem(key);
+          deferred.resolve();
+        } catch (err) {
+          deferred.reject(err);
+        }
+        return deferred.promise;
+      },
+
+      /**
+       * @doc method
+       * @id DSLocalStorageAdapter.methods:find
        * @name find
        * @description
        * Retrieve a single entity from localStorage.
        *
-       * Calls `localStorage.getItem(key)`.
+       * ## Signature:
+       * ```js
+       * DSLocalStorageAdapter.find(resourceConfig, id[, options])
+       * ```
        *
-       * @param {object} resourceConfig Properties:
-       * - `{string}` - `baseUrl` - Base url.
-       * - `{string=}` - `namespace` - Namespace path for the resource.
-       * @param {string|number} id The primary key of the entity to retrieve.
+       * ## Example:
+       * ```js
+       * DS.find('user', 5, {
+       *   adapter: 'DSLocalStorageAdapter'
+       * }).then(function (user) {
+       *   user; // { id: 5, ... }
+       * });
+       * ```
+       *
+       * @param {object} resourceConfig DS resource definition object:
+       * @param {string|number} id Primary key of the entity to retrieve.
+       * @param {object=} options Optional configuration. Properties:
+       *
+       * - `{string=}` - `baseUrl` - Base path to use.
+       *
        * @returns {Promise} Promise.
        */
-      find: find,
+      find: function find(resourceConfig, id, options) {
+        options = options || {};
+        return this.GET(DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id));
+      },
 
       /**
        * @doc method
-       * @id DSLocalStorage.methods:findAll
+       * @id DSLocalStorageAdapter.methods:findAll
        * @name findAll
        * @description
        * Not supported.
        */
       findAll: function () {
-        throw new Error('Not supported!');
+        throw new Error('DSLocalStorageAdapter.findAll is not supported!');
       },
 
       /**
        * @doc method
-       * @id DSLocalStorage.methods:findAll
-       * @name find
+       * @id DSLocalStorageAdapter.methods:create
+       * @name create
        * @description
-       * Not supported.
+       * Create an entity in `localStorage`. You must generate the primary key and include it in the `attrs` object.
+       *
+       * ## Signature:
+       * ```js
+       * DSLocalStorageAdapter.create(resourceConfig, attrs[, options])
+       * ```
+       *
+       * ## Example:
+       * ```js
+       * DS.create('user', {
+       *   id: 1,
+       *   name: 'john'
+       * }, {
+       *   adapter: 'DSLocalStorageAdapter'
+       * }).then(function (user) {
+       *   user; // { id: 1, name: 'john' }
+       * });
+       * ```
+       *
+       * @param {object} resourceConfig DS resource definition object:
+       * @param {object} attrs Attributes to create in localStorage.
+       * @param {object=} options Optional configuration. Properties:
+       *
+       * - `{string=}` - `baseUrl` - Base path to use.
+       *
+       * @returns {Promise} Promise.
        */
-      create: function () {
-        throw new Error('Not supported!');
+      create: function (resourceConfig, attrs, options) {
+        if (!(resourceConfig.idAttribute in attrs)) {
+          throw new DSErrors.IA('DSLocalStorageAdapter.create: You must provide a primary key in the attrs object!');
+        }
+        options = options || {};
+        return this.PUT(
+          DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(attrs, options), attrs[resourceConfig.idAttribute]),
+          attrs
+        );
       },
 
       /**
        * @doc method
-       * @id DSLocalStorage.methods:update
+       * @id DSLocalStorageAdapter.methods:update
        * @name update
        * @description
        * Update an entity in localStorage.
        *
-       * Calls `localStorage.setItem(key, value)`.
+       * ## Signature:
+       * ```js
+       * DSLocalStorageAdapter.update(resourceConfig, id, attrs[, options])
+       * ```
        *
-       * @param {object} resourceConfig Properties:
-       * - `{string}` - `baseUrl` - Base url.
-       * - `{string=}` - `namespace` - Namespace path for the resource.
-       * @param {string|number} id The primary key of the entity to update.
-       * @param {object} attrs The attributes with which to update the entity.
+       * ## Example:
+       * ```js
+       * DS.update('user', 5, {
+       *   name: 'john'
+       * }, {
+       *   adapter: 'DSLocalStorageAdapter'
+       * }).then(function (user) {
+       *   user; // { id: 5, ... }
+       * });
+       * ```
+       *
+       * @param {object} resourceConfig DS resource definition object:
+       * @param {string|number} id Primary key of the entity to retrieve.
+       * @param {object} attrs Attributes with which to update the entity.
+       * @param {object=} options Optional configuration. Properties:
+       *
+       * - `{string=}` - `baseUrl` - Base path to use.
+       *
        * @returns {Promise} Promise.
        */
-      update: update,
+      update: function (resourceConfig, id, attrs, options) {
+        options = options || {};
+        return this.PUT(DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id, options), id), attrs);
+      },
 
       /**
        * @doc method
-       * @id DSLocalStorage.methods:updateAll
+       * @id DSLocalStorageAdapter.methods:updateAll
        * @name updateAll
        * @description
        * Not supported.
        */
       updateAll: function () {
-        throw new Error('Not supported!');
+        throw new Error('DSLocalStorageAdapter.updateAll is not supported!');
       },
 
       /**
        * @doc method
-       * @id DSLocalStorage.methods:destroy
+       * @id DSLocalStorageAdapter.methods:destroy
        * @name destroy
        * @description
        * Destroy an entity from localStorage.
        *
-       * Calls `localStorage.removeItem(key)`.
+       * ## Signature:
+       * ```js
+       * DSLocalStorageAdapter.destroy(resourceConfig, id[, options])
+       * ```
        *
-       * @param {object} resourceConfig Properties:
-       * - `{string}` - `baseUrl` - Base url.
-       * - `{string=}` - `endpoint` - Endpoint path for the resource.
-       * @param {string|number} id The primary key of the entity to destroy.
+       * ## Example:
+       * ```js
+       * DS.destroy('user', 5, {
+       *   name: ''
+       * }, {
+       *   adapter: 'DSLocalStorageAdapter'
+       * }).then(function (user) {
+       *   user; // { id: 5, ... }
+       * });
+       * ```
+       *
+       * @param {object} resourceConfig DS resource definition object:
+       * @param {string|number} id Primary key of the entity to destroy.
+       * @param {object=} options Optional configuration. Properties:
+       *
+       * - `{string=}` - `baseUrl` - Base path to use.
+       *
        * @returns {Promise} Promise.
        */
-      destroy: destroy,
+      destroy: function (resourceConfig, id, options) {
+        options = options || {};
+        return this.DEL(DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id, options), id));
+      },
 
       /**
        * @doc method
-       * @id DSLocalStorage.methods:destroyAll
+       * @id DSLocalStorageAdapter.methods:destroyAll
        * @name destroyAll
        * @description
        * Not supported.
@@ -112,72 +279,7 @@ function DSLocalStorageProvider() {
         throw new Error('Not supported!');
       }
     };
-
-    function GET(key) {
-      var deferred = $q.defer();
-      try {
-        var item = localStorage.getItem(key);
-        deferred.resolve(item ? angular.fromJson(item) : undefined);
-      } catch (err) {
-        deferred.reject(err);
-      }
-      return deferred.promise;
-    }
-
-    function PUT(key, value) {
-      var deferred = $q.defer();
-      try {
-        var item = localStorage.getItem(key);
-        if (item) {
-          item = angular.fromJson(item);
-          DSUtils.deepMixIn(item, value);
-          deferred.resolve(localStorage.setItem(key, angular.toJson(item)));
-        } else {
-          deferred.resolve(localStorage.setItem(key, angular.toJson(value)));
-        }
-      } catch (err) {
-        deferred.reject(err);
-      }
-      return deferred.promise;
-    }
-
-    function DEL(key) {
-      var deferred = $q.defer();
-      try {
-        deferred.resolve(localStorage.removeItem(key));
-      } catch (err) {
-        deferred.reject(err);
-      }
-      return deferred.promise;
-    }
-
-    function destroy(resourceConfig, id, options) {
-      options = options || {};
-      return DEL(
-        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
-        options
-      );
-    }
-
-    function find(resourceConfig, id, options) {
-      options = options || {};
-      return GET(
-        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
-        options
-      );
-    }
-
-    function update(resourceConfig, id, attrs, options) {
-      options = options || {};
-      return PUT(
-        DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id),
-        attrs,
-        options
-      ).then(function () {
-          return GET(DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id));
-        });
-    }
   }];
 }
 
-module.exports = DSLocalStorageProvider;
+module.exports = DSLocalStorageAdapterProvider;

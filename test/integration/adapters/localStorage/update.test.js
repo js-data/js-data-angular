@@ -1,4 +1,4 @@
-describe('DSLocalStorageAdapter.update(resourceConfig, id, attrs, options)', function () {
+describe('DSLocalStorageAdapter.update(resourceConfig, id, attrs[, options])', function () {
 
   beforeEach(startInjector);
 
@@ -11,7 +11,10 @@ describe('DSLocalStorageAdapter.update(resourceConfig, id, attrs, options)', fun
 
     DSLocalStorageAdapter.update({
       baseUrl: 'api',
-      endpoint: 'posts'
+      endpoint: 'posts',
+      getEndpoint: function () {
+        return 'posts';
+      }
     }, 1, { author: 'Sally' }).then(function (data) {
       assert.deepEqual(data, { author: 'Sally', age: 30, id: 5 }, 'data should have been updated');
       assert.deepEqual(angular.fromJson(localStorage.getItem(path)), { author: 'Sally', age: 30, id: 5 }, 'p1 should be in localStorage');
@@ -24,7 +27,10 @@ describe('DSLocalStorageAdapter.update(resourceConfig, id, attrs, options)', fun
 
       DSLocalStorageAdapter.update({
         baseUrl: 'api',
-        endpoint: 'posts'
+        endpoint: 'posts',
+        getEndpoint: function () {
+          return 'posts';
+        }
       }, 2, { age: 44 }, { baseUrl: 'api2' }).then(function (data) {
         assert.deepEqual(data, { author: 'Sally', age: 44, id: 6 }, 'data should have been updated');
         assert.deepEqual(angular.fromJson(localStorage.getItem(path)), { author: 'Sally', age: 44, id: 6 }, 'p1 should be in localStorage');

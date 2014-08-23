@@ -129,7 +129,7 @@ function DSHttpAdapterProvider() {
        */
       GET: function (url, config) {
         config = config || {};
-        return HTTP(DSUtils.deepMixIn(config, {
+        return this.HTTP(DSUtils.deepMixIn(config, {
           url: url,
           method: 'GET'
         }));
@@ -154,7 +154,7 @@ function DSHttpAdapterProvider() {
        */
       POST: function (url, attrs, config) {
         config = config || {};
-        return HTTP(DSUtils.deepMixIn(config, {
+        return this.HTTP(DSUtils.deepMixIn(config, {
           url: url,
           data: attrs,
           method: 'POST'
@@ -180,7 +180,7 @@ function DSHttpAdapterProvider() {
        */
       PUT: function (url, attrs, config) {
         config = config || {};
-        return HTTP(DSUtils.deepMixIn(config, {
+        return this.HTTP(DSUtils.deepMixIn(config, {
           url: url,
           data: attrs || {},
           method: 'PUT'

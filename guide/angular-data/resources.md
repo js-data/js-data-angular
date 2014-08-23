@@ -8,13 +8,13 @@ Angular-data keeps track of _resource definitions_ to know what kind of data sho
 ```js
 myApp.run(function (DS) {
 
-	// This is a basic resource definition
-	DS.defineResource({
-		name: 'document'
-	});
+  // This is a basic resource definition
+  DS.defineResource({
+    name: 'document'
+  });
 
-	// angular-data now knows it can perform
-	// operations related to the "document" resource
+  // angular-data now knows it can perform
+  // operations related to the "document" resource
 });
 ```
 
