@@ -1872,7 +1872,7 @@ function DSHttpAdapterProvider() {
 module.exports = DSHttpAdapterProvider;
 
 },{}],37:[function(require,module,exports){
-/**
+/*!
  * @doc function
  * @id DSLocalStorageAdapterProvider
  * @name DSLocalStorageAdapterProvider
@@ -2021,6 +2021,31 @@ function DSLocalStorageAdapterProvider() {
        * @name create
        * @description
        * Create an entity in `localStorage`. You must generate the primary key and include it in the `attrs` object.
+       *
+       * ## Signature:
+       * ```js
+       * DSLocalStorageAdapter.create(resourceConfig, attrs[, options])
+       * ```
+       *
+       * ## Example:
+       * ```js
+       * DS.create('user', {
+       *   id: 1,
+       *   name: 'john'
+       * }, {
+       *   adapter: 'DSLocalStorageAdapter'
+       * }).then(function (user) {
+       *   user; // { id: 1, name: 'john' }
+       * });
+       * ```
+       *
+       * @param {object} resourceConfig DS resource definition object:
+       * @param {object} attrs Attributes to create in localStorage.
+       * @param {object=} options Optional configuration. Properties:
+       *
+       * - `{string=}` - `baseUrl` - Base path to use.
+       *
+       * @returns {Promise} Promise.
        */
       create: function (resourceConfig, attrs, options) {
         if (!(resourceConfig.idAttribute in attrs)) {
@@ -2048,7 +2073,7 @@ function DSLocalStorageAdapterProvider() {
        * ## Example:
        * ```js
        * DS.update('user', 5, {
-       *   name: ''
+       *   name: 'john'
        * }, {
        *   adapter: 'DSLocalStorageAdapter'
        * }).then(function (user) {
