@@ -5419,7 +5419,7 @@ module.exports = {
 },{"./bindAll":50,"./bindOne":51,"./changes":52,"./createInstance":53,"./defineResource":54,"./digest":55,"./eject":56,"./ejectAll":57,"./filter":58,"./get":59,"./hasChanges":60,"./inject":62,"./lastModified":63,"./lastSaved":64,"./previous":65}],62:[function(require,module,exports){
 var observe = require('../../../lib/observe-js/observe-js');
 function errorPrefix(resourceName) {
-  return 'DS.inject(' + resourceName + ', attrs): ';
+  return 'DS.inject(' + resourceName + ', attrs[, options]): ';
 }
 
 function _inject(definition, resource, attrs) {

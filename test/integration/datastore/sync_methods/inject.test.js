@@ -1,6 +1,6 @@
-describe('DS.inject(resourceName, attrs)', function () {
+describe('DS.inject(resourceName, attrs[, options])', function () {
   function errorPrefix(resourceName) {
-    return 'DS.inject(' + resourceName + ', attrs): ';
+    return 'DS.inject(' + resourceName + ', attrs[, options]): ';
   }
 
   beforeEach(startInjector);

@@ -1,6 +1,6 @@
 var observe = require('../../../lib/observe-js/observe-js');
 function errorPrefix(resourceName) {
-  return 'DS.inject(' + resourceName + ', attrs): ';
+  return 'DS.inject(' + resourceName + ', attrs[, options]): ';
 }
 
 function _inject(definition, resource, attrs) {
