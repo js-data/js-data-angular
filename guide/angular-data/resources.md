@@ -9,12 +9,16 @@ Angular-data keeps track of _resource definitions_ to know what kind of data sho
 myApp.run(function (DS) {
 
   // This is a basic resource definition
-  DS.defineResource({
+  var Document = DS.defineResource({
     name: 'document'
   });
 
   // angular-data now knows it can perform
   // operations related to the "document" resource
+  
+  // These are the same
+  Document.find(5).then(function (document) {...});
+  DS.find('document', 5).then(function (document) {...});
 });
 ```
 

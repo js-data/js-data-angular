@@ -12,7 +12,7 @@
 @name Overview
 @description
 
-A _resource_ is the data and meta data associated with a particular RESTful endpoint.
+An angular-data _resource_ is the data and meta data associated with a particular RESTful resource.
 
 You define _resources_ and register them with the data store. A _resource definition_ tells angular-data
 about a particular _resource_, like what its root endpoint is and which attribute refers to the primary key of the
@@ -48,6 +48,10 @@ With this definition the data store assumes the following:
 - The RESTful endpoint for this resource is `DSProvider.defaults.baseUrl + "/document"`
 - The primary key is specified by the `"id"` property (or whatever is specified by `DSProvider.defaults.idAttribute`)
 - This resource has no custom lifecycle hooks (unless `DSProvider.defaults` has some lifecycle hooks defined)
+- No computed properties
+- No instance methods
+- No extra configuration for angular-cache (if you have it loaded)
+- No relations
 
 @doc overview
 @id advanced
@@ -62,6 +66,8 @@ var Document = DS.defineResource({
   idAttribute: '_id',
   endpoint: 'documents',
   baseUrl: 'https://example.com/api',
+  
+  // hook for the validate step in the model lifecycle
   validate: function (attrs, cb) {
     if (!angular.isObject(attrs) {
       cb('Must be an object!');
@@ -69,9 +75,17 @@ var Document = DS.defineResource({
       cb('title must be a string!');
     }
   },
+  
   // the "meta" property is reserved for developer use
   // it will never be used by the API
-  meta: {}
+  meta: {},
+  
+  // instance methods
+  methods: {
+    filename: function () {
+      return this.title + '.' + this.extension;
+    }
+  }
 });
 ```
 
@@ -80,7 +94,8 @@ With this definition the data store understands the following:
 - Resource will be referred to as `"document"`
 - The RESTful endpoint for this resource is `"https://example.com/api/documents"`
 - The primary key is specified by the `"_id"` property
-- Before create/save operations, the provided `validate` function is executed (and any lifecycle hooks defined in `DSProvider.defaults`)
+- Before create/update operations, the provided `validate` function is executed (and any lifecycle hooks defined in `DSProvider.defaults`)
+- documents will have one instance method
 
 See [DS.defineResource](/documentation/api/api/DS.sync_methods:defineResource) for the full resource definition specification.
 
@@ -100,7 +115,7 @@ The following asynchronous operations support a model lifecycle:
 - `create` - Implementation provided by adapter
 - `afterCreate` - Default: `noop`
 
-### DS.save()
+### DS.save() & DS.update()
 
 - `beforeValidate` - Default: `noop`
 - `validate` - Default: `noop`

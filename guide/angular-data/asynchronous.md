@@ -3,18 +3,18 @@
 @name Asynchronous Methods
 @description
 
-Angular-data ships with a number of asynchronous methods that facilitate communication between the data store and the
-persistence layer. These methods cover the basic CRUD operations.
+Angular-data ships with a number of asynchronous methods that facilitate communication between the data store and a
+persistence layer. These methods cover CRUD operations.
 
 The asynchronous methods return Promises produced by Angular's `$q` service.
 
 Example:
 
 ```js
-// synchronous
+// synchronous, looks only at the cache
 DS.get('document', 45); // undefined
 
-// asynchronous
+// asynchronous, works through an adapter
 DS.find('document', 45).then(function (document) {
   document; // { title: 'How to Cook', id: 45 }
 

@@ -11,10 +11,9 @@ Supporting relations, computed properties, model lifecycle control and a slew of
 __Latest Release:__ [0.10.5](http://angular-data.pseudobry.com/)
 __master:__ [1.0.0-beta.1](http://angular-data-next.pseudobry.com/)
 
-Angular-data is approaching 1.0.0 Beta. The API is stabilizing and angular-data is well tested.
+Angular-data is in a 1.0.0 Beta. The API is rather stable and angular-data is well tested.
 
-Although angular-data is being used in production, it's not 1.0.0. If you want to use Angular-data, keep an eye on the changelog. 1.0.0 will introduce strict semver (until then, minor number is bumped for breaking changes).
-
+Although angular-data is being used in production, it's not fully 1.0.0. If you want to use Angular-data, keep an eye on the changelog. 1.0.0 will introduce strict semver (until then, minor number is bumped for breaking changes).
 
 ## Documentation
 [http://angular-data.pseudobry.com](http://angular-data.pseudobry.com)

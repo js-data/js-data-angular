@@ -13,7 +13,7 @@ Example:
 DS.get('document', 45); // { title: 'How to Cook', id: 45 }
 ```
 
-`get(resourceName, id)` will return the data if it is in the store, otherwise `undefined`. This method is useful inside
+`get(resourceName, id[ options])` will return the data if it is in the store, otherwise `undefined`. This method is useful inside
 of a `$watch` callback function, for example:
 
 ```js
@@ -33,6 +33,7 @@ To make things simpler, angular-data has some bind methods to help with this:
 
 ```js
 DS.bindOne($scope, 'myDoc', 'document', 45');
+Document.bindOne($scope, 'myDoc', 45');
 ```
 
 The above example shows how to bind an item in the data store to the $scope. Whenever that item changes it will be updated

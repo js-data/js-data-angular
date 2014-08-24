@@ -26,11 +26,11 @@
     "karma.start.js"
   ],
   "devDependencies": {
-    "angular": "~1.2.16",
-    "angular-mocks": "~1.2.16",
+    "angular": "~1.2.22",
+    "angular-mocks": "~1.2.22",
     "angular-cache": "~3.1.0",
     "observe-js": "0.3.4",
-    "angular-data-mocks": "~0.5.3",
+    "angular-data-mocks": "~0.5.5",
     "bootstrap": "~3.2.0"
   }
 }

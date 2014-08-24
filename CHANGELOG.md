@@ -1,4 +1,4 @@
-##### 1.0.0-beta.1 - xx August 2014
+##### 1.0.0-beta.1 - 23 August 2014
 
 ###### Backwards compatible API changes
 - #40 - Support for nested resource endpoints
