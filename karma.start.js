@@ -149,6 +149,7 @@ function startInjector() {
         },
         belongsTo: {
           organization: {
+            parent: true,
             localKey: 'organizationId',
             localField: 'organization'
           }

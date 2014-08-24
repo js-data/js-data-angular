@@ -133,4 +133,32 @@ describe('DS.loadRelations(resourceName, instance(Id), relations[, options]): ',
 
     $httpBackend.flush();
   });
+  it('should handle multiple belongsTo levels', function () {
+    var organization = DS.inject('organization', organization14);
+
+    var copy = angular.extend({}, user10);
+    delete copy.organization;
+    delete copy.comments;
+    delete copy.profile;
+
+    $httpBackend.expectGET('http://test.angular-cache.com/organization/14/user').respond(200, [copy]);
+
+    DS.loadRelations('organization', organization, ['user']).then(function (organization) {
+      assert.isTrue(organization === organization.users[0].organization);
+
+      $httpBackend.expectGET('http://test.angular-cache.com/user/10/comment').respond(200, [comment11, comment12]);
+
+      var user = DS.get('user', 10);
+
+      DS.loadRelations('user', user, ['comment']).then(function (user) {
+        assert.isArray(user.comments);
+      }, function () {
+        fail('Should not have succeeded!');
+      });
+    }, function () {
+      fail('Should not have succeeded!');
+    });
+
+    $httpBackend.flush();
+  });
 });
