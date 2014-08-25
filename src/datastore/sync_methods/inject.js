@@ -118,7 +118,7 @@ function _inject(definition, resource, attrs) {
   return injected;
 }
 
-function _injectRelations(definition, injected, options, injectedSoFar) {
+function _injectRelations(definition, injected, options) {
   var DS = this;
   DS.utils.forOwn(definition.relations, function (relatedModels, type) {
     DS.utils.forOwn(relatedModels, function (defs, relationName) {
@@ -127,10 +127,10 @@ function _injectRelations(definition, injected, options, injectedSoFar) {
       }
 
       function _process(def, injected) {
-        if (DS.definitions[relationName] && injected[def.localField] && !injectedSoFar[relationName + injected[def.localField][DS.definitions[relationName].idAttribute]]) {
+        if (DS.definitions[relationName] && injected[def.localField] && !data.injectedSoFar[relationName + injected[def.localField][DS.definitions[relationName].idAttribute]]) {
           try {
-            injectedSoFar[relationName + injected[def.localField][DS.definitions[relationName].idAttribute]] = 1;
-            injected[def.localField] = DS.inject(relationName, injected[def.localField], options, injectedSoFar);
+            data.injectedSoFar[relationName + injected[def.localField][DS.definitions[relationName].idAttribute]] = 1;
+            injected[def.localField] = DS.inject(relationName, injected[def.localField], options);
           } catch (err) {
             DS.$log.error(errorPrefix(definition.name) + 'Failed to inject ' + type + ' relation: "' + relationName + '"!', err);
           }
@@ -218,7 +218,7 @@ function _injectRelations(definition, injected, options, injectedSoFar) {
  * @returns {object|array} A reference to the item that was injected into the data store or an array of references to
  * the items that were injected into the data store.
  */
-function inject(resourceName, attrs, options, injectedSoFar) {
+function inject(resourceName, attrs, options) {
   var DS = this;
   var IA = DS.errors.IA;
   var definition = DS.definitions[resourceName];
@@ -244,13 +244,13 @@ function inject(resourceName, attrs, options, injectedSoFar) {
   try {
     if (!DS.$rootScope.$$phase) {
       DS.$rootScope.$apply(function () {
-        injected = _inject.call(DS, definition, resource, attrs, injectedSoFar || data.injectedSoFar);
+        injected = _inject.call(DS, definition, resource, attrs);
       });
     } else {
-      injected = _inject.call(DS, definition, resource, attrs, injectedSoFar || data.injectedSoFar);
+      injected = _inject.call(DS, definition, resource, attrs);
     }
     if (definition.relations) {
-      _injectRelations.call(DS, definition, injected, options, injectedSoFar || data.injectedSoFar);
+      _injectRelations.call(DS, definition, injected, options);
     }
 
     DS.notify(definition, 'inject', injected);
