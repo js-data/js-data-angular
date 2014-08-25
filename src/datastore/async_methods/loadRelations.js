@@ -84,6 +84,14 @@ function loadRelations(resourceName, instance, relations, options) {
       throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
     }
 
+    if (!('findBelongsTo' in options)) {
+      options.findBelongsTo = true;
+    }
+
+    if (!('findHasMany' in options)) {
+      options.findHasMany = true;
+    }
+
     var tasks = [];
     var fields = [];
 

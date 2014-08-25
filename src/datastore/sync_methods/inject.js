@@ -134,21 +134,31 @@ function _injectRelations(definition, injected, options) {
           } catch (err) {
             DS.$log.error(errorPrefix(definition.name) + 'Failed to inject ' + type + ' relation: "' + relationName + '"!', err);
           }
-        } else if (options.findBelongsTo) {
-          if (type === 'belongsTo') {
-            if (DS.utils.isArray(injected)) {
-              DS.utils.forEach(injected, function (injectedItem) {
-                var parent = injectedItem[def.localKey] ? DS.get(relationName, injectedItem[def.localKey]) : null;
-                if (parent) {
-                  injectedItem[def.localField] = parent;
-                }
-              });
-            } else {
-              var parent = injected[def.localKey] ? DS.get(relationName, injected[def.localKey]) : null;
+        } else if (options.findBelongsTo && type === 'belongsTo') {
+          if (DS.utils.isArray(injected)) {
+            DS.utils.forEach(injected, function (injectedItem) {
+              var parent = injectedItem[def.localKey] ? DS.get(relationName, injectedItem[def.localKey]) : null;
               if (parent) {
-                injected[def.localField] = parent;
+                injectedItem[def.localField] = parent;
               }
+            });
+          } else {
+            var parent = injected[def.localKey] ? DS.get(relationName, injected[def.localKey]) : null;
+            if (parent) {
+              injected[def.localField] = parent;
             }
+          }
+        } else if (options.findHasMany && type === 'hasMany') {
+          if (DS.utils.isArray(injected)) {
+            DS.utils.forEach(injected, function (injectedItem) {
+              var params = {};
+              params[def.foreignKey] = injectedItem[def.foreignKey];
+              injectedItem[def.localField] = DS.defaults.constructor.prototype.defaultFilter.call(DS, DS.store[relationName].collection, relationName, params, { allowSimpleWhere: true });
+            });
+          } else {
+            var params = {};
+            params[def.foreignKey] = injected[def.foreignKey];
+            injected[def.localField] = DS.defaults.constructor.prototype.defaultFilter.call(DS, DS.store[relationName].collection, relationName, params, { allowSimpleWhere: true });
           }
         }
       }
@@ -213,7 +223,8 @@ function _injectRelations(definition, injected, options) {
  * @param {object|array} attrs The item or collection of items to inject into the data store.
  * @param {object=} options The item or collection of items to inject into the data store. Properties:
  *
- * - `{boolean=}` - `findBelongsTo` - Find and attach any existing "belongsTo" relationships to the newly injected item. Default: `true`.
+ * - `{boolean=}` - `findBelongsTo` - Find and attach any existing "belongsTo" relationships to the newly injected item. Potentially expensive if enabled. Default: `false`.
+ * - `{boolean=}` - `findHasMany` - Find and attach any existing "hasMany" relationships to the newly injected item. Potentially expensive if enabled. Default: `false`.
  *
  * @returns {object|array} A reference to the item that was injected into the data store or an array of references to
  * the items that were injected into the data store.
@@ -234,10 +245,6 @@ function inject(resourceName, attrs, options) {
   }
   var resource = DS.store[resourceName];
   var injected;
-
-  if (!('findBelongsTo' in options)) {
-    options.findBelongsTo = true;
-  }
 
   stack++;
 

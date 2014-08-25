@@ -2,7 +2,7 @@ function errorPrefix(resourceName) {
   return 'DS.findAll(' + resourceName + ', params[, options]): ';
 }
 
-function processResults(data, resourceName, queryHash) {
+function processResults(data, resourceName, queryHash, options) {
   var DS = this;
   var resource = DS.store[resourceName];
   var idAttribute = DS.definitions[resourceName].idAttribute;
@@ -18,7 +18,7 @@ function processResults(data, resourceName, queryHash) {
   resource.collectionModified = DS.utils.updateTimestamp(resource.collectionModified);
 
   // Merge the new values into the cache
-  var injected = DS.inject(resourceName, data);
+  var injected = DS.inject(resourceName, data, options);
 
   // Make sure each object is added to completedQueries
   if (DS.utils.isArray(injected)) {
@@ -56,7 +56,7 @@ function _findAll(resourceName, params, options) {
           var data = definition.deserialize(resourceName, res);
           if (options.cacheResponse) {
             try {
-              return processResults.apply(DS, [data, resourceName, queryHash]);
+              return processResults.apply(DS, [data, resourceName, queryHash, options]);
             } catch (err) {
               return DS.$q.reject(err);
             }

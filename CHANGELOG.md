@@ -1,5 +1,11 @@
 ##### 1.0.0-beta.2 - xx August 2014
 
+###### Breaking API changes
+- `findBelongsTo` option of `DS.inject` now defaults to `false`
+
+###### Backwards compatible API changes
+- #132 - Added `findHasMany` option and capability to `DS.inject`
+
 ###### Backwards compatible bug fixes
 - #135 - loadrelations loop
 

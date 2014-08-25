@@ -76,8 +76,10 @@ describe('DS.loadRelations(resourceName, instance(Id), relations[, options]): ',
     $httpBackend.expectGET('http://test.angular-cache.com/user/20').respond(200, user20);
     $httpBackend.expectGET('http://test.angular-cache.com/user/19').respond(200, user19);
     DS.loadRelations('comment', 19, ['user']).then(function (comment) {
-      assert.deepEqual(comment.user, user20);
-      assert.deepEqual(comment.approvedByUser, user19);
+      assert.isObject(comment.user);
+      assert.equal(comment.user.id, user20.id);
+      assert.isObject(comment.approvedByUser);
+      assert.equal(comment.approvedByUser.id, user19.id);
     }, fail);
     $httpBackend.flush();
   });

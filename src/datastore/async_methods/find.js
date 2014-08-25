@@ -83,7 +83,7 @@ function find(resourceName, id, options) {
               // Query is no longer pending
               delete resource.pendingQueries[id];
               resource.completedQueries[id] = new Date().getTime();
-              return DS.inject(resourceName, data);
+              return DS.inject(resourceName, data, options);
             } else {
               return data;
             }

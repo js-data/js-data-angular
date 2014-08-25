@@ -2255,7 +2255,7 @@ function create(resourceName, attrs, options) {
         })
         .then(function (data) {
           if (options.cacheResponse) {
-            var created = DS.inject(definition.name, data);
+            var created = DS.inject(definition.name, data, options);
             var id = created[definition.idAttribute];
             resource.completedQueries[id] = new Date().getTime();
             resource.previousAttributes[id] = DS.utils.deepMixIn({}, created);
@@ -2542,7 +2542,7 @@ function find(resourceName, id, options) {
               // Query is no longer pending
               delete resource.pendingQueries[id];
               resource.completedQueries[id] = new Date().getTime();
-              return DS.inject(resourceName, data);
+              return DS.inject(resourceName, data, options);
             } else {
               return data;
             }
@@ -2570,7 +2570,7 @@ function errorPrefix(resourceName) {
   return 'DS.findAll(' + resourceName + ', params[, options]): ';
 }
 
-function processResults(data, resourceName, queryHash) {
+function processResults(data, resourceName, queryHash, options) {
   var DS = this;
   var resource = DS.store[resourceName];
   var idAttribute = DS.definitions[resourceName].idAttribute;
@@ -2586,7 +2586,7 @@ function processResults(data, resourceName, queryHash) {
   resource.collectionModified = DS.utils.updateTimestamp(resource.collectionModified);
 
   // Merge the new values into the cache
-  var injected = DS.inject(resourceName, data);
+  var injected = DS.inject(resourceName, data, options);
 
   // Make sure each object is added to completedQueries
   if (DS.utils.isArray(injected)) {
@@ -2624,7 +2624,7 @@ function _findAll(resourceName, params, options) {
           var data = definition.deserialize(resourceName, res);
           if (options.cacheResponse) {
             try {
-              return processResults.apply(DS, [data, resourceName, queryHash]);
+              return processResults.apply(DS, [data, resourceName, queryHash, options]);
             } catch (err) {
               return DS.$q.reject(err);
             }
@@ -2927,6 +2927,14 @@ function loadRelations(resourceName, instance, relations, options) {
       throw new IA(errorPrefix(resourceName) + 'relations: Must be a string or an array!');
     } else if (!DS.utils.isObject(options)) {
       throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
+    }
+
+    if (!('findBelongsTo' in options)) {
+      options.findBelongsTo = true;
+    }
+
+    if (!('findHasMany' in options)) {
+      options.findHasMany = true;
     }
 
     var tasks = [];
@@ -5553,21 +5561,31 @@ function _injectRelations(definition, injected, options) {
           } catch (err) {
             DS.$log.error(errorPrefix(definition.name) + 'Failed to inject ' + type + ' relation: "' + relationName + '"!', err);
           }
-        } else if (options.findBelongsTo) {
-          if (type === 'belongsTo') {
-            if (DS.utils.isArray(injected)) {
-              DS.utils.forEach(injected, function (injectedItem) {
-                var parent = injectedItem[def.localKey] ? DS.get(relationName, injectedItem[def.localKey]) : null;
-                if (parent) {
-                  injectedItem[def.localField] = parent;
-                }
-              });
-            } else {
-              var parent = injected[def.localKey] ? DS.get(relationName, injected[def.localKey]) : null;
+        } else if (options.findBelongsTo && type === 'belongsTo') {
+          if (DS.utils.isArray(injected)) {
+            DS.utils.forEach(injected, function (injectedItem) {
+              var parent = injectedItem[def.localKey] ? DS.get(relationName, injectedItem[def.localKey]) : null;
               if (parent) {
-                injected[def.localField] = parent;
+                injectedItem[def.localField] = parent;
               }
+            });
+          } else {
+            var parent = injected[def.localKey] ? DS.get(relationName, injected[def.localKey]) : null;
+            if (parent) {
+              injected[def.localField] = parent;
             }
+          }
+        } else if (options.findHasMany && type === 'hasMany') {
+          if (DS.utils.isArray(injected)) {
+            DS.utils.forEach(injected, function (injectedItem) {
+              var params = {};
+              params[def.foreignKey] = injectedItem[def.foreignKey];
+              injectedItem[def.localField] = DS.defaults.constructor.prototype.defaultFilter.call(DS, DS.store[relationName].collection, relationName, params, { allowSimpleWhere: true });
+            });
+          } else {
+            var params = {};
+            params[def.foreignKey] = injected[def.foreignKey];
+            injected[def.localField] = DS.defaults.constructor.prototype.defaultFilter.call(DS, DS.store[relationName].collection, relationName, params, { allowSimpleWhere: true });
           }
         }
       }
@@ -5632,7 +5650,8 @@ function _injectRelations(definition, injected, options) {
  * @param {object|array} attrs The item or collection of items to inject into the data store.
  * @param {object=} options The item or collection of items to inject into the data store. Properties:
  *
- * - `{boolean=}` - `findBelongsTo` - Find and attach any existing "belongsTo" relationships to the newly injected item. Default: `true`.
+ * - `{boolean=}` - `findBelongsTo` - Find and attach any existing "belongsTo" relationships to the newly injected item. Potentially expensive if enabled. Default: `false`.
+ * - `{boolean=}` - `findHasMany` - Find and attach any existing "hasMany" relationships to the newly injected item. Potentially expensive if enabled. Default: `false`.
  *
  * @returns {object|array} A reference to the item that was injected into the data store or an array of references to
  * the items that were injected into the data store.
@@ -5653,10 +5672,6 @@ function inject(resourceName, attrs, options) {
   }
   var resource = DS.store[resourceName];
   var injected;
-
-  if (!('findBelongsTo' in options)) {
-    options.findBelongsTo = true;
-  }
 
   stack++;
 

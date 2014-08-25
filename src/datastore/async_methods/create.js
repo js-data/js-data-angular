@@ -94,7 +94,7 @@ function create(resourceName, attrs, options) {
         })
         .then(function (data) {
           if (options.cacheResponse) {
-            var created = DS.inject(definition.name, data);
+            var created = DS.inject(definition.name, data, options);
             var id = created[definition.idAttribute];
             resource.completedQueries[id] = new Date().getTime();
             resource.previousAttributes[id] = DS.utils.deepMixIn({}, created);

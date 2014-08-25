@@ -114,6 +114,8 @@ describe('DS.create(resourceName, attrs[, options])', function () {
       profile: {
         email: 'sally@test.com'
       }
+    }, {
+      findBelongsTo: true
     }).then(function (user) {
       assert.deepEqual(user.id, payload.id, 'user should have been created');
 
