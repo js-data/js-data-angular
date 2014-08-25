@@ -1,3 +1,8 @@
+##### 1.0.0-beta.2 - xx August 2014
+
+###### Backwards compatible bug fixes
+- #135 - loadrelations loop
+
 ##### 1.0.0-beta.1 - 23 August 2014
 
 ###### Backwards compatible API changes

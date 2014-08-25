@@ -161,4 +161,49 @@ describe('DS.loadRelations(resourceName, instance(Id), relations[, options]): ',
 
     $httpBackend.flush();
   });
+  it('should handle multiple belongsTo levels when the response includes nested resources', function () {
+    var organization = DS.inject('organization', {
+      id: 1
+    });
+
+    $httpBackend.expectGET('http://test.angular-cache.com/organization/1/user').respond(200, [
+      {
+        organizationId: 1,
+        id: 1
+      }
+    ]);
+
+    DS.loadRelations('organization', organization, ['user']).then(function (organization) {
+      assert.isTrue(organization === organization.users[0].organization);
+
+      $httpBackend.expectGET('http://test.angular-cache.com/user/1/comment').respond(200, [
+        {
+          id: 1,
+          userId: 1,
+          user: {
+            id: 1
+          }
+        },
+        {
+          id: 2,
+          userId: 1,
+          user: {
+            id: 1
+          }
+        }
+      ]);
+
+      var user = DS.get('user', 1);
+
+      DS.loadRelations('user', user, ['comment']).then(function (user) {
+        assert.isArray(user.comments);
+      }, function () {
+        fail('Should not have succeeded!');
+      });
+    }, function () {
+      fail('Should not have succeeded!');
+    });
+
+    $httpBackend.flush();
+  });
 });

@@ -1,7 +1,7 @@
 /**
 * @author Jason Dobry <jason.dobry@gmail.com>
 * @file angular-data.js
-* @version 1.0.0-beta.1 - Homepage <http://angular-data.pseudobry.com/>
+* @version 1.0.0-beta.2 - Homepage <http://angular-data.pseudobry.com/>
 * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>
 * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
 *
@@ -5418,6 +5418,11 @@ module.exports = {
 
 },{"./bindAll":50,"./bindOne":51,"./changes":52,"./createInstance":53,"./defineResource":54,"./digest":55,"./eject":56,"./ejectAll":57,"./filter":58,"./get":59,"./hasChanges":60,"./inject":62,"./lastModified":63,"./lastSaved":64,"./previous":65}],62:[function(require,module,exports){
 var observe = require('../../../lib/observe-js/observe-js');
+var stack = 0;
+var data = {
+  injectedSoFar: {}
+};
+
 function errorPrefix(resourceName) {
   return 'DS.inject(' + resourceName + ', attrs[, options]): ';
 }
@@ -5532,7 +5537,7 @@ function _inject(definition, resource, attrs) {
   return injected;
 }
 
-function _injectRelations(definition, injected, options) {
+function _injectRelations(definition, injected, options, injectedSoFar) {
   var DS = this;
   DS.utils.forOwn(definition.relations, function (relatedModels, type) {
     DS.utils.forOwn(relatedModels, function (defs, relationName) {
@@ -5541,9 +5546,10 @@ function _injectRelations(definition, injected, options) {
       }
 
       function _process(def, injected) {
-        if (DS.definitions[relationName] && injected[def.localField]) {
+        if (DS.definitions[relationName] && injected[def.localField] && !injectedSoFar[relationName + injected[def.localField][DS.definitions[relationName].idAttribute]]) {
           try {
-            injected[def.localField] = DS.inject(relationName, injected[def.localField], options);
+            injectedSoFar[relationName + injected[def.localField][DS.definitions[relationName].idAttribute]] = 1;
+            injected[def.localField] = DS.inject(relationName, injected[def.localField], options, injectedSoFar);
           } catch (err) {
             DS.$log.error(errorPrefix(definition.name) + 'Failed to inject ' + type + ' relation: "' + relationName + '"!', err);
           }
@@ -5631,20 +5637,20 @@ function _injectRelations(definition, injected, options) {
  * @returns {object|array} A reference to the item that was injected into the data store or an array of references to
  * the items that were injected into the data store.
  */
-function inject(resourceName, attrs, options) {
+function inject(resourceName, attrs, options, injectedSoFar) {
   var DS = this;
   var IA = DS.errors.IA;
+  var definition = DS.definitions[resourceName];
 
   options = options || {};
 
-  if (!DS.definitions[resourceName]) {
+  if (!definition) {
     throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
   } else if (!DS.utils.isObject(attrs) && !DS.utils.isArray(attrs)) {
     throw new IA(errorPrefix(resourceName) + 'attrs: Must be an object or an array!');
   } else if (!DS.utils.isObject(options)) {
     throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
   }
-  var definition = DS.definitions[resourceName];
   var resource = DS.store[resourceName];
   var injected;
 
@@ -5652,18 +5658,31 @@ function inject(resourceName, attrs, options) {
     options.findBelongsTo = true;
   }
 
-  if (!DS.$rootScope.$$phase) {
-    DS.$rootScope.$apply(function () {
-      injected = _inject.call(DS, definition, resource, attrs);
-    });
-  } else {
-    injected = _inject.call(DS, definition, resource, attrs);
-  }
-  if (definition.relations) {
-    _injectRelations.call(DS, definition, injected, options);
+  stack++;
+
+  try {
+    if (!DS.$rootScope.$$phase) {
+      DS.$rootScope.$apply(function () {
+        injected = _inject.call(DS, definition, resource, attrs, injectedSoFar || data.injectedSoFar);
+      });
+    } else {
+      injected = _inject.call(DS, definition, resource, attrs, injectedSoFar || data.injectedSoFar);
+    }
+    if (definition.relations) {
+      _injectRelations.call(DS, definition, injected, options, injectedSoFar || data.injectedSoFar);
+    }
+
+    DS.notify(definition, 'inject', injected);
+
+    stack--;
+  } catch (err) {
+    stack--;
+    throw err;
   }
 
-  DS.notify(definition, 'inject', injected);
+  if (!stack) {
+    data.injectedSoFar = {};
+  }
 
   return injected;
 }
@@ -5986,7 +6005,7 @@ module.exports = [function () {
    * @id angular-data
    * @name angular-data
    * @description
-   * __Version:__ 1.0.0-beta.1
+   * __Version:__ 1.0.0-beta.2
    *
    * ## Install
    *
