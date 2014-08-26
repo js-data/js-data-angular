@@ -5,6 +5,7 @@
 
 ###### Backwards compatible API changes
 - #132 - Added `findHasMany` option and capability to `DS.inject`
+- #137 - Add `DS.link`, `DS.linkAll`, and `DS.linkInverse`, and added `linkInverse` option to `DS.inject`
 
 ###### Backwards compatible bug fixes
 - #135 - loadrelations loop

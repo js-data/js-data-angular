@@ -197,4 +197,21 @@ describe('DS.inject(resourceName, attrs[, options])', function () {
     // profile21 relations
     assert.deepEqual(DS.get('user', 22), DS.get('profile', 21).user);
   });
+  it('should find inverse links', function () {
+    DS.inject('user', { organizationId: 5, id: 1 });
+
+    DS.inject('organization', { id: 5 }, { linkInverse: true });
+
+    assert.isObject(DS.get('user', 1).organization);
+
+    assert.isUndefined(DS.get('user', 1).comments);
+
+    DS.inject('comment', { approvedBy: 1, id: 23 }, { linkInverse: true });
+
+    assert.equal(1, DS.get('user', 1).comments.length);
+
+    DS.inject('comment', { approvedBy: 1, id: 44 }, { linkInverse: true });
+
+    assert.equal(2, DS.get('user', 1).comments.length);
+  });
 });

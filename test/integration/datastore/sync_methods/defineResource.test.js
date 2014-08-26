@@ -332,4 +332,28 @@ describe('DS.defineResource(definition)', function () {
       done();
     }, 50);
   });
+  it('should update links', function (done) {
+    var org66 = DS.inject('organization', {
+      id: 66
+    });
+    var org77 = DS.inject('organization', {
+      id: 77
+    });
+    var user88 = DS.inject('user', {
+      id: 88,
+      organizationId: 66
+    });
+
+    DS.link('user', 88, ['organization']);
+
+    assert.isTrue(user88.organization === org66);
+
+    user88.organizationId = 77;
+
+    setTimeout(function () {
+      $rootScope.$apply();
+      assert.isTrue(user88.organization === org77);
+      done();
+    }, 50);
+  });
 });

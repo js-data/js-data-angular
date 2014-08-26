@@ -4217,7 +4217,7 @@ function DSProvider() {
 
 module.exports = DSProvider;
 
-},{"../utils":68,"./async_methods":43,"./sync_methods":61}],50:[function(require,module,exports){
+},{"../utils":71,"./async_methods":43,"./sync_methods":61}],50:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.bindAll(scope, expr, ' + resourceName + ', params[, cb]): ';
 }
@@ -5385,6 +5385,36 @@ module.exports = {
 
   /**
    * @doc method
+   * @id DS.sync methods:link
+   * @name link
+   * @methodOf DS
+   * @description
+   * See [DS.link](/documentation/api/api/DS.sync methods:link).
+   */
+  link: require('./link'),
+
+  /**
+   * @doc method
+   * @id DS.sync methods:linkAll
+   * @name linkAll
+   * @methodOf DS
+   * @description
+   * See [DS.linkAll](/documentation/api/api/DS.sync methods:linkAll).
+   */
+  linkAll: require('./linkAll'),
+
+  /**
+   * @doc method
+   * @id DS.sync methods:linkInverse
+   * @name linkInverse
+   * @methodOf DS
+   * @description
+   * See [DS.linkInverse](/documentation/api/api/DS.sync methods:linkInverse).
+   */
+  linkInverse: require('./linkInverse'),
+
+  /**
+   * @doc method
    * @id DS.sync methods:digest
    * @name digest
    * @methodOf DS
@@ -5424,7 +5454,7 @@ module.exports = {
   hasChanges: require('./hasChanges')
 };
 
-},{"./bindAll":50,"./bindOne":51,"./changes":52,"./createInstance":53,"./defineResource":54,"./digest":55,"./eject":56,"./ejectAll":57,"./filter":58,"./get":59,"./hasChanges":60,"./inject":62,"./lastModified":63,"./lastSaved":64,"./previous":65}],62:[function(require,module,exports){
+},{"./bindAll":50,"./bindOne":51,"./changes":52,"./createInstance":53,"./defineResource":54,"./digest":55,"./eject":56,"./ejectAll":57,"./filter":58,"./get":59,"./hasChanges":60,"./inject":62,"./lastModified":63,"./lastSaved":64,"./link":65,"./linkAll":66,"./linkInverse":67,"./previous":68}],62:[function(require,module,exports){
 var observe = require('../../../lib/observe-js/observe-js');
 var stack = 0;
 var data = {
@@ -5441,13 +5471,14 @@ function _inject(definition, resource, attrs) {
 
   function _react(added, removed, changed, oldValueFn) {
     var target = this;
+    var item;
     var innerId = (oldValueFn && oldValueFn(definition.idAttribute)) ? oldValueFn(definition.idAttribute) : target[definition.idAttribute];
 
     resource.modified[innerId] = DS.utils.updateTimestamp(resource.modified[innerId]);
     resource.collectionModified = DS.utils.updateTimestamp(resource.collectionModified);
 
     if (definition.computed) {
-      var item = DS.get(definition.name, innerId);
+      item = DS.get(definition.name, innerId);
       DS.utils.forOwn(definition.computed, function (fn, field) {
         var compute = false;
         // check if required fields changed
@@ -5465,6 +5496,22 @@ function _inject(definition, resource, attrs) {
           // recompute property
           item[field] = fn[fn.length - 1].apply(item, args);
         }
+      });
+    }
+
+    if (definition.relations) {
+      item = DS.get(definition.name, innerId);
+      DS.utils.forOwn(definition.relations, function (relatedModels) {
+        DS.utils.forOwn(relatedModels, function (defs, relationName) {
+          if (!DS.utils.isArray(defs)) {
+            defs = [defs];
+          }
+          defs.forEach(function (def) {
+            if (item[def.localField] && (def.localKey in added || def.localKey in removed || def.localKey in changed)) {
+              DS.link(definition.name, item[definition.idAttribute], [relationName]);
+            }
+          });
+        });
       });
     }
 
@@ -5564,28 +5611,26 @@ function _injectRelations(definition, injected, options) {
         } else if (options.findBelongsTo && type === 'belongsTo') {
           if (DS.utils.isArray(injected)) {
             DS.utils.forEach(injected, function (injectedItem) {
-              var parent = injectedItem[def.localKey] ? DS.get(relationName, injectedItem[def.localKey]) : null;
-              if (parent) {
-                injectedItem[def.localField] = parent;
-              }
+              DS.link(definition.name, injectedItem[definition.idAttribute], [relationName]);
             });
           } else {
-            var parent = injected[def.localKey] ? DS.get(relationName, injected[def.localKey]) : null;
-            if (parent) {
-              injected[def.localField] = parent;
-            }
+            DS.link(definition.name, injected[definition.idAttribute], [relationName]);
           }
         } else if (options.findHasMany && type === 'hasMany') {
           if (DS.utils.isArray(injected)) {
             DS.utils.forEach(injected, function (injectedItem) {
-              var params = {};
-              params[def.foreignKey] = injectedItem[def.foreignKey];
-              injectedItem[def.localField] = DS.defaults.constructor.prototype.defaultFilter.call(DS, DS.store[relationName].collection, relationName, params, { allowSimpleWhere: true });
+              DS.link(definition.name, injectedItem[definition.idAttribute], [relationName]);
             });
           } else {
-            var params = {};
-            params[def.foreignKey] = injected[def.foreignKey];
-            injected[def.localField] = DS.defaults.constructor.prototype.defaultFilter.call(DS, DS.store[relationName].collection, relationName, params, { allowSimpleWhere: true });
+            DS.link(definition.name, injected[definition.idAttribute], [relationName]);
+          }
+        } else if (options.findHasOne && type === 'hasOne') {
+          if (DS.utils.isArray(injected)) {
+            DS.utils.forEach(injected, function (injectedItem) {
+              DS.link(definition.name, injectedItem[definition.idAttribute], [relationName]);
+            });
+          } else {
+            DS.link(definition.name, injected[definition.idAttribute], [relationName]);
           }
         }
       }
@@ -5652,6 +5697,7 @@ function _injectRelations(definition, injected, options) {
  *
  * - `{boolean=}` - `findBelongsTo` - Find and attach any existing "belongsTo" relationships to the newly injected item. Potentially expensive if enabled. Default: `false`.
  * - `{boolean=}` - `findHasMany` - Find and attach any existing "hasMany" relationships to the newly injected item. Potentially expensive if enabled. Default: `false`.
+ * - `{boolean=}` - `linkInverse` - Look in the data store for relations of the injected item(s) and update their links to the injected. Potentially expensive if enabled. Default: `false`.
  *
  * @returns {object|array} A reference to the item that was injected into the data store or an array of references to
  * the items that were injected into the data store.
@@ -5685,6 +5731,14 @@ function inject(resourceName, attrs, options) {
     }
     if (definition.relations) {
       _injectRelations.call(DS, definition, injected, options);
+    }
+
+    if (options.linkInverse) {
+      if (DS.utils.isArray(injected) && injected.length) {
+        DS.linkInverse(definition.name, injected[0][definition.idAttribute]);
+      } else {
+        DS.linkInverse(definition.name, injected[definition.idAttribute]);
+      }
     }
 
     DS.notify(definition, 'inject', injected);
@@ -5824,6 +5878,334 @@ function lastSaved(resourceName, id) {
 module.exports = lastSaved;
 
 },{}],65:[function(require,module,exports){
+function errorPrefix(resourceName) {
+  return 'DS.link(' + resourceName + ', id[, relations]): ';
+}
+
+function _link(definition, linked, relations) {
+  var DS = this;
+  DS.utils.forOwn(definition.relations, function (relatedModels, type) {
+    DS.utils.forOwn(relatedModels, function (defs, relationName) {
+      if (relations.length && !DS.utils.contains(relations, relationName)) {
+        return;
+      }
+      if (!DS.utils.isArray(defs)) {
+        defs = [defs];
+      }
+
+      defs.forEach(function (def) {
+        var params = {};
+        if (type === 'belongsTo') {
+          var parent = linked[def.localKey] ? DS.get(relationName, linked[def.localKey]) : null;
+          if (parent) {
+            linked[def.localField] = parent;
+          }
+        } else if (type === 'hasMany') {
+          params[def.foreignKey] = linked[definition.idAttribute];
+          linked[def.localField] = DS.defaults.constructor.prototype.defaultFilter.call(DS, DS.store[relationName].collection, relationName, params, { allowSimpleWhere: true });
+        } else if (type === 'hasOne') {
+          params[def.foreignKey] = linked[definition.idAttribute];
+          var children = DS.defaults.constructor.prototype.defaultFilter.call(DS, DS.store[relationName].collection, relationName, params, { allowSimpleWhere: true });
+          if (children.length) {
+            linked[def.localField] = children[0];
+          }
+        }
+      });
+    });
+  });
+}
+
+/**
+ * @doc method
+ * @id DS.sync methods:link
+ * @name link
+ * @description
+ * Find relations of the item with the given primary key that are already in the data store and link them to the item.
+ *
+ * ## Signature:
+ * ```js
+ * DS.link(resourceName, id[, relations])
+ * ```
+ *
+ * ## Examples:
+ *
+ * Assume `user` has `hasMany` relationships to `post` and `comment`.
+ * ```js
+ * DS.get('user', 1); // { name: 'John', id: 1 }
+ *
+ * // link posts
+ * DS.link('user', 1, ['post']);
+ *
+ * DS.get('user', 1); // { name: 'John', id: 1, posts: [...] }
+ *
+ * // link all relations
+ * DS.link('user', 1);
+ *
+ * DS.get('user', 1); // { name: 'John', id: 1, posts: [...], comments: [...] }
+ * ```
+ *
+ * ## Throws
+ *
+ * - `{IllegalArgumentError}`
+ * - `{NonexistentResourceError}`
+ *
+ * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
+ * @param {string|number} id The primary key of the item for to link relations.
+ * @param {array=} relations The relations to be linked. If not provided then all relations will be linked. Default: `[]`.
+ * @returns {object|array} A reference to the item with its linked relations.
+ */
+function link(resourceName, id, relations) {
+  var DS = this;
+  var IA = DS.errors.IA;
+  var definition = DS.definitions[resourceName];
+
+  relations = relations || [];
+
+  if (!definition) {
+    throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
+  } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {
+    throw new IA(errorPrefix(resourceName) + 'id: Must be a string or a number!');
+  } else if (!DS.utils.isArray(relations)) {
+    throw new IA(errorPrefix(resourceName) + 'relations: Must be an array!');
+  }
+  var linked = DS.get(resourceName, id);
+
+  if (linked) {
+    if (!DS.$rootScope.$$phase) {
+      DS.$rootScope.$apply(function () {
+        _link.call(DS, definition, linked, relations);
+      });
+    } else {
+      _link.call(DS, definition, linked, relations);
+    }
+  }
+
+  return linked;
+}
+
+module.exports = link;
+
+},{}],66:[function(require,module,exports){
+function errorPrefix(resourceName) {
+  return 'DS.linkAll(' + resourceName + '[, params][, relations]): ';
+}
+
+function _linkAll(definition, linked, relations) {
+  var DS = this;
+  DS.utils.forOwn(definition.relations, function (relatedModels, type) {
+    DS.utils.forOwn(relatedModels, function (defs, relationName) {
+      if (relations.length && !DS.utils.contains(relations, relationName)) {
+        return;
+      }
+      if (!DS.utils.isArray(defs)) {
+        defs = [defs];
+      }
+
+      defs.forEach(function (def) {
+        if (type === 'belongsTo') {
+          DS.utils.forEach(linked, function (injectedItem) {
+            var parent = injectedItem[def.localKey] ? DS.get(relationName, injectedItem[def.localKey]) : null;
+            if (parent) {
+              injectedItem[def.localField] = parent;
+            }
+          });
+        } else if (type === 'hasMany') {
+          DS.utils.forEach(linked, function (injectedItem) {
+            var params = {};
+            params[def.foreignKey] = injectedItem[definition.idAttribute];
+            injectedItem[def.localField] = DS.defaults.constructor.prototype.defaultFilter.call(DS, DS.store[relationName].collection, relationName, params, { allowSimpleWhere: true });
+          });
+        } else if (type === 'hasOne') {
+          DS.utils.forEach(linked, function (injectedItem) {
+            var params = {};
+            params[def.foreignKey] = injectedItem[definition.idAttribute];
+            var children = DS.defaults.constructor.prototype.defaultFilter.call(DS, DS.store[relationName].collection, relationName, params, { allowSimpleWhere: true });
+            if (children.length) {
+              injectedItem[def.localField] = children[0];
+            }
+          });
+        }
+      });
+    });
+  });
+}
+
+/**
+ * @doc method
+ * @id DS.sync methods:linkAll
+ * @name linkAll
+ * @description
+ * Find relations of a collection of items that are already in the data store and link them to the items.
+ *
+ * ## Signature:
+ * ```js
+ * DS.linkAll(resourceName[, params][, relations])
+ * ```
+ *
+ * ## Examples:
+ *
+ * Assume `user` has `hasMany` relationships to `post` and `comment`.
+ * ```js
+ * DS.filter('user'); // [{ name: 'John', id: 1 }, { name: 'Sally', id: 2 }]
+ *
+ * // link posts
+ * DS.linkAll('user', {
+ *   name: : 'John'
+ * }, ['post']);
+ *
+ * DS.filter('user'); // [{ name: 'John', id: 1, posts: [...] }, { name: 'Sally', id: 2 }]
+ *
+ * // link all relations
+ * DS.linkAll('user', { name: : 'John' });
+ *
+ * DS.filter('user'); // [{ name: 'John', id: 1, posts: [...], comments: [...] }, { name: 'Sally', id: 2 }]
+ * ```
+ *
+ * ## Throws
+ *
+ * - `{IllegalArgumentError}`
+ * - `{NonexistentResourceError}`
+ *
+ * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
+ * @param {object=} params Parameter object that is used to filter items. Properties:
+ *
+ *  - `{object=}` - `where` - Where clause.
+ *  - `{number=}` - `limit` - Limit clause.
+ *  - `{number=}` - `skip` - Skip clause.
+ *  - `{number=}` - `offset` - Same as skip.
+ *  - `{string|array=}` - `orderBy` - OrderBy clause.
+ *
+ * @param {array=} relations The relations to be linked. If not provided then all relations will be linked. Default: `[]`.
+ * @returns {object|array} A reference to the item with its linked relations.
+ */
+function linkAll(resourceName, params, relations) {
+  var DS = this;
+  var IA = DS.errors.IA;
+  var definition = DS.definitions[resourceName];
+
+  relations = relations || [];
+
+  if (!definition) {
+    throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
+  } else if (params && !DS.utils.isObject(params)) {
+    throw new IA(errorPrefix(resourceName) + 'params: Must be an object!');
+  } else if (!DS.utils.isArray(relations)) {
+    throw new IA(errorPrefix(resourceName) + 'relations: Must be an array!');
+  }
+  var linked = DS.filter(resourceName, params);
+
+  if (linked) {
+    if (!DS.$rootScope.$$phase) {
+      DS.$rootScope.$apply(function () {
+        _linkAll.call(DS, definition, linked, relations);
+      });
+    } else {
+      _linkAll.call(DS, definition, linked, relations);
+    }
+  }
+
+  return linked;
+}
+
+module.exports = linkAll;
+
+},{}],67:[function(require,module,exports){
+function errorPrefix(resourceName) {
+  return 'DS.linkInverse(' + resourceName + ', id[, relations]): ';
+}
+
+function _linkInverse(definition, relations) {
+  var DS = this;
+  DS.utils.forOwn(DS.definitions, function (d) {
+    DS.utils.forOwn(d.relations, function (relatedModels) {
+      DS.utils.forOwn(relatedModels, function (defs, relationName) {
+        if (relations.length && !DS.utils.contains(relations, d.name)) {
+          return;
+        }
+        if (definition.name === relationName) {
+          DS.linkAll(d.name, {}, [definition.name]);
+        }
+      });
+    });
+  });
+}
+
+/**
+ * @doc method
+ * @id DS.sync methods:linkInverse
+ * @name linkInverse
+ * @description
+ * Find relations of the item with the given primary key that are already in the data store and link this item to those
+ * relations. This creates links in the opposite direction of `DS.link`.
+ *
+ * ## Signature:
+ * ```js
+ * DS.linkInverse(resourceName, id[, relations])
+ * ```
+ *
+ * ## Examples:
+ *
+ * Assume `organization` has `hasMany` relationship to `user` and `post` has a `belongsTo` relationship to `user`.
+ * ```js
+ * DS.get('user', 1); // { organizationId: 5, id: 1 }
+ * DS.get('organization', 5); // { id: 5 }
+ * DS.filter('post', { userId: 1 }); // [ { id: 23, userId: 1 }, { id: 44, userId: 1 }]
+ *
+ * // link user to its relations
+ * DS.linkInverse('user', 1, ['organization']);
+ *
+ * DS.get('organization', 5); // { id: 5, users: [{ organizationId: 5, id: 1 }] }
+ *
+ * // link user to all of its all relations
+ * DS.linkInverse('user', 1);
+ *
+ * DS.get('user', 1); // { organizationId: 5, id: 1 }
+ * DS.get('organization', 5); // { id: 5, users: [{ organizationId: 5, id: 1 }] }
+ * DS.filter('post', { userId: 1 }); // [ { id: 23, userId: 1, user: {...} }, { id: 44, userId: 1, user: {...} }]
+ * ```
+ *
+ * ## Throws
+ *
+ * - `{IllegalArgumentError}`
+ * - `{NonexistentResourceError}`
+ *
+ * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
+ * @param {string|number} id The primary key of the item for to link relations.
+ * @param {array=} relations The relations to be linked. If not provided then all relations will be linked. Default: `[]`.
+ * @returns {object|array} A reference to the item with its linked relations.
+ */
+function linkInverse(resourceName, id, relations) {
+  var DS = this;
+  var IA = DS.errors.IA;
+  var definition = DS.definitions[resourceName];
+
+  relations = relations || [];
+
+  if (!definition) {
+    throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
+  } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {
+    throw new IA(errorPrefix(resourceName) + 'id: Must be a string or a number!');
+  } else if (!DS.utils.isArray(relations)) {
+    throw new IA(errorPrefix(resourceName) + 'relations: Must be an array!');
+  }
+  var linked = DS.get(resourceName, id);
+
+  if (linked) {
+    if (!DS.$rootScope.$$phase) {
+      DS.$rootScope.$apply(function () {
+        _linkInverse.call(DS, definition, relations);
+      });
+    } else {
+      _linkInverse.call(DS, definition, relations);
+    }
+  }
+
+  return linked;
+}
+
+module.exports = linkInverse;
+
+},{}],68:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.previous(' + resourceName + '[, ' + id + ']): ';
 }
@@ -5878,7 +6260,7 @@ function previous(resourceName, id) {
 
 module.exports = previous;
 
-},{}],66:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 /**
  * @doc function
  * @id errors.types:IllegalArgumentError
@@ -6011,7 +6393,7 @@ module.exports = [function () {
   };
 }];
 
-},{}],67:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 (function (window, angular, undefined) {
   'use strict';
 
@@ -6094,7 +6476,7 @@ module.exports = [function () {
 
 })(window, window.angular);
 
-},{"./adapters/http":36,"./adapters/localStorage":37,"./datastore":49,"./errors":66,"./utils":68}],68:[function(require,module,exports){
+},{"./adapters/http":36,"./adapters/localStorage":37,"./datastore":49,"./errors":69,"./utils":71}],71:[function(require,module,exports){
 module.exports = [function () {
   return {
     isBoolean: require('mout/lang/isBoolean'),
@@ -6179,4 +6561,4 @@ module.exports = [function () {
   };
 }];
 
-},{"mout/array/contains":2,"mout/array/filter":3,"mout/array/slice":7,"mout/array/sort":8,"mout/array/toLookup":9,"mout/lang/isBoolean":14,"mout/lang/isEmpty":15,"mout/object/deepMixIn":22,"mout/object/forOwn":24,"mout/object/pick":27,"mout/object/set":28,"mout/string/makePath":31,"mout/string/pascalCase":32,"mout/string/upperCase":35}]},{},[67]);
+},{"mout/array/contains":2,"mout/array/filter":3,"mout/array/slice":7,"mout/array/sort":8,"mout/array/toLookup":9,"mout/lang/isBoolean":14,"mout/lang/isEmpty":15,"mout/object/deepMixIn":22,"mout/object/forOwn":24,"mout/object/pick":27,"mout/object/set":28,"mout/string/makePath":31,"mout/string/pascalCase":32,"mout/string/upperCase":35}]},{},[70]);

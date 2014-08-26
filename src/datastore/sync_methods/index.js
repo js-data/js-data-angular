@@ -112,6 +112,36 @@ module.exports = {
 
   /**
    * @doc method
+   * @id DS.sync methods:link
+   * @name link
+   * @methodOf DS
+   * @description
+   * See [DS.link](/documentation/api/api/DS.sync methods:link).
+   */
+  link: require('./link'),
+
+  /**
+   * @doc method
+   * @id DS.sync methods:linkAll
+   * @name linkAll
+   * @methodOf DS
+   * @description
+   * See [DS.linkAll](/documentation/api/api/DS.sync methods:linkAll).
+   */
+  linkAll: require('./linkAll'),
+
+  /**
+   * @doc method
+   * @id DS.sync methods:linkInverse
+   * @name linkInverse
+   * @methodOf DS
+   * @description
+   * See [DS.linkInverse](/documentation/api/api/DS.sync methods:linkInverse).
+   */
+  linkInverse: require('./linkInverse'),
+
+  /**
+   * @doc method
    * @id DS.sync methods:digest
    * @name digest
    * @methodOf DS

@@ -198,4 +198,30 @@ describe('DS.create(resourceName, attrs[, options])', function () {
 
     $httpBackend.flush();
   });
+  it('should find inverse links', function () {
+    DS.inject('organization', {
+      id: 77
+    });
+
+    $httpBackend.expectPOST('http://test.angular-cache.com/organization/77/user').respond(200, {
+      organizationId: 77,
+      id: 88
+    });
+
+    DS.create('user', {
+      organizationId: 77,
+      id: 88
+    }, { upsert: false, findBelongsTo: true }).then(function (user) {
+      var organization = DS.link('organization', 77, ['user']);
+      assert.isArray(organization.users);
+      assert.equal(1, organization.users.length);
+      assert.isObject(user.organization);
+      assert.isTrue(user.organization === organization);
+      assert.isTrue(user === organization.users[0]);
+    }, function () {
+      fail('Should not have succeeded!');
+    });
+
+    $httpBackend.flush();
+  });
 });

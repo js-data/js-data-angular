@@ -14,13 +14,14 @@ function _inject(definition, resource, attrs) {
 
   function _react(added, removed, changed, oldValueFn) {
     var target = this;
+    var item;
     var innerId = (oldValueFn && oldValueFn(definition.idAttribute)) ? oldValueFn(definition.idAttribute) : target[definition.idAttribute];
 
     resource.modified[innerId] = DS.utils.updateTimestamp(resource.modified[innerId]);
     resource.collectionModified = DS.utils.updateTimestamp(resource.collectionModified);
 
     if (definition.computed) {
-      var item = DS.get(definition.name, innerId);
+      item = DS.get(definition.name, innerId);
       DS.utils.forOwn(definition.computed, function (fn, field) {
         var compute = false;
         // check if required fields changed
@@ -38,6 +39,22 @@ function _inject(definition, resource, attrs) {
           // recompute property
           item[field] = fn[fn.length - 1].apply(item, args);
         }
+      });
+    }
+
+    if (definition.relations) {
+      item = DS.get(definition.name, innerId);
+      DS.utils.forOwn(definition.relations, function (relatedModels) {
+        DS.utils.forOwn(relatedModels, function (defs, relationName) {
+          if (!DS.utils.isArray(defs)) {
+            defs = [defs];
+          }
+          defs.forEach(function (def) {
+            if (item[def.localField] && (def.localKey in added || def.localKey in removed || def.localKey in changed)) {
+              DS.link(definition.name, item[definition.idAttribute], [relationName]);
+            }
+          });
+        });
       });
     }
 
@@ -137,28 +154,26 @@ function _injectRelations(definition, injected, options) {
         } else if (options.findBelongsTo && type === 'belongsTo') {
           if (DS.utils.isArray(injected)) {
             DS.utils.forEach(injected, function (injectedItem) {
-              var parent = injectedItem[def.localKey] ? DS.get(relationName, injectedItem[def.localKey]) : null;
-              if (parent) {
-                injectedItem[def.localField] = parent;
-              }
+              DS.link(definition.name, injectedItem[definition.idAttribute], [relationName]);
             });
           } else {
-            var parent = injected[def.localKey] ? DS.get(relationName, injected[def.localKey]) : null;
-            if (parent) {
-              injected[def.localField] = parent;
-            }
+            DS.link(definition.name, injected[definition.idAttribute], [relationName]);
           }
         } else if (options.findHasMany && type === 'hasMany') {
           if (DS.utils.isArray(injected)) {
             DS.utils.forEach(injected, function (injectedItem) {
-              var params = {};
-              params[def.foreignKey] = injectedItem[def.foreignKey];
-              injectedItem[def.localField] = DS.defaults.constructor.prototype.defaultFilter.call(DS, DS.store[relationName].collection, relationName, params, { allowSimpleWhere: true });
+              DS.link(definition.name, injectedItem[definition.idAttribute], [relationName]);
             });
           } else {
-            var params = {};
-            params[def.foreignKey] = injected[def.foreignKey];
-            injected[def.localField] = DS.defaults.constructor.prototype.defaultFilter.call(DS, DS.store[relationName].collection, relationName, params, { allowSimpleWhere: true });
+            DS.link(definition.name, injected[definition.idAttribute], [relationName]);
+          }
+        } else if (options.findHasOne && type === 'hasOne') {
+          if (DS.utils.isArray(injected)) {
+            DS.utils.forEach(injected, function (injectedItem) {
+              DS.link(definition.name, injectedItem[definition.idAttribute], [relationName]);
+            });
+          } else {
+            DS.link(definition.name, injected[definition.idAttribute], [relationName]);
           }
         }
       }
@@ -225,6 +240,7 @@ function _injectRelations(definition, injected, options) {
  *
  * - `{boolean=}` - `findBelongsTo` - Find and attach any existing "belongsTo" relationships to the newly injected item. Potentially expensive if enabled. Default: `false`.
  * - `{boolean=}` - `findHasMany` - Find and attach any existing "hasMany" relationships to the newly injected item. Potentially expensive if enabled. Default: `false`.
+ * - `{boolean=}` - `linkInverse` - Look in the data store for relations of the injected item(s) and update their links to the injected. Potentially expensive if enabled. Default: `false`.
  *
  * @returns {object|array} A reference to the item that was injected into the data store or an array of references to
  * the items that were injected into the data store.
@@ -258,6 +274,14 @@ function inject(resourceName, attrs, options) {
     }
     if (definition.relations) {
       _injectRelations.call(DS, definition, injected, options);
+    }
+
+    if (options.linkInverse) {
+      if (DS.utils.isArray(injected) && injected.length) {
+        DS.linkInverse(definition.name, injected[0][definition.idAttribute]);
+      } else {
+        DS.linkInverse(definition.name, injected[definition.idAttribute]);
+      }
     }
 
     DS.notify(definition, 'inject', injected);
