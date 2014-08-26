@@ -352,8 +352,9 @@ describe('DS.defineResource(definition)', function () {
 
     setTimeout(function () {
       $rootScope.$apply();
+      DS.digest();
       assert.isTrue(user88.organization === org77);
       done();
-    }, 50);
+    }, 150);
   });
 });
