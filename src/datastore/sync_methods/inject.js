@@ -1,4 +1,5 @@
 var observe = require('../../../lib/observe-js/observe-js');
+var _compute = require('./compute')._compute;
 var stack = 0;
 var data = {
   injectedSoFar: {}
@@ -32,12 +33,7 @@ function _inject(definition, resource, attrs) {
         });
         compute = compute || !fn.deps.length;
         if (compute) {
-          var args = [];
-          angular.forEach(fn.deps, function (dep) {
-            args.push(item[dep]);
-          });
-          // recompute property
-          item[field] = fn[fn.length - 1].apply(item, args);
+          _compute.call(item, fn, field);
         }
       });
     }

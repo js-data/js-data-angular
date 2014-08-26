@@ -54,7 +54,6 @@ function DSHttpAdapterProvider() {
      * ```js
      * angular.module('myApp').config(function (DSHttpAdapterProvider) {
      *   angular.extend(DSHttpAdapterProvider.defaults.$httpConfig, {
-     *     interceptor: [...],
      *     headers: {
      *       Authorization: 'Basic YmVlcDpib29w'
      *     },

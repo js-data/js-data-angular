@@ -1472,7 +1472,6 @@ function DSHttpAdapterProvider() {
      * ```js
      * angular.module('myApp').config(function (DSHttpAdapterProvider) {
      *   angular.extend(DSHttpAdapterProvider.defaults.$httpConfig, {
-     *     interceptor: [...],
      *     headers: {
      *       Authorization: 'Basic YmVlcDpib29w'
      *     },
@@ -4217,7 +4216,7 @@ function DSProvider() {
 
 module.exports = DSProvider;
 
-},{"../utils":71,"./async_methods":43,"./sync_methods":61}],50:[function(require,module,exports){
+},{"../utils":72,"./async_methods":43,"./sync_methods":62}],50:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.bindAll(scope, expr, ' + resourceName + ', params[, cb]): ';
 }
@@ -4440,6 +4439,102 @@ module.exports = changes;
 
 },{}],53:[function(require,module,exports){
 function errorPrefix(resourceName) {
+  return 'DS.compute(' + resourceName + ', instance): ';
+}
+
+function _compute(fn, field) {
+  var _this = this;
+  var args = [];
+  angular.forEach(fn.deps, function (dep) {
+    args.push(_this[dep]);
+  });
+  // compute property
+  this[field] = fn[fn.length - 1].apply(this, args);
+}
+
+/**
+ * @doc method
+ * @id DS.sync methods:compute
+ * @name compute
+ * @description
+ * Force the given instance or the item with the given primary key to recompute its computed properties.
+ *
+ * ## Signature:
+ * ```js
+ * DS.compute(resourceName, instance)
+ * ```
+ *
+ * ## Example:
+ *
+ * ```js
+ * var User = DS.defineResource({
+ *   name: 'user',
+ *   computed: {
+ *     fullName: ['first', 'last', function (first, last) {
+ *       return first + ' ' + last;
+ *     }]
+ *   }
+ * });
+ *
+ * var user = User.createInstance({ first: 'John', last: 'Doe' });
+ * user.fullName; // undefined
+ *
+ * User.compute(user);
+ *
+ * user.fullName; // "John Doe"
+ *
+ * var user2 = User.inject({ id: 2, first: 'Jane', last: 'Doe' });
+ * user2.fullName; // undefined
+ *
+ * User.compute(1);
+ *
+ * user2.fullName; // "Jane Doe"
+ *
+ * // if you don't pass useClass: false then you can do:
+ * var user3 = User.createInstance({ first: 'Sally', last: 'Doe' });
+ * user3.fullName; // undefined
+ * user3.DSCompute();
+ * user3.fullName; // "Sally Doe"
+ * ```
+ *
+ * ## Throws
+ *
+ * - `{IllegalArgumentError}`
+ * - `{NonexistentResourceError}`
+ *
+ * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
+ * @param {object|string|number} instance Instance or primary key of the instance (must be in the store) for which to recompute properties.
+ * @returns {Object} The instance.
+ */
+function compute(resourceName, instance) {
+  var DS = this;
+  var IA = DS.errors.IA;
+  var definition = DS.definitions[resourceName];
+
+  if (!definition) {
+    throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
+  } else if (!DS.utils.isObject(instance) && !DS.utils.isString(instance) && !DS.utils.isNumber(instance)) {
+    throw new IA(errorPrefix(resourceName) + 'instance: Must be an object, string or number!');
+  }
+
+  if (DS.utils.isString(instance) || DS.utils.isNumber(instance)) {
+    instance = DS.get(resourceName, instance);
+  }
+
+  DS.utils.forOwn(definition.computed, function (fn, field) {
+    _compute.call(instance, fn, field);
+  });
+
+  return instance;
+}
+
+module.exports = {
+  compute: compute,
+  _compute: _compute
+};
+
+},{}],54:[function(require,module,exports){
+function errorPrefix(resourceName) {
   return 'DS.createInstance(' + resourceName + '[, attrs][, options]): ';
 }
 
@@ -4535,7 +4630,7 @@ function createInstance(resourceName, attrs, options) {
 
 module.exports = createInstance;
 
-},{}],54:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 /*jshint evil:true*/
 var errorPrefix = 'DS.defineResource(definition): ';
 
@@ -4568,6 +4663,9 @@ var methodsToProxy = [
   'inject',
   'lastModified',
   'lastSaved',
+  'link',
+  'linkAll',
+  'linkInverse',
   'loadRelations',
   'previous',
   'refresh',
@@ -4774,6 +4872,10 @@ function defineResource(definition) {
           return !!dep;
         });
       });
+
+      def[def.class].prototype.DSCompute = function () {
+        return DS.compute(def.name, this);
+      };
     }
 
     // Initialize store data for the new resource
@@ -4817,7 +4919,7 @@ function defineResource(definition) {
 
 module.exports = defineResource;
 
-},{}],55:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 var observe = require('../../../lib/observe-js/observe-js');
 
 /**
@@ -4853,7 +4955,7 @@ function digest() {
 
 module.exports = digest;
 
-},{"../../../lib/observe-js/observe-js":1}],56:[function(require,module,exports){
+},{"../../../lib/observe-js/observe-js":1}],57:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.eject(' + resourceName + ', ' + id + '): ';
 }
@@ -4946,7 +5048,7 @@ function eject(resourceName, id) {
 
 module.exports = eject;
 
-},{}],57:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.ejectAll(' + resourceName + '[, params]): ';
 }
@@ -5060,7 +5162,7 @@ function ejectAll(resourceName, params) {
 
 module.exports = ejectAll;
 
-},{}],58:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.filter(' + resourceName + '[, params][, options]): ';
 }
@@ -5143,7 +5245,7 @@ function filter(resourceName, params, options) {
 
 module.exports = filter;
 
-},{}],59:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.get(' + resourceName + ', ' + id + '): ';
 }
@@ -5207,7 +5309,7 @@ function get(resourceName, id, options) {
 
 module.exports = get;
 
-},{}],60:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.hasChanges(' + resourceName + ', ' + id + '): ';
 }
@@ -5270,7 +5372,7 @@ function hasChanges(resourceName, id) {
 
 module.exports = hasChanges;
 
-},{}],61:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 module.exports = {
 
   /**
@@ -5292,6 +5394,16 @@ module.exports = {
    * See [DS.bindAll](/documentation/api/api/DS.sync methods:bindAll).
    */
   bindAll: require('./bindAll'),
+
+  /**
+   * @doc method
+   * @id DS.sync methods:compute
+   * @name compute
+   * @methodOf DS
+   * @description
+   * See [DS.compute](/documentation/api/api/DS.sync methods:compute).
+   */
+  compute: require('./compute').compute,
 
   /**
    * @doc method
@@ -5454,8 +5566,9 @@ module.exports = {
   hasChanges: require('./hasChanges')
 };
 
-},{"./bindAll":50,"./bindOne":51,"./changes":52,"./createInstance":53,"./defineResource":54,"./digest":55,"./eject":56,"./ejectAll":57,"./filter":58,"./get":59,"./hasChanges":60,"./inject":62,"./lastModified":63,"./lastSaved":64,"./link":65,"./linkAll":66,"./linkInverse":67,"./previous":68}],62:[function(require,module,exports){
+},{"./bindAll":50,"./bindOne":51,"./changes":52,"./compute":53,"./createInstance":54,"./defineResource":55,"./digest":56,"./eject":57,"./ejectAll":58,"./filter":59,"./get":60,"./hasChanges":61,"./inject":63,"./lastModified":64,"./lastSaved":65,"./link":66,"./linkAll":67,"./linkInverse":68,"./previous":69}],63:[function(require,module,exports){
 var observe = require('../../../lib/observe-js/observe-js');
+var _compute = require('./compute')._compute;
 var stack = 0;
 var data = {
   injectedSoFar: {}
@@ -5489,12 +5602,7 @@ function _inject(definition, resource, attrs) {
         });
         compute = compute || !fn.deps.length;
         if (compute) {
-          var args = [];
-          angular.forEach(fn.deps, function (dep) {
-            args.push(item[dep]);
-          });
-          // recompute property
-          item[field] = fn[fn.length - 1].apply(item, args);
+          _compute.call(item, fn, field);
         }
       });
     }
@@ -5758,7 +5866,7 @@ function inject(resourceName, attrs, options) {
 
 module.exports = inject;
 
-},{"../../../lib/observe-js/observe-js":1}],63:[function(require,module,exports){
+},{"../../../lib/observe-js/observe-js":1,"./compute":53}],64:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.lastModified(' + resourceName + '[, ' + id + ']): ';
 }
@@ -5815,7 +5923,7 @@ function lastModified(resourceName, id) {
 
 module.exports = lastModified;
 
-},{}],64:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.lastSaved(' + resourceName + '[, ' + id + ']): ';
 }
@@ -5877,7 +5985,7 @@ function lastSaved(resourceName, id) {
 
 module.exports = lastSaved;
 
-},{}],65:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.link(' + resourceName + ', id[, relations]): ';
 }
@@ -5985,7 +6093,7 @@ function link(resourceName, id, relations) {
 
 module.exports = link;
 
-},{}],66:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.linkAll(' + resourceName + '[, params][, relations]): ';
 }
@@ -6109,7 +6217,7 @@ function linkAll(resourceName, params, relations) {
 
 module.exports = linkAll;
 
-},{}],67:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.linkInverse(' + resourceName + ', id[, relations]): ';
 }
@@ -6205,7 +6313,7 @@ function linkInverse(resourceName, id, relations) {
 
 module.exports = linkInverse;
 
-},{}],68:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.previous(' + resourceName + '[, ' + id + ']): ';
 }
@@ -6260,7 +6368,7 @@ function previous(resourceName, id) {
 
 module.exports = previous;
 
-},{}],69:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 /**
  * @doc function
  * @id errors.types:IllegalArgumentError
@@ -6393,7 +6501,7 @@ module.exports = [function () {
   };
 }];
 
-},{}],70:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 (function (window, angular, undefined) {
   'use strict';
 
@@ -6476,7 +6584,7 @@ module.exports = [function () {
 
 })(window, window.angular);
 
-},{"./adapters/http":36,"./adapters/localStorage":37,"./datastore":49,"./errors":69,"./utils":71}],71:[function(require,module,exports){
+},{"./adapters/http":36,"./adapters/localStorage":37,"./datastore":49,"./errors":70,"./utils":72}],72:[function(require,module,exports){
 module.exports = [function () {
   return {
     isBoolean: require('mout/lang/isBoolean'),
@@ -6561,4 +6669,4 @@ module.exports = [function () {
   };
 }];
 
-},{"mout/array/contains":2,"mout/array/filter":3,"mout/array/slice":7,"mout/array/sort":8,"mout/array/toLookup":9,"mout/lang/isBoolean":14,"mout/lang/isEmpty":15,"mout/object/deepMixIn":22,"mout/object/forOwn":24,"mout/object/pick":27,"mout/object/set":28,"mout/string/makePath":31,"mout/string/pascalCase":32,"mout/string/upperCase":35}]},{},[70]);
+},{"mout/array/contains":2,"mout/array/filter":3,"mout/array/slice":7,"mout/array/sort":8,"mout/array/toLookup":9,"mout/lang/isBoolean":14,"mout/lang/isEmpty":15,"mout/object/deepMixIn":22,"mout/object/forOwn":24,"mout/object/pick":27,"mout/object/set":28,"mout/string/makePath":31,"mout/string/pascalCase":32,"mout/string/upperCase":35}]},{},[71]);

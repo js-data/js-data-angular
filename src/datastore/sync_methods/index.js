@@ -22,6 +22,16 @@ module.exports = {
 
   /**
    * @doc method
+   * @id DS.sync methods:compute
+   * @name compute
+   * @methodOf DS
+   * @description
+   * See [DS.compute](/documentation/api/api/DS.sync methods:compute).
+   */
+  compute: require('./compute').compute,
+
+  /**
+   * @doc method
    * @id DS.sync methods:createInstance
    * @name createInstance
    * @methodOf DS

@@ -36,6 +36,11 @@ describe('DS.createInstance(resourceName[, attrs][, options])', function () {
         fullName: function () {
           return this.first + ' ' + this.last;
         }
+      },
+      computed: {
+        fullName: ['first', 'last', function (first, last) {
+          return first + ' ' + last;
+        }]
       }
     });
 
@@ -63,10 +68,28 @@ describe('DS.createInstance(resourceName[, attrs][, options])', function () {
 
     assert.deepEqual(JSON.stringify(person), JSON.stringify(personAttrs));
     assert.deepEqual(dog, dogAttrs);
-    assert.deepEqual(cat, {});
+    assert.deepEqual(JSON.stringify(cat), JSON.stringify({}));
 
     assert.isTrue(person instanceof DS.definitions.person[DS.definitions.person.class]);
     assert.isTrue(dog instanceof Object);
     assert.isTrue(cat instanceof DS.definitions.cat[DS.definitions.cat.class]);
+
+    person = DS.createInstance('person', { first: 'John', last: 'Doe' });
+
+    person.DSCompute();
+
+    assert.equal(person.fullName, 'John Doe');
+
+    var person2 = DS.inject('person', { id: 2, first: 'John', last: 'Doe' });
+
+    DS.compute('person', 2);
+
+    assert.equal(person2.fullName, 'John Doe');
+
+    var person3 = DS.inject('person', { id: 3, first: 'John', last: 'Doe' });
+
+    DS.compute('person', person3);
+
+    assert.equal(person3.fullName, 'John Doe');
   });
 });

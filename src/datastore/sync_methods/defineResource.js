@@ -30,6 +30,9 @@ var methodsToProxy = [
   'inject',
   'lastModified',
   'lastSaved',
+  'link',
+  'linkAll',
+  'linkInverse',
   'loadRelations',
   'previous',
   'refresh',
@@ -236,6 +239,10 @@ function defineResource(definition) {
           return !!dep;
         });
       });
+
+      def[def.class].prototype.DSCompute = function () {
+        return DS.compute(def.name, this);
+      };
     }
 
     // Initialize store data for the new resource
