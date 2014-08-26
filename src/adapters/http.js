@@ -228,7 +228,8 @@ function DSHttpAdapterProvider() {
        * @param {string|number} id Primary key of the entity to update.
        * @param {object=} options Optional configuration. Also passed along to `$http([config])`. Properties:
        *
-       * - `{string=}` - `baseUrl` - Base url to use.
+       * - `{string=}` - `baseUrl` - Override the default base url.
+       * - `{string=}` - `endpoint` - Override the default endpoint.
        * - `{object=}` - `params` - Additional query string parameters to add to the url.
        *
        * @returns {Promise} Promise.
@@ -259,7 +260,8 @@ function DSHttpAdapterProvider() {
        * @param {object=} params Search query parameters. See the [query guide](/documentation/guide/queries/index).
        * @param {object=} options Optional configuration. Also passed along to `$http([config])`. Properties:
        *
-       * - `{string=}` - `baseUrl` - Base url to use.
+       * - `{string=}` - `baseUrl` - Override the default base url.
+       * - `{string=}` - `endpoint` - Override the default endpoint.
        * - `{object=}` - `params` - Additional query string parameters to add to the url.
        *
        * @returns {Promise} Promise.
@@ -295,7 +297,8 @@ function DSHttpAdapterProvider() {
        * @param {object} attrs The attribute payload.
        * @param {object=} options Optional configuration. Also passed along to `$http([config])`. Properties:
        *
-       * - `{string=}` - `baseUrl` - Base url to use.
+       * - `{string=}` - `baseUrl` - Override the default base url.
+       * - `{string=}` - `endpoint` - Override the default endpoint.
        * - `{object=}` - `params` - Additional query string parameters to add to the url.
        *
        * @returns {Promise} Promise.
@@ -328,7 +331,8 @@ function DSHttpAdapterProvider() {
        * @param {object} attrs The attribute payload.
        * @param {object=} options Optional configuration. Also passed along to `$http([config])`. Properties:
        *
-       * - `{string=}` - `baseUrl` - Base url to use.
+       * - `{string=}` - `baseUrl` - Override the default base url.
+       * - `{string=}` - `endpoint` - Override the default endpoint.
        * - `{object=}` - `params` - Additional query string parameters to add to the url.
        *
        * @returns {Promise} Promise.
@@ -361,7 +365,8 @@ function DSHttpAdapterProvider() {
        * @param {object=} params Search query parameters. See the [query guide](/documentation/guide/queries/index).
        * @param {object=} options Optional configuration. Also passed along to `$http([config])`. Properties:
        *
-       * - `{string=}` - `baseUrl` - Base url to use.
+       * - `{string=}` - `baseUrl` - Override the default base url.
+       * - `{string=}` - `endpoint` - Override the default endpoint.
        * - `{object=}` - `params` - Additional query string parameters to add to the url.
        *
        * @returns {Promise} Promise.
@@ -398,7 +403,8 @@ function DSHttpAdapterProvider() {
        * @param {string|number} id Primary key of the entity to update.
        * @param {object=} options Optional configuration. Also passed along to `$http([config])`. Properties:
        *
-       * - `{string=}` - `baseUrl` - Base url to use.
+       * - `{string=}` - `baseUrl` - Override the default base url.
+       * - `{string=}` - `endpoint` - Override the default endpoint.
        * - `{object=}` - `params` - Additional query string parameters to add to the url.
        *
        * @returns {Promise} Promise.
@@ -429,7 +435,8 @@ function DSHttpAdapterProvider() {
        * @param {object=} params Search query parameters. See the [query guide](/documentation/guide/queries/index).
        * @param {object=} options Optional configuration. Also passed along to `$http([config])`. Properties:
        *
-       * - `{string=}` - `baseUrl` - Base url to use.
+       * - `{string=}` - `baseUrl` - Override the default base url.
+       * - `{string=}` - `endpoint` - Override the default endpoint.
        * - `{object=}` - `params` - Additional query string parameters to add to the url.
        *
        * @returns {Promise} Promise.

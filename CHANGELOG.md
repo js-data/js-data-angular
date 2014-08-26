@@ -5,6 +5,7 @@
 
 ###### Backwards compatible API changes
 - #132 - Added `findHasMany` option and capability to `DS.inject`
+- #133 - Override resource end point in async methods
 - #136 - Add a way to force computed properties to be computed. Added `DS.compute`. Added `DSCompute` to prototype of instances.
 - #137 - Add `DS.link`, `DS.linkAll`, and `DS.linkInverse`, and added `linkInverse` option to `DS.inject`
 

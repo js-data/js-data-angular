@@ -152,6 +152,8 @@ function defineResource(definition) {
       var parentKey = this.parentKey;
       var item;
       var endpoint;
+      var thisEndpoint = options.endpoint || this.endpoint;
+      delete options.endpoint;
       options = options || {};
       options.params = options.params || {};
       if (parent && parentKey && definitions[parent] && options.params[parentKey] !== false) {
@@ -160,19 +162,19 @@ function defineResource(definition) {
         }
         if (DS.utils.isObject(attrs) && parentKey in attrs) {
           delete options.params[parentKey];
-          endpoint = DS.utils.makePath(definitions[parent].getEndpoint(attrs, options), attrs[parentKey], this.endpoint);
+          endpoint = DS.utils.makePath(definitions[parent].getEndpoint(attrs, options), attrs[parentKey], thisEndpoint);
         } else if (item && parentKey in item) {
           delete options.params[parentKey];
-          endpoint = DS.utils.makePath(definitions[parent].getEndpoint(attrs, options), item[parentKey], this.endpoint);
+          endpoint = DS.utils.makePath(definitions[parent].getEndpoint(attrs, options), item[parentKey], thisEndpoint);
         } else if (options && options.params[parentKey]) {
-          endpoint = DS.utils.makePath(definitions[parent].getEndpoint(attrs, options), options.params[parentKey], this.endpoint);
+          endpoint = DS.utils.makePath(definitions[parent].getEndpoint(attrs, options), options.params[parentKey], thisEndpoint);
           delete options.params[parentKey];
         }
       }
       if (options.params[parentKey] === false) {
         delete options.params[parentKey];
       }
-      return endpoint || this.endpoint;
+      return endpoint || thisEndpoint;
     };
 
     // Remove this in v0.11.0 and make a breaking change notice
