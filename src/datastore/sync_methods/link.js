@@ -4,34 +4,27 @@ function errorPrefix(resourceName) {
 
 function _link(definition, linked, relations) {
   var DS = this;
-  DS.utils.forOwn(definition.relations, function (relatedModels, type) {
-    DS.utils.forOwn(relatedModels, function (defs, relationName) {
-      if (relations.length && !DS.utils.contains(relations, relationName)) {
-        return;
+  DS.utils.forEach(definition.relationList, function (def) {
+    var relationName = def.relation;
+    if (relations.length && !DS.utils.contains(relations, relationName)) {
+      return;
+    }
+    var params = {};
+    if (def.type === 'belongsTo') {
+      var parent = linked[def.localKey] ? DS.get(relationName, linked[def.localKey]) : null;
+      if (parent) {
+        linked[def.localField] = parent;
       }
-      if (!DS.utils.isArray(defs)) {
-        defs = [defs];
+    } else if (def.type === 'hasMany') {
+      params[def.foreignKey] = linked[definition.idAttribute];
+      linked[def.localField] = DS.defaults.constructor.prototype.defaultFilter.call(DS, DS.store[relationName].collection, relationName, params, { allowSimpleWhere: true });
+    } else if (def.type === 'hasOne') {
+      params[def.foreignKey] = linked[definition.idAttribute];
+      var children = DS.defaults.constructor.prototype.defaultFilter.call(DS, DS.store[relationName].collection, relationName, params, { allowSimpleWhere: true });
+      if (children.length) {
+        linked[def.localField] = children[0];
       }
-
-      defs.forEach(function (def) {
-        var params = {};
-        if (type === 'belongsTo') {
-          var parent = linked[def.localKey] ? DS.get(relationName, linked[def.localKey]) : null;
-          if (parent) {
-            linked[def.localField] = parent;
-          }
-        } else if (type === 'hasMany') {
-          params[def.foreignKey] = linked[definition.idAttribute];
-          linked[def.localField] = DS.defaults.constructor.prototype.defaultFilter.call(DS, DS.store[relationName].collection, relationName, params, { allowSimpleWhere: true });
-        } else if (type === 'hasOne') {
-          params[def.foreignKey] = linked[definition.idAttribute];
-          var children = DS.defaults.constructor.prototype.defaultFilter.call(DS, DS.store[relationName].collection, relationName, params, { allowSimpleWhere: true });
-          if (children.length) {
-            linked[def.localField] = children[0];
-          }
-        }
-      });
-    });
+    }
   });
 }
 

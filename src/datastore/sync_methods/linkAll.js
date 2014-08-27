@@ -4,41 +4,34 @@ function errorPrefix(resourceName) {
 
 function _linkAll(definition, linked, relations) {
   var DS = this;
-  DS.utils.forOwn(definition.relations, function (relatedModels, type) {
-    DS.utils.forOwn(relatedModels, function (defs, relationName) {
-      if (relations.length && !DS.utils.contains(relations, relationName)) {
-        return;
-      }
-      if (!DS.utils.isArray(defs)) {
-        defs = [defs];
-      }
-
-      defs.forEach(function (def) {
-        if (type === 'belongsTo') {
-          DS.utils.forEach(linked, function (injectedItem) {
-            var parent = injectedItem[def.localKey] ? DS.get(relationName, injectedItem[def.localKey]) : null;
-            if (parent) {
-              injectedItem[def.localField] = parent;
-            }
-          });
-        } else if (type === 'hasMany') {
-          DS.utils.forEach(linked, function (injectedItem) {
-            var params = {};
-            params[def.foreignKey] = injectedItem[definition.idAttribute];
-            injectedItem[def.localField] = DS.defaults.constructor.prototype.defaultFilter.call(DS, DS.store[relationName].collection, relationName, params, { allowSimpleWhere: true });
-          });
-        } else if (type === 'hasOne') {
-          DS.utils.forEach(linked, function (injectedItem) {
-            var params = {};
-            params[def.foreignKey] = injectedItem[definition.idAttribute];
-            var children = DS.defaults.constructor.prototype.defaultFilter.call(DS, DS.store[relationName].collection, relationName, params, { allowSimpleWhere: true });
-            if (children.length) {
-              injectedItem[def.localField] = children[0];
-            }
-          });
+  DS.utils.forEach(definition.relationList, function (def) {
+    var relationName = def.relation;
+    if (relations.length && !DS.utils.contains(relations, relationName)) {
+      return;
+    }
+    if (def.type === 'belongsTo') {
+      DS.utils.forEach(linked, function (injectedItem) {
+        var parent = injectedItem[def.localKey] ? DS.get(relationName, injectedItem[def.localKey]) : null;
+        if (parent) {
+          injectedItem[def.localField] = parent;
         }
       });
-    });
+    } else if (def.type === 'hasMany') {
+      DS.utils.forEach(linked, function (injectedItem) {
+        var params = {};
+        params[def.foreignKey] = injectedItem[definition.idAttribute];
+        injectedItem[def.localField] = DS.defaults.constructor.prototype.defaultFilter.call(DS, DS.store[relationName].collection, relationName, params, { allowSimpleWhere: true });
+      });
+    } else if (def.type === 'hasOne') {
+      DS.utils.forEach(linked, function (injectedItem) {
+        var params = {};
+        params[def.foreignKey] = injectedItem[definition.idAttribute];
+        var children = DS.defaults.constructor.prototype.defaultFilter.call(DS, DS.store[relationName].collection, relationName, params, { allowSimpleWhere: true });
+        if (children.length) {
+          injectedItem[def.localField] = children[0];
+        }
+      });
+    }
   });
 }
 

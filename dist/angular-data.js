@@ -1646,7 +1646,8 @@ function DSHttpAdapterProvider() {
        * @param {string|number} id Primary key of the entity to update.
        * @param {object=} options Optional configuration. Also passed along to `$http([config])`. Properties:
        *
-       * - `{string=}` - `baseUrl` - Base url to use.
+       * - `{string=}` - `baseUrl` - Override the default base url.
+       * - `{string=}` - `endpoint` - Override the default endpoint.
        * - `{object=}` - `params` - Additional query string parameters to add to the url.
        *
        * @returns {Promise} Promise.
@@ -1677,7 +1678,8 @@ function DSHttpAdapterProvider() {
        * @param {object=} params Search query parameters. See the [query guide](/documentation/guide/queries/index).
        * @param {object=} options Optional configuration. Also passed along to `$http([config])`. Properties:
        *
-       * - `{string=}` - `baseUrl` - Base url to use.
+       * - `{string=}` - `baseUrl` - Override the default base url.
+       * - `{string=}` - `endpoint` - Override the default endpoint.
        * - `{object=}` - `params` - Additional query string parameters to add to the url.
        *
        * @returns {Promise} Promise.
@@ -1713,7 +1715,8 @@ function DSHttpAdapterProvider() {
        * @param {object} attrs The attribute payload.
        * @param {object=} options Optional configuration. Also passed along to `$http([config])`. Properties:
        *
-       * - `{string=}` - `baseUrl` - Base url to use.
+       * - `{string=}` - `baseUrl` - Override the default base url.
+       * - `{string=}` - `endpoint` - Override the default endpoint.
        * - `{object=}` - `params` - Additional query string parameters to add to the url.
        *
        * @returns {Promise} Promise.
@@ -1746,7 +1749,8 @@ function DSHttpAdapterProvider() {
        * @param {object} attrs The attribute payload.
        * @param {object=} options Optional configuration. Also passed along to `$http([config])`. Properties:
        *
-       * - `{string=}` - `baseUrl` - Base url to use.
+       * - `{string=}` - `baseUrl` - Override the default base url.
+       * - `{string=}` - `endpoint` - Override the default endpoint.
        * - `{object=}` - `params` - Additional query string parameters to add to the url.
        *
        * @returns {Promise} Promise.
@@ -1779,7 +1783,8 @@ function DSHttpAdapterProvider() {
        * @param {object=} params Search query parameters. See the [query guide](/documentation/guide/queries/index).
        * @param {object=} options Optional configuration. Also passed along to `$http([config])`. Properties:
        *
-       * - `{string=}` - `baseUrl` - Base url to use.
+       * - `{string=}` - `baseUrl` - Override the default base url.
+       * - `{string=}` - `endpoint` - Override the default endpoint.
        * - `{object=}` - `params` - Additional query string parameters to add to the url.
        *
        * @returns {Promise} Promise.
@@ -1816,7 +1821,8 @@ function DSHttpAdapterProvider() {
        * @param {string|number} id Primary key of the entity to update.
        * @param {object=} options Optional configuration. Also passed along to `$http([config])`. Properties:
        *
-       * - `{string=}` - `baseUrl` - Base url to use.
+       * - `{string=}` - `baseUrl` - Override the default base url.
+       * - `{string=}` - `endpoint` - Override the default endpoint.
        * - `{object=}` - `params` - Additional query string parameters to add to the url.
        *
        * @returns {Promise} Promise.
@@ -1847,7 +1853,8 @@ function DSHttpAdapterProvider() {
        * @param {object=} params Search query parameters. See the [query guide](/documentation/guide/queries/index).
        * @param {object=} options Optional configuration. Also passed along to `$http([config])`. Properties:
        *
-       * - `{string=}` - `baseUrl` - Base url to use.
+       * - `{string=}` - `baseUrl` - Override the default base url.
+       * - `{string=}` - `endpoint` - Override the default endpoint.
        * - `{object=}` - `params` - Additional query string parameters to add to the url.
        *
        * @returns {Promise} Promise.
@@ -2939,37 +2946,30 @@ function loadRelations(resourceName, instance, relations, options) {
     var tasks = [];
     var fields = [];
 
-    DS.utils.forOwn(definition.relations, function (relatedModels, type) {
-      DS.utils.forOwn(relatedModels, function (defs, relationName) {
-        if (!DS.utils.isArray(defs)) {
-          defs = [defs];
+    DS.utils.forEach(definition.relationList, function (def) {
+      var relationName = def.relation;
+      if (DS.utils.contains(relations, relationName)) {
+        var task;
+        var params = {};
+        params[def.foreignKey] = instance[definition.idAttribute];
+
+        if (def.type === 'hasMany') {
+          task = DS.findAll(relationName, params, options);
+        } else if (def.type === 'hasOne') {
+          if (def.localKey && instance[def.localKey]) {
+            task = DS.find(relationName, instance[def.localKey], options);
+          } else if (def.foreignKey) {
+            task = DS.findAll(relationName, params, options);
+          }
+        } else {
+          task = DS.find(relationName, instance[def.localKey], options);
         }
 
-        defs.forEach(function (def) {
-          if (DS.utils.contains(relations, relationName)) {
-            var task;
-            var params = {};
-            params[def.foreignKey] = instance[definition.idAttribute];
-
-            if (type === 'hasMany') {
-              task = DS.findAll(relationName, params, options);
-            } else if (type === 'hasOne') {
-              if (def.localKey && instance[def.localKey]) {
-                task = DS.find(relationName, instance[def.localKey], options);
-              } else if (def.foreignKey) {
-                task = DS.findAll(relationName, params, options);
-              }
-            } else {
-              task = DS.find(relationName, instance[def.localKey], options);
-            }
-
-            if (task) {
-              tasks.push(task);
-              fields.push(def.localField);
-            }
-          }
-        });
-      });
+        if (task) {
+          tasks.push(task);
+          fields.push(def.localField);
+        }
+      }
     });
 
     promise = promise
@@ -4766,18 +4766,35 @@ function defineResource(definition) {
     var def = definitions[definition.name];
 
     // Setup nested parent configuration
-    if (def.relations && def.relations.belongsTo) {
-      DS.utils.forOwn(def.relations.belongsTo, function (relatedModel, modelName) {
-        if (!DS.utils.isArray(relatedModel)) {
-          relatedModel = [relatedModel];
-        }
-        DS.utils.forEach(relatedModel, function (relation) {
-          if (relation.parent) {
-            def.parent = modelName;
-            def.parentKey = relation.localKey;
+    if (def.relations) {
+      def.relationList = [];
+      def.relationFields = [];
+      DS.utils.forOwn(def.relations, function (relatedModels, type) {
+        DS.utils.forOwn(relatedModels, function (defs, relationName) {
+          if (!DS.utils.isArray(defs)) {
+            relatedModels[relationName] = [defs];
           }
+          DS.utils.forEach(relatedModels[relationName], function (d) {
+            d.type = type;
+            d.relation = relationName;
+            d.name = def.name;
+            def.relationList.push(d);
+            def.relationFields.push(d.localField);
+          });
         });
       });
+      if (def.relations.belongsTo) {
+        DS.utils.forOwn(def.relations.belongsTo, function (relatedModel, modelName) {
+          DS.utils.forEach(relatedModel, function (relation) {
+            if (relation.parent) {
+              def.parent = modelName;
+              def.parentKey = relation.localKey;
+            }
+          });
+        });
+      }
+      DS.utils.deepFreeze(def.relations);
+      DS.utils.deepFreeze(def.relationList);
     }
 
     def.getEndpoint = function (attrs, options) {
@@ -4785,6 +4802,8 @@ function defineResource(definition) {
       var parentKey = this.parentKey;
       var item;
       var endpoint;
+      var thisEndpoint = options.endpoint || this.endpoint;
+      delete options.endpoint;
       options = options || {};
       options.params = options.params || {};
       if (parent && parentKey && definitions[parent] && options.params[parentKey] !== false) {
@@ -4793,19 +4812,19 @@ function defineResource(definition) {
         }
         if (DS.utils.isObject(attrs) && parentKey in attrs) {
           delete options.params[parentKey];
-          endpoint = DS.utils.makePath(definitions[parent].getEndpoint(attrs, options), attrs[parentKey], this.endpoint);
+          endpoint = DS.utils.makePath(definitions[parent].getEndpoint(attrs, options), attrs[parentKey], thisEndpoint);
         } else if (item && parentKey in item) {
           delete options.params[parentKey];
-          endpoint = DS.utils.makePath(definitions[parent].getEndpoint(attrs, options), item[parentKey], this.endpoint);
+          endpoint = DS.utils.makePath(definitions[parent].getEndpoint(attrs, options), item[parentKey], thisEndpoint);
         } else if (options && options.params[parentKey]) {
-          endpoint = DS.utils.makePath(definitions[parent].getEndpoint(attrs, options), options.params[parentKey], this.endpoint);
+          endpoint = DS.utils.makePath(definitions[parent].getEndpoint(attrs, options), options.params[parentKey], thisEndpoint);
           delete options.params[parentKey];
         }
       }
       if (options.params[parentKey] === false) {
         delete options.params[parentKey];
       }
-      return endpoint || this.endpoint;
+      return endpoint || thisEndpoint;
     };
 
     // Remove this in v0.11.0 and make a breaking change notice
@@ -5582,13 +5601,21 @@ function _inject(definition, resource, attrs) {
   var DS = this;
   var $log = DS.$log;
 
-  function _react(added, removed, changed, oldValueFn) {
+  function _react(added, removed, changed, oldValueFn, firstTime) {
     var target = this;
     var item;
     var innerId = (oldValueFn && oldValueFn(definition.idAttribute)) ? oldValueFn(definition.idAttribute) : target[definition.idAttribute];
 
-    resource.modified[innerId] = DS.utils.updateTimestamp(resource.modified[innerId]);
-    resource.collectionModified = DS.utils.updateTimestamp(resource.collectionModified);
+    DS.utils.forEach(definition.relationFields, function (field) {
+      delete added[field];
+      delete removed[field];
+      delete changed[field];
+    });
+
+    if (!DS.utils.isEmpty(added) || !DS.utils.isEmpty(removed) || !DS.utils.isEmpty(changed) || firstTime) {
+      resource.modified[innerId] = DS.utils.updateTimestamp(resource.modified[innerId]);
+      resource.collectionModified = DS.utils.updateTimestamp(resource.collectionModified);
+    }
 
     if (definition.computed) {
       item = DS.get(definition.name, innerId);
@@ -5609,17 +5636,10 @@ function _inject(definition, resource, attrs) {
 
     if (definition.relations) {
       item = DS.get(definition.name, innerId);
-      DS.utils.forOwn(definition.relations, function (relatedModels) {
-        DS.utils.forOwn(relatedModels, function (defs, relationName) {
-          if (!DS.utils.isArray(defs)) {
-            defs = [defs];
-          }
-          defs.forEach(function (def) {
-            if (item[def.localField] && (def.localKey in added || def.localKey in removed || def.localKey in changed)) {
-              DS.link(definition.name, item[definition.idAttribute], [relationName]);
-            }
-          });
-        });
+      DS.utils.forEach(definition.relationList, function (def) {
+        if (item[def.localField] && (def.localKey in added || def.localKey in removed || def.localKey in changed)) {
+          DS.link(definition.name, item[definition.idAttribute], [def.relation]);
+        }
       });
     }
 
@@ -5678,7 +5698,7 @@ function _inject(definition, resource, attrs) {
           resource.observers[id].open(_react, item);
           resource.index.put(id, item);
 
-          _react.call(item, {}, {}, {});
+          _react.call(item, {}, {}, {}, null, true);
         } else {
           DS.utils.deepMixIn(item, attrs);
           if (typeof resource.index.touch === 'function') {
@@ -5702,57 +5722,43 @@ function _inject(definition, resource, attrs) {
 
 function _injectRelations(definition, injected, options) {
   var DS = this;
-  DS.utils.forOwn(definition.relations, function (relatedModels, type) {
-    DS.utils.forOwn(relatedModels, function (defs, relationName) {
-      if (!DS.utils.isArray(defs)) {
-        defs = [defs];
-      }
 
-      function _process(def, injected) {
-        if (DS.definitions[relationName] && injected[def.localField] && !data.injectedSoFar[relationName + injected[def.localField][DS.definitions[relationName].idAttribute]]) {
-          try {
-            data.injectedSoFar[relationName + injected[def.localField][DS.definitions[relationName].idAttribute]] = 1;
-            injected[def.localField] = DS.inject(relationName, injected[def.localField], options);
-          } catch (err) {
-            DS.$log.error(errorPrefix(definition.name) + 'Failed to inject ' + type + ' relation: "' + relationName + '"!', err);
-          }
-        } else if (options.findBelongsTo && type === 'belongsTo') {
-          if (DS.utils.isArray(injected)) {
-            DS.utils.forEach(injected, function (injectedItem) {
-              DS.link(definition.name, injectedItem[definition.idAttribute], [relationName]);
-            });
-          } else {
-            DS.link(definition.name, injected[definition.idAttribute], [relationName]);
-          }
-        } else if (options.findHasMany && type === 'hasMany') {
-          if (DS.utils.isArray(injected)) {
-            DS.utils.forEach(injected, function (injectedItem) {
-              DS.link(definition.name, injectedItem[definition.idAttribute], [relationName]);
-            });
-          } else {
-            DS.link(definition.name, injected[definition.idAttribute], [relationName]);
-          }
-        } else if (options.findHasOne && type === 'hasOne') {
-          if (DS.utils.isArray(injected)) {
-            DS.utils.forEach(injected, function (injectedItem) {
-              DS.link(definition.name, injectedItem[definition.idAttribute], [relationName]);
-            });
-          } else {
-            DS.link(definition.name, injected[definition.idAttribute], [relationName]);
-          }
-        }
+  function _process(def, relationName, injected) {
+    var relationDef = DS.definitions[relationName];
+    if (relationDef && injected[def.localField] && !data.injectedSoFar[relationName + injected[def.localField][relationDef.idAttribute]]) {
+      try {
+        data.injectedSoFar[relationName + injected[def.localField][relationDef.idAttribute]] = 1;
+        injected[def.localField] = DS.inject(relationName, injected[def.localField], options);
+      } catch (err) {
+        DS.$log.error(errorPrefix(definition.name) + 'Failed to inject ' + def.type + ' relation: "' + relationName + '"!', err);
       }
+    } else if (options.findBelongsTo && def.type === 'belongsTo') {
+      if (DS.utils.isArray(injected)) {
+        DS.utils.forEach(injected, function (injectedItem) {
+          DS.link(definition.name, injectedItem[definition.idAttribute], [relationName]);
+        });
+      } else {
+        DS.link(definition.name, injected[definition.idAttribute], [relationName]);
+      }
+    } else if ((options.findHasMany && def.type === 'hasMany') || (options.findHasOne && def.type === 'hasOne')) {
+      if (DS.utils.isArray(injected)) {
+        DS.utils.forEach(injected, function (injectedItem) {
+          DS.link(definition.name, injectedItem[definition.idAttribute], [relationName]);
+        });
+      } else {
+        DS.link(definition.name, injected[definition.idAttribute], [relationName]);
+      }
+    }
+  }
 
-      defs.forEach(function (def) {
-        if (DS.utils.isArray(injected)) {
-          DS.utils.forEach(injected, function (injectedI) {
-            _process(def, injectedI);
-          });
-        } else {
-          _process(def, injected);
-        }
+  DS.utils.forEach(definition.relationList, function (def) {
+    if (DS.utils.isArray(injected)) {
+      DS.utils.forEach(injected, function (injectedI) {
+        _process(def, def.relation, injectedI);
       });
-    });
+    } else {
+      _process(def, def.relation, injected);
+    }
   });
 }
 
@@ -5805,6 +5811,7 @@ function _injectRelations(definition, injected, options) {
  *
  * - `{boolean=}` - `findBelongsTo` - Find and attach any existing "belongsTo" relationships to the newly injected item. Potentially expensive if enabled. Default: `false`.
  * - `{boolean=}` - `findHasMany` - Find and attach any existing "hasMany" relationships to the newly injected item. Potentially expensive if enabled. Default: `false`.
+ * - `{boolean=}` - `findHasOne` - Find and attach any existing "hasOne" relationships to the newly injected item. Potentially expensive if enabled. Default: `false`.
  * - `{boolean=}` - `linkInverse` - Look in the data store for relations of the injected item(s) and update their links to the injected. Potentially expensive if enabled. Default: `false`.
  *
  * @returns {object|array} A reference to the item that was injected into the data store or an array of references to
@@ -5992,34 +5999,27 @@ function errorPrefix(resourceName) {
 
 function _link(definition, linked, relations) {
   var DS = this;
-  DS.utils.forOwn(definition.relations, function (relatedModels, type) {
-    DS.utils.forOwn(relatedModels, function (defs, relationName) {
-      if (relations.length && !DS.utils.contains(relations, relationName)) {
-        return;
+  DS.utils.forEach(definition.relationList, function (def) {
+    var relationName = def.relation;
+    if (relations.length && !DS.utils.contains(relations, relationName)) {
+      return;
+    }
+    var params = {};
+    if (def.type === 'belongsTo') {
+      var parent = linked[def.localKey] ? DS.get(relationName, linked[def.localKey]) : null;
+      if (parent) {
+        linked[def.localField] = parent;
       }
-      if (!DS.utils.isArray(defs)) {
-        defs = [defs];
+    } else if (def.type === 'hasMany') {
+      params[def.foreignKey] = linked[definition.idAttribute];
+      linked[def.localField] = DS.defaults.constructor.prototype.defaultFilter.call(DS, DS.store[relationName].collection, relationName, params, { allowSimpleWhere: true });
+    } else if (def.type === 'hasOne') {
+      params[def.foreignKey] = linked[definition.idAttribute];
+      var children = DS.defaults.constructor.prototype.defaultFilter.call(DS, DS.store[relationName].collection, relationName, params, { allowSimpleWhere: true });
+      if (children.length) {
+        linked[def.localField] = children[0];
       }
-
-      defs.forEach(function (def) {
-        var params = {};
-        if (type === 'belongsTo') {
-          var parent = linked[def.localKey] ? DS.get(relationName, linked[def.localKey]) : null;
-          if (parent) {
-            linked[def.localField] = parent;
-          }
-        } else if (type === 'hasMany') {
-          params[def.foreignKey] = linked[definition.idAttribute];
-          linked[def.localField] = DS.defaults.constructor.prototype.defaultFilter.call(DS, DS.store[relationName].collection, relationName, params, { allowSimpleWhere: true });
-        } else if (type === 'hasOne') {
-          params[def.foreignKey] = linked[definition.idAttribute];
-          var children = DS.defaults.constructor.prototype.defaultFilter.call(DS, DS.store[relationName].collection, relationName, params, { allowSimpleWhere: true });
-          if (children.length) {
-            linked[def.localField] = children[0];
-          }
-        }
-      });
-    });
+    }
   });
 }
 
@@ -6100,41 +6100,34 @@ function errorPrefix(resourceName) {
 
 function _linkAll(definition, linked, relations) {
   var DS = this;
-  DS.utils.forOwn(definition.relations, function (relatedModels, type) {
-    DS.utils.forOwn(relatedModels, function (defs, relationName) {
-      if (relations.length && !DS.utils.contains(relations, relationName)) {
-        return;
-      }
-      if (!DS.utils.isArray(defs)) {
-        defs = [defs];
-      }
-
-      defs.forEach(function (def) {
-        if (type === 'belongsTo') {
-          DS.utils.forEach(linked, function (injectedItem) {
-            var parent = injectedItem[def.localKey] ? DS.get(relationName, injectedItem[def.localKey]) : null;
-            if (parent) {
-              injectedItem[def.localField] = parent;
-            }
-          });
-        } else if (type === 'hasMany') {
-          DS.utils.forEach(linked, function (injectedItem) {
-            var params = {};
-            params[def.foreignKey] = injectedItem[definition.idAttribute];
-            injectedItem[def.localField] = DS.defaults.constructor.prototype.defaultFilter.call(DS, DS.store[relationName].collection, relationName, params, { allowSimpleWhere: true });
-          });
-        } else if (type === 'hasOne') {
-          DS.utils.forEach(linked, function (injectedItem) {
-            var params = {};
-            params[def.foreignKey] = injectedItem[definition.idAttribute];
-            var children = DS.defaults.constructor.prototype.defaultFilter.call(DS, DS.store[relationName].collection, relationName, params, { allowSimpleWhere: true });
-            if (children.length) {
-              injectedItem[def.localField] = children[0];
-            }
-          });
+  DS.utils.forEach(definition.relationList, function (def) {
+    var relationName = def.relation;
+    if (relations.length && !DS.utils.contains(relations, relationName)) {
+      return;
+    }
+    if (def.type === 'belongsTo') {
+      DS.utils.forEach(linked, function (injectedItem) {
+        var parent = injectedItem[def.localKey] ? DS.get(relationName, injectedItem[def.localKey]) : null;
+        if (parent) {
+          injectedItem[def.localField] = parent;
         }
       });
-    });
+    } else if (def.type === 'hasMany') {
+      DS.utils.forEach(linked, function (injectedItem) {
+        var params = {};
+        params[def.foreignKey] = injectedItem[definition.idAttribute];
+        injectedItem[def.localField] = DS.defaults.constructor.prototype.defaultFilter.call(DS, DS.store[relationName].collection, relationName, params, { allowSimpleWhere: true });
+      });
+    } else if (def.type === 'hasOne') {
+      DS.utils.forEach(linked, function (injectedItem) {
+        var params = {};
+        params[def.foreignKey] = injectedItem[definition.idAttribute];
+        var children = DS.defaults.constructor.prototype.defaultFilter.call(DS, DS.store[relationName].collection, relationName, params, { allowSimpleWhere: true });
+        if (children.length) {
+          injectedItem[def.localField] = children[0];
+        }
+      });
+    }
   });
 }
 

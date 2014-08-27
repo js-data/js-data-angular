@@ -133,18 +133,35 @@ function defineResource(definition) {
     var def = definitions[definition.name];
 
     // Setup nested parent configuration
-    if (def.relations && def.relations.belongsTo) {
-      DS.utils.forOwn(def.relations.belongsTo, function (relatedModel, modelName) {
-        if (!DS.utils.isArray(relatedModel)) {
-          relatedModel = [relatedModel];
-        }
-        DS.utils.forEach(relatedModel, function (relation) {
-          if (relation.parent) {
-            def.parent = modelName;
-            def.parentKey = relation.localKey;
+    if (def.relations) {
+      def.relationList = [];
+      def.relationFields = [];
+      DS.utils.forOwn(def.relations, function (relatedModels, type) {
+        DS.utils.forOwn(relatedModels, function (defs, relationName) {
+          if (!DS.utils.isArray(defs)) {
+            relatedModels[relationName] = [defs];
           }
+          DS.utils.forEach(relatedModels[relationName], function (d) {
+            d.type = type;
+            d.relation = relationName;
+            d.name = def.name;
+            def.relationList.push(d);
+            def.relationFields.push(d.localField);
+          });
         });
       });
+      if (def.relations.belongsTo) {
+        DS.utils.forOwn(def.relations.belongsTo, function (relatedModel, modelName) {
+          DS.utils.forEach(relatedModel, function (relation) {
+            if (relation.parent) {
+              def.parent = modelName;
+              def.parentKey = relation.localKey;
+            }
+          });
+        });
+      }
+      DS.utils.deepFreeze(def.relations);
+      DS.utils.deepFreeze(def.relationList);
     }
 
     def.getEndpoint = function (attrs, options) {

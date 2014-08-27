@@ -36,10 +36,10 @@
     "karma-script-launcher": "^0.1.0",
     "karma-firefox-launcher": "^0.1.3",
     "karma-phantomjs-launcher": "^0.1.4",
-    "karma-mocha": "^0.1.8",
+    "karma-mocha": "^0.1.9",
     "karma-sinon": "^1.0.3",
     "karma-spec-reporter": "^0.0.13",
-    "time-grunt": "^0.4.0",
+    "time-grunt": "^1.0.0",
     "jit-grunt": "^0.8.0",
     "grunt-docular": "^0.1.4"
   },

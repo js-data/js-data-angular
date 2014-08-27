@@ -11,6 +11,11 @@
 
 ###### Backwards compatible bug fixes
 - #135 - loadrelations loop
+- #140 - lastModified changes when loading distant related objects
+
+###### Other
+- #138 - Performance optimizations
+- #139 - Documentation error
 
 ##### 1.0.0-beta.1 - 23 August 2014
 

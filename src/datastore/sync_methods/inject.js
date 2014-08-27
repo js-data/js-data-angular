@@ -13,13 +13,21 @@ function _inject(definition, resource, attrs) {
   var DS = this;
   var $log = DS.$log;
 
-  function _react(added, removed, changed, oldValueFn) {
+  function _react(added, removed, changed, oldValueFn, firstTime) {
     var target = this;
     var item;
     var innerId = (oldValueFn && oldValueFn(definition.idAttribute)) ? oldValueFn(definition.idAttribute) : target[definition.idAttribute];
 
-    resource.modified[innerId] = DS.utils.updateTimestamp(resource.modified[innerId]);
-    resource.collectionModified = DS.utils.updateTimestamp(resource.collectionModified);
+    DS.utils.forEach(definition.relationFields, function (field) {
+      delete added[field];
+      delete removed[field];
+      delete changed[field];
+    });
+
+    if (!DS.utils.isEmpty(added) || !DS.utils.isEmpty(removed) || !DS.utils.isEmpty(changed) || firstTime) {
+      resource.modified[innerId] = DS.utils.updateTimestamp(resource.modified[innerId]);
+      resource.collectionModified = DS.utils.updateTimestamp(resource.collectionModified);
+    }
 
     if (definition.computed) {
       item = DS.get(definition.name, innerId);
@@ -40,17 +48,10 @@ function _inject(definition, resource, attrs) {
 
     if (definition.relations) {
       item = DS.get(definition.name, innerId);
-      DS.utils.forOwn(definition.relations, function (relatedModels) {
-        DS.utils.forOwn(relatedModels, function (defs, relationName) {
-          if (!DS.utils.isArray(defs)) {
-            defs = [defs];
-          }
-          defs.forEach(function (def) {
-            if (item[def.localField] && (def.localKey in added || def.localKey in removed || def.localKey in changed)) {
-              DS.link(definition.name, item[definition.idAttribute], [relationName]);
-            }
-          });
-        });
+      DS.utils.forEach(definition.relationList, function (def) {
+        if (item[def.localField] && (def.localKey in added || def.localKey in removed || def.localKey in changed)) {
+          DS.link(definition.name, item[definition.idAttribute], [def.relation]);
+        }
       });
     }
 
@@ -109,7 +110,7 @@ function _inject(definition, resource, attrs) {
           resource.observers[id].open(_react, item);
           resource.index.put(id, item);
 
-          _react.call(item, {}, {}, {});
+          _react.call(item, {}, {}, {}, null, true);
         } else {
           DS.utils.deepMixIn(item, attrs);
           if (typeof resource.index.touch === 'function') {
@@ -133,57 +134,43 @@ function _inject(definition, resource, attrs) {
 
 function _injectRelations(definition, injected, options) {
   var DS = this;
-  DS.utils.forOwn(definition.relations, function (relatedModels, type) {
-    DS.utils.forOwn(relatedModels, function (defs, relationName) {
-      if (!DS.utils.isArray(defs)) {
-        defs = [defs];
-      }
 
-      function _process(def, injected) {
-        if (DS.definitions[relationName] && injected[def.localField] && !data.injectedSoFar[relationName + injected[def.localField][DS.definitions[relationName].idAttribute]]) {
-          try {
-            data.injectedSoFar[relationName + injected[def.localField][DS.definitions[relationName].idAttribute]] = 1;
-            injected[def.localField] = DS.inject(relationName, injected[def.localField], options);
-          } catch (err) {
-            DS.$log.error(errorPrefix(definition.name) + 'Failed to inject ' + type + ' relation: "' + relationName + '"!', err);
-          }
-        } else if (options.findBelongsTo && type === 'belongsTo') {
-          if (DS.utils.isArray(injected)) {
-            DS.utils.forEach(injected, function (injectedItem) {
-              DS.link(definition.name, injectedItem[definition.idAttribute], [relationName]);
-            });
-          } else {
-            DS.link(definition.name, injected[definition.idAttribute], [relationName]);
-          }
-        } else if (options.findHasMany && type === 'hasMany') {
-          if (DS.utils.isArray(injected)) {
-            DS.utils.forEach(injected, function (injectedItem) {
-              DS.link(definition.name, injectedItem[definition.idAttribute], [relationName]);
-            });
-          } else {
-            DS.link(definition.name, injected[definition.idAttribute], [relationName]);
-          }
-        } else if (options.findHasOne && type === 'hasOne') {
-          if (DS.utils.isArray(injected)) {
-            DS.utils.forEach(injected, function (injectedItem) {
-              DS.link(definition.name, injectedItem[definition.idAttribute], [relationName]);
-            });
-          } else {
-            DS.link(definition.name, injected[definition.idAttribute], [relationName]);
-          }
-        }
+  function _process(def, relationName, injected) {
+    var relationDef = DS.definitions[relationName];
+    if (relationDef && injected[def.localField] && !data.injectedSoFar[relationName + injected[def.localField][relationDef.idAttribute]]) {
+      try {
+        data.injectedSoFar[relationName + injected[def.localField][relationDef.idAttribute]] = 1;
+        injected[def.localField] = DS.inject(relationName, injected[def.localField], options);
+      } catch (err) {
+        DS.$log.error(errorPrefix(definition.name) + 'Failed to inject ' + def.type + ' relation: "' + relationName + '"!', err);
       }
+    } else if (options.findBelongsTo && def.type === 'belongsTo') {
+      if (DS.utils.isArray(injected)) {
+        DS.utils.forEach(injected, function (injectedItem) {
+          DS.link(definition.name, injectedItem[definition.idAttribute], [relationName]);
+        });
+      } else {
+        DS.link(definition.name, injected[definition.idAttribute], [relationName]);
+      }
+    } else if ((options.findHasMany && def.type === 'hasMany') || (options.findHasOne && def.type === 'hasOne')) {
+      if (DS.utils.isArray(injected)) {
+        DS.utils.forEach(injected, function (injectedItem) {
+          DS.link(definition.name, injectedItem[definition.idAttribute], [relationName]);
+        });
+      } else {
+        DS.link(definition.name, injected[definition.idAttribute], [relationName]);
+      }
+    }
+  }
 
-      defs.forEach(function (def) {
-        if (DS.utils.isArray(injected)) {
-          DS.utils.forEach(injected, function (injectedI) {
-            _process(def, injectedI);
-          });
-        } else {
-          _process(def, injected);
-        }
+  DS.utils.forEach(definition.relationList, function (def) {
+    if (DS.utils.isArray(injected)) {
+      DS.utils.forEach(injected, function (injectedI) {
+        _process(def, def.relation, injectedI);
       });
-    });
+    } else {
+      _process(def, def.relation, injected);
+    }
   });
 }
 
@@ -236,6 +223,7 @@ function _injectRelations(definition, injected, options) {
  *
  * - `{boolean=}` - `findBelongsTo` - Find and attach any existing "belongsTo" relationships to the newly injected item. Potentially expensive if enabled. Default: `false`.
  * - `{boolean=}` - `findHasMany` - Find and attach any existing "hasMany" relationships to the newly injected item. Potentially expensive if enabled. Default: `false`.
+ * - `{boolean=}` - `findHasOne` - Find and attach any existing "hasOne" relationships to the newly injected item. Potentially expensive if enabled. Default: `false`.
  * - `{boolean=}` - `linkInverse` - Look in the data store for relations of the injected item(s) and update their links to the injected. Potentially expensive if enabled. Default: `false`.
  *
  * @returns {object|array} A reference to the item that was injected into the data store or an array of references to
