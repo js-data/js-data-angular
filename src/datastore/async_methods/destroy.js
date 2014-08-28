@@ -28,7 +28,11 @@ function errorPrefix(resourceName, id) {
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to remove.
- * @param {object=} options Configuration options. Also passed along to the adapter's `destroy` method.
+ * @param {object=} options Configuration options. Also passed along to the adapter's `destroy` method. Properties:
+ *
+ * - `{function=}` - `beforeDestroy` - Override the resource or global lifecycle hook.
+ * - `{function=}` - `afterDestroy` - Override the resource or global lifecycle hook.
+ *
  * @returns {Promise} Promise produced by the `$q` service.
  *
  * ## Resolves with:
@@ -44,10 +48,10 @@ function errorPrefix(resourceName, id) {
 function destroy(resourceName, id, options) {
   var DS = this;
   var deferred = DS.$q.defer();
-  var promise = deferred.promise;
-  var definition = DS.definitions[resourceName];
 
   try {
+    var definition = DS.definitions[resourceName];
+
     options = options || {};
 
     if (!definition) {
@@ -61,26 +65,28 @@ function destroy(resourceName, id, options) {
       throw new DS.errors.R(errorPrefix(resourceName, id) + 'id: "' + id + '" not found!');
     }
 
-    promise = promise
+    deferred.resolve(item);
+
+    return deferred.promise
       .then(function (attrs) {
-        return DS.$q.promisify(definition.beforeDestroy)(resourceName, attrs);
+        var func = options.beforeDestroy ? DS.$q.promisify(options.beforeDestroy) : definition.beforeDestroy;
+        return func.call(attrs, resourceName, attrs);
       })
       .then(function () {
         return DS.adapters[options.adapter || definition.defaultAdapter].destroy(definition, id, options);
       })
       .then(function () {
-        return DS.$q.promisify(definition.afterDestroy)(resourceName, item);
+        var func = options.afterDestroy ? DS.$q.promisify(options.afterDestroy) : definition.afterDestroy;
+        return func.call(item, resourceName, item);
       })
       .then(function () {
         DS.eject(resourceName, id);
         return id;
       });
-    deferred.resolve(item);
   } catch (err) {
     deferred.reject(err);
+    return deferred.promise;
   }
-
-  return promise;
 }
 
 module.exports = destroy;

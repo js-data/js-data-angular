@@ -34,6 +34,11 @@ function errorPrefix(resourceName) {
  *
  * - `{boolean=}` - `cacheResponse` - Inject the data returned by the adapter into the data store. Default: `true`.
  * - `{boolean=}` - `upsert` - If `attrs` already contains a primary key, then attempt to call `DS.update` instead. Default: `true`.
+ * - `{function=}` - `beforeValidate` - Override the resource or global lifecycle hook.
+ * - `{function=}` - `validate` - Override the resource or global lifecycle hook.
+ * - `{function=}` - `afterValidate` - Override the resource or global lifecycle hook.
+ * - `{function=}` - `beforeCreate` - Override the resource or global lifecycle hook.
+ * - `{function=}` - `afterCreate` - Override the resource or global lifecycle hook.
  *
  * @returns {Promise} Promise produced by the `$q` service.
  *
@@ -49,10 +54,10 @@ function errorPrefix(resourceName) {
 function create(resourceName, attrs, options) {
   var DS = this;
   var deferred = DS.$q.defer();
-  var promise = deferred.promise;
-  var definition = DS.definitions[resourceName];
 
   try {
+    var definition = DS.definitions[resourceName];
+
     options = options || {};
 
     if (!definition) {
@@ -60,8 +65,6 @@ function create(resourceName, attrs, options) {
     } else if (!DS.utils.isObject(attrs)) {
       throw new DS.errors.IA(errorPrefix(resourceName) + 'attrs: Must be an object!');
     }
-    var resource = DS.store[resourceName];
-
     if (!('cacheResponse' in options)) {
       options.cacheResponse = true;
     }
@@ -70,30 +73,39 @@ function create(resourceName, attrs, options) {
       options.upsert = true;
     }
 
+    deferred.resolve(attrs);
+
     if (options.upsert && attrs[definition.idAttribute]) {
-      promise = DS.update(resourceName, attrs[definition.idAttribute], attrs, options);
+      return DS.update(resourceName, attrs[definition.idAttribute], attrs, options);
     } else {
-      promise = promise
+      return deferred.promise
         .then(function (attrs) {
-          return DS.$q.promisify(definition.beforeValidate)(resourceName, attrs);
+          var func = options.beforeValidate ? DS.$q.promisify(options.beforeValidate) : definition.beforeValidate;
+          return func.call(attrs, resourceName, attrs);
         })
         .then(function (attrs) {
-          return DS.$q.promisify(definition.validate)(resourceName, attrs);
+          var func = options.validate ? DS.$q.promisify(options.validate) : definition.validate;
+          return func.call(attrs, resourceName, attrs);
         })
         .then(function (attrs) {
-          return DS.$q.promisify(definition.afterValidate)(resourceName, attrs);
+          var func = options.afterValidate ? DS.$q.promisify(options.afterValidate) : definition.afterValidate;
+          return func.call(attrs, resourceName, attrs);
         })
         .then(function (attrs) {
-          return DS.$q.promisify(definition.beforeCreate)(resourceName, attrs);
+          var func = options.beforeCreate ? DS.$q.promisify(options.beforeCreate) : definition.beforeCreate;
+          return func.call(attrs, resourceName, attrs);
         })
         .then(function (attrs) {
           return DS.adapters[options.adapter || definition.defaultAdapter].create(definition, definition.serialize(resourceName, attrs), options);
         })
         .then(function (res) {
-          return DS.$q.promisify(definition.afterCreate)(resourceName, definition.deserialize(resourceName, res));
+          var func = options.afterCreate ? DS.$q.promisify(options.afterCreate) : definition.afterCreate;
+          var attrs = definition.deserialize(resourceName, res);
+          return func.call(attrs, resourceName, attrs);
         })
         .then(function (data) {
           if (options.cacheResponse) {
+            var resource = DS.store[resourceName];
             var created = DS.inject(definition.name, data, options);
             var id = created[definition.idAttribute];
             resource.completedQueries[id] = new Date().getTime();
@@ -105,13 +117,10 @@ function create(resourceName, attrs, options) {
           }
         });
     }
-
-    deferred.resolve(attrs);
   } catch (err) {
     deferred.reject(err);
+    return deferred.promise;
   }
-
-  return promise;
 }
 
 module.exports = create;

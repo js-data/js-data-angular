@@ -294,6 +294,20 @@ function defineResource(definition) {
       }
     });
 
+    def.beforeValidate = DS.$q.promisify(def.beforeValidate);
+    def.validate = DS.$q.promisify(def.validate);
+    def.afterValidate = DS.$q.promisify(def.afterValidate);
+    def.beforeCreate = DS.$q.promisify(def.beforeCreate);
+    def.afterCreate = DS.$q.promisify(def.afterCreate);
+    def.beforeUpdate = DS.$q.promisify(def.beforeUpdate);
+    def.afterUpdate = DS.$q.promisify(def.afterUpdate);
+    def.beforeDestroy = DS.$q.promisify(def.beforeDestroy);
+    def.afterDestroy = DS.$q.promisify(def.afterDestroy);
+
+    if (typeof Object.freeze === 'function') {
+      Object.freeze(def);
+    }
+
     return def;
   } catch (err) {
     DS.$log.error(err);

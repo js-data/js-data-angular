@@ -52,10 +52,11 @@ function find(resourceName, id, options) {
 
   try {
     var IA = DS.errors.IA;
+    var definition = DS.definitions[resourceName];
 
     options = options || {};
 
-    if (!DS.definitions[resourceName]) {
+    if (!definition) {
       throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
     } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {
       throw new IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
@@ -66,8 +67,6 @@ function find(resourceName, id, options) {
     if (!('cacheResponse' in options)) {
       options.cacheResponse = true;
     }
-
-    var definition = DS.definitions[resourceName];
     var resource = DS.store[resourceName];
 
     if (options.bypassCache || !options.cacheResponse) {

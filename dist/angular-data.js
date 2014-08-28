@@ -2201,6 +2201,11 @@ function errorPrefix(resourceName) {
  *
  * - `{boolean=}` - `cacheResponse` - Inject the data returned by the adapter into the data store. Default: `true`.
  * - `{boolean=}` - `upsert` - If `attrs` already contains a primary key, then attempt to call `DS.update` instead. Default: `true`.
+ * - `{function=}` - `beforeValidate` - Override the resource or global lifecycle hook.
+ * - `{function=}` - `validate` - Override the resource or global lifecycle hook.
+ * - `{function=}` - `afterValidate` - Override the resource or global lifecycle hook.
+ * - `{function=}` - `beforeCreate` - Override the resource or global lifecycle hook.
+ * - `{function=}` - `afterCreate` - Override the resource or global lifecycle hook.
  *
  * @returns {Promise} Promise produced by the `$q` service.
  *
@@ -2216,10 +2221,10 @@ function errorPrefix(resourceName) {
 function create(resourceName, attrs, options) {
   var DS = this;
   var deferred = DS.$q.defer();
-  var promise = deferred.promise;
-  var definition = DS.definitions[resourceName];
 
   try {
+    var definition = DS.definitions[resourceName];
+
     options = options || {};
 
     if (!definition) {
@@ -2227,8 +2232,6 @@ function create(resourceName, attrs, options) {
     } else if (!DS.utils.isObject(attrs)) {
       throw new DS.errors.IA(errorPrefix(resourceName) + 'attrs: Must be an object!');
     }
-    var resource = DS.store[resourceName];
-
     if (!('cacheResponse' in options)) {
       options.cacheResponse = true;
     }
@@ -2237,30 +2240,39 @@ function create(resourceName, attrs, options) {
       options.upsert = true;
     }
 
+    deferred.resolve(attrs);
+
     if (options.upsert && attrs[definition.idAttribute]) {
-      promise = DS.update(resourceName, attrs[definition.idAttribute], attrs, options);
+      return DS.update(resourceName, attrs[definition.idAttribute], attrs, options);
     } else {
-      promise = promise
+      return deferred.promise
         .then(function (attrs) {
-          return DS.$q.promisify(definition.beforeValidate)(resourceName, attrs);
+          var func = options.beforeValidate ? DS.$q.promisify(options.beforeValidate) : definition.beforeValidate;
+          return func.call(attrs, resourceName, attrs);
         })
         .then(function (attrs) {
-          return DS.$q.promisify(definition.validate)(resourceName, attrs);
+          var func = options.validate ? DS.$q.promisify(options.validate) : definition.validate;
+          return func.call(attrs, resourceName, attrs);
         })
         .then(function (attrs) {
-          return DS.$q.promisify(definition.afterValidate)(resourceName, attrs);
+          var func = options.afterValidate ? DS.$q.promisify(options.afterValidate) : definition.afterValidate;
+          return func.call(attrs, resourceName, attrs);
         })
         .then(function (attrs) {
-          return DS.$q.promisify(definition.beforeCreate)(resourceName, attrs);
+          var func = options.beforeCreate ? DS.$q.promisify(options.beforeCreate) : definition.beforeCreate;
+          return func.call(attrs, resourceName, attrs);
         })
         .then(function (attrs) {
           return DS.adapters[options.adapter || definition.defaultAdapter].create(definition, definition.serialize(resourceName, attrs), options);
         })
         .then(function (res) {
-          return DS.$q.promisify(definition.afterCreate)(resourceName, definition.deserialize(resourceName, res));
+          var func = options.afterCreate ? DS.$q.promisify(options.afterCreate) : definition.afterCreate;
+          var attrs = definition.deserialize(resourceName, res);
+          return func.call(attrs, resourceName, attrs);
         })
         .then(function (data) {
           if (options.cacheResponse) {
+            var resource = DS.store[resourceName];
             var created = DS.inject(definition.name, data, options);
             var id = created[definition.idAttribute];
             resource.completedQueries[id] = new Date().getTime();
@@ -2272,13 +2284,10 @@ function create(resourceName, attrs, options) {
           }
         });
     }
-
-    deferred.resolve(attrs);
   } catch (err) {
     deferred.reject(err);
+    return deferred.promise;
   }
-
-  return promise;
 }
 
 module.exports = create;
@@ -2314,7 +2323,11 @@ function errorPrefix(resourceName, id) {
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to remove.
- * @param {object=} options Configuration options. Also passed along to the adapter's `destroy` method.
+ * @param {object=} options Configuration options. Also passed along to the adapter's `destroy` method. Properties:
+ *
+ * - `{function=}` - `beforeDestroy` - Override the resource or global lifecycle hook.
+ * - `{function=}` - `afterDestroy` - Override the resource or global lifecycle hook.
+ *
  * @returns {Promise} Promise produced by the `$q` service.
  *
  * ## Resolves with:
@@ -2330,10 +2343,10 @@ function errorPrefix(resourceName, id) {
 function destroy(resourceName, id, options) {
   var DS = this;
   var deferred = DS.$q.defer();
-  var promise = deferred.promise;
-  var definition = DS.definitions[resourceName];
 
   try {
+    var definition = DS.definitions[resourceName];
+
     options = options || {};
 
     if (!definition) {
@@ -2347,26 +2360,28 @@ function destroy(resourceName, id, options) {
       throw new DS.errors.R(errorPrefix(resourceName, id) + 'id: "' + id + '" not found!');
     }
 
-    promise = promise
+    deferred.resolve(item);
+
+    return deferred.promise
       .then(function (attrs) {
-        return DS.$q.promisify(definition.beforeDestroy)(resourceName, attrs);
+        var func = options.beforeDestroy ? DS.$q.promisify(options.beforeDestroy) : definition.beforeDestroy;
+        return func.call(attrs, resourceName, attrs);
       })
       .then(function () {
         return DS.adapters[options.adapter || definition.defaultAdapter].destroy(definition, id, options);
       })
       .then(function () {
-        return DS.$q.promisify(definition.afterDestroy)(resourceName, item);
+        var func = options.afterDestroy ? DS.$q.promisify(options.afterDestroy) : definition.afterDestroy;
+        return func.call(item, resourceName, item);
       })
       .then(function () {
         DS.eject(resourceName, id);
         return id;
       });
-    deferred.resolve(item);
   } catch (err) {
     deferred.reject(err);
+    return deferred.promise;
   }
-
-  return promise;
 }
 
 module.exports = destroy;
@@ -2429,11 +2444,10 @@ function errorPrefix(resourceName) {
 function destroyAll(resourceName, params, options) {
   var DS = this;
   var deferred = DS.$q.defer();
-  var promise = deferred.promise;
-  var definition = DS.definitions[resourceName];
 
   try {
     var IA = DS.errors.IA;
+    var definition = DS.definitions[resourceName];
 
     options = options || {};
 
@@ -2445,19 +2459,19 @@ function destroyAll(resourceName, params, options) {
       throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
     }
 
-    promise = promise
+    deferred.resolve();
+
+    return deferred.promise
       .then(function () {
         return DS.adapters[options.adapter || definition.defaultAdapter].destroyAll(definition, params, options);
       })
       .then(function () {
         return DS.ejectAll(resourceName, params);
       });
-    deferred.resolve();
   } catch (err) {
     deferred.reject(err);
+    return deferred.promise;
   }
-
-  return promise;
 }
 
 module.exports = destroyAll;
@@ -2517,10 +2531,11 @@ function find(resourceName, id, options) {
 
   try {
     var IA = DS.errors.IA;
+    var definition = DS.definitions[resourceName];
 
     options = options || {};
 
-    if (!DS.definitions[resourceName]) {
+    if (!definition) {
       throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
     } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {
       throw new IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
@@ -2531,8 +2546,6 @@ function find(resourceName, id, options) {
     if (!('cacheResponse' in options)) {
       options.cacheResponse = true;
     }
-
-    var definition = DS.definitions[resourceName];
     var resource = DS.store[resourceName];
 
     if (options.bypassCache || !options.cacheResponse) {
@@ -2630,7 +2643,7 @@ function _findAll(resourceName, params, options) {
           var data = definition.deserialize(resourceName, res);
           if (options.cacheResponse) {
             try {
-              return processResults.apply(DS, [data, resourceName, queryHash, options]);
+              return processResults.call(DS, data, resourceName, queryHash, options);
             } catch (err) {
               return DS.$q.reject(err);
             }
@@ -2712,7 +2725,6 @@ function _findAll(resourceName, params, options) {
 function findAll(resourceName, params, options) {
   var DS = this;
   var deferred = DS.$q.defer();
-  var promise = deferred.promise;
 
   try {
     var IA = DS.errors.IA;
@@ -2732,15 +2744,15 @@ function findAll(resourceName, params, options) {
       options.cacheResponse = true;
     }
 
-    promise = promise.then(function () {
-      return _findAll.apply(DS, [resourceName, params, options]);
-    });
     deferred.resolve();
+
+    return deferred.promise.then(function () {
+      return _findAll.call(DS, resourceName, params, options);
+    });
   } catch (err) {
     deferred.reject(err);
+    return deferred.promise;
   }
-
-  return promise;
 }
 
 module.exports = findAll;
@@ -2909,11 +2921,10 @@ function errorPrefix(resourceName) {
 function loadRelations(resourceName, instance, relations, options) {
   var DS = this;
   var deferred = DS.$q.defer();
-  var promise = deferred.promise;
-  var definition = DS.definitions[resourceName];
 
   try {
     var IA = DS.errors.IA;
+    var definition = DS.definitions[resourceName];
 
     options = options || {};
 
@@ -2972,7 +2983,9 @@ function loadRelations(resourceName, instance, relations, options) {
       }
     });
 
-    promise = promise
+    deferred.resolve();
+
+    return deferred.promise
       .then(function () {
         return DS.$q.all(tasks);
       })
@@ -2982,13 +2995,10 @@ function loadRelations(resourceName, instance, relations, options) {
         });
         return instance;
       });
-
-    deferred.resolve();
   } catch (err) {
     deferred.reject(err);
+    return deferred.promise;
   }
-
-  return promise;
 }
 
 module.exports = loadRelations;
@@ -3110,6 +3120,11 @@ function errorPrefix(resourceName, id) {
  *
  * - `{boolean=}` - `cacheResponse` - Inject the data returned by the adapter into the data store. Default: `true`.
  * - `{boolean=}` - `changesOnly` - Only send changed and added values to the adapter. Default: `false`.
+ * - `{function=}` - `beforeValidate` - Override the resource or global lifecycle hook.
+ * - `{function=}` - `validate` - Override the resource or global lifecycle hook.
+ * - `{function=}` - `afterValidate` - Override the resource or global lifecycle hook.
+ * - `{function=}` - `beforeUpdate` - Override the resource or global lifecycle hook.
+ * - `{function=}` - `afterUpdate` - Override the resource or global lifecycle hook.
  *
  * @returns {Promise} Promise produced by the `$q` service.
  *
@@ -3126,11 +3141,10 @@ function errorPrefix(resourceName, id) {
 function save(resourceName, id, options) {
   var DS = this;
   var deferred = DS.$q.defer();
-  var promise = deferred.promise;
-  var definition = DS.definitions[resourceName];
 
   try {
     var IA = DS.errors.IA;
+    var definition = DS.definitions[resourceName];
 
     options = options || {};
 
@@ -3147,27 +3161,32 @@ function save(resourceName, id, options) {
       throw new DS.errors.R(errorPrefix(resourceName, id) + 'id: "' + id + '" not found!');
     }
 
-    var resource = DS.store[resourceName];
-
     if (!('cacheResponse' in options)) {
       options.cacheResponse = true;
     }
 
-    promise = promise
+    deferred.resolve(item);
+
+    return deferred.promise
       .then(function (attrs) {
-        return DS.$q.promisify(definition.beforeValidate)(resourceName, attrs);
+        var func = options.beforeValidate ? DS.$q.promisify(options.beforeValidate) : definition.beforeValidate;
+        return func.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        return DS.$q.promisify(definition.validate)(resourceName, attrs);
+        var func = options.validate ? DS.$q.promisify(options.validate) : definition.validate;
+        return func.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        return DS.$q.promisify(definition.afterValidate)(resourceName, attrs);
+        var func = options.afterValidate ? DS.$q.promisify(options.afterValidate) : definition.afterValidate;
+        return func.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        return DS.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
+        var func = options.beforeUpdate ? DS.$q.promisify(options.beforeUpdate) : definition.beforeUpdate;
+        return func.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
         if (options.changesOnly) {
+          var resource = DS.store[resourceName];
           resource.observers[id].deliver();
           var toKeep = [],
             changes = DS.changes(resourceName, id);
@@ -3189,25 +3208,26 @@ function save(resourceName, id, options) {
         return DS.adapters[options.adapter || definition.defaultAdapter].update(definition, id, definition.serialize(resourceName, attrs), options);
       })
       .then(function (res) {
-        return DS.$q.promisify(definition.afterUpdate)(resourceName, definition.deserialize(resourceName, res));
+        var func = options.afterUpdate ? DS.$q.promisify(options.afterUpdate) : definition.afterUpdate;
+        var attrs = definition.deserialize(resourceName, res);
+        return func.call(attrs, resourceName, attrs);
       })
       .then(function (data) {
         if (options.cacheResponse) {
+          var resource = DS.store[resourceName];
           var saved = DS.inject(definition.name, data, options);
           resource.previousAttributes[id] = DS.utils.deepMixIn({}, saved);
           resource.saved[id] = DS.utils.updateTimestamp(resource.saved[id]);
+          resource.observers[id].discardChanges();
           return DS.get(resourceName, id);
         } else {
           return data;
         }
       });
-
-    deferred.resolve(item);
   } catch (err) {
     deferred.reject(err);
+    return deferred.promise;
   }
-
-  return promise;
 }
 
 module.exports = save;
@@ -3251,6 +3271,11 @@ function errorPrefix(resourceName, id) {
  * @param {object=} options Optional configuration. Also passed along to the adapter's `update` method. Properties:
  *
  * - `{boolean=}` - `cacheResponse` - Inject the data returned by the adapter into the data store. Default: `true`.
+ * - `{function=}` - `beforeValidate` - Override the resource or global lifecycle hook.
+ * - `{function=}` - `validate` - Override the resource or global lifecycle hook.
+ * - `{function=}` - `afterValidate` - Override the resource or global lifecycle hook.
+ * - `{function=}` - `beforeUpdate` - Override the resource or global lifecycle hook.
+ * - `{function=}` - `afterUpdate` - Override the resource or global lifecycle hook.
  *
  * @returns {Promise} Promise produced by the `$q` service.
  *
@@ -3266,14 +3291,14 @@ function errorPrefix(resourceName, id) {
 function update(resourceName, id, attrs, options) {
   var DS = this;
   var deferred = DS.$q.defer();
-  var promise = deferred.promise;
 
   try {
     var IA = DS.errors.IA;
+    var definition = DS.definitions[resourceName];
 
     options = options || {};
 
-    if (!DS.definitions[resourceName]) {
+    if (!definition) {
       throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
     } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {
       throw new IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
@@ -3283,50 +3308,54 @@ function update(resourceName, id, attrs, options) {
       throw new IA(errorPrefix(resourceName, id) + 'options: Must be an object!');
     }
 
-    var definition = DS.definitions[resourceName];
-    var resource = DS.store[resourceName];
-
     if (!('cacheResponse' in options)) {
       options.cacheResponse = true;
     }
 
-    promise = promise
+    deferred.resolve(attrs);
+
+    return deferred.promise
       .then(function (attrs) {
-        return DS.$q.promisify(definition.beforeValidate)(resourceName, attrs);
+        var func = options.beforeValidate ? DS.$q.promisify(options.beforeValidate) : definition.beforeValidate;
+        return func.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        return DS.$q.promisify(definition.validate)(resourceName, attrs);
+        var func = options.validate ? DS.$q.promisify(options.validate) : definition.validate;
+        return func.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        return DS.$q.promisify(definition.afterValidate)(resourceName, attrs);
+        var func = options.afterValidate ? DS.$q.promisify(options.afterValidate) : definition.afterValidate;
+        return func.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        return DS.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
+        var func = options.beforeUpdate ? DS.$q.promisify(options.beforeUpdate) : definition.beforeUpdate;
+        return func.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
         return DS.adapters[options.adapter || definition.defaultAdapter].update(definition, id, definition.serialize(resourceName, attrs), options);
       })
       .then(function (res) {
-        return DS.$q.promisify(definition.afterUpdate)(resourceName, definition.deserialize(resourceName, res));
+        var func = options.afterUpdate ? DS.$q.promisify(options.afterUpdate) : definition.afterUpdate;
+        var attrs = definition.deserialize(resourceName, res);
+        return func.call(attrs, resourceName, attrs);
       })
       .then(function (data) {
         if (options.cacheResponse) {
+          var resource = DS.store[resourceName];
           var updated = DS.inject(definition.name, data, options);
           var id = updated[definition.idAttribute];
           resource.previousAttributes[id] = DS.utils.deepMixIn({}, updated);
           resource.saved[id] = DS.utils.updateTimestamp(resource.saved[id]);
+          resource.observers[id].discardChanges();
           return DS.get(definition.name, id);
         } else {
           return data;
         }
       });
-
-    deferred.resolve(attrs);
   } catch (err) {
     deferred.reject(err);
+    return deferred.promise;
   }
-
-  return promise;
 }
 
 module.exports = update;
@@ -3402,14 +3431,14 @@ function errorPrefix(resourceName) {
 function updateAll(resourceName, attrs, params, options) {
   var DS = this;
   var deferred = DS.$q.defer();
-  var promise = deferred.promise;
 
   try {
     var IA = DS.errors.IA;
+    var definition = DS.definitions[resourceName];
 
     options = options || {};
 
-    if (!DS.definitions[resourceName]) {
+    if (!definition) {
       throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
     } else if (!DS.utils.isObject(attrs)) {
       throw new IA(errorPrefix(resourceName) + 'attrs: Must be an object!');
@@ -3419,30 +3448,36 @@ function updateAll(resourceName, attrs, params, options) {
       throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
     }
 
-    var definition = DS.definitions[resourceName];
-
     if (!('cacheResponse' in options)) {
       options.cacheResponse = true;
     }
 
-    promise = promise
+    deferred.resolve(attrs);
+
+    return deferred.promise
       .then(function (attrs) {
-        return DS.$q.promisify(definition.beforeValidate)(resourceName, attrs);
+        var func = options.beforeValidate ? DS.$q.promisify(options.beforeValidate) : definition.beforeValidate;
+        return func.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        return DS.$q.promisify(definition.validate)(resourceName, attrs);
+        var func = options.validate ? DS.$q.promisify(options.validate) : definition.validate;
+        return func.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        return DS.$q.promisify(definition.afterValidate)(resourceName, attrs);
+        var func = options.afterValidate ? DS.$q.promisify(options.afterValidate) : definition.afterValidate;
+        return func.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        return DS.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
+        var func = options.beforeUpdate ? DS.$q.promisify(options.beforeUpdate) : definition.beforeUpdate;
+        return func.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
         return DS.adapters[options.adapter || definition.defaultAdapter].updateAll(definition, definition.serialize(resourceName, attrs), params, options);
       })
       .then(function (res) {
-        return DS.$q.promisify(definition.afterUpdate)(resourceName, definition.deserialize(resourceName, res));
+        var func = options.afterUpdate ? DS.$q.promisify(options.afterUpdate) : definition.afterUpdate;
+        var attrs = definition.deserialize(resourceName, res);
+        return func.call(attrs, resourceName, attrs);
       })
       .then(function (data) {
         if (options.cacheResponse) {
@@ -3451,13 +3486,10 @@ function updateAll(resourceName, attrs, params, options) {
           return data;
         }
       });
-
-    deferred.resolve(attrs);
   } catch (err) {
     deferred.reject(err);
+    return deferred.promise;
   }
-
-  return promise;
 }
 
 module.exports = updateAll;
@@ -4927,6 +4959,20 @@ function defineResource(definition) {
       }
     });
 
+    def.beforeValidate = DS.$q.promisify(def.beforeValidate);
+    def.validate = DS.$q.promisify(def.validate);
+    def.afterValidate = DS.$q.promisify(def.afterValidate);
+    def.beforeCreate = DS.$q.promisify(def.beforeCreate);
+    def.afterCreate = DS.$q.promisify(def.afterCreate);
+    def.beforeUpdate = DS.$q.promisify(def.beforeUpdate);
+    def.afterUpdate = DS.$q.promisify(def.afterUpdate);
+    def.beforeDestroy = DS.$q.promisify(def.beforeDestroy);
+    def.afterDestroy = DS.$q.promisify(def.afterDestroy);
+
+    if (typeof Object.freeze === 'function') {
+      Object.freeze(def);
+    }
+
     return def;
   } catch (err) {
     DS.$log.error(err);
@@ -5170,10 +5216,10 @@ function ejectAll(resourceName, params) {
 
   if (!DS.$rootScope.$$phase) {
     DS.$rootScope.$apply(function () {
-      ejected = _ejectAll.apply(DS, [definition, resource, params]);
+      ejected = _ejectAll.call(DS, definition, resource, params);
     });
   } else {
-    ejected = _ejectAll.apply(DS, [definition, resource, params]);
+    ejected = _ejectAll.call(DS, definition, resource, params);
   }
 
   return ejected;
@@ -6549,10 +6595,15 @@ module.exports = [function () {
       $provide.decorator('$q', ['$delegate', function ($delegate) {
         // do whatever you you want
         $delegate.promisify = function (fn, target) {
-          var _this = this;
+          if (!fn) {
+            return;
+          } else if (typeof fn !== 'function') {
+            throw new Error('Can only promisify functions!');
+          }
+          var $q = this;
           return function () {
-            var deferred = _this.defer(),
-              args = Array.prototype.slice.apply(arguments);
+            var deferred = $q.defer();
+            var args = Array.prototype.slice.apply(arguments);
 
             args.push(function (err, result) {
               if (err) {

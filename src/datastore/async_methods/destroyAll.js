@@ -55,11 +55,10 @@ function errorPrefix(resourceName) {
 function destroyAll(resourceName, params, options) {
   var DS = this;
   var deferred = DS.$q.defer();
-  var promise = deferred.promise;
-  var definition = DS.definitions[resourceName];
 
   try {
     var IA = DS.errors.IA;
+    var definition = DS.definitions[resourceName];
 
     options = options || {};
 
@@ -71,19 +70,19 @@ function destroyAll(resourceName, params, options) {
       throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
     }
 
-    promise = promise
+    deferred.resolve();
+
+    return deferred.promise
       .then(function () {
         return DS.adapters[options.adapter || definition.defaultAdapter].destroyAll(definition, params, options);
       })
       .then(function () {
         return DS.ejectAll(resourceName, params);
       });
-    deferred.resolve();
   } catch (err) {
     deferred.reject(err);
+    return deferred.promise;
   }
-
-  return promise;
 }
 
 module.exports = destroyAll;

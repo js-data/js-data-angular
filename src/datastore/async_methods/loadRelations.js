@@ -58,11 +58,10 @@ function errorPrefix(resourceName) {
 function loadRelations(resourceName, instance, relations, options) {
   var DS = this;
   var deferred = DS.$q.defer();
-  var promise = deferred.promise;
-  var definition = DS.definitions[resourceName];
 
   try {
     var IA = DS.errors.IA;
+    var definition = DS.definitions[resourceName];
 
     options = options || {};
 
@@ -121,7 +120,9 @@ function loadRelations(resourceName, instance, relations, options) {
       }
     });
 
-    promise = promise
+    deferred.resolve();
+
+    return deferred.promise
       .then(function () {
         return DS.$q.all(tasks);
       })
@@ -131,13 +132,10 @@ function loadRelations(resourceName, instance, relations, options) {
         });
         return instance;
       });
-
-    deferred.resolve();
   } catch (err) {
     deferred.reject(err);
+    return deferred.promise;
   }
-
-  return promise;
 }
 
 module.exports = loadRelations;

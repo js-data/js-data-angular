@@ -33,6 +33,11 @@ function errorPrefix(resourceName, id) {
  *
  * - `{boolean=}` - `cacheResponse` - Inject the data returned by the adapter into the data store. Default: `true`.
  * - `{boolean=}` - `changesOnly` - Only send changed and added values to the adapter. Default: `false`.
+ * - `{function=}` - `beforeValidate` - Override the resource or global lifecycle hook.
+ * - `{function=}` - `validate` - Override the resource or global lifecycle hook.
+ * - `{function=}` - `afterValidate` - Override the resource or global lifecycle hook.
+ * - `{function=}` - `beforeUpdate` - Override the resource or global lifecycle hook.
+ * - `{function=}` - `afterUpdate` - Override the resource or global lifecycle hook.
  *
  * @returns {Promise} Promise produced by the `$q` service.
  *
@@ -49,11 +54,10 @@ function errorPrefix(resourceName, id) {
 function save(resourceName, id, options) {
   var DS = this;
   var deferred = DS.$q.defer();
-  var promise = deferred.promise;
-  var definition = DS.definitions[resourceName];
 
   try {
     var IA = DS.errors.IA;
+    var definition = DS.definitions[resourceName];
 
     options = options || {};
 
@@ -70,27 +74,32 @@ function save(resourceName, id, options) {
       throw new DS.errors.R(errorPrefix(resourceName, id) + 'id: "' + id + '" not found!');
     }
 
-    var resource = DS.store[resourceName];
-
     if (!('cacheResponse' in options)) {
       options.cacheResponse = true;
     }
 
-    promise = promise
+    deferred.resolve(item);
+
+    return deferred.promise
       .then(function (attrs) {
-        return DS.$q.promisify(definition.beforeValidate)(resourceName, attrs);
+        var func = options.beforeValidate ? DS.$q.promisify(options.beforeValidate) : definition.beforeValidate;
+        return func.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        return DS.$q.promisify(definition.validate)(resourceName, attrs);
+        var func = options.validate ? DS.$q.promisify(options.validate) : definition.validate;
+        return func.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        return DS.$q.promisify(definition.afterValidate)(resourceName, attrs);
+        var func = options.afterValidate ? DS.$q.promisify(options.afterValidate) : definition.afterValidate;
+        return func.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        return DS.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
+        var func = options.beforeUpdate ? DS.$q.promisify(options.beforeUpdate) : definition.beforeUpdate;
+        return func.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
         if (options.changesOnly) {
+          var resource = DS.store[resourceName];
           resource.observers[id].deliver();
           var toKeep = [],
             changes = DS.changes(resourceName, id);
@@ -112,25 +121,26 @@ function save(resourceName, id, options) {
         return DS.adapters[options.adapter || definition.defaultAdapter].update(definition, id, definition.serialize(resourceName, attrs), options);
       })
       .then(function (res) {
-        return DS.$q.promisify(definition.afterUpdate)(resourceName, definition.deserialize(resourceName, res));
+        var func = options.afterUpdate ? DS.$q.promisify(options.afterUpdate) : definition.afterUpdate;
+        var attrs = definition.deserialize(resourceName, res);
+        return func.call(attrs, resourceName, attrs);
       })
       .then(function (data) {
         if (options.cacheResponse) {
+          var resource = DS.store[resourceName];
           var saved = DS.inject(definition.name, data, options);
           resource.previousAttributes[id] = DS.utils.deepMixIn({}, saved);
           resource.saved[id] = DS.utils.updateTimestamp(resource.saved[id]);
+          resource.observers[id].discardChanges();
           return DS.get(resourceName, id);
         } else {
           return data;
         }
       });
-
-    deferred.resolve(item);
   } catch (err) {
     deferred.reject(err);
+    return deferred.promise;
   }
-
-  return promise;
 }
 
 module.exports = save;

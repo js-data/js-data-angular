@@ -52,10 +52,15 @@
       $provide.decorator('$q', ['$delegate', function ($delegate) {
         // do whatever you you want
         $delegate.promisify = function (fn, target) {
-          var _this = this;
+          if (!fn) {
+            return;
+          } else if (typeof fn !== 'function') {
+            throw new Error('Can only promisify functions!');
+          }
+          var $q = this;
           return function () {
-            var deferred = _this.defer(),
-              args = Array.prototype.slice.apply(arguments);
+            var deferred = $q.defer();
+            var args = Array.prototype.slice.apply(arguments);
 
             args.push(function (err, result) {
               if (err) {

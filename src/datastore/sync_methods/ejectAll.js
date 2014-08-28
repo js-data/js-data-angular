@@ -100,10 +100,10 @@ function ejectAll(resourceName, params) {
 
   if (!DS.$rootScope.$$phase) {
     DS.$rootScope.$apply(function () {
-      ejected = _ejectAll.apply(DS, [definition, resource, params]);
+      ejected = _ejectAll.call(DS, definition, resource, params);
     });
   } else {
-    ejected = _ejectAll.apply(DS, [definition, resource, params]);
+    ejected = _ejectAll.call(DS, definition, resource, params);
   }
 
   return ejected;

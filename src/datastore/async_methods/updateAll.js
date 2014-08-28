@@ -68,14 +68,14 @@ function errorPrefix(resourceName) {
 function updateAll(resourceName, attrs, params, options) {
   var DS = this;
   var deferred = DS.$q.defer();
-  var promise = deferred.promise;
 
   try {
     var IA = DS.errors.IA;
+    var definition = DS.definitions[resourceName];
 
     options = options || {};
 
-    if (!DS.definitions[resourceName]) {
+    if (!definition) {
       throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
     } else if (!DS.utils.isObject(attrs)) {
       throw new IA(errorPrefix(resourceName) + 'attrs: Must be an object!');
@@ -85,30 +85,36 @@ function updateAll(resourceName, attrs, params, options) {
       throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
     }
 
-    var definition = DS.definitions[resourceName];
-
     if (!('cacheResponse' in options)) {
       options.cacheResponse = true;
     }
 
-    promise = promise
+    deferred.resolve(attrs);
+
+    return deferred.promise
       .then(function (attrs) {
-        return DS.$q.promisify(definition.beforeValidate)(resourceName, attrs);
+        var func = options.beforeValidate ? DS.$q.promisify(options.beforeValidate) : definition.beforeValidate;
+        return func.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        return DS.$q.promisify(definition.validate)(resourceName, attrs);
+        var func = options.validate ? DS.$q.promisify(options.validate) : definition.validate;
+        return func.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        return DS.$q.promisify(definition.afterValidate)(resourceName, attrs);
+        var func = options.afterValidate ? DS.$q.promisify(options.afterValidate) : definition.afterValidate;
+        return func.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        return DS.$q.promisify(definition.beforeUpdate)(resourceName, attrs);
+        var func = options.beforeUpdate ? DS.$q.promisify(options.beforeUpdate) : definition.beforeUpdate;
+        return func.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
         return DS.adapters[options.adapter || definition.defaultAdapter].updateAll(definition, definition.serialize(resourceName, attrs), params, options);
       })
       .then(function (res) {
-        return DS.$q.promisify(definition.afterUpdate)(resourceName, definition.deserialize(resourceName, res));
+        var func = options.afterUpdate ? DS.$q.promisify(options.afterUpdate) : definition.afterUpdate;
+        var attrs = definition.deserialize(resourceName, res);
+        return func.call(attrs, resourceName, attrs);
       })
       .then(function (data) {
         if (options.cacheResponse) {
@@ -117,13 +123,10 @@ function updateAll(resourceName, attrs, params, options) {
           return data;
         }
       });
-
-    deferred.resolve(attrs);
   } catch (err) {
     deferred.reject(err);
+    return deferred.promise;
   }
-
-  return promise;
 }
 
 module.exports = updateAll;

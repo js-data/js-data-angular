@@ -56,7 +56,7 @@ function _findAll(resourceName, params, options) {
           var data = definition.deserialize(resourceName, res);
           if (options.cacheResponse) {
             try {
-              return processResults.apply(DS, [data, resourceName, queryHash, options]);
+              return processResults.call(DS, data, resourceName, queryHash, options);
             } catch (err) {
               return DS.$q.reject(err);
             }
@@ -138,7 +138,6 @@ function _findAll(resourceName, params, options) {
 function findAll(resourceName, params, options) {
   var DS = this;
   var deferred = DS.$q.defer();
-  var promise = deferred.promise;
 
   try {
     var IA = DS.errors.IA;
@@ -158,15 +157,15 @@ function findAll(resourceName, params, options) {
       options.cacheResponse = true;
     }
 
-    promise = promise.then(function () {
-      return _findAll.apply(DS, [resourceName, params, options]);
-    });
     deferred.resolve();
+
+    return deferred.promise.then(function () {
+      return _findAll.call(DS, resourceName, params, options);
+    });
   } catch (err) {
     deferred.reject(err);
+    return deferred.promise;
   }
-
-  return promise;
 }
 
 module.exports = findAll;

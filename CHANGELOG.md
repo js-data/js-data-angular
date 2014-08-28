@@ -24,6 +24,7 @@
 - #118, #122 - Multiple relationships to the same model
 - #120 - When using DSCacheFactory, allow onExpire to be specified
 - #132 - Inject relations for parent resource on create
+- #141 - Allow lifecycle hooks to be overridden per method as well
 
 ###### Backwards compatible bug fixes
 - #126 - injectRelations isn't running when injecting an array
