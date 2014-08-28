@@ -1,4 +1,4 @@
-##### 1.0.0-beta.2 - xx August 2014
+##### 1.0.0-beta.2 - 27 August 2014
 
 ###### Breaking API changes
 - `findBelongsTo` option of `DS.inject` now defaults to `false`
