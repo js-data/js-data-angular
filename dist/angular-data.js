@@ -1,7 +1,7 @@
 /**
 * @author Jason Dobry <jason.dobry@gmail.com>
 * @file angular-data.js
-* @version 1.0.0-beta.2 - Homepage <http://angular-data.pseudobry.com/>
+* @version 1.0.0-beta.3 - Homepage <http://angular-data.pseudobry.com/>
 * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>
 * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
 *
@@ -4969,10 +4969,6 @@ function defineResource(definition) {
     def.beforeDestroy = DS.$q.promisify(def.beforeDestroy);
     def.afterDestroy = DS.$q.promisify(def.afterDestroy);
 
-    if (typeof Object.freeze === 'function') {
-      Object.freeze(def);
-    }
-
     return def;
   } catch (err) {
     DS.$log.error(err);
@@ -6549,7 +6545,7 @@ module.exports = [function () {
    * @id angular-data
    * @name angular-data
    * @description
-   * __Version:__ 1.0.0-beta.2
+   * __Version:__ 1.0.0-beta.3
    *
    * ## Install
    *

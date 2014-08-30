@@ -304,10 +304,6 @@ function defineResource(definition) {
     def.beforeDestroy = DS.$q.promisify(def.beforeDestroy);
     def.afterDestroy = DS.$q.promisify(def.afterDestroy);
 
-    if (typeof Object.freeze === 'function') {
-      Object.freeze(def);
-    }
-
     return def;
   } catch (err) {
     DS.$log.error(err);

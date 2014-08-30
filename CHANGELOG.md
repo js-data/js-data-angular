@@ -1,3 +1,8 @@
+##### 1.0.0-beta.3 - 30 August 2014
+
+###### Backwards compatible bug fixes
+- Unfroze resource definitions
+
 ##### 1.0.0-beta.2 - 27 August 2014
 
 ###### Breaking API changes
