@@ -1,7 +1,7 @@
 /**
 * @author Jason Dobry <jason.dobry@gmail.com>
 * @file angular-data.js
-* @version 1.0.0-beta.3 - Homepage <http://angular-data.pseudobry.com/>
+* @version 1.0.0-beta.4 - Homepage <http://angular-data.pseudobry.com/>
 * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>
 * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
 *
@@ -4248,7 +4248,7 @@ function DSProvider() {
 
 module.exports = DSProvider;
 
-},{"../utils":72,"./async_methods":43,"./sync_methods":62}],50:[function(require,module,exports){
+},{"../utils":73,"./async_methods":43,"./sync_methods":62}],50:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.bindAll(scope, expr, ' + resourceName + ', params[, cb]): ';
 }
@@ -5032,6 +5032,7 @@ function _eject(definition, resource, id) {
     }
   }
   if (found) {
+    this.unlinkInverse(definition.name, id);
     resource.collection.splice(i, 1);
     resource.observers[id].close();
     delete resource.observers[id];
@@ -5458,6 +5459,16 @@ module.exports = {
 
   /**
    * @doc method
+   * @id DS.sync methods:changes
+   * @name changes
+   * @methodOf DS
+   * @description
+   * See [DS.changes](/documentation/api/api/DS.sync methods:changes).
+   */
+  changes: require('./changes'),
+
+  /**
+   * @doc method
    * @id DS.sync methods:compute
    * @name compute
    * @methodOf DS
@@ -5485,6 +5496,16 @@ module.exports = {
    * See [DS.defineResource](/documentation/api/api/DS.sync methods:defineResource).
    */
   defineResource: require('./defineResource'),
+
+  /**
+   * @doc method
+   * @id DS.sync methods:digest
+   * @name digest
+   * @methodOf DS
+   * @description
+   * See [DS.digest](/documentation/api/api/DS.sync methods:digest).
+   */
+  digest: require('./digest'),
 
   /**
    * @doc method
@@ -5525,6 +5546,16 @@ module.exports = {
    * See [DS.get](/documentation/api/api/DS.sync methods:get).
    */
   get: require('./get'),
+
+  /**
+   * @doc method
+   * @id DS.sync methods:hasChanges
+   * @name hasChanges
+   * @methodOf DS
+   * @description
+   * See [DS.hasChanges](/documentation/api/api/DS.sync methods:hasChanges).
+   */
+  hasChanges: require('./hasChanges'),
 
   /**
    * @doc method
@@ -5588,26 +5619,6 @@ module.exports = {
 
   /**
    * @doc method
-   * @id DS.sync methods:digest
-   * @name digest
-   * @methodOf DS
-   * @description
-   * See [DS.digest](/documentation/api/api/DS.sync methods:digest).
-   */
-  digest: require('./digest'),
-
-  /**
-   * @doc method
-   * @id DS.sync methods:changes
-   * @name changes
-   * @methodOf DS
-   * @description
-   * See [DS.changes](/documentation/api/api/DS.sync methods:changes).
-   */
-  changes: require('./changes'),
-
-  /**
-   * @doc method
    * @id DS.sync methods:previous
    * @name previous
    * @methodOf DS
@@ -5618,16 +5629,16 @@ module.exports = {
 
   /**
    * @doc method
-   * @id DS.sync methods:hasChanges
-   * @name hasChanges
+   * @id DS.sync methods:unlinkInverse
+   * @name unlinkInverse
    * @methodOf DS
    * @description
-   * See [DS.hasChanges](/documentation/api/api/DS.sync methods:hasChanges).
+   * See [DS.unlinkInverse](/documentation/api/api/DS.sync methods:unlinkInverse).
    */
-  hasChanges: require('./hasChanges')
+  unlinkInverse: require('./unlinkInverse')
 };
 
-},{"./bindAll":50,"./bindOne":51,"./changes":52,"./compute":53,"./createInstance":54,"./defineResource":55,"./digest":56,"./eject":57,"./ejectAll":58,"./filter":59,"./get":60,"./hasChanges":61,"./inject":63,"./lastModified":64,"./lastSaved":65,"./link":66,"./linkAll":67,"./linkInverse":68,"./previous":69}],63:[function(require,module,exports){
+},{"./bindAll":50,"./bindOne":51,"./changes":52,"./compute":53,"./createInstance":54,"./defineResource":55,"./digest":56,"./eject":57,"./ejectAll":58,"./filter":59,"./get":60,"./hasChanges":61,"./inject":63,"./lastModified":64,"./lastSaved":65,"./link":66,"./linkAll":67,"./linkInverse":68,"./previous":69,"./unlinkInverse":70}],63:[function(require,module,exports){
 var observe = require('../../../lib/observe-js/observe-js');
 var _compute = require('./compute')._compute;
 var stack = 0;
@@ -6404,6 +6415,104 @@ function previous(resourceName, id) {
 module.exports = previous;
 
 },{}],70:[function(require,module,exports){
+function errorPrefix(resourceName) {
+  return 'DS.unlinkInverse(' + resourceName + ', id[, relations]): ';
+}
+
+function _unlinkInverse(definition, linked) {
+  var DS = this;
+  DS.utils.forOwn(DS.definitions, function (d) {
+    DS.utils.forOwn(d.relations, function (relatedModels) {
+      DS.utils.forOwn(relatedModels, function (defs, relationName) {
+        if (definition.name === relationName) {
+          DS.utils.forEach(defs, function (def) {
+            DS.utils.forEach(DS.store[def.name].collection, function (item) {
+              if (def.type === 'hasMany' && item[def.localField]) {
+                var index;
+                DS.utils.forEach(item[def.localField], function (subItem, i) {
+                  if (subItem === linked) {
+                    index = i;
+                  }
+                });
+                item[def.localField].splice(index, 1);
+              } else if (item[def.localField] === linked) {
+                delete item[def.localField];
+              }
+            });
+          });
+        }
+      });
+    });
+  });
+}
+
+/**
+ * @doc method
+ * @id DS.sync methods:unlinkInverse
+ * @name unlinkInverse
+ * @description
+ * Find relations of the item with the given primary key that are already in the data store and _unlink_ this item from those
+ * relations. This unlinks links that would be created by `DS.linkInverse`.
+ *
+ * ## Signature:
+ * ```js
+ * DS.unlinkInverse(resourceName, id[, relations])
+ * ```
+ *
+ * ## Examples:
+ *
+ * Assume `organization` has `hasMany` relationship to `user` and `post` has a `belongsTo` relationship to `user`.
+ * ```js
+ * DS.get('organization', 5); // { id: 5, users: [{ organizationId: 5, id: 1 }] }
+ *
+ * // unlink user 1 from its relations
+ * DS.unlinkInverse('user', 1, ['organization']);
+ *
+ * DS.get('organization', 5); // { id: 5, users: [] }
+ * ```
+ *
+ * ## Throws
+ *
+ * - `{IllegalArgumentError}`
+ * - `{NonexistentResourceError}`
+ *
+ * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
+ * @param {string|number} id The primary key of the item for which to unlink relations.
+ * @param {array=} relations The relations to be unlinked. If not provided then all relations will be unlinked. Default: `[]`.
+ * @returns {object|array} A reference to the item that has been unlinked.
+ */
+function unlinkInverse(resourceName, id, relations) {
+  var DS = this;
+  var IA = DS.errors.IA;
+  var definition = DS.definitions[resourceName];
+
+  relations = relations || [];
+
+  if (!definition) {
+    throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
+  } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {
+    throw new IA(errorPrefix(resourceName) + 'id: Must be a string or a number!');
+  } else if (!DS.utils.isArray(relations)) {
+    throw new IA(errorPrefix(resourceName) + 'relations: Must be an array!');
+  }
+  var linked = DS.get(resourceName, id);
+
+  if (linked) {
+    if (!DS.$rootScope.$$phase) {
+      DS.$rootScope.$apply(function () {
+        _unlinkInverse.call(DS, definition, linked, relations);
+      });
+    } else {
+      _unlinkInverse.call(DS, definition, linked, relations);
+    }
+  }
+
+  return linked;
+}
+
+module.exports = unlinkInverse;
+
+},{}],71:[function(require,module,exports){
 /**
  * @doc function
  * @id errors.types:IllegalArgumentError
@@ -6536,7 +6645,7 @@ module.exports = [function () {
   };
 }];
 
-},{}],71:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 (function (window, angular, undefined) {
   'use strict';
 
@@ -6545,7 +6654,7 @@ module.exports = [function () {
    * @id angular-data
    * @name angular-data
    * @description
-   * __Version:__ 1.0.0-beta.3
+   * __Version:__ 1.0.0-beta.4
    *
    * ## Install
    *
@@ -6624,7 +6733,7 @@ module.exports = [function () {
 
 })(window, window.angular);
 
-},{"./adapters/http":36,"./adapters/localStorage":37,"./datastore":49,"./errors":70,"./utils":72}],72:[function(require,module,exports){
+},{"./adapters/http":36,"./adapters/localStorage":37,"./datastore":49,"./errors":71,"./utils":73}],73:[function(require,module,exports){
 module.exports = [function () {
   return {
     isBoolean: require('mout/lang/isBoolean'),
@@ -6709,4 +6818,4 @@ module.exports = [function () {
   };
 }];
 
-},{"mout/array/contains":2,"mout/array/filter":3,"mout/array/slice":7,"mout/array/sort":8,"mout/array/toLookup":9,"mout/lang/isBoolean":14,"mout/lang/isEmpty":15,"mout/object/deepMixIn":22,"mout/object/forOwn":24,"mout/object/pick":27,"mout/object/set":28,"mout/string/makePath":31,"mout/string/pascalCase":32,"mout/string/upperCase":35}]},{},[71]);
+},{"mout/array/contains":2,"mout/array/filter":3,"mout/array/slice":7,"mout/array/sort":8,"mout/array/toLookup":9,"mout/lang/isBoolean":14,"mout/lang/isEmpty":15,"mout/object/deepMixIn":22,"mout/object/forOwn":24,"mout/object/pick":27,"mout/object/set":28,"mout/string/makePath":31,"mout/string/pascalCase":32,"mout/string/upperCase":35}]},{},[72]);

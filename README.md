@@ -9,7 +9,7 @@ Unlike Backbone and Ember Models, angular-data does not require the use of gette
 Supporting relations, computed properties, model lifecycle control and a slew of other features, angular-data is the tool for giving your data the respect it deserves.
 
 __Latest Release:__ [1.0.0-beta.3](http://angular-data.pseudobry.com/)
-__master:__ [1.0.0-beta.3](http://angular-data-next.pseudobry.com/)
+__master:__ [1.0.0-beta.4](http://angular-data-next.pseudobry.com/)
 
 Angular-data is in a 1.0.0 Beta. The API is rather stable and angular-data is well tested.
 

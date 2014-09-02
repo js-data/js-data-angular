@@ -22,6 +22,16 @@ module.exports = {
 
   /**
    * @doc method
+   * @id DS.sync methods:changes
+   * @name changes
+   * @methodOf DS
+   * @description
+   * See [DS.changes](/documentation/api/api/DS.sync methods:changes).
+   */
+  changes: require('./changes'),
+
+  /**
+   * @doc method
    * @id DS.sync methods:compute
    * @name compute
    * @methodOf DS
@@ -49,6 +59,16 @@ module.exports = {
    * See [DS.defineResource](/documentation/api/api/DS.sync methods:defineResource).
    */
   defineResource: require('./defineResource'),
+
+  /**
+   * @doc method
+   * @id DS.sync methods:digest
+   * @name digest
+   * @methodOf DS
+   * @description
+   * See [DS.digest](/documentation/api/api/DS.sync methods:digest).
+   */
+  digest: require('./digest'),
 
   /**
    * @doc method
@@ -89,6 +109,16 @@ module.exports = {
    * See [DS.get](/documentation/api/api/DS.sync methods:get).
    */
   get: require('./get'),
+
+  /**
+   * @doc method
+   * @id DS.sync methods:hasChanges
+   * @name hasChanges
+   * @methodOf DS
+   * @description
+   * See [DS.hasChanges](/documentation/api/api/DS.sync methods:hasChanges).
+   */
+  hasChanges: require('./hasChanges'),
 
   /**
    * @doc method
@@ -152,26 +182,6 @@ module.exports = {
 
   /**
    * @doc method
-   * @id DS.sync methods:digest
-   * @name digest
-   * @methodOf DS
-   * @description
-   * See [DS.digest](/documentation/api/api/DS.sync methods:digest).
-   */
-  digest: require('./digest'),
-
-  /**
-   * @doc method
-   * @id DS.sync methods:changes
-   * @name changes
-   * @methodOf DS
-   * @description
-   * See [DS.changes](/documentation/api/api/DS.sync methods:changes).
-   */
-  changes: require('./changes'),
-
-  /**
-   * @doc method
    * @id DS.sync methods:previous
    * @name previous
    * @methodOf DS
@@ -182,11 +192,11 @@ module.exports = {
 
   /**
    * @doc method
-   * @id DS.sync methods:hasChanges
-   * @name hasChanges
+   * @id DS.sync methods:unlinkInverse
+   * @name unlinkInverse
    * @methodOf DS
    * @description
-   * See [DS.hasChanges](/documentation/api/api/DS.sync methods:hasChanges).
+   * See [DS.unlinkInverse](/documentation/api/api/DS.sync methods:unlinkInverse).
    */
-  hasChanges: require('./hasChanges')
+  unlinkInverse: require('./unlinkInverse')
 };

@@ -13,6 +13,7 @@ function _eject(definition, resource, id) {
     }
   }
   if (found) {
+    this.unlinkInverse(definition.name, id);
     resource.collection.splice(i, 1);
     resource.observers[id].close();
     delete resource.observers[id];
