@@ -1,4 +1,4 @@
-##### 1.0.0-beta.4 - 02 September 2014
+##### 1.0.0-rc.1 - 03 September 2014
 
 ###### Backwards compatible API changes
 - #142 - Update references on eject (Added `DS.unlinkInverse`)

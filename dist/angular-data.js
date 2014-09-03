@@ -1,13 +1,13 @@
 /**
 * @author Jason Dobry <jason.dobry@gmail.com>
 * @file angular-data.js
-* @version 1.0.0-beta.4 - Homepage <http://angular-data.pseudobry.com/>
+* @version 1.0.0-rc.1 - Homepage <http://angular-data.pseudobry.com/>
 * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>
 * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
 *
 * @overview Data store for Angular.js.
 */
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 // Copyright 2012 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -924,10 +924,10 @@ var isArray = require('./isArray');
     function isEmpty(val){
         if (val == null) {
             // typeof null == 'object' so we check it first
-            return false;
+            return true;
         } else if ( typeof val === 'string' || isArray(val) ) {
             return !val.length;
-        } else if ( typeof val === 'object' || typeof val === 'function' ) {
+        } else if ( typeof val === 'object' ) {
             var result = true;
             forOwn(val, function(){
                 result = false;
@@ -935,7 +935,7 @@ var isArray = require('./isArray');
             });
             return result;
         } else {
-            return false;
+            return true;
         }
     }
 
@@ -6654,7 +6654,7 @@ module.exports = [function () {
    * @id angular-data
    * @name angular-data
    * @description
-   * __Version:__ 1.0.0-beta.4
+   * __Version:__ 1.0.0-rc.1
    *
    * ## Install
    *
