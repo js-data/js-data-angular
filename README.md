@@ -89,8 +89,8 @@ app.controller('friendsCtrl', function ($scope, $routeParams, User) {
 
 ## API
 - [Overview](http://angular-data.pseudobry.com/documentation/api/angular-data/angular-data)
-- [DS](http://angular-data.pseudobry.com/documentation/documentation/api/angular-data/DS)
-- [DSHttpAdapter](http://angular-data.pseudobry.com/documentation/documentation/api/angular-data/DSHttpAdapter)
+- [DS](http://angular-data.pseudobry.com/documentation/api/angular-data/DS)
+- [DSHttpAdapter](http://angular-data.pseudobry.com/documentation/api/angular-data/DSHttpAdapter)
 
 ## Changelog
 [CHANGELOG.md](https://github.com/jmdobry/angular-data/blob/master/CHANGELOG.md)
