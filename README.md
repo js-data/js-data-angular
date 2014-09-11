@@ -78,19 +78,19 @@ app.controller('friendsCtrl', function ($scope, $routeParams, User) {
 ```
 
 ## Guide
-- [Overview](/documentation/guide/angular-data/index)
-- [Basics](/documentation/guide/angular-data/overview)
-- [Defining Resources](/documentation/guide/angular-data-resource/basic)
-- [Asynchronous Methods](/documentation/guide/angular-data/asynchronous)
-- [Synchronous Methods](/documentation/guide/angular-data/synchronous)
-- [Queries & Filtering](/documentation/guide/angular-data/queries)
-- [Adapters](/documentation/guide/angular-data/adapters)
-- [How do I...?](/documentation/guide/angular-data/how)
+- [Overview](http://angular-data.pseudobry.com/documentation/guide/angular-data/index)
+- [Basics](http://angular-data.pseudobry.com/documentation/guide/angular-data/overview)
+- [Defining Resources](http://angular-data.pseudobry.com/documentation/guide/angular-data-resource/basic)
+- [Asynchronous Methods](http://angular-data.pseudobry.com/documentation/guide/angular-data/asynchronous)
+- [Synchronous Methods](http://angular-data.pseudobry.com/documentation/guide/angular-data/synchronous)
+- [Queries & Filtering](http://angular-data.pseudobry.com/documentation/guide/angular-data/queries)
+- [Adapters](http://angular-data.pseudobry.com/documentation/guide/angular-data/adapters)
+- [How do I...?](http://angular-data.pseudobry.com/documentation/guide/angular-data/how)
 
 ## API
-- [Overview](/documentation/api/angular-data/angular-data)
-- [DS](/documentation/api/angular-data/DS)
-- [DSHttpAdapter](/documentation/api/angular-data/DSHttpAdapter)
+- [Overview](http://angular-data.pseudobry.com/documentation/api/angular-data/angular-data)
+- [DS](http://angular-data.pseudobry.com/documentation/api/angular-data/DS)
+- [DSHttpAdapter](http://angular-data.pseudobry.com/documentation/api/angular-data/DSHttpAdapter)
 
 ## Changelog
 [CHANGELOG.md](https://github.com/jmdobry/angular-data/blob/master/CHANGELOG.md)
