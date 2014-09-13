@@ -54,7 +54,7 @@ function _findAll(resourceName, params, options) {
       resource.pendingQueries[queryHash] = DS.adapters[options.adapter || definition.defaultAdapter].findAll(definition, params, options)
         .then(function (res) {
           delete resource.pendingQueries[queryHash];
-          var data = definition.deserialize(resourceName, res);
+          var data = options.deserialize ? options.deserialize(resourceName, res) : definition.deserialize(resourceName, res);
           if (options.cacheResponse) {
             try {
               return processResults.call(DS, data, resourceName, queryHash, options);

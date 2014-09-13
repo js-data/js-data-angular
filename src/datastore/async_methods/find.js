@@ -78,7 +78,7 @@ function find(resourceName, id, options) {
       if (!(id in resource.pendingQueries)) {
         promise = resource.pendingQueries[id] = DS.adapters[options.adapter || definition.defaultAdapter].find(definition, id, options)
           .then(function (res) {
-            var data = definition.deserialize(resourceName, res);
+            var data = options.deserialize ? options.deserialize(resourceName, res) : definition.deserialize(resourceName, res);
             if (options.cacheResponse) {
               // Query is no longer pending
               delete resource.pendingQueries[id];
