@@ -32,9 +32,11 @@ describe('DS.bindAll(scope, expr, resourceName, params[, cb])', function () {
     }, DS.errors.NonexistentResourceError, errorPrefix('does not exist') + 'does not exist is not a registered resource!');
 
     angular.forEach(TYPES_EXCEPT_OBJECT, function (key) {
-      assert.throws(function () {
-        DS.bindAll($scope, 'post', 'post', key);
-      }, DS.errors.IllegalArgumentError, errorPrefix('post') + 'params: Must be an object!');
+      if (key) {
+        assert.throws(function () {
+          DS.bindAll($scope, 'post', 'post', key);
+        }, DS.errors.IllegalArgumentError, errorPrefix('post') + 'params: Must be an object!');
+      }
     });
   });
   it('should bind an item in the data store to the scope', function () {

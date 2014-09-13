@@ -162,5 +162,22 @@ describe('DS.find(resourceName, id[, options]): ', function () {
     });
 
     $httpBackend.flush();
+
+    $httpBackend.expectGET('http://test.angular-cache.com/organization/14/user/19/comment/19').respond(200, comment19);
+
+    DS.find('comment', 19, {
+      bypassCache: true,
+      params: {
+        approvedBy: 19,
+        organizationId: 14
+      }
+    }).then(function (comment) {
+      assert.deepEqual(comment, comment19);
+      assert.deepEqual(comment, DS.get('comment', 19));
+    }, function () {
+      fail('Should not have failed!');
+    });
+
+    $httpBackend.flush();
   });
 });

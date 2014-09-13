@@ -184,7 +184,7 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
 };
 Defaults.prototype.baseUrl = '';
 Defaults.prototype.endpoint = '';
-Defaults.prototype.useClass = false;
+Defaults.prototype.useClass = true;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.beforeValidate

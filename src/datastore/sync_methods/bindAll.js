@@ -49,6 +49,8 @@ function bindAll(scope, expr, resourceName, params, cb) {
   var DS = this;
   var IA = DS.errors.IA;
 
+  params = params || {};
+
   if (!DS.utils.isObject(scope)) {
     throw new IA(errorPrefix(resourceName) + 'scope: Must be an object!');
   } else if (!DS.utils.isString(expr)) {

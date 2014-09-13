@@ -107,7 +107,9 @@ function loadRelations(resourceName, instance, relations, options) {
           if (def.localKey && instance[def.localKey]) {
             task = DS.find(relationName, instance[def.localKey], options);
           } else if (def.foreignKey) {
-            task = DS.findAll(relationName, params, options);
+            task = DS.findAll(relationName, params, options).then(function (hasOnes) {
+              return hasOnes.length ? hasOnes[0] : null;
+            });
           }
         } else {
           task = DS.find(relationName, instance[def.localKey], options);

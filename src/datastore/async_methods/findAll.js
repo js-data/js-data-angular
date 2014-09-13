@@ -53,6 +53,7 @@ function _findAll(resourceName, params, options) {
       // This particular query has never even been made
       resource.pendingQueries[queryHash] = DS.adapters[options.adapter || definition.defaultAdapter].findAll(definition, params, options)
         .then(function (res) {
+          delete resource.pendingQueries[queryHash];
           var data = definition.deserialize(resourceName, res);
           if (options.cacheResponse) {
             try {
@@ -61,6 +62,10 @@ function _findAll(resourceName, params, options) {
               return DS.$q.reject(err);
             }
           } else {
+            console.log(data);
+            DS.utils.forEach(data, function (item, i) {
+              data[i] = DS.createInstance(resourceName, item, options);
+            });
             return data;
           }
         }, function (err) {
@@ -121,6 +126,7 @@ function _findAll(resourceName, params, options) {
  *
  * @param {object=} options Optional configuration. Also passed along to the adapter's `findAll` method. Properties:
  *
+ * - `{boolean=}` - `useClass` - Whether to wrap the injected item with the resource's instance constructor.
  * - `{boolean=}` - `bypassCache` - Bypass the cache. Default: `false`.
  * - `{boolean=}` - `cacheResponse` - Inject the data returned by the adapter into the data store. Default: `true`.
  *

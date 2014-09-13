@@ -2199,6 +2199,7 @@ function errorPrefix(resourceName) {
  * @param {object} attrs The attributes with which to create the item of the type specified by `resourceName`.
  * @param {object=} options Configuration options. Also passed along to the adapter's `create` method. Properties:
  *
+ * - `{boolean=}` - `useClass` - Whether to wrap the injected item with the resource's instance constructor.
  * - `{boolean=}` - `cacheResponse` - Inject the data returned by the adapter into the data store. Default: `true`.
  * - `{boolean=}` - `upsert` - If `attrs` already contains a primary key, then attempt to call `DS.update` instead. Default: `true`.
  * - `{function=}` - `beforeValidate` - Override the resource or global lifecycle hook.
@@ -2280,7 +2281,7 @@ function create(resourceName, attrs, options) {
             resource.saved[id] = DS.utils.updateTimestamp(resource.saved[id]);
             return DS.get(definition.name, id);
           } else {
-            return data;
+            return DS.createInstance(resourceName, data, options);
           }
         });
     }
@@ -2510,6 +2511,7 @@ function errorPrefix(resourceName, id) {
  * @param {string|number} id The primary key of the item to retrieve.
  * @param {object=} options Optional configuration. Also passed along to the adapter's `find` method. Properties:
  *
+ * - `{boolean=}` - `useClass` - Whether to wrap the injected item with the resource's instance constructor.
  * - `{boolean=}` - `bypassCache` - Bypass the cache. Default: `false`.
  * - `{boolean=}` - `cacheResponse` - Inject the data returned by the adapter into the data store. Default: `true`.
  *
@@ -2563,7 +2565,7 @@ function find(resourceName, id, options) {
               resource.completedQueries[id] = new Date().getTime();
               return DS.inject(resourceName, data, options);
             } else {
-              return data;
+              return DS.createInstance(resourceName, data, options);
             }
           }, function (err) {
             delete resource.pendingQueries[id];
@@ -2640,6 +2642,7 @@ function _findAll(resourceName, params, options) {
       // This particular query has never even been made
       resource.pendingQueries[queryHash] = DS.adapters[options.adapter || definition.defaultAdapter].findAll(definition, params, options)
         .then(function (res) {
+          delete resource.pendingQueries[queryHash];
           var data = definition.deserialize(resourceName, res);
           if (options.cacheResponse) {
             try {
@@ -2648,6 +2651,10 @@ function _findAll(resourceName, params, options) {
               return DS.$q.reject(err);
             }
           } else {
+            console.log(data);
+            DS.utils.forEach(data, function (item, i) {
+              data[i] = DS.createInstance(resourceName, item, options);
+            });
             return data;
           }
         }, function (err) {
@@ -2708,6 +2715,7 @@ function _findAll(resourceName, params, options) {
  *
  * @param {object=} options Optional configuration. Also passed along to the adapter's `findAll` method. Properties:
  *
+ * - `{boolean=}` - `useClass` - Whether to wrap the injected item with the resource's instance constructor.
  * - `{boolean=}` - `bypassCache` - Bypass the cache. Default: `false`.
  * - `{boolean=}` - `cacheResponse` - Inject the data returned by the adapter into the data store. Default: `true`.
  *
@@ -2970,7 +2978,9 @@ function loadRelations(resourceName, instance, relations, options) {
           if (def.localKey && instance[def.localKey]) {
             task = DS.find(relationName, instance[def.localKey], options);
           } else if (def.foreignKey) {
-            task = DS.findAll(relationName, params, options);
+            task = DS.findAll(relationName, params, options).then(function (hasOnes) {
+              return hasOnes.length ? hasOnes[0] : null;
+            });
           }
         } else {
           task = DS.find(relationName, instance[def.localKey], options);
@@ -3681,7 +3691,7 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
 };
 Defaults.prototype.baseUrl = '';
 Defaults.prototype.endpoint = '';
-Defaults.prototype.useClass = false;
+Defaults.prototype.useClass = true;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.beforeValidate
@@ -4300,6 +4310,8 @@ function bindAll(scope, expr, resourceName, params, cb) {
   var DS = this;
   var IA = DS.errors.IA;
 
+  params = params || {};
+
   if (!DS.utils.isObject(scope)) {
     throw new IA(errorPrefix(resourceName) + 'scope: Must be an object!');
   } else if (!DS.utils.isString(expr)) {
@@ -4625,7 +4637,7 @@ function errorPrefix(resourceName) {
  * @param {object=} attrs Optional attributes to mix in to the new instance.
  * @param {object=} options Optional configuration. Properties:
  *
- * - `{boolean=}` - `useClass` - Whether to use the resource's wrapper class. Default: `true`.
+ * - `{boolean=}` - `useClass` - Whether to wrap the injected item with the resource's instance constructor.
  *
  * @returns {object} The new instance.
  */
@@ -4646,7 +4658,7 @@ function createInstance(resourceName, attrs, options) {
   }
 
   if (!('useClass' in options)) {
-    options.useClass = true;
+    options.useClass = definition.useClass;
   }
 
   var item;
@@ -5650,7 +5662,7 @@ function errorPrefix(resourceName) {
   return 'DS.inject(' + resourceName + ', attrs[, options]): ';
 }
 
-function _inject(definition, resource, attrs) {
+function _inject(definition, resource, attrs, options) {
   var DS = this;
   var $log = DS.$log;
 
@@ -5707,7 +5719,7 @@ function _inject(definition, resource, attrs) {
   if (DS.utils.isArray(attrs)) {
     injected = [];
     for (var i = 0; i < attrs.length; i++) {
-      injected.push(_inject.call(DS, definition, resource, attrs[i]));
+      injected.push(_inject.call(DS, definition, resource, attrs[i], options));
     }
   } else {
     // check if "idAttribute" is a computed property
@@ -5731,7 +5743,7 @@ function _inject(definition, resource, attrs) {
         var item = DS.get(definition.name, id);
 
         if (!item) {
-          if (definition.methods || definition.useClass) {
+          if (options.useClass) {
             if (attrs instanceof definition[definition.class]) {
               item = attrs;
             } else {
@@ -5862,6 +5874,7 @@ function _injectRelations(definition, injected, options) {
  * @param {object|array} attrs The item or collection of items to inject into the data store.
  * @param {object=} options The item or collection of items to inject into the data store. Properties:
  *
+ * - `{boolean=}` - `useClass` - Whether to wrap the injected item with the resource's instance constructor.
  * - `{boolean=}` - `findBelongsTo` - Find and attach any existing "belongsTo" relationships to the newly injected item. Potentially expensive if enabled. Default: `false`.
  * - `{boolean=}` - `findHasMany` - Find and attach any existing "hasMany" relationships to the newly injected item. Potentially expensive if enabled. Default: `false`.
  * - `{boolean=}` - `findHasOne` - Find and attach any existing "hasOne" relationships to the newly injected item. Potentially expensive if enabled. Default: `false`.
@@ -5890,12 +5903,15 @@ function inject(resourceName, attrs, options) {
   stack++;
 
   try {
+    if (!('useClass' in options)) {
+      options.useClass = definition.useClass;
+    }
     if (!DS.$rootScope.$$phase) {
       DS.$rootScope.$apply(function () {
-        injected = _inject.call(DS, definition, resource, attrs);
+        injected = _inject.call(DS, definition, resource, attrs, options);
       });
     } else {
-      injected = _inject.call(DS, definition, resource, attrs);
+      injected = _inject.call(DS, definition, resource, attrs, options);
     }
     if (definition.relations) {
       _injectRelations.call(DS, definition, injected, options);

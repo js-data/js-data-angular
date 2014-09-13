@@ -1,3 +1,12 @@
+##### 1.0.0-rc.2 - xx September 2014
+
+###### Backwards compatible API changes
+- #145 - Add "useClass" option to inject, find, findAll, create
+- #167 - Default params argument of bindAll to empty object
+
+###### Backwards compatible bug fixes
+- #156 - cached findAll pending query doesn't get removed sometimes
+
 ##### 1.0.0-rc.1 - 03 September 2014
 
 ###### Backwards compatible API changes

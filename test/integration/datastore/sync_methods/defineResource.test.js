@@ -207,42 +207,50 @@ describe('DS.defineResource(definition)', function () {
     DS.digest();
 
     setTimeout(function () {
-      assert.deepEqual(person, {
-        first: 'Johnny',
-        last: 'Anderson',
-        email: 'john.anderson@test.com',
-        id: 1,
-        fullName: 'Johnny Anderson'
-      });
-      assert.equal(person.fullName, 'Johnny Anderson');
-
-      person.first = 'Jack';
-      dog.first = 'spot';
-
-      DS.digest();
-
-      setTimeout(function () {
-        assert.deepEqual(person, {
-          first: 'Jack',
+      try {
+        assert.deepEqual(JSON.stringify(person), JSON.stringify({
+          first: 'Johnny',
           last: 'Anderson',
           email: 'john.anderson@test.com',
           id: 1,
-          fullName: 'Jack Anderson'
-        });
-        assert.equal(person.fullName, 'Jack Anderson');
-        assert.equal(dog.fullName, 'spot dog');
+          fullName: 'Johnny Anderson'
+        }));
+        assert.equal(person.fullName, 'Johnny Anderson');
 
-        // computed property function should not be called
-        // when a property changes that isn't a dependency
-        // of the computed property
-        person.email = 'ja@test.com';
+        person.first = 'Jack';
+        dog.first = 'spot';
 
         DS.digest();
 
-        assert.equal(callCount, 5, 'fullName() should have been called 3 times');
+        setTimeout(function () {
+          try {
+            assert.deepEqual(JSON.stringify(person), JSON.stringify({
+              first: 'Jack',
+              last: 'Anderson',
+              email: 'john.anderson@test.com',
+              id: 1,
+              fullName: 'Jack Anderson'
+            }));
+            assert.equal(person.fullName, 'Jack Anderson');
+            assert.equal(dog.fullName, 'spot dog');
 
-        done();
-      }, 50);
+            // computed property function should not be called
+            // when a property changes that isn't a dependency
+            // of the computed property
+            person.email = 'ja@test.com';
+
+            DS.digest();
+
+            assert.equal(callCount, 5, 'fullName() should have been called 3 times');
+
+            done();
+          } catch (err) {
+            done(err.stack);
+          }
+        }, 50);
+      } catch (err) {
+        done(err.stack);
+      }
     }, 50);
   });
   it('should allow definition of computed properties that have no dependencies', function () {
@@ -321,12 +329,12 @@ describe('DS.defineResource(definition)', function () {
     DS.digest();
 
     setTimeout(function () {
-      assert.deepEqual(person, {
+      assert.deepEqual(JSON.stringify(person), JSON.stringify({
         first: 'Johnny',
         last: 'Anderson',
         email: 'john.anderson@test.com',
         id: 'Johnny_Anderson'
-      });
+      }));
       assert.equal(person.id, 'Johnny_Anderson');
 
       done();

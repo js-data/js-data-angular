@@ -56,7 +56,7 @@ describe('DS.loadRelations(resourceName, instance(Id), relations[, options]): ',
       comment12,
       comment13
     ]);
-    $httpBackend.expectGET('http://test.angular-cache.com/profile?userId=10').respond(200, profile15);
+    $httpBackend.expectGET('http://test.angular-cache.com/profile?userId=10').respond(200, [profile15]);
 
     DS.loadRelations('user', 10, ['comment', 'profile', 'organization'], { params: { approvedBy: 10 } }).then(function (user) {
       assert.deepEqual(user.comments[0].id, DS.get('comment', user.comments[0].id).id);
@@ -96,7 +96,7 @@ describe('DS.loadRelations(resourceName, instance(Id), relations[, options]): ',
       comment12,
       comment13
     ]);
-    $httpBackend.expectGET('http://test.angular-cache.com/profile?userId=10').respond(200, profile15);
+    $httpBackend.expectGET('http://test.angular-cache.com/profile?userId=10').respond(200, [profile15]);
 
     DS.loadRelations('user', 10, ['comment', 'profile', 'organization'], { cacheResponse: false }).then(function (user) {
       assert.deepEqual(user.comments, [
