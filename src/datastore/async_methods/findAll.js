@@ -62,7 +62,6 @@ function _findAll(resourceName, params, options) {
               return DS.$q.reject(err);
             }
           } else {
-            console.log(data);
             DS.utils.forEach(data, function (item, i) {
               data[i] = DS.createInstance(resourceName, item, options);
             });

@@ -2,6 +2,7 @@
 
 ###### Backwards compatible API changes
 - #145 - Add "useClass" option to inject, find, findAll, create
+- #161 - Allow the http method of DSHttpAdapter methods to be configured
 - #167 - Default params argument of bindAll to empty object
 
 ###### Backwards compatible bug fixes

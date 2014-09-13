@@ -1546,9 +1546,11 @@ function DSHttpAdapterProvider() {
        */
       GET: function (url, config) {
         config = config || {};
+        if (!('method' in config)) {
+          config.method = 'GET';
+        }
         return this.HTTP(DSUtils.deepMixIn(config, {
-          url: url,
-          method: 'GET'
+          url: url
         }));
       },
 
@@ -1571,10 +1573,12 @@ function DSHttpAdapterProvider() {
        */
       POST: function (url, attrs, config) {
         config = config || {};
+        if (!('method' in config)) {
+          config.method = 'POST';
+        }
         return this.HTTP(DSUtils.deepMixIn(config, {
           url: url,
-          data: attrs,
-          method: 'POST'
+          data: attrs
         }));
       },
 
@@ -1597,10 +1601,12 @@ function DSHttpAdapterProvider() {
        */
       PUT: function (url, attrs, config) {
         config = config || {};
+        if (!('method' in config)) {
+          config.method = 'PUT';
+        }
         return this.HTTP(DSUtils.deepMixIn(config, {
           url: url,
-          data: attrs || {},
-          method: 'PUT'
+          data: attrs || {}
         }));
       },
 
@@ -1622,9 +1628,11 @@ function DSHttpAdapterProvider() {
        */
       DEL: function (url, config) {
         config = config || {};
+        if (!('method' in config)) {
+          config.method = 'DELETE';
+        }
         return this.HTTP(DSUtils.deepMixIn(config, {
-          url: url,
-          method: 'DELETE'
+          url: url
         }));
       },
 
@@ -2651,7 +2659,6 @@ function _findAll(resourceName, params, options) {
               return DS.$q.reject(err);
             }
           } else {
-            console.log(data);
             DS.utils.forEach(data, function (item, i) {
               data[i] = DS.createInstance(resourceName, item, options);
             });
