@@ -21,6 +21,11 @@ function _eject(definition, resource, id) {
     resource.index.remove(id);
     delete resource.previousAttributes[id];
     delete resource.completedQueries[id];
+    delete resource.pendingQueries[id];
+    DS.utils.forEach(resource.changeHistories[id], function (changeRecord) {
+      DS.utils.remove(resource.changeHistory, changeRecord);
+    });
+    delete resource.changeHistories[id];
     delete resource.modified[id];
     delete resource.saved[id];
     resource.collectionModified = this.utils.updateTimestamp(resource.collectionModified);

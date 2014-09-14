@@ -130,6 +130,7 @@ function startInjector() {
     $httpBackend = _$httpBackend_;
     DS.defineResource({
       name: 'post',
+      keepChangeHistory: true,
       endpoint: '/posts'
     });
     DS.defineResource({

@@ -3,8 +3,10 @@
 ###### Backwards compatible API changes
 - #145 - Add "useClass" option to inject, find, findAll, create
 - #155 - Allow deserialize and serialize to be configured per-method as well
+- #159 - Find which items from collection have changed with lastModified
 - #161 - Allow the http method of DSHttpAdapter methods to be configured
 - #167 - Default params argument of bindAll to empty object
+- #171 - "not in" query
 
 ###### Backwards compatible bug fixes
 - #156 - cached findAll pending query doesn't get removed sometimes
