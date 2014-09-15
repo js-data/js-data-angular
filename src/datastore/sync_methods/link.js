@@ -74,6 +74,7 @@ function link(resourceName, id, relations) {
 
   relations = relations || [];
 
+  id = DS.utils.resolveId(definition, id);
   if (!definition) {
     throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
   } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {

@@ -37,6 +37,7 @@ function bindOne(scope, expr, resourceName, id, cb) {
   var DS = this;
   var IA = DS.errors.IA;
 
+  id = DS.utils.resolveId(DS.definitions[resourceName], id);
   if (!DS.utils.isObject(scope)) {
     throw new IA(errorPrefix(resourceName) + 'scope: Must be an object!');
   } else if (!DS.utils.isString(expr)) {
