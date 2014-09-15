@@ -10,6 +10,7 @@
 
 ###### Backwards compatible bug fixes
 - #156 - cached findAll pending query doesn't get removed sometimes
+- #165 - DS.hasChanges() reports changes after loading relations
 
 ##### 1.0.0-rc.1 - 03 September 2014
 

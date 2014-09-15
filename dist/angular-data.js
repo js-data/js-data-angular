@@ -4570,6 +4570,11 @@ function changes(resourceName, id) {
       });
       diff[name] = DS.utils.pick(diff[name], toKeep);
     });
+    DS.utils.forEach(DS.definitions[resourceName].relationFields, function (field) {
+      delete diff.added[field];
+      delete diff.removed[field];
+      delete diff.changed[field];
+    });
     return diff;
   }
 }

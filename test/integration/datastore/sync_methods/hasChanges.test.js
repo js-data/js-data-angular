@@ -33,7 +33,7 @@ describe('DS.hasChanges(resourceName, id)', function () {
     assert.isTrue(DS.hasChanges('post', 5));
   });
   it('should return false for resources with defined methods', function () {
-    var Person = DS.defineResource({
+    DS.defineResource({
       name: 'person',
       methods: {
         fullName: function () {
@@ -50,7 +50,7 @@ describe('DS.hasChanges(resourceName, id)', function () {
 
     assert.isFalse(DS.hasChanges('person', 1));
   });
-  it('should return false after loading relations', function() {
+  it('should return false after loading relations', function () {
     DS.inject('user', user10);
 
     $httpBackend.expectGET('http://test.angular-cache.com/organization/14?userId=10').respond(200, organization14);
@@ -61,7 +61,7 @@ describe('DS.hasChanges(resourceName, id)', function () {
     ]);
     $httpBackend.expectGET('http://test.angular-cache.com/profile?userId=10').respond(200, profile15);
 
-    DS.loadRelations('user', 10, ['comment', 'profile', 'organization'], { params: { approvedBy: 10 } }).then(function (user) {
+    DS.loadRelations('user', 10, ['comment', 'profile', 'organization'], { params: { approvedBy: 10 } }).then(function () {
       assert.isFalse(DS.hasChanges('user', 10));
     }, fail);
 
@@ -71,7 +71,7 @@ describe('DS.hasChanges(resourceName, id)', function () {
     DS.inject('comment', comment19);
     $httpBackend.expectGET('http://test.angular-cache.com/user/20').respond(200, user20);
     $httpBackend.expectGET('http://test.angular-cache.com/user/19').respond(200, user19);
-    DS.loadRelations('comment', 19, ['user']).then(function (comment) {
+    DS.loadRelations('comment', 19, ['user']).then(function () {
       assert.isFalse(DS.hasChanges('comment', 19));
     }, fail);
     $httpBackend.flush();
