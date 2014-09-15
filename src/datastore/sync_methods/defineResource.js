@@ -107,22 +107,23 @@ var methodsToProxy = [
  */
 function defineResource(definition) {
   var DS = this;
+  var DSUtils = DS.utils;
   var definitions = DS.definitions;
   var IA = DS.errors.IA;
 
-  if (DS.utils.isString(definition)) {
+  if (DSUtils.isString(definition)) {
     definition = definition.replace(/\s/gi, '');
     definition = {
       name: definition
     };
   }
-  if (!DS.utils.isObject(definition)) {
+  if (!DSUtils.isObject(definition)) {
     throw new IA(errorPrefix + 'definition: Must be an object!');
-  } else if (!DS.utils.isString(definition.name)) {
+  } else if (!DSUtils.isString(definition.name)) {
     throw new IA(errorPrefix + 'definition.name: Must be a string!');
-  } else if (definition.idAttribute && !DS.utils.isString(definition.idAttribute)) {
+  } else if (definition.idAttribute && !DSUtils.isString(definition.idAttribute)) {
     throw new IA(errorPrefix + 'definition.idAttribute: Must be a string!');
-  } else if (definition.endpoint && !DS.utils.isString(definition.endpoint)) {
+  } else if (definition.endpoint && !DSUtils.isString(definition.endpoint)) {
     throw new IA(errorPrefix + 'definition.endpoint: Must be a string!');
   } else if (DS.store[definition.name]) {
     throw new DS.errors.R(errorPrefix + definition.name + ' is already registered!');
@@ -131,7 +132,7 @@ function defineResource(definition) {
   try {
     // Inherit from global defaults
     Resource.prototype = DS.defaults;
-    definitions[definition.name] = new Resource(DS.utils, definition);
+    definitions[definition.name] = new Resource(DSUtils, definition);
 
     var def = definitions[definition.name];
 
@@ -139,12 +140,12 @@ function defineResource(definition) {
     if (def.relations) {
       def.relationList = [];
       def.relationFields = [];
-      DS.utils.forOwn(def.relations, function (relatedModels, type) {
-        DS.utils.forOwn(relatedModels, function (defs, relationName) {
-          if (!DS.utils.isArray(defs)) {
+      DSUtils.forOwn(def.relations, function (relatedModels, type) {
+        DSUtils.forOwn(relatedModels, function (defs, relationName) {
+          if (!DSUtils.isArray(defs)) {
             relatedModels[relationName] = [defs];
           }
-          DS.utils.forEach(relatedModels[relationName], function (d) {
+          DSUtils.forEach(relatedModels[relationName], function (d) {
             d.type = type;
             d.relation = relationName;
             d.name = def.name;
@@ -154,8 +155,8 @@ function defineResource(definition) {
         });
       });
       if (def.relations.belongsTo) {
-        DS.utils.forOwn(def.relations.belongsTo, function (relatedModel, modelName) {
-          DS.utils.forEach(relatedModel, function (relation) {
+        DSUtils.forOwn(def.relations.belongsTo, function (relatedModel, modelName) {
+          DSUtils.forEach(relatedModel, function (relation) {
             if (relation.parent) {
               def.parent = modelName;
               def.parentKey = relation.localKey;
@@ -163,8 +164,8 @@ function defineResource(definition) {
           });
         });
       }
-      DS.utils.deepFreeze(def.relations);
-      DS.utils.deepFreeze(def.relationList);
+      DSUtils.deepFreeze(def.relations);
+      DSUtils.deepFreeze(def.relationList);
     }
 
     def.getEndpoint = function (attrs, options) {
@@ -177,17 +178,17 @@ function defineResource(definition) {
       options = options || {};
       options.params = options.params || {};
       if (parent && parentKey && definitions[parent] && options.params[parentKey] !== false) {
-        if (DS.utils.isNumber(attrs) || DS.utils.isString(attrs)) {
+        if (DSUtils.isNumber(attrs) || DSUtils.isString(attrs)) {
           item = DS.get(this.name, attrs);
         }
-        if (DS.utils.isObject(attrs) && parentKey in attrs) {
+        if (DSUtils.isObject(attrs) && parentKey in attrs) {
           delete options.params[parentKey];
-          endpoint = DS.utils.makePath(definitions[parent].getEndpoint(attrs, options), attrs[parentKey], thisEndpoint);
+          endpoint = DSUtils.makePath(definitions[parent].getEndpoint(attrs, options), attrs[parentKey], thisEndpoint);
         } else if (item && parentKey in item) {
           delete options.params[parentKey];
-          endpoint = DS.utils.makePath(definitions[parent].getEndpoint(attrs, options), item[parentKey], thisEndpoint);
+          endpoint = DSUtils.makePath(definitions[parent].getEndpoint(attrs, options), item[parentKey], thisEndpoint);
         } else if (options && options.params[parentKey]) {
-          endpoint = DS.utils.makePath(definitions[parent].getEndpoint(attrs, options), options.params[parentKey], thisEndpoint);
+          endpoint = DSUtils.makePath(definitions[parent].getEndpoint(attrs, options), options.params[parentKey], thisEndpoint);
           delete options.params[parentKey];
         }
       }
@@ -212,7 +213,7 @@ function defineResource(definition) {
       deleteOnExpire: def.deleteOnExpire || 'none',
       onExpire: function (id) {
         var item = DS.eject(def.name, id);
-        if (DS.utils.isFunction(def.onExpire)) {
+        if (DSUtils.isFunction(def.onExpire)) {
           def.onExpire(id, item);
         }
       },
@@ -224,18 +225,18 @@ function defineResource(definition) {
     });
 
     // Create the wrapper class for the new resource
-    def.class = DS.utils.pascalCase(definition.name);
+    def.class = DSUtils.pascalCase(definition.name);
     eval('function ' + def.class + '() {}');
     def[def.class] = eval(def.class);
 
     // Apply developer-defined methods
     if (def.methods) {
-      DS.utils.deepMixIn(def[def.class].prototype, def.methods);
+      DSUtils.deepMixIn(def[def.class].prototype, def.methods);
     }
 
     // Prepare for computed properties
     if (def.computed) {
-      DS.utils.forOwn(def.computed, function (fn, field) {
+      DSUtils.forOwn(def.computed, function (fn, field) {
         if (angular.isFunction(fn)) {
           def.computed[field] = [fn];
           fn = def.computed[field];
@@ -257,7 +258,7 @@ function defineResource(definition) {
         angular.forEach(deps, function (val, index) {
           deps[index] = val.trim();
         });
-        fn.deps = DS.utils.filter(deps, function (dep) {
+        fn.deps = DSUtils.filter(deps, function (dep) {
           return !!dep;
         });
       });
@@ -308,6 +309,9 @@ function defineResource(definition) {
     def.afterUpdate = DS.$q.promisify(def.afterUpdate);
     def.beforeDestroy = DS.$q.promisify(def.beforeDestroy);
     def.afterDestroy = DS.$q.promisify(def.afterDestroy);
+
+    // Mix-in events
+    DSUtils.Events(def);
 
     return def;
   } catch (err) {

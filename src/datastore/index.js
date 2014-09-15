@@ -76,7 +76,7 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
               keep = first ? (attrs[field] <= val) : keep && (attrs[field] <= val);
             } else if (op === 'in') {
               keep = first ? _this.utils.contains(val, attrs[field]) : keep && _this.utils.contains(val, attrs[field]);
-            }  else if (op === 'notIn') {
+            } else if (op === 'notIn') {
               keep = first ? !_this.utils.contains(val, attrs[field]) : keep && !_this.utils.contains(val, attrs[field]);
             } else if (op === '|==') {
               keep = first ? (attrs[field] == val) : keep || (attrs[field] == val);
@@ -660,6 +660,7 @@ function DSProvider() {
           var args = Array.prototype.slice.call(arguments, 2);
           args.unshift(definition.name);
           args.unshift('DS.' + event);
+          definition.emit.apply(definition, args);
           if (definition.events === 'broadcast') {
             $rootScope.$broadcast.apply($rootScope, args);
           } else if (definition.events === 'emit') {

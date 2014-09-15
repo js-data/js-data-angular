@@ -73,7 +73,8 @@ function destroy(resourceName, id, options) {
         var func = options.beforeDestroy ? DS.$q.promisify(options.beforeDestroy) : definition.beforeDestroy;
         return func.call(attrs, resourceName, attrs);
       })
-      .then(function () {
+      .then(function (attrs) {
+        DS.notify(definition, 'beforeDestroy', DS.utils.merge({}, attrs));
         return DS.adapters[options.adapter || definition.defaultAdapter].destroy(definition, id, options);
       })
       .then(function () {
@@ -81,6 +82,7 @@ function destroy(resourceName, id, options) {
         return func.call(item, resourceName, item);
       })
       .then(function () {
+        DS.notify(definition, 'afterDestroy', DS.utils.merge({}, item));
         DS.eject(resourceName, id);
         return id;
       });

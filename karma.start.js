@@ -1,6 +1,7 @@
 // Setup global test variables
 var $rootScope, $q, $log, $timeout, DSHttpAdapterProvider, DSProvider, DSLocalStorageAdapter, DS, DSUtils, DSHttpAdapter, app, $httpBackend, p1, p2, p3, p4, p5;
 
+var Post, User, Organization, Comment, Profile;
 var user1, organization2, comment3, profile4;
 var comment11, comment12, comment13, organization14, profile15, user10, user16, user17, user18, organization15, user19, user20, comment19, user22, profile21;
 
@@ -128,12 +129,12 @@ function startInjector() {
     DSHttpAdapter = _DSHttpAdapter_;
     DSLocalStorageAdapter = _DSLocalStorageAdapter_;
     $httpBackend = _$httpBackend_;
-    DS.defineResource({
+    Post = DS.defineResource({
       name: 'post',
       keepChangeHistory: true,
       endpoint: '/posts'
     });
-    DS.defineResource({
+    User = DS.defineResource({
       name: 'user',
       relations: {
         hasMany: {
@@ -158,7 +159,7 @@ function startInjector() {
       }
     });
 
-    DS.defineResource({
+    Organization = DS.defineResource({
       name: 'organization',
       relations: {
         hasMany: {
@@ -170,7 +171,7 @@ function startInjector() {
       }
     });
 
-    DS.defineResource({
+    Profile = DS.defineResource({
       name: 'profile',
       relations: {
         belongsTo: {
@@ -182,7 +183,7 @@ function startInjector() {
       }
     });
 
-    DS.defineResource({
+    Comment = DS.defineResource({
       name: 'comment',
       relations: {
         belongsTo: {

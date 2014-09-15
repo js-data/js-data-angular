@@ -98,6 +98,7 @@ function update(resourceName, id, attrs, options) {
         return func.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
+        DS.notify(definition, 'beforeUpdate', DS.utils.merge({}, attrs));
         return DS.adapters[options.adapter || definition.defaultAdapter].update(definition, id, options.serialize ? options.serialize(resourceName, attrs) : definition.serialize(resourceName, attrs), options);
       })
       .then(function (res) {
@@ -105,17 +106,18 @@ function update(resourceName, id, attrs, options) {
         var attrs = options.deserialize ? options.deserialize(resourceName, res) : definition.deserialize(resourceName, res);
         return func.call(attrs, resourceName, attrs);
       })
-      .then(function (data) {
+      .then(function (attrs) {
+        DS.notify(definition, 'afterUpdate', DS.utils.merge({}, attrs));
         if (options.cacheResponse) {
           var resource = DS.store[resourceName];
-          var updated = DS.inject(definition.name, data, options);
+          var updated = DS.inject(definition.name, attrs, options);
           var id = updated[definition.idAttribute];
           resource.previousAttributes[id] = DS.utils.deepMixIn({}, updated);
           resource.saved[id] = DS.utils.updateTimestamp(resource.saved[id]);
           resource.observers[id].discardChanges();
           return DS.get(definition.name, id);
         } else {
-          return data;
+          return attrs;
         }
       });
   } catch (err) {

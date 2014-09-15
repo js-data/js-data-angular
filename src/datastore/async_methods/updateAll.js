@@ -109,6 +109,7 @@ function updateAll(resourceName, attrs, params, options) {
         return func.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
+        DS.notify(definition, 'beforeUpdate', DS.utils.merge({}, attrs));
         return DS.adapters[options.adapter || definition.defaultAdapter].updateAll(definition, options.serialize ? options.serialize(resourceName, attrs) : definition.serialize(resourceName, attrs), params, options);
       })
       .then(function (res) {
@@ -116,11 +117,12 @@ function updateAll(resourceName, attrs, params, options) {
         var attrs = options.deserialize ? options.deserialize(resourceName, res) : definition.deserialize(resourceName, res);
         return func.call(attrs, resourceName, attrs);
       })
-      .then(function (data) {
+      .then(function (attrs) {
+        DS.notify(definition, 'afterUpdate', DS.utils.merge({}, attrs));
         if (options.cacheResponse) {
-          return DS.inject(definition.name, data, options);
+          return DS.inject(definition.name, attrs, options);
         } else {
-          return data;
+          return attrs;
         }
       });
   } catch (err) {
