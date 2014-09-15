@@ -44,6 +44,8 @@ function diffIsEmpty(utils, diff) {
  */
 function hasChanges(resourceName, id) {
   var DS = this;
+
+  id = DS.utils.resolveId(DS.definitions[resourceName], id);
   if (!DS.definitions[resourceName]) {
     throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
   } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {

@@ -39,6 +39,8 @@ function errorPrefix(resourceName) {
  */
 function changes(resourceName, id) {
   var DS = this;
+
+  id = DS.utils.resolveId(DS.definitions[resourceName], id);
   if (!DS.definitions[resourceName]) {
     throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
   } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {

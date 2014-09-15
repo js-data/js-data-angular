@@ -38,6 +38,8 @@ function errorPrefix(resourceName, id) {
 function lastModified(resourceName, id) {
   var DS = this;
   var resource = DS.store[resourceName];
+
+  id = DS.utils.resolveId(DS.definitions[resourceName], id);
   if (!DS.definitions[resourceName]) {
     throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
   } else if (id && !DS.utils.isString(id) && !DS.utils.isNumber(id)) {

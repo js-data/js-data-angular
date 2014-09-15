@@ -75,6 +75,8 @@ function _eject(definition, resource, id) {
 function eject(resourceName, id) {
   var DS = this;
   var definition = DS.definitions[resourceName];
+
+  id = DS.utils.resolveId(definition, id);
   if (!definition) {
     throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
   } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {

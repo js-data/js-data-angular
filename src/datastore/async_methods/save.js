@@ -61,6 +61,7 @@ function save(resourceName, id, options) {
 
     options = options || {};
 
+    id = DS.utils.resolveId(definition, id);
     if (!definition) {
       throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
     } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {

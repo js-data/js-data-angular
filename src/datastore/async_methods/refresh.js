@@ -57,6 +57,7 @@ function refresh(resourceName, id, options) {
 
   options = options || {};
 
+  id = DS.utils.resolveId(DS.definitions[resourceName], id);
   if (!DS.definitions[resourceName]) {
     throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
   } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {
