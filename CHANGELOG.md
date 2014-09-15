@@ -7,6 +7,7 @@
 - #161 - Allow the http method of DSHttpAdapter methods to be configured
 - #166 - Add ID Resolver
 - #167 - Default params argument of bindAll to empty object
+- #170 - Global callbacks
 - #171 - "not in" query
 
 ###### Backwards compatible bug fixes

@@ -115,11 +115,26 @@ describe('DS.update(resourceName, id, attrs[, options])', function () {
 
     $httpBackend.flush();
 
-    $httpBackend.expectPUT('http://test.angular-cache.com/user/4/comment/6').respond(200, testComment2);
+    $httpBackend.expectPUT('http://test.angular-cache.com/user/4/comment/6', { content: 'stuff' }).respond(200, testComment2);
 
-    DS.inject('comment', testComment2);
+    var comment = DS.inject('comment', testComment2);
 
-    DS.update('comment', 6, {
+    function onBeforeUpdate (resourceName, attrs) {
+      attrs.other = 'stuff';
+      assert.equal(resourceName, 'comment');
+      assert.deepEqual(attrs, { content: 'stuff', other: 'stuff' });
+    }
+
+    function onAfterUpdate(resourceName, attrs) {
+      assert.equal(resourceName, 'comment');
+      assert.deepEqual(attrs, testComment2);
+      assert.isFalse(testComment2 === attrs);
+    }
+
+    Comment.on('DS.beforeUpdate', onBeforeUpdate);
+    Comment.on('DS.afterUpdate', onAfterUpdate);
+
+    Comment.update(comment, {
       content: 'stuff'
     }, {
       params: {
