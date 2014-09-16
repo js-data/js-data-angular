@@ -7102,7 +7102,7 @@ module.exports = [function () {
 
             try {
               var promise = fn.apply(target || this, args);
-              if(promise && promise.then){
+              if (promise && promise.then) {
                 promise.then(deferred.resolve, deferred.reject);
               }
             } catch (err) {
