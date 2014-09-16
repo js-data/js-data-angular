@@ -7101,7 +7101,10 @@ module.exports = [function () {
             });
 
             try {
-              fn.apply(target || this, args);
+              var promise = fn.apply(target || this, args);
+              if(promise && promise.then){
+                promise.then(deferred.resolve, deferred.reject);
+              }
             } catch (err) {
               deferred.reject(err);
             }
