@@ -77,7 +77,7 @@ app.factory('User', function (DS, $q) {
 
   var loggedInUser;
   
-  var User = DS.defineUser({
+  var User = DS.defineResource({
     name: 'user',
     methods: {
       // Instance method
