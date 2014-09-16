@@ -1,4 +1,4 @@
-## angular-data
+## angular-data [![Stories in Backlog](https://badge.waffle.io/jmdobry/angular-data.svg?label=backlog&title=Backlog)](http://waffle.io/jmdobry/angular-data) [![Stories in Ready](https://badge.waffle.io/jmdobry/angular-data.svg?label=ready&title=Ready)](http://waffle.io/jmdobry/angular-data) [![Stories in progress](https://badge.waffle.io/jmdobry/angular-data.svg?label=in%20progress&title=In%20Progress)](http://waffle.io/jmdobry/angular-data)
 
 Inspired by [Ember Data](https://github.com/emberjs/data), Angular-data is the model layer Angular is missing. It consists of a convenient in-memory cache for managing your data, and several adapters for communicating with various persistence layers.
 
