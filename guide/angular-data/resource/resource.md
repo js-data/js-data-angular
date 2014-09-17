@@ -27,6 +27,9 @@ var User = DS.defineResource('user');
 // The following are equivalent
 DS.find('user', 5);
 User.find(5);
+
+DS.destroy('user', 5);
+User.destroy(5);
 ```
 
 See [defineResource(definition)](documentation/api/angular-data/DS.sync%20methods_defineResource) for detailed API information.
