@@ -29,7 +29,7 @@ DS.find('user', 5);
 User.find(5);
 ```
 
-See [defineResource(definition)](/documentation/api/api/DS.sync_methods:defineResource) for detailed API information.
+See [defineResource(definition)](documentation/api/angular-data/DS.sync%20methods_defineResource) for detailed API information.
 
 @doc overview
 @id basic
