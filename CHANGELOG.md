@@ -10,6 +10,7 @@
 - #170 - Global callbacks
 - #171 - "not in" query
 - #177 - Allow promises to be returned in lifecycle hooks
+- #182 - option to force trailing slash (DSHttpAdapterProvider.defaults.forceTrailingSlash)
 
 ###### Backwards compatible bug fixes
 - #156 - cached findAll pending query doesn't get removed sometimes

@@ -43,7 +43,8 @@ describe('DS.create(resourceName, attrs[, options])', function () {
     assert.deepEqual(DS.get('post', 5), p1);
   });
   it('should create an item and save it to the server but not inject the result', function () {
-    $httpBackend.expectPOST('http://test.angular-cache.com/posts').respond(200, p1);
+    DSHttpAdapter.defaults.forceTrailingSlash = true;
+    $httpBackend.expectPOST('http://test.angular-cache.com/posts/').respond(200, p1);
 
     DS.create('post', { author: 'John', age: 30 }, { cacheResponse: false }).then(function (post) {
       assert.deepEqual(post, p1, 'post 5 should have been created');
@@ -53,6 +54,7 @@ describe('DS.create(resourceName, attrs[, options])', function () {
     });
 
     $httpBackend.flush();
+    DSHttpAdapter.defaults.forceTrailingSlash = false;
 
     assert.equal(lifecycle.beforeCreate.callCount, 1, 'beforeCreate should have been called');
     assert.equal(lifecycle.afterCreate.callCount, 1, 'afterCreate should have been called');

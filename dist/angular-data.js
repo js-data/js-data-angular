@@ -1659,6 +1659,8 @@ function DSHttpAdapterProvider() {
       return params;
     },
 
+    forceTrailingSlash: false,
+
     /**
      * @doc property
      * @id DSHttpAdapterProvider.properties:defaults.$httpConfig
@@ -1719,6 +1721,9 @@ function DSHttpAdapterProvider() {
       HTTP: function (config) {
         var start = new Date().getTime();
 
+        if (this.defaults.forceTrailingSlash && config.url[config.url.length] !== '/') {
+          config.url += '/';
+        }
         config = DSUtils.deepMixIn(config, defaults.$httpConfig);
         return $http(config).then(function (data) {
           $log.debug(data.config.method + ' request:' + data.config.url + ' Time taken: ' + (new Date().getTime() - start) + 'ms', arguments);
