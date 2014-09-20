@@ -2127,7 +2127,11 @@ function DSLocalStorageAdapterProvider() {
         var deferred = $q.defer();
         try {
           var item = localStorage.getItem(key);
-          deferred.resolve(item ? angular.fromJson(item) : undefined);
+          if (item) {
+            deferred.resolve(angular.fromJson(item));
+          } else {
+            deferred.reject('Not Found!');
+          }
         } catch (err) {
           deferred.reject(err);
         }
@@ -4300,7 +4304,7 @@ Defaults.prototype.serialize = function (resourceName, data) {
  * @returns {*} By default returns `data.data`.
  */
 Defaults.prototype.deserialize = function (resourceName, data) {
-  return data.data;
+  return data ? (data.data ? data.data : data) : data;
 };
 
 /**

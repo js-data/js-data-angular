@@ -569,7 +569,7 @@ Defaults.prototype.serialize = function (resourceName, data) {
  * @returns {*} By default returns `data.data`.
  */
 Defaults.prototype.deserialize = function (resourceName, data) {
-  return data.data;
+  return data ? (data.data ? data.data : data) : data;
 };
 
 /**

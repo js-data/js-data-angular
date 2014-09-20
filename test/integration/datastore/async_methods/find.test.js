@@ -180,4 +180,19 @@ describe('DS.find(resourceName, id[, options]): ', function () {
 
     $httpBackend.flush();
   });
+  it('should use a different adapter', function (done) {
+    var Person = DS.defineResource({
+      name: 'person',
+      defaultAdapter: 'DSLocalStorageAdapter'
+    });
+
+    Person.find(5).then(function () {
+      done('Should not have succeeded.');
+    }, function (err) {
+      assert.equal(err, 'Not Found!');
+      done();
+    });
+
+    $rootScope.$apply();
+  });
 });

@@ -36,7 +36,11 @@ function DSLocalStorageAdapterProvider() {
         var deferred = $q.defer();
         try {
           var item = localStorage.getItem(key);
-          deferred.resolve(item ? angular.fromJson(item) : undefined);
+          if (item) {
+            deferred.resolve(angular.fromJson(item));
+          } else {
+            deferred.reject('Not Found!');
+          }
         } catch (err) {
           deferred.reject(err);
         }

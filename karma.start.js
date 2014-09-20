@@ -89,7 +89,7 @@ beforeEach(function () {
   };
   lifecycle.deserialize = function (resourceName, data) {
     lifecycle.deserialize.callCount += 1;
-    return data.data;
+    return data ? (data.data ? data.data : data) : data;;
   };
   lifecycle.queryTransform = function (resourceName, query) {
     lifecycle.queryTransform.callCount += 1;
