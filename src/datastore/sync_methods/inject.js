@@ -44,7 +44,7 @@ function _inject(definition, resource, attrs, options) {
 
     if (definition.computed) {
       item = item || DS.get(definition.name, innerId);
-      DS.utils.forOwn(definition.computed, function (fn, field) {
+      DS.utils.forEach(definition.computed, function (fn, field) {
         var compute = false;
         // check if required fields changed
         angular.forEach(fn.deps, function (dep) {

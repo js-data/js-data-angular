@@ -32,6 +32,7 @@ function errorPrefix(resourceName, id) {
  *
  * - `{function=}` - `beforeDestroy` - Override the resource or global lifecycle hook.
  * - `{function=}` - `afterDestroy` - Override the resource or global lifecycle hook.
+ * - `{boolean=}` - `eagerInject` - If `true` eagerly eject the item from the store without waiting for the adapter's response, the item will be re-injected if the adapter operation fails. Default: `false`.
  *
  * @returns {Promise} Promise produced by the `$q` service.
  *
@@ -75,6 +76,9 @@ function destroy(resourceName, id, options) {
       })
       .then(function (attrs) {
         DS.notify(definition, 'beforeDestroy', DS.utils.merge({}, attrs));
+        if (options.eagerEject) {
+          DS.eject(resourceName, id);
+        }
         return DS.adapters[options.adapter || definition.defaultAdapter].destroy(definition, id, options);
       })
       .then(function () {
@@ -85,6 +89,11 @@ function destroy(resourceName, id, options) {
         DS.notify(definition, 'afterDestroy', DS.utils.merge({}, item));
         DS.eject(resourceName, id);
         return id;
+      }).catch(function (err) {
+        if (options.eagerEject && item) {
+          DS.inject(resourceName, item);
+        }
+        return DS.$q.reject(err);
       });
   } catch (err) {
     deferred.reject(err);

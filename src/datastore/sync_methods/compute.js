@@ -82,7 +82,7 @@ function compute(resourceName, instance) {
     instance = DS.get(resourceName, instance);
   }
 
-  DS.utils.forOwn(definition.computed, function (fn, field) {
+  DS.utils.forEach(definition.computed, function (fn, field) {
     _compute.call(instance, fn, field);
   });
 

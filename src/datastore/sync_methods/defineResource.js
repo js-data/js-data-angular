@@ -140,8 +140,8 @@ function defineResource(definition) {
     if (def.relations) {
       def.relationList = [];
       def.relationFields = [];
-      DSUtils.forOwn(def.relations, function (relatedModels, type) {
-        DSUtils.forOwn(relatedModels, function (defs, relationName) {
+      DSUtils.forEach(def.relations, function (relatedModels, type) {
+        DSUtils.forEach(relatedModels, function (defs, relationName) {
           if (!DSUtils.isArray(defs)) {
             relatedModels[relationName] = [defs];
           }
@@ -155,7 +155,7 @@ function defineResource(definition) {
         });
       });
       if (def.relations.belongsTo) {
-        DSUtils.forOwn(def.relations.belongsTo, function (relatedModel, modelName) {
+        DSUtils.forEach(def.relations.belongsTo, function (relatedModel, modelName) {
           DSUtils.forEach(relatedModel, function (relation) {
             if (relation.parent) {
               def.parent = modelName;
@@ -236,7 +236,7 @@ function defineResource(definition) {
 
     // Prepare for computed properties
     if (def.computed) {
-      DSUtils.forOwn(def.computed, function (fn, field) {
+      DSUtils.forEach(def.computed, function (fn, field) {
         if (angular.isFunction(fn)) {
           def.computed[field] = [fn];
           fn = def.computed[field];

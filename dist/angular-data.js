@@ -896,7 +896,7 @@ var deepMatches = require('../object/deepMatches');
 
 
 
-},{"../object/deepMatches":25,"./identity":11,"./prop":13}],13:[function(require,module,exports){
+},{"../object/deepMatches":27,"./identity":11,"./prop":13}],13:[function(require,module,exports){
 
 
     /**
@@ -963,7 +963,7 @@ var mixIn = require('../object/mixIn');
 
 
 
-},{"../object/mixIn":31,"./isPlainObject":22,"./kindOf":23}],15:[function(require,module,exports){
+},{"../object/mixIn":33,"./isPlainObject":22,"./kindOf":23}],15:[function(require,module,exports){
 var clone = require('./clone');
 var forOwn = require('../object/forOwn');
 var kindOf = require('./kindOf');
@@ -1013,7 +1013,7 @@ var isPlainObject = require('./isPlainObject');
 
 
 
-},{"../object/forOwn":28,"./clone":14,"./isPlainObject":22,"./kindOf":23}],16:[function(require,module,exports){
+},{"../object/forOwn":30,"./clone":14,"./isPlainObject":22,"./kindOf":23}],16:[function(require,module,exports){
 var isKind = require('./isKind');
     /**
      */
@@ -1059,7 +1059,7 @@ var isArray = require('./isArray');
 
 
 
-},{"../object/forOwn":28,"./isArray":16}],19:[function(require,module,exports){
+},{"../object/forOwn":30,"./isArray":16}],19:[function(require,module,exports){
 var isKind = require('./isKind');
     /**
      */
@@ -1143,6 +1143,22 @@ var isKind = require('./isKind');
 
 
 },{}],25:[function(require,module,exports){
+/**
+ * @constant Maximum 32-bit signed integer value. (2^31 - 1)
+ */
+
+    module.exports = 2147483647;
+
+
+},{}],26:[function(require,module,exports){
+/**
+ * @constant Minimum 32-bit signed integer value (-2^31).
+ */
+
+    module.exports = -2147483648;
+
+
+},{}],27:[function(require,module,exports){
 var forOwn = require('./forOwn');
 var isArray = require('../lang/isArray');
 
@@ -1199,7 +1215,7 @@ var isArray = require('../lang/isArray');
 
 
 
-},{"../lang/isArray":16,"./forOwn":28}],26:[function(require,module,exports){
+},{"../lang/isArray":16,"./forOwn":30}],28:[function(require,module,exports){
 var forOwn = require('./forOwn');
 var isPlainObject = require('../lang/isPlainObject');
 
@@ -1235,7 +1251,7 @@ var isPlainObject = require('../lang/isPlainObject');
 
 
 
-},{"../lang/isPlainObject":22,"./forOwn":28}],27:[function(require,module,exports){
+},{"../lang/isPlainObject":22,"./forOwn":30}],29:[function(require,module,exports){
 var hasOwn = require('./hasOwn');
 
     var _hasDontEnumBug,
@@ -1313,7 +1329,7 @@ var hasOwn = require('./hasOwn');
 
 
 
-},{"./hasOwn":29}],28:[function(require,module,exports){
+},{"./hasOwn":31}],30:[function(require,module,exports){
 var hasOwn = require('./hasOwn');
 var forIn = require('./forIn');
 
@@ -1334,7 +1350,7 @@ var forIn = require('./forIn');
 
 
 
-},{"./forIn":27,"./hasOwn":29}],29:[function(require,module,exports){
+},{"./forIn":29,"./hasOwn":31}],31:[function(require,module,exports){
 
 
     /**
@@ -1348,7 +1364,7 @@ var forIn = require('./forIn');
 
 
 
-},{}],30:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 var hasOwn = require('./hasOwn');
 var deepClone = require('../lang/deepClone');
 var isObject = require('../lang/isObject');
@@ -1390,7 +1406,7 @@ var isObject = require('../lang/isObject');
 
 
 
-},{"../lang/deepClone":15,"../lang/isObject":21,"./hasOwn":29}],31:[function(require,module,exports){
+},{"../lang/deepClone":15,"../lang/isObject":21,"./hasOwn":31}],33:[function(require,module,exports){
 var forOwn = require('./forOwn');
 
     /**
@@ -1420,7 +1436,7 @@ var forOwn = require('./forOwn');
     module.exports = mixIn;
 
 
-},{"./forOwn":28}],32:[function(require,module,exports){
+},{"./forOwn":30}],34:[function(require,module,exports){
 var forEach = require('../array/forEach');
 
     /**
@@ -1441,7 +1457,7 @@ var forEach = require('../array/forEach');
 
 
 
-},{"../array/forEach":4}],33:[function(require,module,exports){
+},{"../array/forEach":4}],35:[function(require,module,exports){
 var slice = require('../array/slice');
 
     /**
@@ -1461,7 +1477,7 @@ var slice = require('../array/slice');
 
 
 
-},{"../array/slice":8}],34:[function(require,module,exports){
+},{"../array/slice":8}],36:[function(require,module,exports){
 var namespace = require('./namespace');
 
     /**
@@ -1480,7 +1496,128 @@ var namespace = require('./namespace');
 
 
 
-},{"./namespace":32}],35:[function(require,module,exports){
+},{"./namespace":34}],37:[function(require,module,exports){
+var randInt = require('./randInt');
+var isArray = require('../lang/isArray');
+
+    /**
+     * Returns a random element from the supplied arguments
+     * or from the array (if single argument is an array).
+     */
+    function choice(items) {
+        var target = (arguments.length === 1 && isArray(items))? items : arguments;
+        return target[ randInt(0, target.length - 1) ];
+    }
+
+    module.exports = choice;
+
+
+
+},{"../lang/isArray":16,"./randInt":41}],38:[function(require,module,exports){
+var randHex = require('./randHex');
+var choice = require('./choice');
+
+  /**
+   * Returns pseudo-random guid (UUID v4)
+   * IMPORTANT: it's not totally "safe" since randHex/choice uses Math.random
+   * by default and sequences can be predicted in some cases. See the
+   * "random/random" documentation for more info about it and how to replace
+   * the default PRNG.
+   */
+  function guid() {
+    return (
+        randHex(8)+'-'+
+        randHex(4)+'-'+
+        // v4 UUID always contain "4" at this position to specify it was
+        // randomly generated
+        '4' + randHex(3) +'-'+
+        // v4 UUID always contain chars [a,b,8,9] at this position
+        choice(8, 9, 'a', 'b') + randHex(3)+'-'+
+        randHex(12)
+    );
+  }
+  module.exports = guid;
+
+
+},{"./choice":37,"./randHex":40}],39:[function(require,module,exports){
+var random = require('./random');
+var MIN_INT = require('../number/MIN_INT');
+var MAX_INT = require('../number/MAX_INT');
+
+    /**
+     * Returns random number inside range
+     */
+    function rand(min, max){
+        min = min == null? MIN_INT : min;
+        max = max == null? MAX_INT : max;
+        return min + (max - min) * random();
+    }
+
+    module.exports = rand;
+
+
+},{"../number/MAX_INT":25,"../number/MIN_INT":26,"./random":42}],40:[function(require,module,exports){
+var choice = require('./choice');
+
+    var _chars = '0123456789abcdef'.split('');
+
+    /**
+     * Returns a random hexadecimal string
+     */
+    function randHex(size){
+        size = size && size > 0? size : 6;
+        var str = '';
+        while (size--) {
+            str += choice(_chars);
+        }
+        return str;
+    }
+
+    module.exports = randHex;
+
+
+
+},{"./choice":37}],41:[function(require,module,exports){
+var MIN_INT = require('../number/MIN_INT');
+var MAX_INT = require('../number/MAX_INT');
+var rand = require('./rand');
+
+    /**
+     * Gets random integer inside range or snap to min/max values.
+     */
+    function randInt(min, max){
+        min = min == null? MIN_INT : ~~min;
+        max = max == null? MAX_INT : ~~max;
+        // can't be max + 0.5 otherwise it will round up if `rand`
+        // returns `max` causing it to overflow range.
+        // -0.5 and + 0.49 are required to avoid bias caused by rounding
+        return Math.round( rand(min - 0.5, max + 0.499999999999) );
+    }
+
+    module.exports = randInt;
+
+
+},{"../number/MAX_INT":25,"../number/MIN_INT":26,"./rand":39}],42:[function(require,module,exports){
+
+
+    /**
+     * Just a wrapper to Math.random. No methods inside mout/random should call
+     * Math.random() directly so we can inject the pseudo-random number
+     * generator if needed (ie. in case we need a seeded random or a better
+     * algorithm than the native one)
+     */
+    function random(){
+        return random.get();
+    }
+
+    // we expose the method so it can be swapped if needed
+    random.get = Math.random;
+
+    module.exports = random;
+
+
+
+},{}],43:[function(require,module,exports){
 var toString = require('../lang/toString');
 var replaceAccents = require('./replaceAccents');
 var removeNonWord = require('./removeNonWord');
@@ -1502,7 +1639,7 @@ var lowerCase = require('./lowerCase');
     module.exports = camelCase;
 
 
-},{"../lang/toString":24,"./lowerCase":36,"./removeNonWord":39,"./replaceAccents":40,"./upperCase":41}],36:[function(require,module,exports){
+},{"../lang/toString":24,"./lowerCase":44,"./removeNonWord":47,"./replaceAccents":48,"./upperCase":49}],44:[function(require,module,exports){
 var toString = require('../lang/toString');
     /**
      * "Safer" String.toLowerCase()
@@ -1515,7 +1652,7 @@ var toString = require('../lang/toString');
     module.exports = lowerCase;
 
 
-},{"../lang/toString":24}],37:[function(require,module,exports){
+},{"../lang/toString":24}],45:[function(require,module,exports){
 var join = require('../array/join');
 var slice = require('../array/slice');
 
@@ -1532,7 +1669,7 @@ var slice = require('../array/slice');
     module.exports = makePath;
 
 
-},{"../array/join":6,"../array/slice":8}],38:[function(require,module,exports){
+},{"../array/join":6,"../array/slice":8}],46:[function(require,module,exports){
 var toString = require('../lang/toString');
 var camelCase = require('./camelCase');
 var upperCase = require('./upperCase');
@@ -1547,7 +1684,7 @@ var upperCase = require('./upperCase');
     module.exports = pascalCase;
 
 
-},{"../lang/toString":24,"./camelCase":35,"./upperCase":41}],39:[function(require,module,exports){
+},{"../lang/toString":24,"./camelCase":43,"./upperCase":49}],47:[function(require,module,exports){
 var toString = require('../lang/toString');
     // This pattern is generated by the _build/pattern-removeNonWord.js script
     var PATTERN = /[^\x20\x2D0-9A-Z\x5Fa-z\xC0-\xD6\xD8-\xF6\xF8-\xFF]/g;
@@ -1563,7 +1700,7 @@ var toString = require('../lang/toString');
     module.exports = removeNonWord;
 
 
-},{"../lang/toString":24}],40:[function(require,module,exports){
+},{"../lang/toString":24}],48:[function(require,module,exports){
 var toString = require('../lang/toString');
     /**
     * Replaces all accented chars with regular ones
@@ -1601,7 +1738,7 @@ var toString = require('../lang/toString');
     module.exports = replaceAccents;
 
 
-},{"../lang/toString":24}],41:[function(require,module,exports){
+},{"../lang/toString":24}],49:[function(require,module,exports){
 var toString = require('../lang/toString');
     /**
      * "Safer" String.toUpperCase()
@@ -1613,7 +1750,7 @@ var toString = require('../lang/toString');
     module.exports = upperCase;
 
 
-},{"../lang/toString":24}],42:[function(require,module,exports){
+},{"../lang/toString":24}],50:[function(require,module,exports){
 /**
  * @doc function
  * @id DSHttpAdapterProvider
@@ -2088,7 +2225,7 @@ function DSHttpAdapterProvider() {
 
 module.exports = DSHttpAdapterProvider;
 
-},{}],43:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 /*!
  * @doc function
  * @id DSLocalStorageAdapterProvider
@@ -2379,7 +2516,7 @@ function DSLocalStorageAdapterProvider() {
 
 module.exports = DSLocalStorageAdapterProvider;
 
-},{}],44:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.create(' + resourceName + ', attrs[, options]): ';
 }
@@ -2440,6 +2577,7 @@ function create(resourceName, attrs, options) {
 
   try {
     var definition = DS.definitions[resourceName];
+    var injected;
 
     options = options || {};
 
@@ -2480,6 +2618,10 @@ function create(resourceName, attrs, options) {
         })
         .then(function (attrs) {
           DS.notify(definition, 'beforeCreate', DS.utils.merge({}, attrs));
+          if (options.eagerInject && options.cacheResponse) {
+            attrs[definition.idAttribute] = attrs[definition.idAttribute] || DS.utils.guid();
+            injected = DS.inject(resourceName, attrs);
+          }
           return DS.adapters[options.adapter || definition.defaultAdapter].create(definition, options.serialize ? options.serialize(resourceName, attrs) : definition.serialize(resourceName, attrs), options);
         })
         .then(function (res) {
@@ -2491,12 +2633,25 @@ function create(resourceName, attrs, options) {
           DS.notify(definition, 'afterCreate', DS.utils.merge({}, attrs));
           if (options.cacheResponse) {
             var resource = DS.store[resourceName];
-            var created = DS.inject(definition.name, attrs, options);
+            if (options.eagerInject) {
+              var newId = attrs[definition.idAttribute];
+              var prevId = injected[definition.idAttribute];
+              var prev = DS.get(resourceName, prevId);
+              resource.previousAttributes[newId] = resource.previousAttributes[prevId];
+              resource.changeHistories[newId] = resource.changeHistories[prevId];
+              resource.observers[newId] = resource.observers[prevId];
+              resource.modified[newId] = resource.modified[prevId];
+              resource.saved[newId] = resource.saved[prevId];
+              resource.index.put(newId, prev);
+              DS.eject(resourceName, prevId, { notify: false });
+              prev[definition.idAttribute] = newId;
+            }
+            var created = DS.inject(resourceName, attrs, options);
             var id = created[definition.idAttribute];
             resource.completedQueries[id] = new Date().getTime();
             resource.previousAttributes[id] = DS.utils.deepMixIn({}, created);
             resource.saved[id] = DS.utils.updateTimestamp(resource.saved[id]);
-            return DS.get(definition.name, id);
+            return DS.get(resourceName, id);
           } else {
             return DS.createInstance(resourceName, attrs, options);
           }
@@ -2510,7 +2665,7 @@ function create(resourceName, attrs, options) {
 
 module.exports = create;
 
-},{}],45:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.destroy(' + resourceName + ', ' + id + '[, options]): ';
 }
@@ -2545,6 +2700,7 @@ function errorPrefix(resourceName, id) {
  *
  * - `{function=}` - `beforeDestroy` - Override the resource or global lifecycle hook.
  * - `{function=}` - `afterDestroy` - Override the resource or global lifecycle hook.
+ * - `{boolean=}` - `eagerInject` - If `true` eagerly eject the item from the store without waiting for the adapter's response, the item will be re-injected if the adapter operation fails. Default: `false`.
  *
  * @returns {Promise} Promise produced by the `$q` service.
  *
@@ -2588,6 +2744,9 @@ function destroy(resourceName, id, options) {
       })
       .then(function (attrs) {
         DS.notify(definition, 'beforeDestroy', DS.utils.merge({}, attrs));
+        if (options.eagerEject) {
+          DS.eject(resourceName, id);
+        }
         return DS.adapters[options.adapter || definition.defaultAdapter].destroy(definition, id, options);
       })
       .then(function () {
@@ -2598,6 +2757,11 @@ function destroy(resourceName, id, options) {
         DS.notify(definition, 'afterDestroy', DS.utils.merge({}, item));
         DS.eject(resourceName, id);
         return id;
+      }).catch(function (err) {
+        if (options.eagerEject && item) {
+          DS.inject(resourceName, item);
+        }
+        return DS.$q.reject(err);
       });
   } catch (err) {
     deferred.reject(err);
@@ -2607,7 +2771,7 @@ function destroy(resourceName, id, options) {
 
 module.exports = destroy;
 
-},{}],46:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.destroyAll(' + resourceName + ', params[, options]): ';
 }
@@ -2697,7 +2861,7 @@ function destroyAll(resourceName, params, options) {
 
 module.exports = destroyAll;
 
-},{}],47:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.find(' + resourceName + ', ' + id + '[, options]): ';
 }
@@ -2806,7 +2970,7 @@ function find(resourceName, id, options) {
 
 module.exports = find;
 
-},{}],48:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.findAll(' + resourceName + ', params[, options]): ';
 }
@@ -2984,7 +3148,7 @@ function findAll(resourceName, params, options) {
 
 module.exports = findAll;
 
-},{}],49:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 module.exports = {
   /**
    * @doc method
@@ -3087,7 +3251,7 @@ module.exports = {
   updateAll: require('./updateAll')
 };
 
-},{"./create":44,"./destroy":45,"./destroyAll":46,"./find":47,"./findAll":48,"./loadRelations":50,"./refresh":51,"./save":52,"./update":53,"./updateAll":54}],50:[function(require,module,exports){
+},{"./create":52,"./destroy":53,"./destroyAll":54,"./find":55,"./findAll":56,"./loadRelations":58,"./refresh":59,"./save":60,"./update":61,"./updateAll":62}],58:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.loadRelations(' + resourceName + ', instance(Id), relations[, options]): ';
 }
@@ -3232,7 +3396,7 @@ function loadRelations(resourceName, instance, relations, options) {
 
 module.exports = loadRelations;
 
-},{}],51:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.refresh(' + resourceName + ', ' + id + '[, options]): ';
 }
@@ -3314,7 +3478,7 @@ function refresh(resourceName, id, options) {
 
 module.exports = refresh;
 
-},{}],52:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.save(' + resourceName + ', ' + id + '[, options]): ';
 }
@@ -3465,7 +3629,7 @@ function save(resourceName, id, options) {
 
 module.exports = save;
 
-},{}],53:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.update(' + resourceName + ', ' + id + ', attrs[, options]): ';
 }
@@ -3596,7 +3760,7 @@ function update(resourceName, id, attrs, options) {
 
 module.exports = update;
 
-},{}],54:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.updateAll(' + resourceName + ', attrs, params[, options]): ';
 }
@@ -3732,7 +3896,7 @@ function updateAll(resourceName, attrs, params, options) {
 
 module.exports = updateAll;
 
-},{}],55:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 var utils = require('../utils')[0]();
 
 function lifecycleNoop(resourceName, attrs, cb) {
@@ -3764,7 +3928,7 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
   }
 
   if (options.allowSimpleWhere) {
-    this.utils.forOwn(params, function (value, key) {
+    this.utils.forEach(params, function (value, key) {
       if (!(key in reserved) && !(key in where)) {
         where[key] = {
           '==': value
@@ -3781,7 +3945,7 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
     filtered = this.utils.filter(filtered, function (attrs) {
       var first = true;
       var keep = true;
-      _this.utils.forOwn(where, function (clause, field) {
+      _this.utils.forEach(where, function (clause, field) {
         if (_this.utils.isString(clause)) {
           clause = {
             '===': clause
@@ -3792,7 +3956,7 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
           };
         }
         if (_this.utils.isObject(clause)) {
-          _this.utils.forOwn(clause, function (val, op) {
+          _this.utils.forEach(clause, function (val, op) {
             if (op === '==') {
               keep = first ? (attrs[field] == val) : keep && (attrs[field] == val);
             } else if (op === '===') {
@@ -4493,7 +4657,7 @@ function DSProvider() {
 
 module.exports = DSProvider;
 
-},{"../utils":80,"./async_methods":49,"./sync_methods":69}],56:[function(require,module,exports){
+},{"../utils":88,"./async_methods":57,"./sync_methods":77}],64:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.bindAll(scope, expr, ' + resourceName + ', params[, cb]): ';
 }
@@ -4578,7 +4742,7 @@ function bindAll(scope, expr, resourceName, params, cb) {
 
 module.exports = bindAll;
 
-},{}],57:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.bindOne(scope, expr, ' + resourceName + ', id[, cb]): ';
 }
@@ -4650,7 +4814,7 @@ function bindOne(scope, expr, resourceName, id, cb) {
 
 module.exports = bindOne;
 
-},{}],58:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.changeHistory(' + resourceName + ', id): ';
 }
@@ -4719,7 +4883,7 @@ function changeHistory(resourceName, id) {
 
 module.exports = changeHistory;
 
-},{}],59:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.changes(' + resourceName + ', id): ';
 }
@@ -4773,9 +4937,9 @@ function changes(resourceName, id) {
   if (item) {
     DS.store[resourceName].observers[id].deliver();
     var diff = DS.utils.diffObjectFromOldObject(item, DS.store[resourceName].previousAttributes[id]);
-    DS.utils.forOwn(diff, function (changeset, name) {
+    DS.utils.forEach(diff, function (changeset, name) {
       var toKeep = [];
-      DS.utils.forOwn(changeset, function (value, field) {
+      DS.utils.forEach(changeset, function (value, field) {
         if (!angular.isFunction(value)) {
           toKeep.push(field);
         }
@@ -4793,7 +4957,7 @@ function changes(resourceName, id) {
 
 module.exports = changes;
 
-},{}],60:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.compute(' + resourceName + ', instance): ';
 }
@@ -4878,7 +5042,7 @@ function compute(resourceName, instance) {
     instance = DS.get(resourceName, instance);
   }
 
-  DS.utils.forOwn(definition.computed, function (fn, field) {
+  DS.utils.forEach(definition.computed, function (fn, field) {
     _compute.call(instance, fn, field);
   });
 
@@ -4890,7 +5054,7 @@ module.exports = {
   _compute: _compute
 };
 
-},{}],61:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.createInstance(' + resourceName + '[, attrs][, options]): ';
 }
@@ -4987,7 +5151,7 @@ function createInstance(resourceName, attrs, options) {
 
 module.exports = createInstance;
 
-},{}],62:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 /*jshint evil:true*/
 var errorPrefix = 'DS.defineResource(definition): ';
 
@@ -5130,8 +5294,8 @@ function defineResource(definition) {
     if (def.relations) {
       def.relationList = [];
       def.relationFields = [];
-      DSUtils.forOwn(def.relations, function (relatedModels, type) {
-        DSUtils.forOwn(relatedModels, function (defs, relationName) {
+      DSUtils.forEach(def.relations, function (relatedModels, type) {
+        DSUtils.forEach(relatedModels, function (defs, relationName) {
           if (!DSUtils.isArray(defs)) {
             relatedModels[relationName] = [defs];
           }
@@ -5145,7 +5309,7 @@ function defineResource(definition) {
         });
       });
       if (def.relations.belongsTo) {
-        DSUtils.forOwn(def.relations.belongsTo, function (relatedModel, modelName) {
+        DSUtils.forEach(def.relations.belongsTo, function (relatedModel, modelName) {
           DSUtils.forEach(relatedModel, function (relation) {
             if (relation.parent) {
               def.parent = modelName;
@@ -5226,7 +5390,7 @@ function defineResource(definition) {
 
     // Prepare for computed properties
     if (def.computed) {
-      DSUtils.forOwn(def.computed, function (fn, field) {
+      DSUtils.forEach(def.computed, function (fn, field) {
         if (angular.isFunction(fn)) {
           def.computed[field] = [fn];
           fn = def.computed[field];
@@ -5314,7 +5478,7 @@ function defineResource(definition) {
 
 module.exports = defineResource;
 
-},{}],63:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 var observe = require('../../../lib/observe-js/observe-js');
 
 /**
@@ -5350,12 +5514,12 @@ function digest() {
 
 module.exports = digest;
 
-},{"../../../lib/observe-js/observe-js":1}],64:[function(require,module,exports){
+},{"../../../lib/observe-js/observe-js":1}],72:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.eject(' + resourceName + ', ' + id + '): ';
 }
 
-function _eject(definition, resource, id) {
+function _eject(definition, resource, id, options) {
   var item;
   var found = false;
   for (var i = 0; i < resource.collection.length; i++) {
@@ -5383,7 +5547,9 @@ function _eject(definition, resource, id) {
     delete resource.saved[id];
     resource.collectionModified = this.utils.updateTimestamp(resource.collectionModified);
 
-    this.notify(definition, 'eject', item);
+    if (options.notify) {
+      this.notify(definition, 'eject', item);
+    }
 
     return item;
   }
@@ -5425,9 +5591,10 @@ function _eject(definition, resource, id) {
  * @param {string|number} id The primary key of the item to eject.
  * @returns {object} A reference to the item that was ejected from the data store.
  */
-function eject(resourceName, id) {
+function eject(resourceName, id, options) {
   var DS = this;
   var definition = DS.definitions[resourceName];
+  options = options || {};
 
   id = DS.utils.resolveId(definition, id);
   if (!definition) {
@@ -5438,12 +5605,16 @@ function eject(resourceName, id) {
   var resource = DS.store[resourceName];
   var ejected;
 
+  if (!('notify' in options)) {
+    options.notify = true;
+  }
+
   if (!DS.$rootScope.$$phase) {
     DS.$rootScope.$apply(function () {
-      ejected = _eject.call(DS, definition, resource, id);
+      ejected = _eject.call(DS, definition, resource, id, options);
     });
   } else {
-    ejected = _eject.call(DS, definition, resource, id);
+    ejected = _eject.call(DS, definition, resource, id, options);
   }
 
   return ejected;
@@ -5451,7 +5622,7 @@ function eject(resourceName, id) {
 
 module.exports = eject;
 
-},{}],65:[function(require,module,exports){
+},{}],73:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.ejectAll(' + resourceName + '[, params]): ';
 }
@@ -5565,7 +5736,7 @@ function ejectAll(resourceName, params) {
 
 module.exports = ejectAll;
 
-},{}],66:[function(require,module,exports){
+},{}],74:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.filter(' + resourceName + '[, params][, options]): ';
 }
@@ -5648,7 +5819,7 @@ function filter(resourceName, params, options) {
 
 module.exports = filter;
 
-},{}],67:[function(require,module,exports){
+},{}],75:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.get(' + resourceName + ', ' + id + '): ';
 }
@@ -5712,7 +5883,7 @@ function get(resourceName, id, options) {
 
 module.exports = get;
 
-},{}],68:[function(require,module,exports){
+},{}],76:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.hasChanges(' + resourceName + ', ' + id + '): ';
 }
@@ -5777,7 +5948,7 @@ function hasChanges(resourceName, id) {
 
 module.exports = hasChanges;
 
-},{}],69:[function(require,module,exports){
+},{}],77:[function(require,module,exports){
 module.exports = {
 
   /**
@@ -5991,7 +6162,7 @@ module.exports = {
   unlinkInverse: require('./unlinkInverse')
 };
 
-},{"./bindAll":56,"./bindOne":57,"./changeHistory":58,"./changes":59,"./compute":60,"./createInstance":61,"./defineResource":62,"./digest":63,"./eject":64,"./ejectAll":65,"./filter":66,"./get":67,"./hasChanges":68,"./inject":70,"./lastModified":71,"./lastSaved":72,"./link":73,"./linkAll":74,"./linkInverse":75,"./previous":76,"./unlinkInverse":77}],70:[function(require,module,exports){
+},{"./bindAll":64,"./bindOne":65,"./changeHistory":66,"./changes":67,"./compute":68,"./createInstance":69,"./defineResource":70,"./digest":71,"./eject":72,"./ejectAll":73,"./filter":74,"./get":75,"./hasChanges":76,"./inject":78,"./lastModified":79,"./lastSaved":80,"./link":81,"./linkAll":82,"./linkInverse":83,"./previous":84,"./unlinkInverse":85}],78:[function(require,module,exports){
 var observe = require('../../../lib/observe-js/observe-js');
 var _compute = require('./compute')._compute;
 var stack = 0;
@@ -6038,7 +6209,7 @@ function _inject(definition, resource, attrs, options) {
 
     if (definition.computed) {
       item = item || DS.get(definition.name, innerId);
-      DS.utils.forOwn(definition.computed, function (fn, field) {
+      DS.utils.forEach(definition.computed, function (fn, field) {
         var compute = false;
         // check if required fields changed
         angular.forEach(fn.deps, function (dep) {
@@ -6307,7 +6478,7 @@ function inject(resourceName, attrs, options) {
 
 module.exports = inject;
 
-},{"../../../lib/observe-js/observe-js":1,"./compute":60}],71:[function(require,module,exports){
+},{"../../../lib/observe-js/observe-js":1,"./compute":68}],79:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.lastModified(' + resourceName + '[, ' + id + ']): ';
 }
@@ -6366,7 +6537,7 @@ function lastModified(resourceName, id) {
 
 module.exports = lastModified;
 
-},{}],72:[function(require,module,exports){
+},{}],80:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.lastSaved(' + resourceName + '[, ' + id + ']): ';
 }
@@ -6430,7 +6601,7 @@ function lastSaved(resourceName, id) {
 
 module.exports = lastSaved;
 
-},{}],73:[function(require,module,exports){
+},{}],81:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.link(' + resourceName + ', id[, relations]): ';
 }
@@ -6532,7 +6703,7 @@ function link(resourceName, id, relations) {
 
 module.exports = link;
 
-},{}],74:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.linkAll(' + resourceName + '[, params][, relations]): ';
 }
@@ -6649,16 +6820,16 @@ function linkAll(resourceName, params, relations) {
 
 module.exports = linkAll;
 
-},{}],75:[function(require,module,exports){
+},{}],83:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.linkInverse(' + resourceName + ', id[, relations]): ';
 }
 
 function _linkInverse(definition, relations) {
   var DS = this;
-  DS.utils.forOwn(DS.definitions, function (d) {
-    DS.utils.forOwn(d.relations, function (relatedModels) {
-      DS.utils.forOwn(relatedModels, function (defs, relationName) {
+  DS.utils.forEach(DS.definitions, function (d) {
+    DS.utils.forEach(d.relations, function (relatedModels) {
+      DS.utils.forEach(relatedModels, function (defs, relationName) {
         if (relations.length && !DS.utils.contains(relations, d.name)) {
           return;
         }
@@ -6747,7 +6918,7 @@ function linkInverse(resourceName, id, relations) {
 
 module.exports = linkInverse;
 
-},{}],76:[function(require,module,exports){
+},{}],84:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.previous(' + resourceName + '[, ' + id + ']): ';
 }
@@ -6804,16 +6975,16 @@ function previous(resourceName, id) {
 
 module.exports = previous;
 
-},{}],77:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.unlinkInverse(' + resourceName + ', id[, relations]): ';
 }
 
 function _unlinkInverse(definition, linked) {
   var DS = this;
-  DS.utils.forOwn(DS.definitions, function (d) {
-    DS.utils.forOwn(d.relations, function (relatedModels) {
-      DS.utils.forOwn(relatedModels, function (defs, relationName) {
+  DS.utils.forEach(DS.definitions, function (d) {
+    DS.utils.forEach(d.relations, function (relatedModels) {
+      DS.utils.forEach(relatedModels, function (defs, relationName) {
         if (definition.name === relationName) {
           DS.utils.forEach(defs, function (def) {
             DS.utils.forEach(DS.store[def.name].collection, function (item) {
@@ -6903,7 +7074,7 @@ function unlinkInverse(resourceName, id, relations) {
 
 module.exports = unlinkInverse;
 
-},{}],78:[function(require,module,exports){
+},{}],86:[function(require,module,exports){
 /**
  * @doc function
  * @id errors.types:IllegalArgumentError
@@ -7036,7 +7207,7 @@ module.exports = [function () {
   };
 }];
 
-},{}],79:[function(require,module,exports){
+},{}],87:[function(require,module,exports){
 (function (window, angular, undefined) {
   'use strict';
 
@@ -7127,7 +7298,7 @@ module.exports = [function () {
 
 })(window, window.angular);
 
-},{"./adapters/http":42,"./adapters/localStorage":43,"./datastore":55,"./errors":78,"./utils":80}],80:[function(require,module,exports){
+},{"./adapters/http":50,"./adapters/localStorage":51,"./datastore":63,"./errors":86,"./utils":88}],88:[function(require,module,exports){
 function Events(target) {
   var events = {};
   target = target || this;
@@ -7186,7 +7357,6 @@ module.exports = [function () {
     upperCase: require('mout/string/upperCase'),
     pascalCase: require('mout/string/pascalCase'),
     deepMixIn: require('mout/object/deepMixIn'),
-    forOwn: require('mout/object/forOwn'),
     forEach: angular.forEach,
     pick: require('mout/object/pick'),
     set: require('mout/object/set'),
@@ -7197,6 +7367,7 @@ module.exports = [function () {
     remove: require('mout/array/remove'),
     slice: require('mout/array/slice'),
     sort: require('mout/array/sort'),
+    guid: require('mout/random/guid'),
     resolveItem: function (resource, idOrInstance) {
       if (resource && (this.isString(idOrInstance) || this.isNumber(idOrInstance))) {
         return resource.index[idOrInstance] || idOrInstance;
@@ -7275,4 +7446,4 @@ module.exports = [function () {
   };
 }];
 
-},{"mout/array/contains":2,"mout/array/filter":3,"mout/array/remove":7,"mout/array/slice":8,"mout/array/sort":9,"mout/array/toLookup":10,"mout/lang/isBoolean":17,"mout/lang/isEmpty":18,"mout/object/deepMixIn":26,"mout/object/forOwn":28,"mout/object/merge":30,"mout/object/pick":33,"mout/object/set":34,"mout/string/makePath":37,"mout/string/pascalCase":38,"mout/string/upperCase":41}]},{},[79]);
+},{"mout/array/contains":2,"mout/array/filter":3,"mout/array/remove":7,"mout/array/slice":8,"mout/array/sort":9,"mout/array/toLookup":10,"mout/lang/isBoolean":17,"mout/lang/isEmpty":18,"mout/object/deepMixIn":28,"mout/object/merge":32,"mout/object/pick":35,"mout/object/set":36,"mout/random/guid":38,"mout/string/makePath":45,"mout/string/pascalCase":46,"mout/string/upperCase":49}]},{},[87]);

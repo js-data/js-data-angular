@@ -56,7 +56,6 @@ module.exports = [function () {
     upperCase: require('mout/string/upperCase'),
     pascalCase: require('mout/string/pascalCase'),
     deepMixIn: require('mout/object/deepMixIn'),
-    forOwn: require('mout/object/forOwn'),
     forEach: angular.forEach,
     pick: require('mout/object/pick'),
     set: require('mout/object/set'),
@@ -67,6 +66,7 @@ module.exports = [function () {
     remove: require('mout/array/remove'),
     slice: require('mout/array/slice'),
     sort: require('mout/array/sort'),
+    guid: require('mout/random/guid'),
     resolveItem: function (resource, idOrInstance) {
       if (resource && (this.isString(idOrInstance) || this.isNumber(idOrInstance))) {
         return resource.index[idOrInstance] || idOrInstance;

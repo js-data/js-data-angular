@@ -4,9 +4,9 @@ function errorPrefix(resourceName) {
 
 function _unlinkInverse(definition, linked) {
   var DS = this;
-  DS.utils.forOwn(DS.definitions, function (d) {
-    DS.utils.forOwn(d.relations, function (relatedModels) {
-      DS.utils.forOwn(relatedModels, function (defs, relationName) {
+  DS.utils.forEach(DS.definitions, function (d) {
+    DS.utils.forEach(d.relations, function (relatedModels) {
+      DS.utils.forEach(relatedModels, function (defs, relationName) {
         if (definition.name === relationName) {
           DS.utils.forEach(defs, function (def) {
             DS.utils.forEach(DS.store[def.name].collection, function (item) {

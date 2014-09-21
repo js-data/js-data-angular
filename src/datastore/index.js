@@ -29,7 +29,7 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
   }
 
   if (options.allowSimpleWhere) {
-    this.utils.forOwn(params, function (value, key) {
+    this.utils.forEach(params, function (value, key) {
       if (!(key in reserved) && !(key in where)) {
         where[key] = {
           '==': value
@@ -46,7 +46,7 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
     filtered = this.utils.filter(filtered, function (attrs) {
       var first = true;
       var keep = true;
-      _this.utils.forOwn(where, function (clause, field) {
+      _this.utils.forEach(where, function (clause, field) {
         if (_this.utils.isString(clause)) {
           clause = {
             '===': clause
@@ -57,7 +57,7 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
           };
         }
         if (_this.utils.isObject(clause)) {
-          _this.utils.forOwn(clause, function (val, op) {
+          _this.utils.forEach(clause, function (val, op) {
             if (op === '==') {
               keep = first ? (attrs[field] == val) : keep && (attrs[field] == val);
             } else if (op === '===') {

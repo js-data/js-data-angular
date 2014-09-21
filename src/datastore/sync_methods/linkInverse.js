@@ -4,9 +4,9 @@ function errorPrefix(resourceName) {
 
 function _linkInverse(definition, relations) {
   var DS = this;
-  DS.utils.forOwn(DS.definitions, function (d) {
-    DS.utils.forOwn(d.relations, function (relatedModels) {
-      DS.utils.forOwn(relatedModels, function (defs, relationName) {
+  DS.utils.forEach(DS.definitions, function (d) {
+    DS.utils.forEach(d.relations, function (relatedModels) {
+      DS.utils.forEach(relatedModels, function (defs, relationName) {
         if (relations.length && !DS.utils.contains(relations, d.name)) {
           return;
         }

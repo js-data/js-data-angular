@@ -96,4 +96,28 @@ describe('DS.destroy(resourceName, id)', function () {
 
     $httpBackend.flush();
   });
+  it('should eager eject', function () {
+    $httpBackend.expectDELETE('http://test.angular-cache.com/posts/5').respond(200, 5);
+
+    DS.inject('post', p1);
+
+    DS.destroy('post', 5, { eagerEject: true }).then(function (id) {
+      assert.equal(id, 5, 'post 5 should have been deleted');
+    }, function (err) {
+      console.error(err.stack);
+      fail('should not have rejected');
+    });
+
+    $rootScope.$apply();
+
+    assert.isUndefined(DS.get('post', 5));
+
+    $httpBackend.flush();
+
+    assert.equal(lifecycle.beforeDestroy.callCount, 1, 'beforeDestroy should have been called');
+    assert.equal(lifecycle.afterDestroy.callCount, 1, 'afterDestroy should have been called');
+    assert.isUndefined(DS.get('post', 5));
+    assert.equal(DS.lastModified('post', 5), 0);
+    assert.equal(DS.lastSaved('post', 5), 0);
+  });
 });

@@ -1,4 +1,4 @@
-##### 1.0.0-rc.2 - xx September 2014
+##### 1.0.0-rc.2 - 21 September 2014
 
 ###### Backwards compatible API changes
 - #145 - Add "useClass" option to inject, find, findAll, create
@@ -7,6 +7,7 @@
 - #161 - Allow the http method of DSHttpAdapter methods to be configured
 - #166 - Add ID Resolver
 - #167 - Default params argument of bindAll to empty object
+- #169 - Added eager inject and eager eject options
 - #170 - Global callbacks
 - #171 - "not in" query
 - #177 - Allow promises to be returned in lifecycle hooks

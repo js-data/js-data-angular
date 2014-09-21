@@ -58,6 +58,7 @@ function create(resourceName, attrs, options) {
 
   try {
     var definition = DS.definitions[resourceName];
+    var injected;
 
     options = options || {};
 
@@ -98,6 +99,10 @@ function create(resourceName, attrs, options) {
         })
         .then(function (attrs) {
           DS.notify(definition, 'beforeCreate', DS.utils.merge({}, attrs));
+          if (options.eagerInject && options.cacheResponse) {
+            attrs[definition.idAttribute] = attrs[definition.idAttribute] || DS.utils.guid();
+            injected = DS.inject(resourceName, attrs);
+          }
           return DS.adapters[options.adapter || definition.defaultAdapter].create(definition, options.serialize ? options.serialize(resourceName, attrs) : definition.serialize(resourceName, attrs), options);
         })
         .then(function (res) {
@@ -109,12 +114,25 @@ function create(resourceName, attrs, options) {
           DS.notify(definition, 'afterCreate', DS.utils.merge({}, attrs));
           if (options.cacheResponse) {
             var resource = DS.store[resourceName];
-            var created = DS.inject(definition.name, attrs, options);
+            if (options.eagerInject) {
+              var newId = attrs[definition.idAttribute];
+              var prevId = injected[definition.idAttribute];
+              var prev = DS.get(resourceName, prevId);
+              resource.previousAttributes[newId] = resource.previousAttributes[prevId];
+              resource.changeHistories[newId] = resource.changeHistories[prevId];
+              resource.observers[newId] = resource.observers[prevId];
+              resource.modified[newId] = resource.modified[prevId];
+              resource.saved[newId] = resource.saved[prevId];
+              resource.index.put(newId, prev);
+              DS.eject(resourceName, prevId, { notify: false });
+              prev[definition.idAttribute] = newId;
+            }
+            var created = DS.inject(resourceName, attrs, options);
             var id = created[definition.idAttribute];
             resource.completedQueries[id] = new Date().getTime();
             resource.previousAttributes[id] = DS.utils.deepMixIn({}, created);
             resource.saved[id] = DS.utils.updateTimestamp(resource.saved[id]);
-            return DS.get(definition.name, id);
+            return DS.get(resourceName, id);
           } else {
             return DS.createInstance(resourceName, attrs, options);
           }

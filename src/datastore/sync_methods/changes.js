@@ -51,9 +51,9 @@ function changes(resourceName, id) {
   if (item) {
     DS.store[resourceName].observers[id].deliver();
     var diff = DS.utils.diffObjectFromOldObject(item, DS.store[resourceName].previousAttributes[id]);
-    DS.utils.forOwn(diff, function (changeset, name) {
+    DS.utils.forEach(diff, function (changeset, name) {
       var toKeep = [];
-      DS.utils.forOwn(changeset, function (value, field) {
+      DS.utils.forEach(changeset, function (value, field) {
         if (!angular.isFunction(value)) {
           toKeep.push(field);
         }

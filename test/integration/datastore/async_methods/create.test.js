@@ -226,4 +226,30 @@ describe('DS.create(resourceName, attrs[, options])', function () {
 
     $httpBackend.flush();
   });
+  it('should eager inject', function () {
+    $httpBackend.expectPOST('http://test.angular-cache.com/organization/77/user').respond(200, {
+      organizationId: 77,
+      id: 88
+    });
+
+    var eagerUser;
+
+    DS.create('user', {
+      organizationId: 77
+    }, { eagerInject: true }).then(function (user) {
+      assert.equal(user.id, 88);
+      assert.isTrue(eagerUser === user);
+    }, function () {
+      fail('Should not have succeeded!');
+    });
+
+    $rootScope.$apply();
+
+    eagerUser = DS.filter('user')[0];
+    assert.isDefined(eagerUser);
+    assert.equal(eagerUser.organizationId, 77);
+    assert.notEqual(eagerUser.id, 88);
+
+    $httpBackend.flush();
+  });
 });

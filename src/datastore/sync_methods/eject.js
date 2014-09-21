@@ -2,7 +2,7 @@ function errorPrefix(resourceName, id) {
   return 'DS.eject(' + resourceName + ', ' + id + '): ';
 }
 
-function _eject(definition, resource, id) {
+function _eject(definition, resource, id, options) {
   var item;
   var found = false;
   for (var i = 0; i < resource.collection.length; i++) {
@@ -30,7 +30,9 @@ function _eject(definition, resource, id) {
     delete resource.saved[id];
     resource.collectionModified = this.utils.updateTimestamp(resource.collectionModified);
 
-    this.notify(definition, 'eject', item);
+    if (options.notify) {
+      this.notify(definition, 'eject', item);
+    }
 
     return item;
   }
@@ -72,9 +74,10 @@ function _eject(definition, resource, id) {
  * @param {string|number} id The primary key of the item to eject.
  * @returns {object} A reference to the item that was ejected from the data store.
  */
-function eject(resourceName, id) {
+function eject(resourceName, id, options) {
   var DS = this;
   var definition = DS.definitions[resourceName];
+  options = options || {};
 
   id = DS.utils.resolveId(definition, id);
   if (!definition) {
@@ -85,12 +88,16 @@ function eject(resourceName, id) {
   var resource = DS.store[resourceName];
   var ejected;
 
+  if (!('notify' in options)) {
+    options.notify = true;
+  }
+
   if (!DS.$rootScope.$$phase) {
     DS.$rootScope.$apply(function () {
-      ejected = _eject.call(DS, definition, resource, id);
+      ejected = _eject.call(DS, definition, resource, id, options);
     });
   } else {
-    ejected = _eject.call(DS, definition, resource, id);
+    ejected = _eject.call(DS, definition, resource, id, options);
   }
 
   return ejected;
