@@ -2554,6 +2554,7 @@ function errorPrefix(resourceName) {
  * - `{boolean=}` - `useClass` - Whether to wrap the injected item with the resource's instance constructor.
  * - `{boolean=}` - `cacheResponse` - Inject the data returned by the adapter into the data store. Default: `true`.
  * - `{boolean=}` - `upsert` - If `attrs` already contains a primary key, then attempt to call `DS.update` instead. Default: `true`.
+ * - `{boolean=}` - `eagerInject` - Eagerly inject the attributes into the store without waiting for a successful response from the adapter. Default: `false`.
  * - `{function=}` - `beforeValidate` - Override the resource or global lifecycle hook.
  * - `{function=}` - `validate` - Override the resource or global lifecycle hook.
  * - `{function=}` - `afterValidate` - Override the resource or global lifecycle hook.
@@ -2655,6 +2656,12 @@ function create(resourceName, attrs, options) {
           } else {
             return DS.createInstance(resourceName, attrs, options);
           }
+        })
+        .catch(function (err) {
+          if (options.eagerInject && options.cacheResponse) {
+            DS.eject(resourceName, injected[definition.idAttribute], { notify: false });
+          }
+          return DS.$q.reject(err);
         });
     }
   } catch (err) {
@@ -2700,7 +2707,7 @@ function errorPrefix(resourceName, id) {
  *
  * - `{function=}` - `beforeDestroy` - Override the resource or global lifecycle hook.
  * - `{function=}` - `afterDestroy` - Override the resource or global lifecycle hook.
- * - `{boolean=}` - `eagerInject` - If `true` eagerly eject the item from the store without waiting for the adapter's response, the item will be re-injected if the adapter operation fails. Default: `false`.
+ * - `{boolean=}` - `eagerEject` - If `true` eagerly eject the item from the store without waiting for the adapter's response, the item will be re-injected if the adapter operation fails. Default: `false`.
  *
  * @returns {Promise} Promise produced by the `$q` service.
  *

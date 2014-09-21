@@ -32,7 +32,7 @@ function errorPrefix(resourceName, id) {
  *
  * - `{function=}` - `beforeDestroy` - Override the resource or global lifecycle hook.
  * - `{function=}` - `afterDestroy` - Override the resource or global lifecycle hook.
- * - `{boolean=}` - `eagerInject` - If `true` eagerly eject the item from the store without waiting for the adapter's response, the item will be re-injected if the adapter operation fails. Default: `false`.
+ * - `{boolean=}` - `eagerEject` - If `true` eagerly eject the item from the store without waiting for the adapter's response, the item will be re-injected if the adapter operation fails. Default: `false`.
  *
  * @returns {Promise} Promise produced by the `$q` service.
  *
