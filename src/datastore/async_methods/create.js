@@ -76,6 +76,10 @@ function create(resourceName, attrs, options) {
       options.upsert = true;
     }
 
+    if (!('eagerInject' in options)) {
+      options.eagerInject = definition.eagerInject;
+    }
+
     deferred.resolve(attrs);
 
     if (options.upsert && attrs[definition.idAttribute]) {

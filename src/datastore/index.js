@@ -191,6 +191,8 @@ Defaults.prototype.endpoint = '';
 Defaults.prototype.useClass = true;
 Defaults.prototype.keepChangeHistory = false;
 Defaults.prototype.resetHistoryOnInject = true;
+Defaults.prototype.eagerInject = false;
+Defaults.prototype.eagerEject = false;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.beforeValidate

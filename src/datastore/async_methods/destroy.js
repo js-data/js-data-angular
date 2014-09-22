@@ -69,6 +69,10 @@ function destroy(resourceName, id, options) {
 
     deferred.resolve(item);
 
+    if (!('eagerEject' in options)) {
+      options.eagerEject = definition.eagerEject;
+    }
+
     return deferred.promise
       .then(function (attrs) {
         var func = options.beforeDestroy ? DS.$q.promisify(options.beforeDestroy) : definition.beforeDestroy;

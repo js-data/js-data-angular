@@ -2595,6 +2595,10 @@ function create(resourceName, attrs, options) {
       options.upsert = true;
     }
 
+    if (!('eagerInject' in options)) {
+      options.eagerInject = definition.eagerInject;
+    }
+
     deferred.resolve(attrs);
 
     if (options.upsert && attrs[definition.idAttribute]) {
@@ -2744,6 +2748,10 @@ function destroy(resourceName, id, options) {
     }
 
     deferred.resolve(item);
+
+    if (!('eagerEject' in options)) {
+      options.eagerEject = definition.eagerEject;
+    }
 
     return deferred.promise
       .then(function (attrs) {
@@ -4098,6 +4106,8 @@ Defaults.prototype.endpoint = '';
 Defaults.prototype.useClass = true;
 Defaults.prototype.keepChangeHistory = false;
 Defaults.prototype.resetHistoryOnInject = true;
+Defaults.prototype.eagerInject = false;
+Defaults.prototype.eagerEject = false;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.beforeValidate
