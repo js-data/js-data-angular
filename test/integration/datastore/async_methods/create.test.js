@@ -239,6 +239,7 @@ describe('DS.create(resourceName, attrs[, options])', function () {
     }, { eagerInject: true }).then(function (user) {
       assert.equal(user.id, 88);
       assert.isTrue(eagerUser === user);
+      assert.isTrue(DS.filter('user')[0] === user);
     }, function () {
       fail('Should not have succeeded!');
     });

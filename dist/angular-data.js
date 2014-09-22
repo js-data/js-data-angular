@@ -2646,6 +2646,7 @@ function create(resourceName, attrs, options) {
               resource.index.put(newId, prev);
               DS.eject(resourceName, prevId, { notify: false });
               prev[definition.idAttribute] = newId;
+              resource.collection.push(prev);
             }
             var created = DS.inject(resourceName, attrs, options);
             var id = created[definition.idAttribute];
