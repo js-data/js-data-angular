@@ -99,13 +99,13 @@ describe('DS.loadRelations(resourceName, instance(Id), relations[, options]): ',
     $httpBackend.expectGET('http://test.angular-cache.com/profile?userId=10').respond(200, [profile15]);
 
     DS.loadRelations('user', 10, ['comment', 'profile', 'organization'], { cacheResponse: false }).then(function (user) {
-      assert.deepEqual(user.comments, [
+      assert.deepEqual(angular.toJson(user.comments), angular.toJson([
         comment11,
         comment12,
         comment13
-      ]);
-      assert.deepEqual(user.organization, organization14);
-      assert.deepEqual(user.profile, profile15);
+      ]));
+      assert.deepEqual(angular.toJson(user.organization), angular.toJson(organization14));
+      assert.deepEqual(angular.toJson(user.profile), angular.toJson(profile15));
 
       assert.isUndefined(DS.get('comment', 11));
       assert.isUndefined(DS.get('comment', 12));

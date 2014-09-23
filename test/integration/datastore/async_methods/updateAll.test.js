@@ -60,7 +60,7 @@ describe('DS.updateAll(resourceName, attrs, params[, options])', function () {
       initialSaved = DS.lastSaved('post', 8);
 
     DS.updateAll('post', { age: 27 }, { where: { age: { '==': 33 } } }).then(function (ps) {
-      assert.deepEqual(ps, posts, '2 posts should have been updated');
+      assert.deepEqual(angular.toJson(ps), angular.toJson(posts), '2 posts should have been updated');
       assert.equal(posts[0].age, 27);
       assert.equal(posts[1].age, 27);
       assert.equal(post4.age, 27);
@@ -77,13 +77,13 @@ describe('DS.updateAll(resourceName, attrs, params[, options])', function () {
 
     assert.equal(lifecycle.beforeUpdate.callCount, 1, 'beforeUpdate should have been called');
     assert.equal(lifecycle.afterUpdate.callCount, 1, 'afterUpdate should have been called');
-    assert.deepEqual(DS.filter('post', { where: { age: { '==': 27 } } }), posts);
+    assert.deepEqual(angular.toJson(DS.filter('post', { where: { age: { '==': 27 } } })), angular.toJson(posts));
     assert.notEqual(DS.lastModified('post', 8), initialModified);
     assert.notEqual(DS.lastSaved('post', 8), initialSaved);
 
     DS.updateAll('post', { age: 5 }, { where: { age: { '==': 31 } } }).then(function (ps) {
-      assert.deepEqual(ps, DS.filter('post', { where: { age: { '==': 5 } } }));
-      assert.deepEqual(ps[0], { author: 'Jane', age: 5, id: 6 });
+      assert.deepEqual(angular.toJson(ps), angular.toJson(DS.filter('post', { where: { age: { '==': 5 } } })));
+      assert.deepEqual(angular.toJson(ps[0]), angular.toJson({ author: 'Jane', age: 5, id: 6 }));
     }, function (err) {
       console.error(err.stack);
       fail('should not have rejected');
@@ -120,10 +120,10 @@ describe('DS.updateAll(resourceName, attrs, params[, options])', function () {
         approvedBy: 4
       }
     }).then(function (comments) {
-      assert.deepEqual(comments, [testComment, testComment2]);
-      assert.deepEqual(comments, DS.filter('comment', {
+      assert.deepEqual(angular.toJson(comments), angular.toJson([testComment, testComment2]));
+      assert.deepEqual(angular.toJson(comments), angular.toJson(DS.filter('comment', {
         content: 'stuff'
-      }));
+      })));
     }, function () {
       fail('Should not have failed!');
     });
@@ -141,11 +141,11 @@ describe('DS.updateAll(resourceName, attrs, params[, options])', function () {
     }, {
       content: 'test'
     }).then(function (comments) {
-      assert.deepEqual(comments, [testComment, testComment2]);
-      assert.deepEqual(comments, DS.filter('comment', {
+      assert.deepEqual(angular.toJson(comments), angular.toJson([testComment, testComment2]));
+      assert.deepEqual(angular.toJson(comments), angular.toJson(DS.filter('comment', {
         content: 'stuff',
         sort: 'id'
-      }));
+      })));
     }, function () {
       fail('Should not have failed!');
     });
@@ -167,11 +167,11 @@ describe('DS.updateAll(resourceName, attrs, params[, options])', function () {
         approvedBy: false
       }
     }).then(function (comments) {
-      assert.deepEqual(comments, [testComment, testComment2]);
-      assert.deepEqual(comments, DS.filter('comment', {
+      assert.deepEqual(angular.toJson(comments), angular.toJson([testComment, testComment2]));
+      assert.deepEqual(angular.toJson(comments), angular.toJson(DS.filter('comment', {
         content: 'stuff',
         sort: 'id'
-      }));
+      })));
     }, function () {
       fail('Should not have failed!');
     });

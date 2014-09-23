@@ -20,10 +20,10 @@ describe('DSCacheFactory integration', function () {
     });
 
     DS.find('Comment', 5).then(function (comment) {
-      assert.deepEqual(comment, {
+      assert.deepEqual(angular.toJson(comment), angular.toJson({
         id: 5,
         text: 'test'
-      });
+      }));
     }, function (err) {
       console.error(err.stack);
       fail('Should not have rejected!');
@@ -31,10 +31,10 @@ describe('DSCacheFactory integration', function () {
 
     $httpBackend.flush();
 
-    assert.deepEqual(DS.get('Comment', 5), {
+    assert.deepEqual(angular.toJson(DS.get('Comment', 5)), angular.toJson({
       id: 5,
       text: 'test'
-    }, 'The comment is now in the store');
+    }), 'The comment is now in the store');
     assert.isNumber(DS.lastModified('Comment', 5));
     assert.isNumber(DS.lastSaved('Comment', 5));
 
@@ -65,10 +65,10 @@ describe('DSCacheFactory integration', function () {
     });
 
     DS.find('Comment', 5).then(function (comment) {
-      assert.deepEqual(comment, {
+      assert.deepEqual(angular.toJson(comment), angular.toJson({
         id: 5,
         text: 'test'
-      });
+      }));
     }, function (err) {
       console.error(err.stack);
       fail('Should not have rejected!');
@@ -76,21 +76,19 @@ describe('DSCacheFactory integration', function () {
 
     $httpBackend.flush();
 
-    assert.deepEqual(DS.get('Comment', 5), {
+    assert.deepEqual(angular.toJson(DS.get('Comment', 5)), angular.toJson({
       id: 5,
       text: 'test'
-    }, 'The comment is now in the store');
+    }), 'The comment is now in the store');
     assert.isNumber(DS.lastModified('Comment', 5));
     assert.isNumber(DS.lastSaved('Comment', 5));
 
+    var c = DS.get('Comment', 5);
     setTimeout(function () {
       assert.isUndefined(DS.get('Comment', 5));
 
       assert.equal(DS.definitions.Comment.onExpire.callCount, 1, 'onExpire should have been called once');
-      assert.isTrue(DS.definitions.Comment.onExpire.calledWithExactly('5', {
-        id: 5,
-        text: 'test'
-      }), 'onExpire should have been called with the right arguments');
+      assert.isTrue(DS.definitions.Comment.onExpire.calledWithExactly('5', c), 'onExpire should have been called with the right arguments');
       assert.equal(lifecycle.beforeInject.callCount, 1, 'beforeInject should have been called');
       assert.equal(lifecycle.afterInject.callCount, 1, 'afterInject should have been called');
       assert.equal(lifecycle.serialize.callCount, 0, 'serialize should have been called');
@@ -102,10 +100,10 @@ describe('DSCacheFactory integration', function () {
       });
 
       DS.find('Comment', 5).then(function (comment) {
-        assert.deepEqual(comment, {
+        assert.deepEqual(angular.toJson(comment), angular.toJson({
           id: 5,
           text: 'test'
-        });
+        }));
       }, function (err) {
         console.error(err.stack);
         fail('Should not have rejected!');

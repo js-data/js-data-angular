@@ -59,11 +59,11 @@ describe('DS.save(resourceName, id[, options])', function () {
 
     assert.equal(lifecycle.beforeUpdate.callCount, 1, 'beforeUpdate should have been called');
     assert.equal(lifecycle.afterUpdate.callCount, 1, 'afterUpdate should have been called');
-    assert.deepEqual(DS.get('post', 5), {
+    assert.deepEqual(angular.toJson(DS.get('post', 5)), angular.toJson({
       author: 'Jake',
-      id: 5,
-      age: 30
-    });
+      age: 30,
+      id: 5
+    }));
     DS.digest();
     assert.notEqual(DS.lastModified('post', 5), initialModified);
     assert.notEqual(DS.lastSaved('post', 5), initialSaved);
@@ -79,6 +79,41 @@ describe('DS.save(resourceName, id[, options])', function () {
     assert.equal(lifecycle.afterInject.callCount, 2, 'afterInject should have been called');
     assert.equal(lifecycle.serialize.callCount, 1, 'serialize should have been called');
     assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
+  });
+  it('should save an item to the server and inject the result via the instance method', function () {
+    $httpBackend.expectPUT('http://test.angular-cache.com/posts/5').respond(200, {
+      author: 'Jake',
+      id: 5,
+      age: 30
+    });
+
+    DS.inject('post', p1);
+
+    var initialModified = DS.lastModified('post', 5);
+    var initialSaved = DS.lastSaved('post', 5);
+
+    DS.get('post', 5).author = 'Jake';
+
+    DS.get('post', 5).DSSave().then(function (post) {
+      assert.deepEqual(post, DS.get('post', 5), 'post 5 should have been saved');
+      assert.equal(post.author, 'Jake');
+    }, function (err) {
+      console.error(err.stack);
+      fail('should not have rejected');
+    });
+
+    $httpBackend.flush();
+
+    assert.equal(lifecycle.beforeUpdate.callCount, 1, 'beforeUpdate should have been called');
+    assert.equal(lifecycle.afterUpdate.callCount, 1, 'afterUpdate should have been called');
+    assert.deepEqual(angular.toJson(DS.get('post', 5)), angular.toJson({
+      author: 'Jake',
+      age: 30,
+      id: 5
+    }));
+    DS.digest();
+    assert.notEqual(DS.lastModified('post', 5), initialModified);
+    assert.notEqual(DS.lastSaved('post', 5), initialSaved);
   });
   it('should save an item to the server but not inject the result', function () {
     $httpBackend.expectPUT('http://test.angular-cache.com/posts/5').respond(200, {
@@ -107,11 +142,11 @@ describe('DS.save(resourceName, id[, options])', function () {
     assert.equal(lifecycle.afterUpdate.callCount, 1, 'afterUpdate should have been called');
     assert.equal(lifecycle.beforeInject.callCount, 1, 'beforeInject should have been called only once');
     assert.equal(lifecycle.afterInject.callCount, 1, 'afterInject should have been called only once');
-    assert.deepEqual(DS.get('post', 5), {
+    assert.deepEqual(angular.toJson(DS.get('post', 5)), angular.toJson({
       author: 'Jake',
-      id: 5,
-      age: 30
-    });
+      age: 30,
+      id: 5
+    }));
     // item wasn't injected
     assert.equal(DS.lastModified('post', 5), initialModified);
     assert.equal(DS.lastSaved('post', 5), initialSaved);
@@ -132,7 +167,7 @@ describe('DS.save(resourceName, id[, options])', function () {
     post1.author = 'Jake';
 
     DS.save('post', 5, { changesOnly: true }).then(function (post) {
-      assert.deepEqual(post, post1, 'post 5 should have been saved');
+      assert.deepEqual(angular.toJson(post), angular.toJson(post1), 'post 5 should have been saved');
       assert.equal(post.author, 'Jake');
     }, function (err) {
       console.error(err.stack);
@@ -143,7 +178,7 @@ describe('DS.save(resourceName, id[, options])', function () {
 
     assert.equal(lifecycle.beforeUpdate.callCount, 1, 'beforeUpdate should have been called');
     assert.equal(lifecycle.afterUpdate.callCount, 1, 'afterUpdate should have been called');
-    assert.deepEqual(DS.get('post', 5), post1);
+    assert.deepEqual(angular.toJson(DS.get('post', 5)), angular.toJson(post1));
     assert.notEqual(DS.lastModified('post', 5), initialModified);
     assert.notEqual(DS.lastSaved('post', 5), initialSaved);
 

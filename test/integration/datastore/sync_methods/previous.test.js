@@ -33,7 +33,7 @@ describe('DS.previous(resourceName, id)', function () {
     DS.digest();
 
     assert.deepEqual(DS.previous('post', 5), p1);
-    assert.deepEqual(DS.get('post', 5), { author: 'Jake', age: 30, id: 5 });
+    assert.deepEqual(angular.toJson(DS.get('post', 5)), angular.toJson({ author: 'Jake', age: 30, id: 5 }));
 
     $httpBackend.expectPUT('http://test.angular-cache.com/posts/5', DS.get('post', 5)).respond(200, { author: 'Jake', age: 30, id: 5 });
 
@@ -41,8 +41,8 @@ describe('DS.previous(resourceName, id)', function () {
 
     $httpBackend.flush();
 
-    assert.deepEqual(DS.previous('post', 5), { author: 'Jake', age: 30, id: 5 }, 'previous attributes should have been updated');
-    assert.deepEqual(DS.get('post', 5), { author: 'Jake', age: 30, id: 5 });
+    assert.deepEqual(angular.toJson(DS.previous('post', 5)), angular.toJson({ author: 'Jake', age: 30, id: 5 }), 'previous attributes should have been updated');
+    assert.deepEqual(angular.toJson(DS.get('post', 5)), angular.toJson({ author: 'Jake', age: 30, id: 5 }));
   });
   it('should return the previous in an object and save changed only', function () {
 
@@ -57,7 +57,7 @@ describe('DS.previous(resourceName, id)', function () {
     DS.digest();
 
     assert.deepEqual(DS.previous('post', 5), p1);
-    assert.deepEqual(DS.get('post', 5), { author: 'Jake', age: 30, id: 5 });
+    assert.deepEqual(angular.toJson(DS.get('post', 5)), angular.toJson({ author: 'Jake', age: 30, id: 5 }));
 
     $httpBackend.expectPUT('http://test.angular-cache.com/posts/5', { author: 'Jake' }).respond(200, { author: 'Jake', age: 30, id: 5 });
 
@@ -65,7 +65,7 @@ describe('DS.previous(resourceName, id)', function () {
 
     $httpBackend.flush();
 
-    assert.deepEqual(DS.previous('post', 5), { author: 'Jake', age: 30, id: 5 }, 'previous attributes should have been updated');
-    assert.deepEqual(DS.get('post', 5), { author: 'Jake', age: 30, id: 5 });
+    assert.deepEqual(angular.toJson(DS.previous('post', 5)), angular.toJson({ author: 'Jake', age: 30, id: 5 }), 'previous attributes should have been updated');
+    assert.deepEqual(angular.toJson(DS.get('post', 5)), angular.toJson({ author: 'Jake', age: 30, id: 5 }));
   });
 });

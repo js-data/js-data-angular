@@ -37,7 +37,7 @@ describe('DS.get(resourceName, id[, options])', function () {
 
     $httpBackend.flush();
 
-    assert.deepEqual(DS.get('post', 5), p1, 'p1 should now be in the store');
+    assert.deepEqual(angular.toJson(DS.get('post', 5)), angular.toJson(p1), 'p1 should now be in the store');
     assert.isNumber(DS.lastModified('post', 5));
     assert.isNumber(DS.lastSaved('post', 5));
   });

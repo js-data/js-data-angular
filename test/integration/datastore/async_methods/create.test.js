@@ -26,7 +26,7 @@ describe('DS.create(resourceName, attrs[, options])', function () {
     $httpBackend.expectPOST('http://test.angular-cache.com/posts').respond(200, p1);
 
     DS.create('post', { author: 'John', age: 30 }).then(function (post) {
-      assert.deepEqual(post, p1, 'post 5 should have been created');
+      assert.deepEqual(angular.toJson(post), angular.toJson(p1), 'post 5 should have been created');
     }, function (err) {
       console.error(err.stack);
       fail('should not have rejected');
@@ -40,14 +40,14 @@ describe('DS.create(resourceName, attrs[, options])', function () {
     assert.equal(lifecycle.afterInject.callCount, 1, 'afterInject should have been called');
     assert.equal(lifecycle.serialize.callCount, 1, 'serialize should have been called');
     assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
-    assert.deepEqual(DS.get('post', 5), p1);
+    assert.deepEqual(angular.toJson(DS.get('post', 5)), angular.toJson(p1));
   });
   it('should create an item and save it to the server but not inject the result', function () {
     DSHttpAdapter.defaults.forceTrailingSlash = true;
     $httpBackend.expectPOST('http://test.angular-cache.com/posts/').respond(200, p1);
 
     DS.create('post', { author: 'John', age: 30 }, { cacheResponse: false }).then(function (post) {
-      assert.deepEqual(post, p1, 'post 5 should have been created');
+      assert.deepEqual(angular.toJson(post), angular.toJson(p1), 'post 5 should have been created');
     }, function (err) {
       console.error(err.stack);
       fail('should not have rejected');
@@ -68,7 +68,7 @@ describe('DS.create(resourceName, attrs[, options])', function () {
     $httpBackend.expectPUT('http://test.angular-cache.com/posts/5').respond(200, p1);
 
     DS.create('post', { author: 'John', age: 30, id: 5 }).then(function (post) {
-      assert.deepEqual(post, p1, 'post 5 should have been created');
+      assert.deepEqual(angular.toJson(post), angular.toJson(p1), 'post 5 should have been created');
     }, function (err) {
       console.error(err.stack);
       fail('should not have rejected');
@@ -79,7 +79,7 @@ describe('DS.create(resourceName, attrs[, options])', function () {
     $httpBackend.expectPOST('http://test.angular-cache.com/posts').respond(200, p2);
 
     DS.create('post', { author: 'Sue', age: 70, id: 6 }, { upsert: false }).then(function (post) {
-      assert.deepEqual(post, p2, 'post 6 should have been created');
+      assert.deepEqual(angular.toJson(post), angular.toJson(p2), 'post 6 should have been created');
     }, function (err) {
       console.error(err.stack);
       fail('should not have rejected');
@@ -157,8 +157,8 @@ describe('DS.create(resourceName, attrs[, options])', function () {
       content: 'test',
       approvedBy: 4
     }).then(function (comment) {
-      assert.deepEqual(comment, testComment);
-      assert.deepEqual(comment, DS.get('comment', 5));
+      assert.deepEqual(angular.toJson(comment), angular.toJson(testComment));
+      assert.deepEqual(angular.toJson(comment), angular.toJson(DS.get('comment', 5)));
     }, function () {
       fail('Should not have failed!');
     });
@@ -174,8 +174,8 @@ describe('DS.create(resourceName, attrs[, options])', function () {
         approvedBy: 4
       }
     }).then(function (comment) {
-      assert.deepEqual(comment, testComment2);
-      assert.deepEqual(comment, DS.get('comment', 6));
+      assert.deepEqual(angular.toJson(comment), angular.toJson(testComment2));
+      assert.deepEqual(angular.toJson(comment), angular.toJson(DS.get('comment', 6)));
     }, function () {
       fail('Should not have failed!');
     });
@@ -192,7 +192,7 @@ describe('DS.create(resourceName, attrs[, options])', function () {
         approvedBy: false
       }
     }).then(function (comment) {
-      assert.deepEqual(comment, testComment2);
+      assert.deepEqual(angular.toJson(comment), angular.toJson(testComment2));
       assert.deepEqual(comment, DS.get('comment', 6));
     }, function () {
       fail('Should not have failed!');

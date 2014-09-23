@@ -57,13 +57,13 @@ describe('DS.bindAll(scope, expr, resourceName, params[, cb])', function () {
 
     $rootScope.$apply();
 
-    assert.deepEqual($scope.posts, [p3, p4, p5]);
+    assert.deepEqual(angular.toJson($scope.posts), angular.toJson([p3, p4, p5]));
 
     DS.eject('post', 8);
 
     $rootScope.$apply();
 
-    assert.deepEqual($scope.posts, [p3, p5]);
+    assert.deepEqual(angular.toJson($scope.posts), angular.toJson([p3, p5]));
   });
   it('should execute a callback if given', function () {
 
@@ -84,13 +84,13 @@ describe('DS.bindAll(scope, expr, resourceName, params[, cb])', function () {
 
     $rootScope.$apply();
 
-    assert.deepEqual($scope.posts, [p3, p4, p5]);
+    assert.deepEqual(angular.toJson($scope.posts), angular.toJson([p3, p4, p5]));
     assert.equal(cb.callCount, 1);
 
     DS.eject('post', 8);
 
     $rootScope.$apply(function () {
-      assert.deepEqual($scope.posts, [p3, p5]);
+      assert.deepEqual(angular.toJson($scope.posts), angular.toJson([p3, p5]));
       assert.equal(cb.callCount, 2);
     });
   });

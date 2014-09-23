@@ -24,7 +24,7 @@ describe('DS.inject(resourceName, attrs[, options])', function () {
 
     assert.equal(DS.lastModified('post', 5), 0);
     assert.doesNotThrow(function () {
-      assert.deepEqual(DS.inject('post', p1), p1);
+      assert.deepEqual(angular.toJson(DS.inject('post', p1)), angular.toJson(p1));
     });
     assert.notEqual(DS.lastModified('post', 5), 0);
     assert.isNumber(DS.lastModified('post', 5));
@@ -33,7 +33,7 @@ describe('DS.inject(resourceName, attrs[, options])', function () {
 
     assert.equal(DS.lastModified('post', 5), 0);
     assert.doesNotThrow(function () {
-      assert.deepEqual(DS.inject('post', p1), p1);
+      assert.deepEqual(angular.toJson(DS.inject('post', p1)), angular.toJson(p1));
     });
     assert.notEqual(DS.lastModified('post', 5), 0);
     assert.isNumber(DS.lastModified('post', 5));
@@ -55,26 +55,26 @@ describe('DS.inject(resourceName, attrs[, options])', function () {
   it('should inject multiple items into the store', function () {
 
     assert.doesNotThrow(function () {
-      assert.deepEqual(DS.inject('post', [p1, p2, p3, p4]), [p1, p2, p3, p4]);
+      assert.deepEqual(angular.toJson(DS.inject('post', [p1, p2, p3, p4])), angular.toJson([p1, p2, p3, p4]));
     });
 
-    assert.deepEqual(DS.get('post', 5), p1);
-    assert.deepEqual(DS.get('post', 6), p2);
-    assert.deepEqual(DS.get('post', 7), p3);
-    assert.deepEqual(DS.get('post', 8), p4);
+    assert.deepEqual(angular.toJson(DS.get('post', 5)), angular.toJson(p1));
+    assert.deepEqual(angular.toJson(DS.get('post', 6)), angular.toJson(p2));
+    assert.deepEqual(angular.toJson(DS.get('post', 7)), angular.toJson(p3));
+    assert.deepEqual(angular.toJson(DS.get('post', 8)), angular.toJson(p4));
   });
   it('should broadcast', function (done) {
     var child = $rootScope.$new();
     var deregister = child.$on('DS.inject', function ($event, resourceName, injected) {
       assert.equal(resourceName, 'post');
-      assert.deepEqual(injected, p1);
+      assert.deepEqual(angular.toJson(injected), angular.toJson(p1));
     });
 
     assert.doesNotThrow(function () {
       DS.inject('post', p1);
     });
 
-    assert.deepEqual(DS.get('post', 5), p1);
+    assert.deepEqual(angular.toJson(DS.get('post', 5)), angular.toJson(p1));
     setTimeout(function () {
       deregister();
       child.$destroy();
@@ -89,10 +89,10 @@ describe('DS.inject(resourceName, attrs[, options])', function () {
     var child = $rootScope.$new();
     var deregister = $rootScope.$on('DS.inject', function ($event, resourceName, injected) {
       assert.equal(resourceName, 'cat');
-      assert.deepEqual(injected, {
+      assert.deepEqual(angular.toJson(injected), angular.toJson({
         name: 'Sam',
         id: 1
-      });
+      }));
     });
     var deregister2 = child.$on('DS.inject', function () {
       fail('should not have been called');
@@ -105,10 +105,10 @@ describe('DS.inject(resourceName, attrs[, options])', function () {
       });
     });
 
-    assert.deepEqual(Cat.get(1), {
+    assert.deepEqual(angular.toJson(Cat.get(1)), angular.toJson({
       name: 'Sam',
       id: 1
-    });
+    }));
     setTimeout(function () {
       deregister();
       deregister2();
@@ -136,10 +136,10 @@ describe('DS.inject(resourceName, attrs[, options])', function () {
       });
     });
 
-    assert.deepEqual(Cat.get(1), {
+    assert.deepEqual(angular.toJson(Cat.get(1)), angular.toJson({
       name: 'Sam',
       id: 1
-    });
+    }));
     setTimeout(function () {
       deregister();
       deregister2();
@@ -154,8 +154,8 @@ describe('DS.inject(resourceName, attrs[, options])', function () {
     DS.inject('comment', comment3);
     DS.inject('profile', profile4);
 
-    assert.deepEqual(DS.get('user', 1), user1);
-    assert.deepEqual(DS.get('organization', 2), organization2);
+    assert.deepEqual(angular.toJson(DS.get('user', 1)), angular.toJson(user1));
+    assert.deepEqual(angular.toJson(DS.get('organization', 2)), angular.toJson(organization2));
     assert.deepEqual(DS.get('comment', 3).id, comment3.id);
     assert.deepEqual(DS.get('profile', 4).id, profile4.id);
 
@@ -179,23 +179,23 @@ describe('DS.inject(resourceName, attrs[, options])', function () {
     assert.deepEqual(DS.get('profile', 21).content, profile21.content);
 
     // user10 relations
-    assert.deepEqual(DS.get('comment', 11), DS.get('user', 10).comments[0]);
-    assert.deepEqual(DS.get('comment', 12), DS.get('user', 10).comments[1]);
-    assert.deepEqual(DS.get('comment', 13), DS.get('user', 10).comments[2]);
-    assert.deepEqual(DS.get('organization', 14), DS.get('user', 10).organization);
-    assert.deepEqual(DS.get('profile', 15), DS.get('user', 10).profile);
+    assert.deepEqual(angular.toJson(DS.get('comment', 11)), angular.toJson(DS.get('user', 10).comments[0]));
+    assert.deepEqual(angular.toJson(DS.get('comment', 12)), angular.toJson(DS.get('user', 10).comments[1]));
+    assert.deepEqual(angular.toJson(DS.get('comment', 13)), angular.toJson(DS.get('user', 10).comments[2]));
+    assert.deepEqual(angular.toJson(DS.get('organization', 14)), angular.toJson(DS.get('user', 10).organization));
+    assert.deepEqual(angular.toJson(DS.get('profile', 15)), angular.toJson(DS.get('user', 10).profile));
 
     // organization15 relations
-    assert.deepEqual(DS.get('user', 16), DS.get('organization', 15).users[0]);
-    assert.deepEqual(DS.get('user', 17), DS.get('organization', 15).users[1]);
-    assert.deepEqual(DS.get('user', 18), DS.get('organization', 15).users[2]);
+    assert.deepEqual(angular.toJson(DS.get('user', 16)), angular.toJson(DS.get('organization', 15).users[0]));
+    assert.deepEqual(angular.toJson(DS.get('user', 17)), angular.toJson(DS.get('organization', 15).users[1]));
+    assert.deepEqual(angular.toJson(DS.get('user', 18)), angular.toJson(DS.get('organization', 15).users[2]));
 
     // comment19 relations
-    assert.deepEqual(DS.get('user', 20), DS.get('comment', 19).user);
-    assert.deepEqual(DS.get('user', 19), DS.get('comment', 19).approvedByUser);
+    assert.deepEqual(angular.toJson(DS.get('user', 20)), angular.toJson(DS.get('comment', 19).user));
+    assert.deepEqual(angular.toJson(DS.get('user', 19)), angular.toJson(DS.get('comment', 19).approvedByUser));
 
     // profile21 relations
-    assert.deepEqual(DS.get('user', 22), DS.get('profile', 21).user);
+    assert.deepEqual(angular.toJson(DS.get('user', 22)), angular.toJson(DS.get('profile', 21).user));
   });
   it('should find inverse links', function () {
     DS.inject('user', { organizationId: 5, id: 1 });

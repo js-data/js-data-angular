@@ -37,7 +37,7 @@ describe('DS.find(resourceName, id[, options]): ', function () {
     $httpBackend.expectGET('http://test.angular-cache.com/posts/5').respond(200, p1);
 
     DS.find('post', 5).then(function (post) {
-      assert.deepEqual(post, p1);
+      assert.deepEqual(angular.toJson(post), angular.toJson(p1));
     }, function (err) {
       console.error(err.stack);
       fail('Should not have rejected!');
@@ -47,7 +47,7 @@ describe('DS.find(resourceName, id[, options]): ', function () {
 
     // Should have no effect because there is already a pending query
     DS.find('post', 5).then(function (post) {
-      assert.deepEqual(post, p1);
+      assert.deepEqual(angular.toJson(post), angular.toJson(p1));
     }, function (err) {
       console.error(err.stack);
       fail('Should not have rejected!');
@@ -55,13 +55,13 @@ describe('DS.find(resourceName, id[, options]): ', function () {
 
     $httpBackend.flush();
 
-    assert.deepEqual(DS.get('post', 5), p1, 'The post is now in the store');
+    assert.deepEqual(angular.toJson(DS.get('post', 5)), angular.toJson(p1), 'The post is now in the store');
     assert.isNumber(DS.lastModified('post', 5));
     assert.isNumber(DS.lastSaved('post', 5));
 
     // Should not make a request because the request was already completed
     DS.find('post', 5).then(function (post) {
-      assert.deepEqual(post, p1);
+      assert.deepEqual(angular.toJson(post), angular.toJson(p1));
     }, function (err) {
       console.error(err.stack);
       fail('Should not have rejected!');
@@ -71,7 +71,7 @@ describe('DS.find(resourceName, id[, options]): ', function () {
 
     // Should make a request because bypassCache is set to true
     DS.find('post', 5, { bypassCache: true }).then(function (post) {
-      assert.deepEqual(post, p1);
+      assert.deepEqual(angular.toJson(post), angular.toJson(p1));
     }, function (err) {
       console.error(err.stack);
       fail('Should not have rejected!');
@@ -88,7 +88,7 @@ describe('DS.find(resourceName, id[, options]): ', function () {
     $httpBackend.expectGET('http://test.angular-cache.com/posts/5').respond(200, p1);
 
     DS.find('post', 5, { cacheResponse: false }).then(function (post) {
-      assert.deepEqual(post, p1);
+      assert.deepEqual(angular.toJson(post), angular.toJson(p1));
     }, function (err) {
       console.error(err.stack);
       fail('Should not have rejected!');
@@ -126,8 +126,8 @@ describe('DS.find(resourceName, id[, options]): ', function () {
         approvedBy: 4
       }
     }).then(function (comment) {
-      assert.deepEqual(comment, testComment);
-      assert.deepEqual(comment, DS.get('comment', 5));
+      assert.deepEqual(angular.toJson(comment), angular.toJson(testComment));
+      assert.deepEqual(angular.toJson(comment), angular.toJson(DS.get('comment', 5)));
     }, function () {
       fail('Should not have failed!');
     });
@@ -139,8 +139,8 @@ describe('DS.find(resourceName, id[, options]): ', function () {
     DS.find('comment', 5, {
       bypassCache: true
     }).then(function (comment) {
-      assert.deepEqual(comment, testComment);
-      assert.deepEqual(comment, DS.get('comment', 5));
+      assert.deepEqual(angular.toJson(comment), angular.toJson(testComment));
+      assert.deepEqual(angular.toJson(comment), angular.toJson(DS.get('comment', 5)));
     }, function () {
       fail('Should not have failed!');
     });
@@ -155,8 +155,8 @@ describe('DS.find(resourceName, id[, options]): ', function () {
         approvedBy: false
       }
     }).then(function (comment) {
-      assert.deepEqual(comment, testComment);
-      assert.deepEqual(comment, DS.get('comment', 5));
+      assert.deepEqual(angular.toJson(comment), angular.toJson(testComment));
+      assert.deepEqual(angular.toJson(comment), angular.toJson(DS.get('comment', 5)));
     }, function () {
       fail('Should not have failed!');
     });
@@ -172,8 +172,8 @@ describe('DS.find(resourceName, id[, options]): ', function () {
         organizationId: 14
       }
     }).then(function (comment) {
-      assert.deepEqual(comment, comment19);
-      assert.deepEqual(comment, DS.get('comment', 19));
+      assert.deepEqual(angular.toJson(comment), angular.toJson(comment19));
+      assert.deepEqual(angular.toJson(comment), angular.toJson(DS.get('comment', 19)));
     }, function () {
       fail('Should not have failed!');
     });

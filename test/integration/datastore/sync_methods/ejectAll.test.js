@@ -60,10 +60,10 @@ describe('DS.ejectAll(resourceName[, params])', function () {
     DS.inject('post', p3);
     DS.inject('post', p4);
 
-    assert.deepEqual(DS.get('post', 5), p1);
-    assert.deepEqual(DS.get('post', 6), p2);
-    assert.deepEqual(DS.get('post', 7), p3);
-    assert.deepEqual(DS.get('post', 8), p4);
+    assert.deepEqual(angular.toJson(DS.get('post', 5)), angular.toJson(p1));
+    assert.deepEqual(angular.toJson(DS.get('post', 6)), angular.toJson(p2));
+    assert.deepEqual(angular.toJson(DS.get('post', 7)), angular.toJson(p3));
+    assert.deepEqual(angular.toJson(DS.get('post', 8)), angular.toJson(p4));
 
     DS.store.post.completedQueries.test = 'stuff';
 
@@ -71,7 +71,7 @@ describe('DS.ejectAll(resourceName[, params])', function () {
       DS.ejectAll('post');
     });
 
-    assert.deepEqual(DS.store.post.completedQueries, {});
+    assert.deepEqual(angular.toJson(DS.store.post.completedQueries), angular.toJson({}));
     assert.isUndefined(DS.get('post', 5));
     assert.isUndefined(DS.get('post', 6));
     assert.isUndefined(DS.get('post', 7));

@@ -79,12 +79,12 @@ describe('DS.defineResource(definition)', function () {
 
     $httpBackend.flush();
 
-    assert.deepEqual(DS.get('Comment', 1), { name: 'Sally', id: 1 });
+    assert.deepEqual(angular.toJson(DS.get('Comment', 1)), angular.toJson({ name: 'Sally', id: 1 }));
 
     $httpBackend.expectPOST('hello/Comment').respond(200, { name: 'John', id: 2 });
 
     DS.create('Comment', { name: 'John' }).then(function (comment) {
-      assert.deepEqual(comment, { name: 'John', id: 2 });
+      assert.deepEqual(angular.toJson(comment), angular.toJson({ name: 'John', id: 2 }));
     });
 
     $httpBackend.flush();

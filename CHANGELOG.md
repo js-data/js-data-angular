@@ -12,6 +12,9 @@
 - #171 - "not in" query
 - #177 - Allow promises to be returned in lifecycle hooks
 - #182 - option to force trailing slash (DSHttpAdapterProvider.defaults.forceTrailingSlash)
+- #185 - eagerInject/eagerEject should default to definition's options
+- #186 - eagerInject doesn't add the model to the list after HTTP success
+- #187 - Proxy some static methods to instance methods
 
 ###### Backwards compatible bug fixes
 - #156 - cached findAll pending query doesn't get removed sometimes

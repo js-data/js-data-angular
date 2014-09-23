@@ -39,7 +39,7 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
     $httpBackend.expectGET(/http:\/\/test\.angular-cache\.com\/posts\??/).respond(200, [p1, p2, p3, p4]);
 
     DS.findAll('post', {}).then(function (data) {
-      assert.deepEqual(data, [p1, p2, p3, p4]);
+      assert.deepEqual(angular.toJson(data), angular.toJson([p1, p2, p3, p4]));
     }, function (err) {
       console.error(err.stack);
       fail('Should not have rejected!');
@@ -49,7 +49,7 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
 
     // Should have no effect because there is already a pending query
     DS.findAll('post', {}).then(function (data) {
-      assert.deepEqual(data, [p1, p2, p3, p4]);
+      assert.deepEqual(angular.toJson(data), angular.toJson([p1, p2, p3, p4]));
     }, function (err) {
       console.error(err.stack);
       fail('Should not have rejected!');
@@ -57,7 +57,7 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
 
     $httpBackend.flush();
 
-    assert.deepEqual(DS.filter('post', {}), [p1, p2, p3, p4], 'The posts are now in the store');
+    assert.deepEqual(angular.toJson(DS.filter('post', {})), angular.toJson([p1, p2, p3, p4]), 'The posts are now in the store');
     assert.isNumber(DS.lastModified('post', 5));
     assert.isNumber(DS.lastSaved('post', 5));
     DS.find('post', p1.id); // should not trigger another XHR
@@ -65,7 +65,7 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
 
     // Should not make a request because the request was already completed
     DS.findAll('post', {}).then(function (data) {
-      assert.deepEqual(data, [p1, p2, p3, p4]);
+      assert.deepEqual(angular.toJson(data), angular.toJson([p1, p2, p3, p4]));
     }, function (err) {
       console.error(err.stack);
       fail('Should not have rejected!');
@@ -75,7 +75,7 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
 
     // Should make a request because bypassCache is set to true
     DS.findAll('post', {}, { bypassCache: true }).then(function (data) {
-      assert.deepEqual(data, [p1, p2, p3, p4]);
+      assert.deepEqual(angular.toJson(data), angular.toJson([p1, p2, p3, p4]));
     }, function (err) {
       console.error(err.stack);
       fail('Should not have rejected!');
@@ -98,7 +98,7 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
       fail('Should not have succeeded!');
     }, function (err) {
       assert(err.message, 'DS.inject(resourceName, attrs[, options]): attrs: Must contain the property specified by `idAttribute`!');
-      assert.deepEqual(DS.filter('post', {}), [], 'The posts should not be in the store');
+      assert.deepEqual(angular.toJson(DS.filter('post', {})), angular.toJson([]), 'The posts should not be in the store');
     });
 
     $httpBackend.flush();
@@ -111,7 +111,7 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
     $httpBackend.expectGET(/http:\/\/test\.angular-cache\.com\/posts\??/).respond(200, [p1, p2, p3, p4]);
 
     DS.findAll('post', {}, { cacheResponse: false }).then(function (data) {
-      assert.deepEqual(data, [p1, p2, p3, p4]);
+      assert.deepEqual(angular.toJson(data), angular.toJson([p1, p2, p3, p4]));
     }, function (err) {
       console.error(err.stack);
       fail('Should not have rejected!');
@@ -119,7 +119,7 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
 
     $httpBackend.flush();
 
-    assert.deepEqual(DS.filter('post', {}), [], 'The posts should not have been injected into the store');
+    assert.deepEqual(angular.toJson(DS.filter('post', {})), angular.toJson([]), 'The posts should not have been injected into the store');
 
     assert.equal(lifecycle.beforeInject.callCount, 0, 'beforeInject should have been called');
     assert.equal(lifecycle.afterInject.callCount, 0, 'afterInject should have been called');
@@ -141,7 +141,7 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
     $httpBackend.expectGET(/http:\/\/test\.angular-cache\.com\/posts\??/).respond(200, [p1, p2, p3, p4]);
 
     DS.findAll('post').then(function (data) {
-      assert.deepEqual(data, [p1, p2, p3, p4]);
+      assert.deepEqual(angular.toJson(data), angular.toJson([p1, p2, p3, p4]));
     }, function (err) {
       console.error(err.message);
       fail('Should not have rejected!');
@@ -149,7 +149,7 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
 
     $httpBackend.flush();
 
-    assert.deepEqual(DS.filter('post', {}), [p1, p2, p3, p4], 'The posts are now in the store');
+    assert.deepEqual(angular.toJson(DS.filter('post', {})), angular.toJson([p1, p2, p3, p4]), 'The posts are now in the store');
 
     assert.equal(lifecycle.beforeInject.callCount, 4, 'beforeInject should have been called');
     assert.equal(lifecycle.afterInject.callCount, 4, 'afterInject should have been called');
@@ -165,7 +165,7 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
       }
     };
     DS.findAll('post', params).then(function (data) {
-      assert.deepEqual(data, [p4, p5]);
+      assert.deepEqual(angular.toJson(data), angular.toJson([p4, p5]));
     }, function (err) {
       console.error(err.message);
       fail('Should not have rejected!');
@@ -173,14 +173,14 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
 
     $httpBackend.flush();
 
-    assert.deepEqual(DS.filter('post', params), [p4, p5], 'The posts are now in the store');
-    assert.deepEqual(DS.filter('post', {
+    assert.deepEqual(angular.toJson(DS.filter('post', params)), angular.toJson([p4, p5]), 'The posts are now in the store');
+    assert.deepEqual(angular.toJson(DS.filter('post', {
       where: {
         id: {
           '>': 8
         }
       }
-    }), [p5], 'The posts are now in the store');
+    })), angular.toJson([p5]), 'The posts are now in the store');
 
     assert.equal(lifecycle.beforeInject.callCount, 2, 'beforeInject should have been called');
     assert.equal(lifecycle.afterInject.callCount, 2, 'afterInject should have been called');
@@ -210,10 +210,10 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
     $httpBackend.expectGET(/http:\/\/test\.angular-cache\.com\/users\??/).respond(200, [u1, u2]);
 
     DS.findAll('person').then(function (data) {
-      assert.deepEqual(data, [
+      assert.deepEqual(angular.toJson(data), angular.toJson([
         DSUtils.deepMixIn(new DS.definitions.person[DS.definitions.person.class](), u1),
         DSUtils.deepMixIn(new DS.definitions.person[DS.definitions.person.class](), u2)
-      ]);
+      ]));
       angular.forEach(data, function (person) {
         assert.isTrue(person instanceof DS.definitions.person[DS.definitions.person.class], 'should be an instance of User');
       });
@@ -224,10 +224,10 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
 
     $httpBackend.flush();
 
-    assert.deepEqual(DS.filter('person'), [
+    assert.deepEqual(angular.toJson(DS.filter('person')), angular.toJson([
       DSUtils.deepMixIn(new DS.definitions.person[DS.definitions.person.class](), u1),
       DSUtils.deepMixIn(new DS.definitions.person[DS.definitions.person.class](), u2)
-    ], 'The users are now in the store');
+    ]), 'The users are now in the store');
 
     assert.equal(lifecycle.beforeInject.callCount, 2, 'beforeInject should have been called');
     assert.equal(lifecycle.afterInject.callCount, 2, 'afterInject should have been called');
@@ -254,10 +254,10 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
         approvedBy: 4
       }
     }).then(function (comments) {
-      assert.deepEqual(comments, [testComment, testComment2]);
-      assert.deepEqual(comments, DS.filter('comment', {
+      assert.deepEqual(angular.toJson(comments), angular.toJson([testComment, testComment2]));
+      assert.deepEqual(angular.toJson(comments), angular.toJson(DS.filter('comment', {
         content: 'test'
-      }));
+      })));
     }, function () {
       fail('Should not have failed!');
     });
@@ -273,10 +273,10 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
     }, {
       bypassCache: true
     }).then(function (comments) {
-      assert.deepEqual(comments, [testComment, testComment2]);
-      assert.deepEqual(comments, DS.filter('comment', {
+      assert.deepEqual(angular.toJson(comments), angular.toJson([testComment, testComment2]));
+      assert.deepEqual(angular.toJson(comments), angular.toJson(DS.filter('comment', {
         content: 'test'
-      }));
+      })));
     }, function () {
       fail('Should not have failed!');
     });
@@ -295,10 +295,10 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
         approvedBy: false
       }
     }).then(function (comments) {
-      assert.deepEqual(comments, [testComment, testComment2]);
-      assert.deepEqual(comments, DS.filter('comment', {
+      assert.deepEqual(angular.toJson(comments), angular.toJson([testComment, testComment2]));
+      assert.deepEqual(angular.toJson(comments), angular.toJson(DS.filter('comment', {
         content: 'test'
-      }));
+      })));
     }, function () {
       fail('Should not have failed!');
     });
