@@ -20,11 +20,11 @@ describe('$cacheFactory integration', function () {
     });
 
     DS.find('Comment', 5).then(function (comment) {
-      assert.deepEqual(comment, {
+      assert.deepEqual(angular.toJson(comment), angular.toJson({
         id: 5,
         text: 'test'
-      });
-      assert.deepEqual(cache.get(5), comment, 'should be in the cache');
+      }));
+      assert.deepEqual(angular.toJson(cache.get(5)), angular.toJson(comment), 'should be in the cache');
     }, function (err) {
       console.error(err.stack);
       fail('Should not have rejected!');
@@ -32,18 +32,18 @@ describe('$cacheFactory integration', function () {
 
     $httpBackend.flush();
 
-    assert.deepEqual(DS.get('Comment', 5), {
+    assert.deepEqual(angular.toJson(DS.get('Comment', 5)), angular.toJson({
       id: 5,
       text: 'test'
-    }, 'The comment is now in the store');
+    }), 'The comment is now in the store');
     assert.isNumber(DS.lastModified('Comment', 5));
     assert.isNumber(DS.lastSaved('Comment', 5));
 
     setTimeout(function () {
-      assert.deepEqual(cache.get(5), {
+      assert.deepEqual(angular.toJson(cache.get(5)), angular.toJson({
         id: 5,
         text: 'test'
-      }, 'should be in the cache');
+      }), 'should be in the cache');
 
       assert.equal(lifecycle.beforeInject.callCount, 1, 'beforeInject should have been called');
       assert.equal(lifecycle.afterInject.callCount, 1, 'afterInject should have been called');
