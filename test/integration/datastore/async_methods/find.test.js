@@ -189,7 +189,7 @@ describe('DS.find(resourceName, id[, options]): ', function () {
     Person.find(5).then(function () {
       done('Should not have succeeded.');
     }, function (err) {
-      assert.equal(err, 'Not Found!');
+      assert.equal(err.message, 'Not Found!');
       done();
     });
 

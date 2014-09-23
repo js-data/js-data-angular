@@ -743,6 +743,9 @@ function DSProvider() {
       DSUtils.deepFreeze(DS.errors);
       DSUtils.deepFreeze(DS.utils);
 
+      DSHttpAdapter.DS = DS;
+      DSLocalStorageAdapter.DS = DS;
+
       if (typeof Object.observe !== 'function' ||
         typeof Array.observe !== 'function') {
         $rootScope.$watch(function () {

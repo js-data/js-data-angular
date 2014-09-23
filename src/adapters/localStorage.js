@@ -5,7 +5,7 @@
  */
 function DSLocalStorageAdapterProvider() {
 
-  this.$get = ['$q', 'DSUtils', 'DSErrors', function ($q, DSUtils, DSErrors) {
+  this.$get = ['$q', 'DSUtils', 'DSErrors', function ($q, DSUtils) {
 
     /**
      * @doc interface
@@ -16,6 +16,36 @@ function DSLocalStorageAdapterProvider() {
      * on collections because localStorage itself is a key-value store.
      */
     return {
+
+      getIds: function (name, options) {
+        var ids;
+        var idsPath = DSUtils.makePath(options.baseUrl, 'DSKeys', name);
+        var idsJson = localStorage.getItem(idsPath);
+        if (idsJson) {
+          ids = DSUtils.fromJson(idsJson);
+        } else {
+          localStorage.setItem(idsPath, DSUtils.toJson({}));
+          ids = {};
+        }
+        return ids;
+      },
+
+      saveKeys: function (ids, name, options) {
+        var keysPath = DSUtils.makePath(options.baseUrl, 'DSKeys', name);
+        localStorage.setItem(keysPath, DSUtils.toJson(ids));
+      },
+
+      ensureId: function (id, name, options) {
+        var ids = this.getIds(name, options);
+        ids[id] = 1;
+        this.saveKeys(ids, name, options);
+      },
+
+      removeId: function (id, name, options) {
+        var ids = this.getIds(name, options);
+        delete ids[id];
+        this.saveKeys(ids, name, options);
+      },
 
       /**
        * @doc method
@@ -36,11 +66,7 @@ function DSLocalStorageAdapterProvider() {
         var deferred = $q.defer();
         try {
           var item = localStorage.getItem(key);
-          if (item) {
-            deferred.resolve(angular.fromJson(item));
-          } else {
-            deferred.reject('Not Found!');
-          }
+          deferred.resolve(item ? angular.fromJson(item) : undefined);
         } catch (err) {
           deferred.reject(err);
         }
@@ -131,7 +157,13 @@ function DSLocalStorageAdapterProvider() {
        */
       find: function find(resourceConfig, id, options) {
         options = options || {};
-        return this.GET(DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id));
+        return this.GET(DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id)).then(function (item) {
+          if (!item) {
+            return $q.reject(new Error('Not Found!'));
+          } else {
+            return item;
+          }
+        });
       },
 
       /**
@@ -139,10 +171,38 @@ function DSLocalStorageAdapterProvider() {
        * @id DSLocalStorageAdapter.methods:findAll
        * @name findAll
        * @description
-       * Not supported.
+       * Retrieve a collections of entities from localStorage.
+       *
+       * ## Signature:
+       * ```js
+       * DSLocalStorageAdapter.findAll(resourceConfig, params[, options])
+       * ```
+       *
+       * @param {object} resourceConfig DS resource definition object:
+       * @param {object=} params Query parameters.
+       * @param {object=} options Optional configuration. Properties:
+       *
+       * - `{string=}` - `baseUrl` - Base path to use.
+       *
+       * @returns {Promise} Promise.
        */
-      findAll: function () {
-        throw new Error('DSLocalStorageAdapter.findAll is not supported!');
+      findAll: function (resourceConfig, params, options) {
+        var _this = this;
+        var deferred = $q.defer();
+        options = options || {};
+        if (!('allowSimpleWhere' in options)) {
+          options.allowSimpleWhere = true;
+        }
+        var items = [];
+        var ids = DSUtils.keys(_this.getIds(resourceConfig.name, options));
+        DSUtils.forEach(ids, function (id) {
+          var itemJson = localStorage.getItem(DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id, options), id));
+          if (itemJson) {
+            items.push(DSUtils.fromJson(itemJson));
+          }
+        });
+        deferred.resolve(_this.DS.defaults.defaultFilter.call(_this.DS, items, resourceConfig.name, params, options));
+        return deferred.promise;
       },
 
       /**
@@ -178,14 +238,16 @@ function DSLocalStorageAdapterProvider() {
        * @returns {Promise} Promise.
        */
       create: function (resourceConfig, attrs, options) {
-        if (!(resourceConfig.idAttribute in attrs)) {
-          throw new DSErrors.IA('DSLocalStorageAdapter.create: You must provide a primary key in the attrs object!');
-        }
+        var _this = this;
+        attrs[resourceConfig.idAttribute] = attrs[resourceConfig.idAttribute] || DSUtils.guid();
         options = options || {};
         return this.PUT(
           DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(attrs, options), attrs[resourceConfig.idAttribute]),
           attrs
-        );
+        ).then(function (item) {
+            _this.ensureId(item[resourceConfig.idAttribute], resourceConfig.name, options);
+            return item;
+          });
       },
 
       /**
@@ -230,10 +292,31 @@ function DSLocalStorageAdapterProvider() {
        * @id DSLocalStorageAdapter.methods:updateAll
        * @name updateAll
        * @description
-       * Not supported.
+       * Update a collections of entities in localStorage.
+       *
+       * ## Signature:
+       * ```js
+       * DSLocalStorageAdapter.updateAll(resourceConfig, attrs, params[, options])
+       * ```
+       *
+       * @param {object} resourceConfig DS resource definition object:
+       * @param {object} attrs Attributes with which to update the items.
+       * @param {object=} params Query parameters.
+       * @param {object=} options Optional configuration. Properties:
+       *
+       * - `{string=}` - `baseUrl` - Base path to use.
+       *
+       * @returns {Promise} Promise.
        */
-      updateAll: function () {
-        throw new Error('DSLocalStorageAdapter.updateAll is not supported!');
+      updateAll: function (resourceConfig, attrs, params, options) {
+        var _this = this;
+        return this.findAll(resourceConfig, params, options).then(function (items) {
+          var tasks = [];
+          DSUtils.forEach(items, function (item) {
+            tasks.push(_this.update(resourceConfig, item[resourceConfig.idAttribute], attrs, options));
+          });
+          return $q.all(tasks);
+        });
       },
 
       /**
@@ -277,10 +360,30 @@ function DSLocalStorageAdapterProvider() {
        * @id DSLocalStorageAdapter.methods:destroyAll
        * @name destroyAll
        * @description
-       * Not supported.
+       * Destroy a collections of entities from localStorage.
+       *
+       * ## Signature:
+       * ```js
+       * DSLocalStorageAdapter.destroyAll(resourceConfig, params[, options])
+       * ```
+       *
+       * @param {object} resourceConfig DS resource definition object:
+       * @param {object=} params Query parameters.
+       * @param {object=} options Optional configuration. Properties:
+       *
+       * - `{string=}` - `baseUrl` - Base path to use.
+       *
+       * @returns {Promise} Promise.
        */
-      destroyAll: function () {
-        throw new Error('Not supported!');
+      destroyAll: function (resourceConfig, params, options) {
+        var _this = this;
+        return this.findAll(resourceConfig, params, options).then(function (items) {
+          var tasks = [];
+          DSUtils.forEach(items, function (item) {
+            tasks.push(_this.destroy(resourceConfig, item[resourceConfig.idAttribute], options));
+          });
+          return $q.all(tasks);
+        });
       }
     };
   }];

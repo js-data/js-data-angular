@@ -52,6 +52,7 @@ module.exports = [function () {
     isFunction: angular.isFunction,
     isEmpty: require('mout/lang/isEmpty'),
     toJson: angular.toJson,
+    fromJson: angular.fromJson,
     makePath: require('mout/string/makePath'),
     upperCase: require('mout/string/upperCase'),
     pascalCase: require('mout/string/pascalCase'),
@@ -67,6 +68,7 @@ module.exports = [function () {
     slice: require('mout/array/slice'),
     sort: require('mout/array/sort'),
     guid: require('mout/random/guid'),
+    keys: require('mout/object/keys'),
     resolveItem: function (resource, idOrInstance) {
       if (resource && (this.isString(idOrInstance) || this.isNumber(idOrInstance))) {
         return resource.index[idOrInstance] || idOrInstance;

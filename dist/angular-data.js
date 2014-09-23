@@ -963,7 +963,7 @@ var mixIn = require('../object/mixIn');
 
 
 
-},{"../object/mixIn":33,"./isPlainObject":22,"./kindOf":23}],15:[function(require,module,exports){
+},{"../object/mixIn":34,"./isPlainObject":22,"./kindOf":23}],15:[function(require,module,exports){
 var clone = require('./clone');
 var forOwn = require('../object/forOwn');
 var kindOf = require('./kindOf');
@@ -1365,6 +1365,24 @@ var forIn = require('./forIn');
 
 
 },{}],32:[function(require,module,exports){
+var forOwn = require('./forOwn');
+
+    /**
+     * Get object keys
+     */
+     var keys = Object.keys || function (obj) {
+            var keys = [];
+            forOwn(obj, function(val, key){
+                keys.push(key);
+            });
+            return keys;
+        };
+
+    module.exports = keys;
+
+
+
+},{"./forOwn":30}],33:[function(require,module,exports){
 var hasOwn = require('./hasOwn');
 var deepClone = require('../lang/deepClone');
 var isObject = require('../lang/isObject');
@@ -1406,7 +1424,7 @@ var isObject = require('../lang/isObject');
 
 
 
-},{"../lang/deepClone":15,"../lang/isObject":21,"./hasOwn":31}],33:[function(require,module,exports){
+},{"../lang/deepClone":15,"../lang/isObject":21,"./hasOwn":31}],34:[function(require,module,exports){
 var forOwn = require('./forOwn');
 
     /**
@@ -1436,7 +1454,7 @@ var forOwn = require('./forOwn');
     module.exports = mixIn;
 
 
-},{"./forOwn":30}],34:[function(require,module,exports){
+},{"./forOwn":30}],35:[function(require,module,exports){
 var forEach = require('../array/forEach');
 
     /**
@@ -1457,7 +1475,7 @@ var forEach = require('../array/forEach');
 
 
 
-},{"../array/forEach":4}],35:[function(require,module,exports){
+},{"../array/forEach":4}],36:[function(require,module,exports){
 var slice = require('../array/slice');
 
     /**
@@ -1477,7 +1495,7 @@ var slice = require('../array/slice');
 
 
 
-},{"../array/slice":8}],36:[function(require,module,exports){
+},{"../array/slice":8}],37:[function(require,module,exports){
 var namespace = require('./namespace');
 
     /**
@@ -1496,7 +1514,7 @@ var namespace = require('./namespace');
 
 
 
-},{"./namespace":34}],37:[function(require,module,exports){
+},{"./namespace":35}],38:[function(require,module,exports){
 var randInt = require('./randInt');
 var isArray = require('../lang/isArray');
 
@@ -1513,7 +1531,7 @@ var isArray = require('../lang/isArray');
 
 
 
-},{"../lang/isArray":16,"./randInt":41}],38:[function(require,module,exports){
+},{"../lang/isArray":16,"./randInt":42}],39:[function(require,module,exports){
 var randHex = require('./randHex');
 var choice = require('./choice');
 
@@ -1539,7 +1557,7 @@ var choice = require('./choice');
   module.exports = guid;
 
 
-},{"./choice":37,"./randHex":40}],39:[function(require,module,exports){
+},{"./choice":38,"./randHex":41}],40:[function(require,module,exports){
 var random = require('./random');
 var MIN_INT = require('../number/MIN_INT');
 var MAX_INT = require('../number/MAX_INT');
@@ -1556,7 +1574,7 @@ var MAX_INT = require('../number/MAX_INT');
     module.exports = rand;
 
 
-},{"../number/MAX_INT":25,"../number/MIN_INT":26,"./random":42}],40:[function(require,module,exports){
+},{"../number/MAX_INT":25,"../number/MIN_INT":26,"./random":43}],41:[function(require,module,exports){
 var choice = require('./choice');
 
     var _chars = '0123456789abcdef'.split('');
@@ -1577,7 +1595,7 @@ var choice = require('./choice');
 
 
 
-},{"./choice":37}],41:[function(require,module,exports){
+},{"./choice":38}],42:[function(require,module,exports){
 var MIN_INT = require('../number/MIN_INT');
 var MAX_INT = require('../number/MAX_INT');
 var rand = require('./rand');
@@ -1597,7 +1615,7 @@ var rand = require('./rand');
     module.exports = randInt;
 
 
-},{"../number/MAX_INT":25,"../number/MIN_INT":26,"./rand":39}],42:[function(require,module,exports){
+},{"../number/MAX_INT":25,"../number/MIN_INT":26,"./rand":40}],43:[function(require,module,exports){
 
 
     /**
@@ -1617,7 +1635,7 @@ var rand = require('./rand');
 
 
 
-},{}],43:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 var toString = require('../lang/toString');
 var replaceAccents = require('./replaceAccents');
 var removeNonWord = require('./removeNonWord');
@@ -1639,7 +1657,7 @@ var lowerCase = require('./lowerCase');
     module.exports = camelCase;
 
 
-},{"../lang/toString":24,"./lowerCase":44,"./removeNonWord":47,"./replaceAccents":48,"./upperCase":49}],44:[function(require,module,exports){
+},{"../lang/toString":24,"./lowerCase":45,"./removeNonWord":48,"./replaceAccents":49,"./upperCase":50}],45:[function(require,module,exports){
 var toString = require('../lang/toString');
     /**
      * "Safer" String.toLowerCase()
@@ -1652,7 +1670,7 @@ var toString = require('../lang/toString');
     module.exports = lowerCase;
 
 
-},{"../lang/toString":24}],45:[function(require,module,exports){
+},{"../lang/toString":24}],46:[function(require,module,exports){
 var join = require('../array/join');
 var slice = require('../array/slice');
 
@@ -1669,7 +1687,7 @@ var slice = require('../array/slice');
     module.exports = makePath;
 
 
-},{"../array/join":6,"../array/slice":8}],46:[function(require,module,exports){
+},{"../array/join":6,"../array/slice":8}],47:[function(require,module,exports){
 var toString = require('../lang/toString');
 var camelCase = require('./camelCase');
 var upperCase = require('./upperCase');
@@ -1684,7 +1702,7 @@ var upperCase = require('./upperCase');
     module.exports = pascalCase;
 
 
-},{"../lang/toString":24,"./camelCase":43,"./upperCase":49}],47:[function(require,module,exports){
+},{"../lang/toString":24,"./camelCase":44,"./upperCase":50}],48:[function(require,module,exports){
 var toString = require('../lang/toString');
     // This pattern is generated by the _build/pattern-removeNonWord.js script
     var PATTERN = /[^\x20\x2D0-9A-Z\x5Fa-z\xC0-\xD6\xD8-\xF6\xF8-\xFF]/g;
@@ -1700,7 +1718,7 @@ var toString = require('../lang/toString');
     module.exports = removeNonWord;
 
 
-},{"../lang/toString":24}],48:[function(require,module,exports){
+},{"../lang/toString":24}],49:[function(require,module,exports){
 var toString = require('../lang/toString');
     /**
     * Replaces all accented chars with regular ones
@@ -1738,7 +1756,7 @@ var toString = require('../lang/toString');
     module.exports = replaceAccents;
 
 
-},{"../lang/toString":24}],49:[function(require,module,exports){
+},{"../lang/toString":24}],50:[function(require,module,exports){
 var toString = require('../lang/toString');
     /**
      * "Safer" String.toUpperCase()
@@ -1750,7 +1768,7 @@ var toString = require('../lang/toString');
     module.exports = upperCase;
 
 
-},{"../lang/toString":24}],50:[function(require,module,exports){
+},{"../lang/toString":24}],51:[function(require,module,exports){
 /**
  * @doc function
  * @id DSHttpAdapterProvider
@@ -2225,7 +2243,7 @@ function DSHttpAdapterProvider() {
 
 module.exports = DSHttpAdapterProvider;
 
-},{}],51:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 /*!
  * @doc function
  * @id DSLocalStorageAdapterProvider
@@ -2233,7 +2251,7 @@ module.exports = DSHttpAdapterProvider;
  */
 function DSLocalStorageAdapterProvider() {
 
-  this.$get = ['$q', 'DSUtils', 'DSErrors', function ($q, DSUtils, DSErrors) {
+  this.$get = ['$q', 'DSUtils', 'DSErrors', function ($q, DSUtils) {
 
     /**
      * @doc interface
@@ -2244,6 +2262,36 @@ function DSLocalStorageAdapterProvider() {
      * on collections because localStorage itself is a key-value store.
      */
     return {
+
+      getIds: function (name, options) {
+        var ids;
+        var idsPath = DSUtils.makePath(options.baseUrl, 'DSKeys', name);
+        var idsJson = localStorage.getItem(idsPath);
+        if (idsJson) {
+          ids = DSUtils.fromJson(idsJson);
+        } else {
+          localStorage.setItem(idsPath, DSUtils.toJson({}));
+          ids = {};
+        }
+        return ids;
+      },
+
+      saveKeys: function (ids, name, options) {
+        var keysPath = DSUtils.makePath(options.baseUrl, 'DSKeys', name);
+        localStorage.setItem(keysPath, DSUtils.toJson(ids));
+      },
+
+      ensureId: function (id, name, options) {
+        var ids = this.getIds(name, options);
+        ids[id] = 1;
+        this.saveKeys(ids, name, options);
+      },
+
+      removeId: function (id, name, options) {
+        var ids = this.getIds(name, options);
+        delete ids[id];
+        this.saveKeys(ids, name, options);
+      },
 
       /**
        * @doc method
@@ -2264,11 +2312,7 @@ function DSLocalStorageAdapterProvider() {
         var deferred = $q.defer();
         try {
           var item = localStorage.getItem(key);
-          if (item) {
-            deferred.resolve(angular.fromJson(item));
-          } else {
-            deferred.reject('Not Found!');
-          }
+          deferred.resolve(item ? angular.fromJson(item) : undefined);
         } catch (err) {
           deferred.reject(err);
         }
@@ -2359,7 +2403,13 @@ function DSLocalStorageAdapterProvider() {
        */
       find: function find(resourceConfig, id, options) {
         options = options || {};
-        return this.GET(DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id));
+        return this.GET(DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id)).then(function (item) {
+          if (!item) {
+            return $q.reject(new Error('Not Found!'));
+          } else {
+            return item;
+          }
+        });
       },
 
       /**
@@ -2367,10 +2417,38 @@ function DSLocalStorageAdapterProvider() {
        * @id DSLocalStorageAdapter.methods:findAll
        * @name findAll
        * @description
-       * Not supported.
+       * Retrieve a collections of entities from localStorage.
+       *
+       * ## Signature:
+       * ```js
+       * DSLocalStorageAdapter.findAll(resourceConfig, params[, options])
+       * ```
+       *
+       * @param {object} resourceConfig DS resource definition object:
+       * @param {object=} params Query parameters.
+       * @param {object=} options Optional configuration. Properties:
+       *
+       * - `{string=}` - `baseUrl` - Base path to use.
+       *
+       * @returns {Promise} Promise.
        */
-      findAll: function () {
-        throw new Error('DSLocalStorageAdapter.findAll is not supported!');
+      findAll: function (resourceConfig, params, options) {
+        var _this = this;
+        var deferred = $q.defer();
+        options = options || {};
+        if (!('allowSimpleWhere' in options)) {
+          options.allowSimpleWhere = true;
+        }
+        var items = [];
+        var ids = DSUtils.keys(_this.getIds(resourceConfig.name, options));
+        DSUtils.forEach(ids, function (id) {
+          var itemJson = localStorage.getItem(DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id, options), id));
+          if (itemJson) {
+            items.push(DSUtils.fromJson(itemJson));
+          }
+        });
+        deferred.resolve(_this.DS.defaults.defaultFilter.call(_this.DS, items, resourceConfig.name, params, options));
+        return deferred.promise;
       },
 
       /**
@@ -2406,14 +2484,16 @@ function DSLocalStorageAdapterProvider() {
        * @returns {Promise} Promise.
        */
       create: function (resourceConfig, attrs, options) {
-        if (!(resourceConfig.idAttribute in attrs)) {
-          throw new DSErrors.IA('DSLocalStorageAdapter.create: You must provide a primary key in the attrs object!');
-        }
+        var _this = this;
+        attrs[resourceConfig.idAttribute] = attrs[resourceConfig.idAttribute] || DSUtils.guid();
         options = options || {};
         return this.PUT(
           DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(attrs, options), attrs[resourceConfig.idAttribute]),
           attrs
-        );
+        ).then(function (item) {
+            _this.ensureId(item[resourceConfig.idAttribute], resourceConfig.name, options);
+            return item;
+          });
       },
 
       /**
@@ -2458,10 +2538,31 @@ function DSLocalStorageAdapterProvider() {
        * @id DSLocalStorageAdapter.methods:updateAll
        * @name updateAll
        * @description
-       * Not supported.
+       * Update a collections of entities in localStorage.
+       *
+       * ## Signature:
+       * ```js
+       * DSLocalStorageAdapter.updateAll(resourceConfig, attrs, params[, options])
+       * ```
+       *
+       * @param {object} resourceConfig DS resource definition object:
+       * @param {object} attrs Attributes with which to update the items.
+       * @param {object=} params Query parameters.
+       * @param {object=} options Optional configuration. Properties:
+       *
+       * - `{string=}` - `baseUrl` - Base path to use.
+       *
+       * @returns {Promise} Promise.
        */
-      updateAll: function () {
-        throw new Error('DSLocalStorageAdapter.updateAll is not supported!');
+      updateAll: function (resourceConfig, attrs, params, options) {
+        var _this = this;
+        return this.findAll(resourceConfig, params, options).then(function (items) {
+          var tasks = [];
+          DSUtils.forEach(items, function (item) {
+            tasks.push(_this.update(resourceConfig, item[resourceConfig.idAttribute], attrs, options));
+          });
+          return $q.all(tasks);
+        });
       },
 
       /**
@@ -2505,10 +2606,30 @@ function DSLocalStorageAdapterProvider() {
        * @id DSLocalStorageAdapter.methods:destroyAll
        * @name destroyAll
        * @description
-       * Not supported.
+       * Destroy a collections of entities from localStorage.
+       *
+       * ## Signature:
+       * ```js
+       * DSLocalStorageAdapter.destroyAll(resourceConfig, params[, options])
+       * ```
+       *
+       * @param {object} resourceConfig DS resource definition object:
+       * @param {object=} params Query parameters.
+       * @param {object=} options Optional configuration. Properties:
+       *
+       * - `{string=}` - `baseUrl` - Base path to use.
+       *
+       * @returns {Promise} Promise.
        */
-      destroyAll: function () {
-        throw new Error('Not supported!');
+      destroyAll: function (resourceConfig, params, options) {
+        var _this = this;
+        return this.findAll(resourceConfig, params, options).then(function (items) {
+          var tasks = [];
+          DSUtils.forEach(items, function (item) {
+            tasks.push(_this.destroy(resourceConfig, item[resourceConfig.idAttribute], options));
+          });
+          return $q.all(tasks);
+        });
       }
     };
   }];
@@ -2516,7 +2637,7 @@ function DSLocalStorageAdapterProvider() {
 
 module.exports = DSLocalStorageAdapterProvider;
 
-},{}],52:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.create(' + resourceName + ', attrs[, options]): ';
 }
@@ -2677,7 +2798,7 @@ function create(resourceName, attrs, options) {
 
 module.exports = create;
 
-},{}],53:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.destroy(' + resourceName + ', ' + id + '[, options]): ';
 }
@@ -2787,7 +2908,7 @@ function destroy(resourceName, id, options) {
 
 module.exports = destroy;
 
-},{}],54:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.destroyAll(' + resourceName + ', params[, options]): ';
 }
@@ -2877,7 +2998,7 @@ function destroyAll(resourceName, params, options) {
 
 module.exports = destroyAll;
 
-},{}],55:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.find(' + resourceName + ', ' + id + '[, options]): ';
 }
@@ -2986,7 +3107,7 @@ function find(resourceName, id, options) {
 
 module.exports = find;
 
-},{}],56:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.findAll(' + resourceName + ', params[, options]): ';
 }
@@ -3164,7 +3285,7 @@ function findAll(resourceName, params, options) {
 
 module.exports = findAll;
 
-},{}],57:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 module.exports = {
   /**
    * @doc method
@@ -3267,7 +3388,7 @@ module.exports = {
   updateAll: require('./updateAll')
 };
 
-},{"./create":52,"./destroy":53,"./destroyAll":54,"./find":55,"./findAll":56,"./loadRelations":58,"./refresh":59,"./save":60,"./update":61,"./updateAll":62}],58:[function(require,module,exports){
+},{"./create":53,"./destroy":54,"./destroyAll":55,"./find":56,"./findAll":57,"./loadRelations":59,"./refresh":60,"./save":61,"./update":62,"./updateAll":63}],59:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.loadRelations(' + resourceName + ', instance(Id), relations[, options]): ';
 }
@@ -3412,7 +3533,7 @@ function loadRelations(resourceName, instance, relations, options) {
 
 module.exports = loadRelations;
 
-},{}],59:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.refresh(' + resourceName + ', ' + id + '[, options]): ';
 }
@@ -3494,7 +3615,7 @@ function refresh(resourceName, id, options) {
 
 module.exports = refresh;
 
-},{}],60:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.save(' + resourceName + ', ' + id + '[, options]): ';
 }
@@ -3645,7 +3766,7 @@ function save(resourceName, id, options) {
 
 module.exports = save;
 
-},{}],61:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.update(' + resourceName + ', ' + id + ', attrs[, options]): ';
 }
@@ -3776,7 +3897,7 @@ function update(resourceName, id, attrs, options) {
 
 module.exports = update;
 
-},{}],62:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.updateAll(' + resourceName + ', attrs, params[, options]): ';
 }
@@ -3912,7 +4033,7 @@ function updateAll(resourceName, attrs, params, options) {
 
 module.exports = updateAll;
 
-},{}],63:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 var utils = require('../utils')[0]();
 
 function lifecycleNoop(resourceName, attrs, cb) {
@@ -4658,6 +4779,9 @@ function DSProvider() {
       DSUtils.deepFreeze(DS.errors);
       DSUtils.deepFreeze(DS.utils);
 
+      DSHttpAdapter.DS = DS;
+      DSLocalStorageAdapter.DS = DS;
+
       if (typeof Object.observe !== 'function' ||
         typeof Array.observe !== 'function') {
         $rootScope.$watch(function () {
@@ -4675,7 +4799,7 @@ function DSProvider() {
 
 module.exports = DSProvider;
 
-},{"../utils":88,"./async_methods":57,"./sync_methods":77}],64:[function(require,module,exports){
+},{"../utils":89,"./async_methods":58,"./sync_methods":78}],65:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.bindAll(scope, expr, ' + resourceName + ', params[, cb]): ';
 }
@@ -4760,7 +4884,7 @@ function bindAll(scope, expr, resourceName, params, cb) {
 
 module.exports = bindAll;
 
-},{}],65:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.bindOne(scope, expr, ' + resourceName + ', id[, cb]): ';
 }
@@ -4832,7 +4956,7 @@ function bindOne(scope, expr, resourceName, id, cb) {
 
 module.exports = bindOne;
 
-},{}],66:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.changeHistory(' + resourceName + ', id): ';
 }
@@ -4901,7 +5025,7 @@ function changeHistory(resourceName, id) {
 
 module.exports = changeHistory;
 
-},{}],67:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.changes(' + resourceName + ', id): ';
 }
@@ -4975,7 +5099,7 @@ function changes(resourceName, id) {
 
 module.exports = changes;
 
-},{}],68:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.compute(' + resourceName + ', instance): ';
 }
@@ -5072,7 +5196,7 @@ module.exports = {
   _compute: _compute
 };
 
-},{}],69:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.createInstance(' + resourceName + '[, attrs][, options]): ';
 }
@@ -5169,7 +5293,7 @@ function createInstance(resourceName, attrs, options) {
 
 module.exports = createInstance;
 
-},{}],70:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 /*jshint evil:true*/
 var errorPrefix = 'DS.defineResource(definition): ';
 
@@ -5510,7 +5634,7 @@ function defineResource(definition) {
 
 module.exports = defineResource;
 
-},{}],71:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 var observe = require('../../../lib/observe-js/observe-js');
 
 /**
@@ -5546,7 +5670,7 @@ function digest() {
 
 module.exports = digest;
 
-},{"../../../lib/observe-js/observe-js":1}],72:[function(require,module,exports){
+},{"../../../lib/observe-js/observe-js":1}],73:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.eject(' + resourceName + ', ' + id + '): ';
 }
@@ -5654,7 +5778,7 @@ function eject(resourceName, id, options) {
 
 module.exports = eject;
 
-},{}],73:[function(require,module,exports){
+},{}],74:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.ejectAll(' + resourceName + '[, params]): ';
 }
@@ -5768,7 +5892,7 @@ function ejectAll(resourceName, params) {
 
 module.exports = ejectAll;
 
-},{}],74:[function(require,module,exports){
+},{}],75:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.filter(' + resourceName + '[, params][, options]): ';
 }
@@ -5851,7 +5975,7 @@ function filter(resourceName, params, options) {
 
 module.exports = filter;
 
-},{}],75:[function(require,module,exports){
+},{}],76:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.get(' + resourceName + ', ' + id + '): ';
 }
@@ -5915,7 +6039,7 @@ function get(resourceName, id, options) {
 
 module.exports = get;
 
-},{}],76:[function(require,module,exports){
+},{}],77:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.hasChanges(' + resourceName + ', ' + id + '): ';
 }
@@ -5980,7 +6104,7 @@ function hasChanges(resourceName, id) {
 
 module.exports = hasChanges;
 
-},{}],77:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 module.exports = {
 
   /**
@@ -6194,7 +6318,7 @@ module.exports = {
   unlinkInverse: require('./unlinkInverse')
 };
 
-},{"./bindAll":64,"./bindOne":65,"./changeHistory":66,"./changes":67,"./compute":68,"./createInstance":69,"./defineResource":70,"./digest":71,"./eject":72,"./ejectAll":73,"./filter":74,"./get":75,"./hasChanges":76,"./inject":78,"./lastModified":79,"./lastSaved":80,"./link":81,"./linkAll":82,"./linkInverse":83,"./previous":84,"./unlinkInverse":85}],78:[function(require,module,exports){
+},{"./bindAll":65,"./bindOne":66,"./changeHistory":67,"./changes":68,"./compute":69,"./createInstance":70,"./defineResource":71,"./digest":72,"./eject":73,"./ejectAll":74,"./filter":75,"./get":76,"./hasChanges":77,"./inject":79,"./lastModified":80,"./lastSaved":81,"./link":82,"./linkAll":83,"./linkInverse":84,"./previous":85,"./unlinkInverse":86}],79:[function(require,module,exports){
 var observe = require('../../../lib/observe-js/observe-js');
 var _compute = require('./compute')._compute;
 var stack = 0;
@@ -6510,7 +6634,7 @@ function inject(resourceName, attrs, options) {
 
 module.exports = inject;
 
-},{"../../../lib/observe-js/observe-js":1,"./compute":68}],79:[function(require,module,exports){
+},{"../../../lib/observe-js/observe-js":1,"./compute":69}],80:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.lastModified(' + resourceName + '[, ' + id + ']): ';
 }
@@ -6569,7 +6693,7 @@ function lastModified(resourceName, id) {
 
 module.exports = lastModified;
 
-},{}],80:[function(require,module,exports){
+},{}],81:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.lastSaved(' + resourceName + '[, ' + id + ']): ';
 }
@@ -6633,7 +6757,7 @@ function lastSaved(resourceName, id) {
 
 module.exports = lastSaved;
 
-},{}],81:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.link(' + resourceName + ', id[, relations]): ';
 }
@@ -6735,7 +6859,7 @@ function link(resourceName, id, relations) {
 
 module.exports = link;
 
-},{}],82:[function(require,module,exports){
+},{}],83:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.linkAll(' + resourceName + '[, params][, relations]): ';
 }
@@ -6852,7 +6976,7 @@ function linkAll(resourceName, params, relations) {
 
 module.exports = linkAll;
 
-},{}],83:[function(require,module,exports){
+},{}],84:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.linkInverse(' + resourceName + ', id[, relations]): ';
 }
@@ -6950,7 +7074,7 @@ function linkInverse(resourceName, id, relations) {
 
 module.exports = linkInverse;
 
-},{}],84:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.previous(' + resourceName + '[, ' + id + ']): ';
 }
@@ -7007,7 +7131,7 @@ function previous(resourceName, id) {
 
 module.exports = previous;
 
-},{}],85:[function(require,module,exports){
+},{}],86:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.unlinkInverse(' + resourceName + ', id[, relations]): ';
 }
@@ -7106,7 +7230,7 @@ function unlinkInverse(resourceName, id, relations) {
 
 module.exports = unlinkInverse;
 
-},{}],86:[function(require,module,exports){
+},{}],87:[function(require,module,exports){
 /**
  * @doc function
  * @id errors.types:IllegalArgumentError
@@ -7239,7 +7363,7 @@ module.exports = [function () {
   };
 }];
 
-},{}],87:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 (function (window, angular, undefined) {
   'use strict';
 
@@ -7330,7 +7454,7 @@ module.exports = [function () {
 
 })(window, window.angular);
 
-},{"./adapters/http":50,"./adapters/localStorage":51,"./datastore":63,"./errors":86,"./utils":88}],88:[function(require,module,exports){
+},{"./adapters/http":51,"./adapters/localStorage":52,"./datastore":64,"./errors":87,"./utils":89}],89:[function(require,module,exports){
 function Events(target) {
   var events = {};
   target = target || this;
@@ -7385,6 +7509,7 @@ module.exports = [function () {
     isFunction: angular.isFunction,
     isEmpty: require('mout/lang/isEmpty'),
     toJson: angular.toJson,
+    fromJson: angular.fromJson,
     makePath: require('mout/string/makePath'),
     upperCase: require('mout/string/upperCase'),
     pascalCase: require('mout/string/pascalCase'),
@@ -7400,6 +7525,7 @@ module.exports = [function () {
     slice: require('mout/array/slice'),
     sort: require('mout/array/sort'),
     guid: require('mout/random/guid'),
+    keys: require('mout/object/keys'),
     resolveItem: function (resource, idOrInstance) {
       if (resource && (this.isString(idOrInstance) || this.isNumber(idOrInstance))) {
         return resource.index[idOrInstance] || idOrInstance;
@@ -7478,4 +7604,4 @@ module.exports = [function () {
   };
 }];
 
-},{"mout/array/contains":2,"mout/array/filter":3,"mout/array/remove":7,"mout/array/slice":8,"mout/array/sort":9,"mout/array/toLookup":10,"mout/lang/isBoolean":17,"mout/lang/isEmpty":18,"mout/object/deepMixIn":28,"mout/object/merge":32,"mout/object/pick":35,"mout/object/set":36,"mout/random/guid":38,"mout/string/makePath":45,"mout/string/pascalCase":46,"mout/string/upperCase":49}]},{},[87]);
+},{"mout/array/contains":2,"mout/array/filter":3,"mout/array/remove":7,"mout/array/slice":8,"mout/array/sort":9,"mout/array/toLookup":10,"mout/lang/isBoolean":17,"mout/lang/isEmpty":18,"mout/object/deepMixIn":28,"mout/object/keys":32,"mout/object/merge":33,"mout/object/pick":36,"mout/object/set":37,"mout/random/guid":39,"mout/string/makePath":46,"mout/string/pascalCase":47,"mout/string/upperCase":50}]},{},[88]);

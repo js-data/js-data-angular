@@ -10,6 +10,7 @@
 - #169 - Added eager inject and eager eject options
 - #170 - Global callbacks
 - #171 - "not in" query
+- #175 - Explore adding support for collection-based methods to the DSLocalStorageAdapter
 - #177 - Allow promises to be returned in lifecycle hooks
 - #182 - option to force trailing slash (DSHttpAdapterProvider.defaults.forceTrailingSlash)
 - #185 - eagerInject/eagerEject should default to definition's options

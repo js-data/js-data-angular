@@ -1,8 +1,8 @@
-describe('DSLocalStorageAdapter.find(resourceConfig, id, options)', function () {
+describe('DSLocalStorageAdapter.create(resourceConfig, attrs, options)', function () {
 
   beforeEach(startInjector);
 
-  it('should find an item in localStorage', function (done) {
+  it('should create an item in localStorage', function (done) {
     DSLocalStorageAdapter.create(Post, p1).then(function (post) {
       assert.deepEqual(post, p1, 'post should have been created');
       return DSLocalStorageAdapter.find(Post, p1.id);
