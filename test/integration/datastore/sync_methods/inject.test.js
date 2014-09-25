@@ -267,5 +267,13 @@ describe('DS.inject(resourceName, attrs[, options])', function () {
     assert.equal(injected[0].children[0].children[1].id, 5);
     assert.equal(injected[0].children[1].children[0].id, 6);
     assert.equal(injected[0].children[1].children[1].id, 7);
+
+    assert.isDefined(DS.get('foo', 1));
+    assert.isDefined(DS.get('foo', 2));
+    assert.isDefined(DS.get('foo', 3));
+    assert.isDefined(DS.get('foo', 4));
+    assert.isDefined(DS.get('foo', 5));
+    assert.isDefined(DS.get('foo', 6));
+    assert.isDefined(DS.get('foo', 7));
   });
 });

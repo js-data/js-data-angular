@@ -146,7 +146,7 @@ describe('DS.loadRelations(resourceName, instance(Id), relations[, options]): ',
     $httpBackend.expectGET('http://test.angular-cache.com/organization/14/user').respond(200, [copy]);
 
     DS.loadRelations('organization', organization, ['user']).then(function (organization) {
-      assert.isTrue(organization === organization.users[0].organization);
+      assert.equal(organization.users[0].id, 10);
 
       $httpBackend.expectGET('http://test.angular-cache.com/user/10/comment').respond(200, [comment11, comment12]);
 
@@ -157,7 +157,8 @@ describe('DS.loadRelations(resourceName, instance(Id), relations[, options]): ',
       }, function () {
         fail('Should not have succeeded!');
       });
-    }, function () {
+    }, function (err) {
+      console.log(err.stack);
       fail('Should not have succeeded!');
     });
 
@@ -176,7 +177,7 @@ describe('DS.loadRelations(resourceName, instance(Id), relations[, options]): ',
     ]);
 
     DS.loadRelations('organization', organization, ['user']).then(function (organization) {
-      assert.isTrue(organization === organization.users[0].organization);
+      assert.equal(organization.users[0].id, 1);
 
       $httpBackend.expectGET('http://test.angular-cache.com/user/1/comment').respond(200, [
         {
