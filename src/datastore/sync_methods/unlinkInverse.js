@@ -17,7 +17,9 @@ function _unlinkInverse(definition, linked) {
                     index = i;
                   }
                 });
-                item[def.localField].splice(index, 1);
+                if (index !== undefined) {
+                  item[def.localField].splice(index, 1);
+                }
               } else if (item[def.localField] === linked) {
                 delete item[def.localField];
               }
