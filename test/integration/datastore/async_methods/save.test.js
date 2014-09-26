@@ -80,6 +80,27 @@ describe('DS.save(resourceName, id[, options])', function () {
     assert.equal(lifecycle.serialize.callCount, 1, 'serialize should have been called');
     assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
   });
+  it('should save an item to the server and inject the result when using a custom http method', function () {
+    $httpBackend.expectPATCH('http://test.angular-cache.com/posts/5').respond(200, {
+      author: 'Jake',
+      id: 5,
+      age: 30
+    });
+
+    DS.inject('post', p1);
+
+    DS.get('post', 5).author = 'Jake';
+
+    DS.save('post', 5, { method: 'PATCH' }).then(function (post) {
+      assert.deepEqual(post, DS.get('post', 5), 'post 5 should have been saved');
+      assert.equal(post.author, 'Jake');
+    }, function (err) {
+      console.error(err.stack);
+      fail('should not have rejected');
+    });
+
+    $httpBackend.flush();
+  });
   it('should save an item to the server and inject the result via the instance method', function () {
     $httpBackend.expectPUT('http://test.angular-cache.com/posts/5').respond(200, {
       author: 'Jake',
