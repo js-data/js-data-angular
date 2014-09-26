@@ -1,7 +1,7 @@
 /**
 * @author Jason Dobry <jason.dobry@gmail.com>
 * @file angular-data.js
-* @version 1.0.0-rc.2 - Homepage <http://angular-data.pseudobry.com/>
+* @version 1.0.0-rc.2-1 - Homepage <http://angular-data.pseudobry.com/>
 * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>
 * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
 *
@@ -5718,6 +5718,7 @@ function errorPrefix(resourceName, id) {
 
 function _eject(definition, resource, id, options) {
   var item;
+  var DS = this;
   var found = false;
   for (var i = 0; i < resource.collection.length; i++) {
     if (resource.collection[i][definition.idAttribute] == id) {
@@ -7186,7 +7187,9 @@ function _unlinkInverse(definition, linked) {
                     index = i;
                   }
                 });
-                item[def.localField].splice(index, 1);
+                if (index !== undefined) {
+                  item[def.localField].splice(index, 1);
+                }
               } else if (item[def.localField] === linked) {
                 delete item[def.localField];
               }

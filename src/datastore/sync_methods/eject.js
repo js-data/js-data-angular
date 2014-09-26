@@ -4,6 +4,7 @@ function errorPrefix(resourceName, id) {
 
 function _eject(definition, resource, id, options) {
   var item;
+  var DS = this;
   var found = false;
   for (var i = 0; i < resource.collection.length; i++) {
     if (resource.collection[i][definition.idAttribute] == id) {

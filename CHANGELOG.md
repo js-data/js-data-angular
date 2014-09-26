@@ -1,7 +1,12 @@
+##### 1.0.0-rc.2-1 - 25 September 2014
+
+###### Backwards compatible bug fixes
+- #191 - Invalid reference in _eject
+
 ##### 1.0.0-rc.2 - 25 September 2014
 
-###### Backwards compatible API changes
-- #145 - Add "useClass" option to inject, find, findAll, create
+###### Backwards compatible bug fixes
+- #191 - Add "useClass" option to inject, find, findAll, create
 - #155 - Allow deserialize and serialize to be configured per-method as well
 - #159 - Find which items from collection have changed with lastModified
 - #161 - Allow the http method of DSHttpAdapter methods to be configured
