@@ -2720,6 +2720,10 @@ function create(resourceName, attrs, options) {
       options.eagerInject = definition.eagerInject;
     }
 
+    if (!('notify' in options)) {
+      options.notify = definition.notify;
+    }
+
     deferred.resolve(attrs);
 
     if (options.upsert && attrs[definition.idAttribute]) {
@@ -2743,7 +2747,9 @@ function create(resourceName, attrs, options) {
           return func.call(attrs, resourceName, attrs);
         })
         .then(function (attrs) {
-          DS.notify(definition, 'beforeCreate', DS.utils.merge({}, attrs));
+          if (options.notify) {
+            DS.emit(definition, 'beforeCreate', DS.utils.merge({}, attrs));
+          }
           if (options.eagerInject && options.cacheResponse) {
             attrs[definition.idAttribute] = attrs[definition.idAttribute] || DS.utils.guid();
             injected = DS.inject(resourceName, attrs);
@@ -2756,7 +2762,9 @@ function create(resourceName, attrs, options) {
           return func.call(attrs, resourceName, attrs);
         })
         .then(function (attrs) {
-          DS.notify(definition, 'afterCreate', DS.utils.merge({}, attrs));
+          if (options.notify) {
+            DS.emit(definition, 'afterCreate', DS.utils.merge({}, attrs));
+          }
           if (options.cacheResponse) {
             var resource = DS.store[resourceName];
             if (options.eagerInject) {
@@ -2874,13 +2882,19 @@ function destroy(resourceName, id, options) {
       options.eagerEject = definition.eagerEject;
     }
 
+    if (!('notify' in options)) {
+      options.notify = definition.notify;
+    }
+
     return deferred.promise
       .then(function (attrs) {
         var func = options.beforeDestroy ? DS.$q.promisify(options.beforeDestroy) : definition.beforeDestroy;
         return func.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        DS.notify(definition, 'beforeDestroy', DS.utils.merge({}, attrs));
+        if (options.notify) {
+          DS.emit(definition, 'beforeDestroy', DS.utils.merge({}, attrs));
+        }
         if (options.eagerEject) {
           DS.eject(resourceName, id);
         }
@@ -2891,7 +2905,9 @@ function destroy(resourceName, id, options) {
         return func.call(item, resourceName, item);
       })
       .then(function () {
-        DS.notify(definition, 'afterDestroy', DS.utils.merge({}, item));
+        if (options.notify) {
+          DS.emit(definition, 'afterDestroy', DS.utils.merge({}, item));
+        }
         DS.eject(resourceName, id);
         return id;
       }).catch(function (err) {
@@ -3697,6 +3713,10 @@ function save(resourceName, id, options) {
       options.cacheResponse = true;
     }
 
+    if (!('notify' in options)) {
+      options.notify = definition.notify;
+    }
+
     deferred.resolve(item);
 
     return deferred.promise
@@ -3717,7 +3737,9 @@ function save(resourceName, id, options) {
         return func.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        DS.notify(definition, 'beforeUpdate', DS.utils.merge({}, attrs));
+        if (options.notify) {
+          DS.emit(definition, 'beforeUpdate', DS.utils.merge({}, attrs));
+        }
         if (options.changesOnly) {
           var resource = DS.store[resourceName];
           resource.observers[id].deliver();
@@ -3746,7 +3768,9 @@ function save(resourceName, id, options) {
         return func.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        DS.notify(definition, 'afterUpdate', DS.utils.merge({}, attrs));
+        if (options.notify) {
+          DS.emit(definition, 'afterUpdate', DS.utils.merge({}, attrs));
+        }
         if (options.cacheResponse) {
           var resource = DS.store[resourceName];
           var saved = DS.inject(definition.name, attrs, options);
@@ -3847,6 +3871,10 @@ function update(resourceName, id, attrs, options) {
       options.cacheResponse = true;
     }
 
+    if (!('notify' in options)) {
+      options.notify = definition.notify;
+    }
+
     deferred.resolve(attrs);
 
     return deferred.promise
@@ -3867,7 +3895,9 @@ function update(resourceName, id, attrs, options) {
         return func.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        DS.notify(definition, 'beforeUpdate', DS.utils.merge({}, attrs));
+        if (options.notify) {
+          DS.emit(definition, 'beforeUpdate', DS.utils.merge({}, attrs));
+        }
         return DS.adapters[options.adapter || definition.defaultAdapter].update(definition, id, options.serialize ? options.serialize(resourceName, attrs) : definition.serialize(resourceName, attrs), options);
       })
       .then(function (res) {
@@ -3876,7 +3906,9 @@ function update(resourceName, id, attrs, options) {
         return func.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        DS.notify(definition, 'afterUpdate', DS.utils.merge({}, attrs));
+        if (options.notify) {
+          DS.emit(definition, 'afterUpdate', DS.utils.merge({}, attrs));
+        }
         if (options.cacheResponse) {
           var resource = DS.store[resourceName];
           var updated = DS.inject(definition.name, attrs, options);
@@ -3989,6 +4021,10 @@ function updateAll(resourceName, attrs, params, options) {
       options.cacheResponse = true;
     }
 
+    if (!('notify' in options)) {
+      options.notify = definition.notify;
+    }
+
     deferred.resolve(attrs);
 
     return deferred.promise
@@ -4009,7 +4045,9 @@ function updateAll(resourceName, attrs, params, options) {
         return func.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        DS.notify(definition, 'beforeUpdate', DS.utils.merge({}, attrs));
+        if (options.notify) {
+          DS.emit(definition, 'beforeUpdate', DS.utils.merge({}, attrs));
+        }
         return DS.adapters[options.adapter || definition.defaultAdapter].updateAll(definition, options.serialize ? options.serialize(resourceName, attrs) : definition.serialize(resourceName, attrs), params, options);
       })
       .then(function (res) {
@@ -4018,7 +4056,9 @@ function updateAll(resourceName, attrs, params, options) {
         return func.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        DS.notify(definition, 'afterUpdate', DS.utils.merge({}, attrs));
+        if (options.notify) {
+          DS.emit(definition, 'afterUpdate', DS.utils.merge({}, attrs));
+        }
         if (options.cacheResponse) {
           return DS.inject(definition.name, attrs, options);
         } else {
@@ -4229,6 +4269,7 @@ Defaults.prototype.keepChangeHistory = false;
 Defaults.prototype.resetHistoryOnInject = true;
 Defaults.prototype.eagerInject = false;
 Defaults.prototype.eagerEject = false;
+Defaults.prototype.notify = true;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.beforeValidate
@@ -4694,7 +4735,7 @@ function DSProvider() {
        * See the [guide](/documentation/guide/overview/index).
        */
       var DS = {
-        notify: function (definition, event) {
+        emit: function (definition, event) {
           var args = Array.prototype.slice.call(arguments, 2);
           args.unshift(definition.name);
           args.unshift('DS.' + event);
@@ -5704,7 +5745,7 @@ function _eject(definition, resource, id, options) {
     resource.collectionModified = this.utils.updateTimestamp(resource.collectionModified);
 
     if (options.notify) {
-      this.notify(definition, 'eject', item);
+      this.emit(definition, 'eject', item);
     }
 
     return item;
@@ -5745,6 +5786,7 @@ function _eject(definition, resource, id, options) {
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to eject.
+ * @param {object=} options Optional configuration.
  * @returns {object} A reference to the item that was ejected from the data store.
  */
 function eject(resourceName, id, options) {
@@ -5762,7 +5804,7 @@ function eject(resourceName, id, options) {
   var ejected;
 
   if (!('notify' in options)) {
-    options.notify = true;
+    options.notify = definition.notify;
   }
 
   if (!DS.$rootScope.$$phase) {
@@ -5783,7 +5825,7 @@ function errorPrefix(resourceName) {
   return 'DS.ejectAll(' + resourceName + '[, params]): ';
 }
 
-function _ejectAll(definition, resource, params) {
+function _ejectAll(definition, resource, params, options) {
   var DS = this;
   var queryHash = DS.utils.toJson(params);
   var items = DS.filter(definition.name, params);
@@ -5796,7 +5838,9 @@ function _ejectAll(definition, resource, params) {
   delete resource.completedQueries[queryHash];
   resource.collectionModified = DS.utils.updateTimestamp(resource.collectionModified);
 
-  DS.notify(definition, 'eject', items);
+  if (options.notify) {
+    DS.emit(definition, 'eject', items);
+  }
 
   return items;
 }
@@ -5860,12 +5904,15 @@ function _ejectAll(definition, resource, params) {
  *  - `{number=}` - `offset` - Same as skip.
  *  - `{string|array=}` - `orderBy` - OrderBy clause.
  *
+ * @param {object=} options Optional configuration.
+ *
  * @returns {array} The items that were ejected from the data store.
  */
-function ejectAll(resourceName, params) {
+function ejectAll(resourceName, params, options) {
   var DS = this;
   var definition = DS.definitions[resourceName];
   params = params || {};
+  options = options || {};
 
   if (!definition) {
     throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
@@ -5879,12 +5926,16 @@ function ejectAll(resourceName, params) {
     resource.completedQueries = {};
   }
 
+  if (!('notify' in options)) {
+    options.notify = definition.notify;
+  }
+
   if (!DS.$rootScope.$$phase) {
     DS.$rootScope.$apply(function () {
-      ejected = _ejectAll.call(DS, definition, resource, params);
+      ejected = _ejectAll.call(DS, definition, resource, params, options);
     });
   } else {
-    ejected = _ejectAll.call(DS, definition, resource, params);
+    ejected = _ejectAll.call(DS, definition, resource, params, options);
   }
 
   return ejected;
@@ -6321,13 +6372,25 @@ module.exports = {
 },{"./bindAll":65,"./bindOne":66,"./changeHistory":67,"./changes":68,"./compute":69,"./createInstance":70,"./defineResource":71,"./digest":72,"./eject":73,"./ejectAll":74,"./filter":75,"./get":76,"./hasChanges":77,"./inject":79,"./lastModified":80,"./lastSaved":81,"./link":82,"./linkAll":83,"./linkInverse":84,"./previous":85,"./unlinkInverse":86}],79:[function(require,module,exports){
 var observe = require('../../../lib/observe-js/observe-js');
 var _compute = require('./compute')._compute;
-var stack = 0;
-var data = {
-  injectedSoFar: {}
-};
 
 function errorPrefix(resourceName) {
   return 'DS.inject(' + resourceName + ', attrs[, options]): ';
+}
+
+function _injectRelations(definition, injected, options) {
+  var DS = this;
+
+  DS.utils.forEach(definition.relationList, function (def) {
+    var relationName = def.relation;
+    var relationDef = DS.definitions[relationName];
+    if (relationDef && injected[def.localField]) {
+      try {
+        injected[def.localField] = DS.inject(relationName, injected[def.localField], options);
+      } catch (err) {
+        DS.$log.error(errorPrefix(definition.name) + 'Failed to inject ' + def.type + ' relation: "' + relationName + '"!', err);
+      }
+    }
+  });
 }
 
 function _inject(definition, resource, attrs, options) {
@@ -6481,18 +6544,14 @@ function _inject(definition, resource, attrs, options) {
   return injected;
 }
 
-function _injectRelations(definition, injected, options) {
+function _link(definition, injected, options) {
   var DS = this;
 
   DS.utils.forEach(definition.relationList, function (def) {
-    var relationName = def.relation;
-    var relationDef = DS.definitions[relationName];
-    if (relationDef && injected[def.localField]) {
-      try {
-        injected[def.localField] = DS.inject(relationName, injected[def.localField], options);
-      } catch (err) {
-        DS.$log.error(errorPrefix(definition.name) + 'Failed to inject ' + def.type + ' relation: "' + relationName + '"!', err);
-      }
+    if (options.findBelongsTo && def.type === 'belongsTo' && injected[definition.idAttribute]) {
+      DS.link(definition.name, injected[definition.idAttribute], [def.relation]);
+    } else if ((options.findHasMany && def.type === 'hasMany') || (options.findHasOne && def.type === 'hasOne')) {
+      DS.link(definition.name, injected[definition.idAttribute], [def.relation]);
     }
   });
 }
@@ -6570,51 +6629,40 @@ function inject(resourceName, attrs, options) {
   var resource = DS.store[resourceName];
   var injected;
 
-  try {
-    if (!('useClass' in options)) {
-      options.useClass = definition.useClass;
-    }
-    if (!DS.$rootScope.$$phase) {
-      DS.$rootScope.$apply(function () {
-        injected = _inject.call(DS, definition, resource, attrs, options);
-      });
-    } else {
-      injected = _inject.call(DS, definition, resource, attrs, options);
-    }
-
-    if (options.linkInverse) {
-      if (DS.utils.isArray(injected) && injected.length) {
-        DS.linkInverse(definition.name, injected[0][definition.idAttribute]);
-      } else {
-        DS.linkInverse(definition.name, injected[definition.idAttribute]);
-      }
-    }
-
-    if (DS.utils.isArray(injected)) {
-      DS.utils.forEach(injected, function (injectedI) {
-        DS.utils.forEach(definition.relationList, function (def) {
-          if (options.findBelongsTo && def.type === 'belongsTo' && injectedI[definition.idAttribute]) {
-            DS.link(definition.name, injectedI[definition.idAttribute], [def.relation]);
-          } else if ((options.findHasMany && def.type === 'hasMany') || (options.findHasOne && def.type === 'hasOne')) {
-            DS.link(definition.name, injectedI[definition.idAttribute], [def.relation]);
-          }
-        });
-      });
-    } else {
-      DS.utils.forEach(definition.relationList, function (def) {
-        if (options.findBelongsTo && def.type === 'belongsTo' && injected[definition.idAttribute]) {
-          DS.link(definition.name, injected[definition.idAttribute], [def.relation]);
-        } else if ((options.findHasMany && def.type === 'hasMany') || (options.findHasOne && def.type === 'hasOne')) {
-          DS.link(definition.name, injected[definition.idAttribute], [def.relation]);
-        }
-      });
-    }
-
-    DS.notify(definition, 'inject', injected);
-
-  } catch (err) {
-    throw err;
+  if (!('useClass' in options)) {
+    options.useClass = definition.useClass;
   }
+  if (!('notify' in options)) {
+    options.notify = definition.notify;
+  }
+  if (!DS.$rootScope.$$phase) {
+    DS.$rootScope.$apply(function () {
+      injected = _inject.call(DS, definition, resource, attrs, options);
+    });
+  } else {
+    injected = _inject.call(DS, definition, resource, attrs, options);
+  }
+
+  if (options.linkInverse) {
+    if (DS.utils.isArray(injected) && injected.length) {
+      DS.linkInverse(definition.name, injected[0][definition.idAttribute]);
+    } else {
+      DS.linkInverse(definition.name, injected[definition.idAttribute]);
+    }
+  }
+
+  if (DS.utils.isArray(injected)) {
+    DS.utils.forEach(injected, function (injectedI) {
+      _link.call(DS, definition, injectedI, options);
+    });
+  } else {
+    _link.call(DS, definition, injected, options);
+  }
+
+  if (options.notify) {
+    DS.emit(definition, 'inject', injected);
+  }
+
 
   return injected;
 }

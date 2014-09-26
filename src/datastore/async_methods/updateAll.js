@@ -89,6 +89,10 @@ function updateAll(resourceName, attrs, params, options) {
       options.cacheResponse = true;
     }
 
+    if (!('notify' in options)) {
+      options.notify = definition.notify;
+    }
+
     deferred.resolve(attrs);
 
     return deferred.promise
@@ -109,7 +113,9 @@ function updateAll(resourceName, attrs, params, options) {
         return func.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        DS.notify(definition, 'beforeUpdate', DS.utils.merge({}, attrs));
+        if (options.notify) {
+          DS.emit(definition, 'beforeUpdate', DS.utils.merge({}, attrs));
+        }
         return DS.adapters[options.adapter || definition.defaultAdapter].updateAll(definition, options.serialize ? options.serialize(resourceName, attrs) : definition.serialize(resourceName, attrs), params, options);
       })
       .then(function (res) {
@@ -118,7 +124,9 @@ function updateAll(resourceName, attrs, params, options) {
         return func.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        DS.notify(definition, 'afterUpdate', DS.utils.merge({}, attrs));
+        if (options.notify) {
+          DS.emit(definition, 'afterUpdate', DS.utils.merge({}, attrs));
+        }
         if (options.cacheResponse) {
           return DS.inject(definition.name, attrs, options);
         } else {

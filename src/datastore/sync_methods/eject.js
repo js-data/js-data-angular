@@ -31,7 +31,7 @@ function _eject(definition, resource, id, options) {
     resource.collectionModified = this.utils.updateTimestamp(resource.collectionModified);
 
     if (options.notify) {
-      this.notify(definition, 'eject', item);
+      this.emit(definition, 'eject', item);
     }
 
     return item;
@@ -72,6 +72,7 @@ function _eject(definition, resource, id, options) {
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item to eject.
+ * @param {object=} options Optional configuration.
  * @returns {object} A reference to the item that was ejected from the data store.
  */
 function eject(resourceName, id, options) {
@@ -89,7 +90,7 @@ function eject(resourceName, id, options) {
   var ejected;
 
   if (!('notify' in options)) {
-    options.notify = true;
+    options.notify = definition.notify;
   }
 
   if (!DS.$rootScope.$$phase) {

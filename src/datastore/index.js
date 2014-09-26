@@ -193,6 +193,7 @@ Defaults.prototype.keepChangeHistory = false;
 Defaults.prototype.resetHistoryOnInject = true;
 Defaults.prototype.eagerInject = false;
 Defaults.prototype.eagerEject = false;
+Defaults.prototype.notify = true;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.beforeValidate
@@ -658,7 +659,7 @@ function DSProvider() {
        * See the [guide](/documentation/guide/overview/index).
        */
       var DS = {
-        notify: function (definition, event) {
+        emit: function (definition, event) {
           var args = Array.prototype.slice.call(arguments, 2);
           args.unshift(definition.name);
           args.unshift('DS.' + event);

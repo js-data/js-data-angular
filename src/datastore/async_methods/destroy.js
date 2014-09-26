@@ -73,13 +73,19 @@ function destroy(resourceName, id, options) {
       options.eagerEject = definition.eagerEject;
     }
 
+    if (!('notify' in options)) {
+      options.notify = definition.notify;
+    }
+
     return deferred.promise
       .then(function (attrs) {
         var func = options.beforeDestroy ? DS.$q.promisify(options.beforeDestroy) : definition.beforeDestroy;
         return func.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        DS.notify(definition, 'beforeDestroy', DS.utils.merge({}, attrs));
+        if (options.notify) {
+          DS.emit(definition, 'beforeDestroy', DS.utils.merge({}, attrs));
+        }
         if (options.eagerEject) {
           DS.eject(resourceName, id);
         }
@@ -90,7 +96,9 @@ function destroy(resourceName, id, options) {
         return func.call(item, resourceName, item);
       })
       .then(function () {
-        DS.notify(definition, 'afterDestroy', DS.utils.merge({}, item));
+        if (options.notify) {
+          DS.emit(definition, 'afterDestroy', DS.utils.merge({}, item));
+        }
         DS.eject(resourceName, id);
         return id;
       }).catch(function (err) {

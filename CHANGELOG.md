@@ -1,4 +1,4 @@
-##### 1.0.0-rc.2 - 21 September 2014
+##### 1.0.0-rc.2 - 25 September 2014
 
 ###### Backwards compatible API changes
 - #145 - Add "useClass" option to inject, find, findAll, create
@@ -16,6 +16,7 @@
 - #185 - eagerInject/eagerEject should default to definition's options
 - #186 - eagerInject doesn't add the model to the list after HTTP success
 - #187 - Proxy some static methods to instance methods
+- Made the `notify` option configurable globally and per-resource
 
 ###### Backwards compatible bug fixes
 - #156 - cached findAll pending query doesn't get removed sometimes

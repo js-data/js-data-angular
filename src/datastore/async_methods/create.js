@@ -80,6 +80,10 @@ function create(resourceName, attrs, options) {
       options.eagerInject = definition.eagerInject;
     }
 
+    if (!('notify' in options)) {
+      options.notify = definition.notify;
+    }
+
     deferred.resolve(attrs);
 
     if (options.upsert && attrs[definition.idAttribute]) {
@@ -103,7 +107,9 @@ function create(resourceName, attrs, options) {
           return func.call(attrs, resourceName, attrs);
         })
         .then(function (attrs) {
-          DS.notify(definition, 'beforeCreate', DS.utils.merge({}, attrs));
+          if (options.notify) {
+            DS.emit(definition, 'beforeCreate', DS.utils.merge({}, attrs));
+          }
           if (options.eagerInject && options.cacheResponse) {
             attrs[definition.idAttribute] = attrs[definition.idAttribute] || DS.utils.guid();
             injected = DS.inject(resourceName, attrs);
@@ -116,7 +122,9 @@ function create(resourceName, attrs, options) {
           return func.call(attrs, resourceName, attrs);
         })
         .then(function (attrs) {
-          DS.notify(definition, 'afterCreate', DS.utils.merge({}, attrs));
+          if (options.notify) {
+            DS.emit(definition, 'afterCreate', DS.utils.merge({}, attrs));
+          }
           if (options.cacheResponse) {
             var resource = DS.store[resourceName];
             if (options.eagerInject) {

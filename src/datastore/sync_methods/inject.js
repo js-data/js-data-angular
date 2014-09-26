@@ -1,12 +1,24 @@
 var observe = require('../../../lib/observe-js/observe-js');
 var _compute = require('./compute')._compute;
-var stack = 0;
-var data = {
-  injectedSoFar: {}
-};
 
 function errorPrefix(resourceName) {
   return 'DS.inject(' + resourceName + ', attrs[, options]): ';
+}
+
+function _injectRelations(definition, injected, options) {
+  var DS = this;
+
+  DS.utils.forEach(definition.relationList, function (def) {
+    var relationName = def.relation;
+    var relationDef = DS.definitions[relationName];
+    if (relationDef && injected[def.localField]) {
+      try {
+        injected[def.localField] = DS.inject(relationName, injected[def.localField], options);
+      } catch (err) {
+        DS.$log.error(errorPrefix(definition.name) + 'Failed to inject ' + def.type + ' relation: "' + relationName + '"!', err);
+      }
+    }
+  });
 }
 
 function _inject(definition, resource, attrs, options) {
@@ -160,18 +172,14 @@ function _inject(definition, resource, attrs, options) {
   return injected;
 }
 
-function _injectRelations(definition, injected, options) {
+function _link(definition, injected, options) {
   var DS = this;
 
   DS.utils.forEach(definition.relationList, function (def) {
-    var relationName = def.relation;
-    var relationDef = DS.definitions[relationName];
-    if (relationDef && injected[def.localField]) {
-      try {
-        injected[def.localField] = DS.inject(relationName, injected[def.localField], options);
-      } catch (err) {
-        DS.$log.error(errorPrefix(definition.name) + 'Failed to inject ' + def.type + ' relation: "' + relationName + '"!', err);
-      }
+    if (options.findBelongsTo && def.type === 'belongsTo' && injected[definition.idAttribute]) {
+      DS.link(definition.name, injected[definition.idAttribute], [def.relation]);
+    } else if ((options.findHasMany && def.type === 'hasMany') || (options.findHasOne && def.type === 'hasOne')) {
+      DS.link(definition.name, injected[definition.idAttribute], [def.relation]);
     }
   });
 }
@@ -249,51 +257,40 @@ function inject(resourceName, attrs, options) {
   var resource = DS.store[resourceName];
   var injected;
 
-  try {
-    if (!('useClass' in options)) {
-      options.useClass = definition.useClass;
-    }
-    if (!DS.$rootScope.$$phase) {
-      DS.$rootScope.$apply(function () {
-        injected = _inject.call(DS, definition, resource, attrs, options);
-      });
-    } else {
-      injected = _inject.call(DS, definition, resource, attrs, options);
-    }
-
-    if (options.linkInverse) {
-      if (DS.utils.isArray(injected) && injected.length) {
-        DS.linkInverse(definition.name, injected[0][definition.idAttribute]);
-      } else {
-        DS.linkInverse(definition.name, injected[definition.idAttribute]);
-      }
-    }
-
-    if (DS.utils.isArray(injected)) {
-      DS.utils.forEach(injected, function (injectedI) {
-        DS.utils.forEach(definition.relationList, function (def) {
-          if (options.findBelongsTo && def.type === 'belongsTo' && injectedI[definition.idAttribute]) {
-            DS.link(definition.name, injectedI[definition.idAttribute], [def.relation]);
-          } else if ((options.findHasMany && def.type === 'hasMany') || (options.findHasOne && def.type === 'hasOne')) {
-            DS.link(definition.name, injectedI[definition.idAttribute], [def.relation]);
-          }
-        });
-      });
-    } else {
-      DS.utils.forEach(definition.relationList, function (def) {
-        if (options.findBelongsTo && def.type === 'belongsTo' && injected[definition.idAttribute]) {
-          DS.link(definition.name, injected[definition.idAttribute], [def.relation]);
-        } else if ((options.findHasMany && def.type === 'hasMany') || (options.findHasOne && def.type === 'hasOne')) {
-          DS.link(definition.name, injected[definition.idAttribute], [def.relation]);
-        }
-      });
-    }
-
-    DS.notify(definition, 'inject', injected);
-
-  } catch (err) {
-    throw err;
+  if (!('useClass' in options)) {
+    options.useClass = definition.useClass;
   }
+  if (!('notify' in options)) {
+    options.notify = definition.notify;
+  }
+  if (!DS.$rootScope.$$phase) {
+    DS.$rootScope.$apply(function () {
+      injected = _inject.call(DS, definition, resource, attrs, options);
+    });
+  } else {
+    injected = _inject.call(DS, definition, resource, attrs, options);
+  }
+
+  if (options.linkInverse) {
+    if (DS.utils.isArray(injected) && injected.length) {
+      DS.linkInverse(definition.name, injected[0][definition.idAttribute]);
+    } else {
+      DS.linkInverse(definition.name, injected[definition.idAttribute]);
+    }
+  }
+
+  if (DS.utils.isArray(injected)) {
+    DS.utils.forEach(injected, function (injectedI) {
+      _link.call(DS, definition, injectedI, options);
+    });
+  } else {
+    _link.call(DS, definition, injected, options);
+  }
+
+  if (options.notify) {
+    DS.emit(definition, 'inject', injected);
+  }
+
 
   return injected;
 }

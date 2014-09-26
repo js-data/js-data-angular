@@ -2,7 +2,7 @@ function errorPrefix(resourceName) {
   return 'DS.ejectAll(' + resourceName + '[, params]): ';
 }
 
-function _ejectAll(definition, resource, params) {
+function _ejectAll(definition, resource, params, options) {
   var DS = this;
   var queryHash = DS.utils.toJson(params);
   var items = DS.filter(definition.name, params);
@@ -15,7 +15,9 @@ function _ejectAll(definition, resource, params) {
   delete resource.completedQueries[queryHash];
   resource.collectionModified = DS.utils.updateTimestamp(resource.collectionModified);
 
-  DS.notify(definition, 'eject', items);
+  if (options.notify) {
+    DS.emit(definition, 'eject', items);
+  }
 
   return items;
 }
@@ -79,12 +81,15 @@ function _ejectAll(definition, resource, params) {
  *  - `{number=}` - `offset` - Same as skip.
  *  - `{string|array=}` - `orderBy` - OrderBy clause.
  *
+ * @param {object=} options Optional configuration.
+ *
  * @returns {array} The items that were ejected from the data store.
  */
-function ejectAll(resourceName, params) {
+function ejectAll(resourceName, params, options) {
   var DS = this;
   var definition = DS.definitions[resourceName];
   params = params || {};
+  options = options || {};
 
   if (!definition) {
     throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
@@ -98,12 +103,16 @@ function ejectAll(resourceName, params) {
     resource.completedQueries = {};
   }
 
+  if (!('notify' in options)) {
+    options.notify = definition.notify;
+  }
+
   if (!DS.$rootScope.$$phase) {
     DS.$rootScope.$apply(function () {
-      ejected = _ejectAll.call(DS, definition, resource, params);
+      ejected = _ejectAll.call(DS, definition, resource, params, options);
     });
   } else {
-    ejected = _ejectAll.call(DS, definition, resource, params);
+    ejected = _ejectAll.call(DS, definition, resource, params, options);
   }
 
   return ejected;
