@@ -194,7 +194,7 @@ angular.module('myApp', ['angular-data.DS'])
       name: 'post',
 
       // Local definition, overrides the global definition
-      beforeCreate = function (resourceName, attrs, cb) {
+      beforeCreate: function (resourceName, attrs, cb) {
         console.log('beforeCreate defined for ' + resourceName);
         cb(null, attrs);
       }
