@@ -65,11 +65,11 @@ DSProvider.defaults.filter = function (collection, resourceName, params, options
   // examine params and
   // decide whether to exclude items, skip items, start from an offset, or sort the items
   
-  // see the [default implementation that ships with angular-data](https://github.com/jmdobry/angular-data/blob/master/src/datastore/index.js#L12) 
+  // see the [default implementation that ships with js-data-angular](https://github.com/js-data/js-data-angular/blob/master/src/datastore/index.js#L12) 
   // overriding this method is useful when our server only understands a certain
-  // params format and you want angular-data's filter to behave the same as your server
+  // params format and you want js-data-angular's filter to behave the same as your server
   
-  // angular-data looks for the following fields:
+  // js-data-angular looks for the following fields:
   // - where
   // - skip (or offset)
   // - limit
@@ -90,7 +90,7 @@ DSHttpAdapter.defaults.queryTransform = function (resourceName, query) {
 ###### After
 ```javascript
 // This is useful when you don't want to implement the filter method above
-// and instead rely on angular-data's expectation of where, skip, limit, orderBy, etc.
+// and instead rely on js-data-angular's expectation of where, skip, limit, orderBy, etc.
 // This transform is useful when you want to change the where, skip, limit, orderBy, etc. fields
 // into something your server understands.
 DSHttpAdapter.defaults.queryTransform = function (resourceName, params) {

@@ -1,3 +1,8 @@
+##### 2.0.0-alpha.1-0 - xx October 2014
+
+###### Breaking API changes
+- Refactored to be a wrapper for [js-data](https://github.com/js-data/js-data)
+
 ##### 1.0.0-rc.2-1 - 25 September 2014
 
 ###### Backwards compatible bug fixes
@@ -120,7 +125,7 @@
 
 ###### Backwards compatible bug fixes
 - #90 - DS.create isn't added to completedQueries (`DS.create` now adds a completed query entry)
-- #91 - dist/angular-data(.min).js doesn't end with a semicolon (upgraded Browserify)
+- #91 - dist/js-data-angular(.min).js doesn't end with a semicolon (upgraded Browserify)
 - #94 - Resource object name/class inconsistency (added `useClass` option to `DS.defineResource`)
 - #95 - observe-js outdated (Upgraded observe-js.js an refactored to new API)
 - #98 - Missing id warning
@@ -143,8 +148,8 @@ Official Release
 ##### 0.10.0-beta.1 - 28 June 2014
 
 ###### Breaking API changes
-- #76 - Queries and filtering. See [TRANSITION.md](https://github.com/jmdobry/angular-data/blob/master/TRANSITION.md).
-- #82 - Simplify error handling. Reduced size of angular-data.min.js by 4kb.
+- #76 - Queries and filtering. See [TRANSITION.md](https://github.com/js-data/js-data-angular/blob/master/TRANSITION.md).
+- #82 - Simplify error handling. Reduced size of js-data-angular.min.js by 4kb.
 - #42 - Relations/Associations. `DS.inject` now looks for relations and injects them as well.
 
 ###### Backwards compatible API changes
@@ -253,7 +258,7 @@ Developers can provide their own more robust filters for more powerful queries.
 - #3 - Pluggable async adapters
 
 ###### Backwards API changes
-- #2 - angular-data query language
+- #2 - js-data-angular query language
 - #4 - Query caching
 - #17 - Where predicates should be able to handle OR, not just AND
 - #22 - Reorganize infrastructure to utilize angular's DI
@@ -266,7 +271,7 @@ Developers can provide their own more robust filters for more powerful queries.
 - #7 - Model lifecycle hooks
 
 ###### Backwards compatible bug fixes
-- #19 - Null pointer exception in several places where angular-data tries to use the $q service
+- #19 - Null pointer exception in several places where js-data-angular tries to use the $q service
 
 ##### Other
 - #15 - Integration test coverage
