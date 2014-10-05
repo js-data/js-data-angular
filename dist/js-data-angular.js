@@ -121,15 +121,17 @@
 
         for (i = 0; i < functionsToWrap.length; i++) {
           originals[functionsToWrap[i]] = store[functionsToWrap[i]];
-          store[functionsToWrap[i]] = function () {
-            var args = arguments;
-            if (!$rootScope.$$phase) {
-              return $rootScope.$apply(function () {
-                return originals[functionsToWrap[i]].apply(store, args);
-              });
-            }
-            return originals[functionsToWrap[i]].apply(store, args);
-          };
+          store[functionsToWrap[i]] = (function (name) {
+            return function () {
+              var args = arguments;
+              if (!$rootScope.$$phase) {
+                return $rootScope.$apply(function () {
+                  return originals[name].apply(store, args);
+                });
+              }
+              return originals[name].apply(store, args);
+            };
+          })(functionsToWrap[i]);
         }
 
         return store;
