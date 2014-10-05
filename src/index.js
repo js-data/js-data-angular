@@ -6,7 +6,7 @@
    * @id angular-data
    * @name angular-data
    * @description
-   * __Version:__ 1.0.0-rc.1
+   * __Version:__ 1.0.0
    *
    * ## Install
    *

@@ -644,8 +644,7 @@ function DSProvider() {
       try {
         cache = angular.injector(['angular-data.DSCacheFactory']).get('DSCacheFactory');
       } catch (err) {
-        $log.warn(err);
-        $log.warn('DSCacheFactory is unavailable. Resorting to the lesser capabilities of $cacheFactory.');
+        $log.debug('DSCacheFactory is unavailable. Resorting to the lesser capabilities of $cacheFactory.');
         cache = angular.injector(['ng']).get('$cacheFactory');
       }
 

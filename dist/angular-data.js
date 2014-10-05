@@ -1,7 +1,7 @@
 /**
 * @author Jason Dobry <jason.dobry@gmail.com>
 * @file angular-data.js
-* @version 1.0.0-rc.2-1 - Homepage <http://angular-data.pseudobry.com/>
+* @version 1.0.0 - Homepage <http://angular-data.pseudobry.com/>
 * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>
 * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
 *
@@ -4720,8 +4720,7 @@ function DSProvider() {
       try {
         cache = angular.injector(['angular-data.DSCacheFactory']).get('DSCacheFactory');
       } catch (err) {
-        $log.warn(err);
-        $log.warn('DSCacheFactory is unavailable. Resorting to the lesser capabilities of $cacheFactory.');
+        $log.debug('DSCacheFactory is unavailable. Resorting to the lesser capabilities of $cacheFactory.');
         cache = angular.injector(['ng']).get('$cacheFactory');
       }
 
@@ -6384,7 +6383,10 @@ function _injectRelations(definition, injected, options) {
   DS.utils.forEach(definition.relationList, function (def) {
     var relationName = def.relation;
     var relationDef = DS.definitions[relationName];
-    if (relationDef && injected[def.localField]) {
+    if (injected[def.localField]) {
+      if (!relationDef) {
+        throw new DS.errors.R(definition.name + 'relation is defined but the resource is not!');
+      }
       try {
         injected[def.localField] = DS.inject(relationName, injected[def.localField], options);
       } catch (err) {
@@ -7410,7 +7412,7 @@ module.exports = [function () {
    * @id angular-data
    * @name angular-data
    * @description
-   * __Version:__ 1.0.0-rc.1
+   * __Version:__ 1.0.0
    *
    * ## Install
    *
