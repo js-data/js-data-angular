@@ -4,6 +4,9 @@
 
 Angular wrapper for [js-data](http://www.js-data.io/js-data).
 
+#### What about Angular-data?
+Documentation for Angular-data 1.x can be found at [angular-data.pseudobry.com](http://angular-data.pseudobry.com).
+
 ## API Documentation
 [DS](https://github.com/js-data/js-data/wiki/DS)
 
@@ -22,12 +25,14 @@ Angular wrapper for [js-data](http://www.js-data.io/js-data).
 | Coverage | [![Coverage Status](https://coveralls.io/repos/js-data/js-data-angular/badge.png?branch=master)](https://coveralls.io/r/js-data/js-data-angular?branch=master) |
 
 ## Quick Start
-`bower install --save js-data js-data-angular` or `npm install --save js-data js-data-angular`.
+`bower install --save js-data js-data-http js-data-angular` or `npm install --save js-data js-data-http js-data-angular`.
 
-Load `js-data-angular.js` after `js-data.js`.
+Load `js-data-angular.js` after `js-data.js` and `js-data-http`.
+
+__Note:__ You only have to use `js-data-http` if you want to use the `DSHttpAdapter`.
 
 ```js
-angular.module('myApp', ['js-data']);
+angular.module('myApp', ['js-data', 'js-data-http']);
 ```
 
 ```js
