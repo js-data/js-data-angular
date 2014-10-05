@@ -1,3 +1,4 @@
+/*jshint loopfunc:true*/
 (function (window, angular, undefined) {
   'use strict';
 
@@ -6,6 +7,21 @@
       project: 'js-data-http',
       name: 'http',
       class: 'DSHttpAdapter'
+    },
+    {
+      project: 'js-data-localstorage',
+      name: 'localstorage',
+      class: 'DSLocalStorageAdapter'
+    },
+    {
+      project: 'js-data-localforage',
+      name: 'localforage',
+      class: 'DSLocalForageAdapter'
+    },
+    {
+      project: 'js-data-firebase',
+      name: 'firebase',
+      class: 'DSFirebaseAdapter'
     }
   ];
 
@@ -24,7 +40,7 @@
 
     if (Adapter) {
       adapter.loaded = true;
-      angular.module(adapter.project, ['ng']).provider(adapter.class + 'Provider', function () {
+      angular.module(adapter.project, ['ng']).provider(adapter.class, function () {
         var _this = this;
         _this.defaults = {};
         _this.$get = [function () {
@@ -54,6 +70,17 @@
     throw new Error('js-data must be loaded!');
   }
 
+  var functionsToWrap = [
+    'compute',
+    'digest',
+    'eject',
+    'inject',
+    'link',
+    'linkAll',
+    'linkInverse',
+    'unlinkInverse'
+  ];
+
   angular.module('js-data', ['ng'])
     .factory('DSUtils', JSData.DSUtils)
     .factory('DSErrors', JSData.DSErrors)
@@ -70,8 +97,11 @@
 
       _this.defaults = {};
 
-      deps.push(function () {
+      function load() {
+        var args = Array.prototype.slice.call(arguments);
+        var $rootScope = args[args.length - 1];
         var store = new JSData.DS(_this.defaults);
+        var originals = {};
 
         for (var i = 0; i < adapters.length; i++) {
           if (adapters[i].loaded) {
@@ -79,8 +109,24 @@
           }
         }
 
-        return new JSData.DS(_this.defaults);
-      });
+        for (i = 0; i < functionsToWrap.length; i++) {
+          originals[functionsToWrap[i]] = store[functionsToWrap[i]];
+          store[functionsToWrap[i]] = function () {
+            var args = arguments;
+            if (!$rootScope.$$phase) {
+              return $rootScope.$apply(function () {
+                return originals[functionsToWrap[i]].apply(store, args);
+              });
+            }
+            return originals[functionsToWrap[i]].apply(store, args);
+          };
+        }
+
+        return store;
+      }
+
+      deps.push('$rootScope');
+      deps.push(load);
 
       _this.$get = deps;
     });

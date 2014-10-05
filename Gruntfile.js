@@ -80,11 +80,11 @@ module.exports = function (grunt) {
     var banner = '/**\n' +
       '* @author Jason Dobry <jason.dobry@gmail.com>\n' +
       '* @file js-data-angular.js\n' +
-      '* @version ' + pkg.version + ' - Homepage <http://js-data-angular.pseudobry.com/>\n' +
+      '* @version ' + pkg.version + ' - Homepage <http://www.js-data.io/js-data-angular/>\n' +
       '* @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>\n' +
       '* @license MIT <https://github.com/js-data/js-data-angular/blob/master/LICENSE>\n' +
       '*\n' +
-      '* @overview Data store for Angular.js.\n' +
+      '* @overview Angular wrapper for js-data.js.\n' +
       '*/\n';
 
     file = banner + file;
