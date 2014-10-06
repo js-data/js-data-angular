@@ -97,6 +97,8 @@
     .provider('DS', function () {
 
       var _this = this;
+      var DSUtils = JSData.DSUtils;
+      var DSErrors = JSData.DSErrors;
       var deps = [];
 
       for (var i = 0; i < adapters.length; i++) {
@@ -107,18 +109,87 @@
 
       _this.defaults = {};
 
+      JSData.DS.prototype.bindAll = function (scope, expr, resourceName, params, cb) {
+        var _this = this;
+
+        params = params || {};
+
+        if (!DSUtils.isObject(scope)) {
+          throw new DSErrors.IA('"scope" must be an object!');
+        } else if (!DSUtils.isString(expr)) {
+          throw new DSErrors.IA('"expr" must be a string!');
+        } else if (!_this.definitions[resourceName]) {
+          throw new DSErrors.NER(resourceName);
+        } else if (!DSUtils.isObject(params)) {
+          throw new DSErrors.IA('"params" must be an object!');
+        }
+
+        try {
+          return scope.$watch(function () {
+            return _this.lastModified(resourceName);
+          }, function () {
+            var items = _this.filter(resourceName, params);
+            DSUtils.set(scope, expr, items);
+            if (cb) {
+              cb(null, items);
+            }
+          });
+        } catch (err) {
+          if (cb) {
+            cb(err);
+          } else {
+            throw err;
+          }
+        }
+      };
+
+      JSData.DS.prototype.bindAll = function (scope, expr, resourceName, id, cb) {
+        var _this = this;
+
+        id = DSUtils.resolveId(_this.definitions[resourceName], id);
+        if (!DSUtils.isObject(scope)) {
+          throw new DSErrors.IA('"scope" must be an object!');
+        } else if (!DSUtils.isString(expr)) {
+          throw new DSErrors.IA('"expr" must be a string!');
+        } else if (!DS.definitions[resourceName]) {
+          throw new DSErrors.NER(resourceName);
+        } else if (!DSUtils.isString(id) && !DSUtils.isNumber(id)) {
+          throw new DSErrors.IA('"id" must be a string or a number!');
+        }
+
+        try {
+          return scope.$watch(function () {
+            return _this.lastModified(resourceName, id);
+          }, function () {
+            var item = _this.get(resourceName, id);
+            DSUtils.set(scope, expr, item);
+            if (cb) {
+              cb(null, item);
+            }
+          });
+        } catch (err) {
+          if (cb) {
+            cb(err);
+          } else {
+            throw err;
+          }
+        }
+      };
+
       function load() {
         var args = Array.prototype.slice.call(arguments);
         var $rootScope = args[args.length - 1];
         var store = new JSData.DS(_this.defaults);
         var originals = {};
 
+        // Register any adapters that have been loaded
         for (var i = 0; i < adapters.length; i++) {
           if (adapters[i].loaded) {
             store.registerAdapter(adapters[i].name, arguments[i]);
           }
         }
 
+        // Wrap certain sync functions with $apply
         for (i = 0; i < functionsToWrap.length; i++) {
           originals[functionsToWrap[i]] = store[functionsToWrap[i]];
           store[functionsToWrap[i]] = (function (name) {
@@ -132,6 +203,17 @@
               return originals[name].apply(store, args);
             };
           })(functionsToWrap[i]);
+        }
+
+        // Hook into the digest loop (throttled)
+        if (typeof Object.observe !== 'function' ||
+          typeof Array.observe !== 'function') {
+          $rootScope.$watch(function () {
+            // Throttle angular-data's digest loop to tenths of a second
+            return new Date().getTime() / 100 | 0;
+          }, function () {
+            store.digest();
+          });
         }
 
         return store;
