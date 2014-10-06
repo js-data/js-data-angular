@@ -3,6 +3,10 @@
 ###### Breaking API changes
 - Refactored to be a wrapper for [js-data](https://github.com/js-data/js-data)
 
+###### Other
+- #199 - Re-implement bindOne & bindAll in js-data-angular (they're missing from js-data)
+- #200 - Need to properly trigger digest where angular-data would have before
+
 ##### 1.0.0 - 04 October 2014
 
 Stable Version 1.0.0
