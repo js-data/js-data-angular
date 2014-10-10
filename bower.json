@@ -2,7 +2,7 @@
   "author": "Jason Dobry",
   "name": "angular-data",
   "description": "Data store for Angular.js.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "homepage": "http://angular-data.pseudobry.com/",
   "repository": {
     "type": "git",

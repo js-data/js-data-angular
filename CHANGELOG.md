@@ -1,3 +1,8 @@
+##### 1.0.1 - 10 October 2014
+
+###### Backwards compatible bug fixes
+- #204 - pending query isn't deleted properly in DS.find
+
 ##### 1.0.0 - 04 October 2014
 
 Stable Version 1.0.0

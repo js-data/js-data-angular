@@ -1,7 +1,7 @@
 /**
 * @author Jason Dobry <jason.dobry@gmail.com>
 * @file angular-data.js
-* @version 1.0.0 - Homepage <http://angular-data.pseudobry.com/>
+* @version 1.0.1 - Homepage <http://angular-data.pseudobry.com/>
 * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>
 * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
 *
@@ -3096,9 +3096,9 @@ function find(resourceName, id, options) {
         promise = resource.pendingQueries[id] = DS.adapters[options.adapter || definition.defaultAdapter].find(definition, id, options)
           .then(function (res) {
             var data = options.deserialize ? options.deserialize(resourceName, res) : definition.deserialize(resourceName, res);
+            // Query is no longer pending
+            delete resource.pendingQueries[id];
             if (options.cacheResponse) {
-              // Query is no longer pending
-              delete resource.pendingQueries[id];
               resource.completedQueries[id] = new Date().getTime();
               return DS.inject(resourceName, data, options);
             } else {
@@ -7412,7 +7412,7 @@ module.exports = [function () {
    * @id angular-data
    * @name angular-data
    * @description
-   * __Version:__ 1.0.0
+   * __Version:__ 1.0.1
    *
    * ## Install
    *
