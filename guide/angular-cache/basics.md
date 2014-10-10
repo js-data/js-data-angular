@@ -80,12 +80,12 @@ angular.module('app', ['angular-data.DSCacheFactory'])
 
         DSCacheFactoryProvider.setCacheDefaults({
             maxAge: 3600000,
-                deleteOnExpire: 'aggressive',
-                onExpire: function (key, value) {
-                    $http.get(key).success(function (data) {
-                        profileCache.put(key, data);
-                    });
-                }
+            deleteOnExpire: 'aggressive',
+            onExpire: function (key, value) {
+                $http.get(key).success(function (data) {
+                    profileCache.put(key, data);
+                });
+            }
         });
     });
 ```
