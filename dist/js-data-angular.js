@@ -92,8 +92,8 @@
   ];
 
   angular.module('js-data', ['ng'])
-    .factory('DSUtils', JSData.DSUtils)
-    .factory('DSErrors', JSData.DSErrors)
+    .value('DSUtils', JSData.DSUtils)
+    .value('DSErrors', JSData.DSErrors)
     .provider('DS', function () {
 
       var _this = this;
