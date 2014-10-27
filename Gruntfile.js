@@ -35,14 +35,14 @@ module.exports = function (grunt) {
       main: {
         options: {
           banner: '/**\n' +
-            '* @author Jason Dobry <jason.dobry@gmail.com>\n' +
-            '* @file js-data-angular.min.js\n' +
-            '* @version <%= pkg.version %> - Homepage <https://www.js-data.io/js-data-angular/>\n' +
-            '* @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>\n' +
-            '* @license MIT <https://github.com/js-data/js-data-angular/blob/master/LICENSE>\n' +
-            '*\n' +
-            '* @overview Angular wrapper for js-data.\n' +
-            '*/\n'
+          '* @author Jason Dobry <jason.dobry@gmail.com>\n' +
+          '* @file js-data-angular.min.js\n' +
+          '* @version <%= pkg.version %> - Homepage <https://www.js-data.io/js-data-angular/>\n' +
+          '* @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>\n' +
+          '* @license MIT <https://github.com/js-data/js-data-angular/blob/master/LICENSE>\n' +
+          '*\n' +
+          '* @overview Angular wrapper for js-data.\n' +
+          '*/\n'
         },
         files: {
           'dist/js-data-angular.min.js': ['dist/js-data-angular.js']
@@ -62,6 +62,39 @@ module.exports = function (grunt) {
         files: {
           'dist/js-data-angular.js': ['src/index.js']
         }
+      }
+    },
+    karma: {
+      options: {
+        configFile: './karma.conf.js'
+      },
+      dev: {
+        browsers: ['Chrome'],
+        autoWatch: true,
+        singleRun: false,
+        reporters: ['spec'],
+        preprocessors: {}
+      },
+      min: {
+        browsers: ['Firefox', 'PhantomJS'],
+        options: {
+          files: [
+            'bower_components/angular-1.3.2/angular.js',
+            'bower_components/angular-mocks-1.3.2/angular-mocks.js',
+            'bower_components/js-data/dist/js-data.js',
+            'dist/js-data-angular.min.js',
+            'karma.start.js',
+            'test/**/*.js'
+          ]
+        }
+      },
+      ci: {
+        browsers: ['Firefox', 'PhantomJS']
+      }
+    },
+    coveralls: {
+      options: {
+        coverage_dir: 'coverage'
       }
     }
   });
@@ -101,4 +134,5 @@ module.exports = function (grunt) {
   ]);
   grunt.registerTask('go', ['build', 'watch:dist']);
   grunt.registerTask('default', ['build']);
+  grunt.registerTask('test', ['build', 'karma:min']);
 };

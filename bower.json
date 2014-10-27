@@ -1,12 +1,12 @@
 {
   "author": "Jason Dobry",
   "name": "js-data-angular",
-  "description": "Angular wrapper for js-data.",
-  "version": "2.0.0-alpha.1-0",
+  "description": "Angular wrapper for js-data (originally angular-data).",
+  "version": "2.0.0-alpha.2-0",
   "homepage": "http://www.js-data.io/js-data-angular",
   "repository": {
     "type": "git",
-    "url": "git://github.com/js-data/js-data-angular.git"
+    "url": "https://github.com/js-data/js-data-angular.git"
   },
   "main": "./dist/js-data-angular.min.js",
   "ignore": [
@@ -18,7 +18,20 @@
     "node_modules/",
     "package.json"
   ],
+  "devDependencies": {
+    "angular-1.1.5": "angular-unstable#1.1.5",
+    "angular-1.2.16": "angular#1.2.16",
+    "angular-1.2.25": "angular#1.2.25",
+    "angular-1.3.2": "angular#1.3.2",
+    "angular-mocks-1.1.5": "angular-mocks-unstable#1.1.5",
+    "angular-mocks-1.2.16": "angular-mocks#1.2.16",
+    "angular-mocks-1.2.25": "angular-mocks#1.2.25",
+    "angular-mocks-1.3.2": "angular-mocks#1.3.2"
+  },
   "dependencies": {
-    "js-data": "~0.4.x"
+    "js-data": "~1.0.x"
+  },
+  "resolutions": {
+    "angular": "1.3.2"
   }
 }
