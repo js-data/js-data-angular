@@ -1,3 +1,5 @@
+var DSErrors = require('./errors');
+
 function Events(target) {
   var events = {};
   target = target || this;
@@ -42,7 +44,19 @@ function Events(target) {
   };
 }
 
-module.exports = [function () {
+var toPromisify = [
+  'beforeValidate',
+  'validate',
+  'afterValidate',
+  'beforeCreate',
+  'afterCreate',
+  'beforeUpdate',
+  'afterUpdate',
+  'beforeDestroy',
+  'afterDestroy'
+];
+
+module.exports = ['$q', function ($q) {
   return {
     isBoolean: require('mout/lang/isBoolean'),
     isString: angular.isString,
@@ -57,6 +71,7 @@ module.exports = [function () {
     upperCase: require('mout/string/upperCase'),
     pascalCase: require('mout/string/pascalCase'),
     deepMixIn: require('mout/object/deepMixIn'),
+    mixIn: require('mout/object/mixIn'),
     forEach: angular.forEach,
     pick: require('mout/object/pick'),
     set: require('mout/object/set'),
@@ -69,6 +84,25 @@ module.exports = [function () {
     sort: require('mout/array/sort'),
     guid: require('mout/random/guid'),
     keys: require('mout/object/keys'),
+    _: function (parent, options) {
+      var _this = this;
+      options = options || {};
+      if (options && options.constructor === parent.constructor) {
+        return options;
+      } else if (!_this.isObject(options)) {
+        throw new DSErrors.IA('"options" must be an object!');
+      }
+      _this.forEach(toPromisify, function (name) {
+        if (typeof options[name] === 'function') {
+          options[name] = $q.promisify(options[name]);
+        }
+      });
+      var O = function Options(attrs) {
+        _this.mixIn(this, attrs);
+      };
+      O.prototype = parent;
+      return new O(options);
+    },
     resolveItem: function (resource, idOrInstance) {
       if (resource && (this.isString(idOrInstance) || this.isNumber(idOrInstance))) {
         return resource.index[idOrInstance] || idOrInstance;

@@ -1,3 +1,11 @@
+##### 1.1.0 - 30 October 2014
+
+###### Backwards compatible API changes
+- #214 - back port js-data/js-data#9
+
+###### Backwards compatible bug fixes
+- #215 - bower.json - angular not listed as non-dev dependency
+
 ##### 1.0.1 - 10 October 2014
 
 ###### Backwards compatible bug fixes

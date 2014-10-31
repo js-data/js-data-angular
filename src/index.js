@@ -6,8 +6,6 @@
    * @id angular-data
    * @name angular-data
    * @description
-   * __Version:__ 1.0.1
-   *
    * ## Install
    *
    * #### Bower

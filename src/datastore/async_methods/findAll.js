@@ -4,6 +4,7 @@ function errorPrefix(resourceName) {
 
 function processResults(data, resourceName, queryHash, options) {
   var DS = this;
+  var DSUtils = DS.utils;
   var resource = DS.store[resourceName];
   var idAttribute = DS.definitions[resourceName].idAttribute;
   var date = new Date().getTime();
@@ -15,13 +16,13 @@ function processResults(data, resourceName, queryHash, options) {
   resource.completedQueries[queryHash] = date;
 
   // Update modified timestamp of collection
-  resource.collectionModified = DS.utils.updateTimestamp(resource.collectionModified);
+  resource.collectionModified = DSUtils.updateTimestamp(resource.collectionModified);
 
   // Merge the new values into the cache
   var injected = DS.inject(resourceName, data, options);
 
   // Make sure each object is added to completedQueries
-  if (DS.utils.isArray(injected)) {
+  if (DSUtils.isArray(injected)) {
     angular.forEach(injected, function (item) {
       if (item && item[idAttribute]) {
         resource.completedQueries[item[idAttribute]] = date;
@@ -37,9 +38,10 @@ function processResults(data, resourceName, queryHash, options) {
 
 function _findAll(resourceName, params, options) {
   var DS = this;
+  var DSUtils = DS.utils;
   var definition = DS.definitions[resourceName];
   var resource = DS.store[resourceName];
-  var queryHash = DS.utils.toJson(params);
+  var queryHash = DSUtils.toJson(params);
 
   if (options.bypassCache || !options.cacheResponse) {
     delete resource.completedQueries[queryHash];
@@ -62,7 +64,7 @@ function _findAll(resourceName, params, options) {
               return DS.$q.reject(err);
             }
           } else {
-            DS.utils.forEach(data, function (item, i) {
+            DSUtils.forEach(data, function (item, i) {
               data[i] = DS.createInstance(resourceName, item, options);
             });
             return data;
@@ -142,7 +144,9 @@ function _findAll(resourceName, params, options) {
  */
 function findAll(resourceName, params, options) {
   var DS = this;
+  var DSUtils = DS.utils;
   var deferred = DS.$q.defer();
+  var definition = DS.definitions[resourceName];
 
   try {
     var IA = DS.errors.IA;
@@ -150,17 +154,15 @@ function findAll(resourceName, params, options) {
     options = options || {};
     params = params || {};
 
-    if (!DS.definitions[resourceName]) {
+    if (!definition) {
       throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
-    } else if (!DS.utils.isObject(params)) {
+    } else if (!DSUtils.isObject(params)) {
       throw new IA(errorPrefix(resourceName) + 'params: Must be an object!');
-    } else if (!DS.utils.isObject(options)) {
+    } else if (!DSUtils.isObject(options)) {
       throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
     }
 
-    if (!('cacheResponse' in options)) {
-      options.cacheResponse = true;
-    }
+    options = DSUtils._(definition, options);
 
     deferred.resolve();
 
