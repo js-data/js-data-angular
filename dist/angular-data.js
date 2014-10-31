@@ -6445,6 +6445,7 @@ function _inject(definition, resource, attrs, options) {
         definition.beforeInject(definition.name, attrs);
         var id = attrs[idA];
         var item = DS.get(definition.name, id);
+        var initialLastModified = item ? resource.modified[id] : 0;
 
         if (!item) {
           if (options.useClass) {
@@ -6493,6 +6494,7 @@ function _inject(definition, resource, attrs, options) {
           resource.observers[id].deliver();
         }
         resource.saved[id] = DS.utils.updateTimestamp(resource.saved[id]);
+        resource.modified[id] = initialLastModified && resource.modified[id] === initialLastModified ? DS.utils.updateTimestamp(resource.modified[id]) : resource.modified[id];
         definition.afterInject(definition.name, item);
         injected = item;
       } catch (err) {
@@ -6598,9 +6600,11 @@ function inject(resourceName, attrs, options) {
   if (!DS.$rootScope.$$phase) {
     DS.$rootScope.$apply(function () {
       injected = _inject.call(DS, definition, resource, attrs, options);
+      resource.collectionModified = DS.utils.updateTimestamp(resource.collectionModified);
     });
   } else {
     injected = _inject.call(DS, definition, resource, attrs, options);
+    resource.collectionModified = DS.utils.updateTimestamp(resource.collectionModified);
   }
 
   if (options.linkInverse) {

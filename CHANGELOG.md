@@ -1,3 +1,8 @@
+##### 1.1.1 - xx October 2014
+
+###### Backwards compatible bug fixes
+- #223 - need to update lastModified when an item is re-injected
+
 ##### 1.1.0 - 30 October 2014
 
 ###### Backwards compatible API changes

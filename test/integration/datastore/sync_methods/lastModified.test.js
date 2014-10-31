@@ -87,6 +87,27 @@ describe('DS.lastModified(resourceName[, id])', function () {
       }
     }, 100);
   });
+  it('should update the lastModified timestamp of an item when the item is re-injected', function (done) {
+
+    var Thing = DS.defineResource('thing');
+
+    var thing = Thing.inject({ id: 1, foo: 'bar', bing: { boom: 'bam' } });
+    var time = Thing.lastModified(1);
+
+    Thing.inject(thing);
+    if (typeof Object.observe !== 'function') {
+      Thing.digest();
+    }
+    setTimeout(function () {
+      try {
+        assert.notEqual(time, Thing.lastModified(1));
+        done();
+      } catch (e) {
+        console.log(e.stack);
+        done(e);
+      }
+    }, 100);
+  });
 //	it('should lastModified an item into the store', function (done) {
 //
 //		assert.equal(DS.lastModified('post', 5), 0);
