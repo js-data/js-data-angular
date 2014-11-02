@@ -196,6 +196,22 @@ Defaults.prototype.eagerEject = false;
 Defaults.prototype.notify = true;
 /**
  * @doc property
+ * @id DSProvider.properties:defaults.ignoredChanges
+ * @name defaults.ignoredChanges
+ * @description
+ * Array of strings or regular expressions which can be ignored when diffing two objects for changes
+ *
+ * ## Example:
+ * ```js
+ *  // ignore $ or _ prefixed changes
+ *  DSProvider.defaults.ignoreChanges = [/\$|\_/];
+ * ```
+ *
+ * @value {array} ignoredChanges Array of changes to ignore. Defaults to ignoring $ prefixed changes: [/\$/]
+ */
+Defaults.prototype.ignoredChanges = [/\$/];
+/**
+ * @doc property
  * @id DSProvider.properties:defaults.beforeValidate
  * @name defaults.beforeValidate
  * @description

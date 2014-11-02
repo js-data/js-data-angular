@@ -51,6 +51,7 @@ module.exports = [function () {
     isNumber: angular.isNumber,
     isFunction: angular.isFunction,
     isEmpty: require('mout/lang/isEmpty'),
+    isRegExp: require('mout/lang/isRegExp'),
     toJson: angular.toJson,
     fromJson: angular.fromJson,
     makePath: require('mout/string/makePath'),
@@ -63,6 +64,7 @@ module.exports = [function () {
     merge: require('mout/object/merge'),
     contains: require('mout/array/contains'),
     filter: require('mout/array/filter'),
+    find: require('mout/array/find'),
     toLookup: require('mout/array/toLookup'),
     remove: require('mout/array/remove'),
     slice: require('mout/array/slice'),
@@ -110,13 +112,22 @@ module.exports = [function () {
         }
       }
     },
-    diffObjectFromOldObject: function (object, oldObject) {
+    diffObjectFromOldObject: function (object, oldObject, blacklist) {
       var added = {};
       var removed = {};
       var changed = {};
+      var isBlacklisted = function (prop) {
+        if (!blacklist || !blacklist.length) return false;
+        var matches = this.find(blacklist, function (blItem) {
+          if ((this.isRegExp(blItem) && blItem.test(prop)) || blItem === prop) return prop;
+        }, this);
+        if (matches) return true; else return false;
+      };
 
       for (var prop in oldObject) {
         var newValue = object[prop];
+
+        if (isBlacklisted.call(this, prop)) continue;
 
         if (newValue !== undefined && newValue === oldObject[prop])
           continue;
@@ -133,6 +144,8 @@ module.exports = [function () {
       for (var prop2 in object) {
         if (prop2 in oldObject)
           continue;
+
+        if (isBlacklisted.call(this, prop2)) continue;
 
         added[prop2] = object[prop2];
       }
