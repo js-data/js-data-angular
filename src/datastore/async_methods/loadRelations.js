@@ -57,6 +57,7 @@ function errorPrefix(resourceName) {
  */
 function loadRelations(resourceName, instance, relations, options) {
   var DS = this;
+  var DSUtils = DS.utils;
   var deferred = DS.$q.defer();
 
   try {
@@ -65,7 +66,7 @@ function loadRelations(resourceName, instance, relations, options) {
 
     options = options || {};
 
-    if (angular.isString(instance) || angular.isNumber(instance)) {
+    if (DSUtils.isString(instance) || DSUtils.isNumber(instance)) {
       instance = DS.get(resourceName, instance);
     }
 
@@ -75,28 +76,29 @@ function loadRelations(resourceName, instance, relations, options) {
 
     if (!definition) {
       throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
-    } else if (!DS.utils.isObject(instance)) {
+    } else if (!DSUtils.isObject(instance)) {
       throw new IA(errorPrefix(resourceName) + 'instance(Id): Must be a string, number or object!');
-    } else if (!DS.utils.isArray(relations)) {
+    } else if (!DSUtils.isArray(relations)) {
       throw new IA(errorPrefix(resourceName) + 'relations: Must be a string or an array!');
-    } else if (!DS.utils.isObject(options)) {
+    } else if (!DSUtils.isObject(options)) {
       throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
     }
 
-    if (!('findBelongsTo' in options)) {
+    options = DSUtils._(definition, options);
+
+    if (!options.hasOwnProperty('findBelongsTo')) {
       options.findBelongsTo = true;
     }
-
-    if (!('findHasMany' in options)) {
+    if (!options.hasOwnProperty('findHasMany')) {
       options.findHasMany = true;
     }
 
     var tasks = [];
     var fields = [];
 
-    DS.utils.forEach(definition.relationList, function (def) {
+    DSUtils.forEach(definition.relationList, function (def) {
       var relationName = def.relation;
-      if (DS.utils.contains(relations, relationName)) {
+      if (DSUtils.contains(relations, relationName)) {
         var task;
         var params = {};
         params[def.foreignKey] = instance[definition.idAttribute];

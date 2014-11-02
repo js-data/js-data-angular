@@ -53,6 +53,7 @@ function errorPrefix(resourceName, id) {
  */
 function save(resourceName, id, options) {
   var DS = this;
+  var DSUtils = DS.utils;
   var deferred = DS.$q.defer();
 
   try {
@@ -61,12 +62,12 @@ function save(resourceName, id, options) {
 
     options = options || {};
 
-    id = DS.utils.resolveId(definition, id);
+    id = DSUtils.resolveId(definition, id);
     if (!definition) {
       throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
-    } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {
+    } else if (!DSUtils.isString(id) && !DSUtils.isNumber(id)) {
       throw new IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
-    } else if (!DS.utils.isObject(options)) {
+    } else if (!DSUtils.isObject(options)) {
       throw new IA(errorPrefix(resourceName, id) + 'options: Must be an object!');
     }
 
@@ -75,36 +76,26 @@ function save(resourceName, id, options) {
       throw new DS.errors.R(errorPrefix(resourceName, id) + 'id: "' + id + '" not found!');
     }
 
-    if (!('cacheResponse' in options)) {
-      options.cacheResponse = true;
-    }
-
-    if (!('notify' in options)) {
-      options.notify = definition.notify;
-    }
+    options = DSUtils._(definition, options);
 
     deferred.resolve(item);
 
     return deferred.promise
       .then(function (attrs) {
-        var func = options.beforeValidate ? DS.$q.promisify(options.beforeValidate) : definition.beforeValidate;
-        return func.call(attrs, resourceName, attrs);
+        return options.beforeValidate.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        var func = options.validate ? DS.$q.promisify(options.validate) : definition.validate;
-        return func.call(attrs, resourceName, attrs);
+        return options.validate.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        var func = options.afterValidate ? DS.$q.promisify(options.afterValidate) : definition.afterValidate;
-        return func.call(attrs, resourceName, attrs);
+        return options.afterValidate.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        var func = options.beforeUpdate ? DS.$q.promisify(options.beforeUpdate) : definition.beforeUpdate;
-        return func.call(attrs, resourceName, attrs);
+        return options.beforeUpdate.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
         if (options.notify) {
-          DS.emit(definition, 'beforeUpdate', DS.utils.merge({}, attrs));
+          DS.emit(definition, 'beforeUpdate', DSUtils.merge({}, attrs));
         }
         if (options.changesOnly) {
           var resource = DS.store[resourceName];
@@ -118,8 +109,8 @@ function save(resourceName, id, options) {
           for (key in changes.changed) {
             toKeep.push(key);
           }
-          changes = DS.utils.pick(attrs, toKeep);
-          if (DS.utils.isEmpty(changes)) {
+          changes = DSUtils.pick(attrs, toKeep);
+          if (DSUtils.isEmpty(changes)) {
             // no changes, return
             return attrs;
           } else {
@@ -129,19 +120,18 @@ function save(resourceName, id, options) {
         return DS.adapters[options.adapter || definition.defaultAdapter].update(definition, id, options.serialize ? options.serialize(resourceName, attrs) : definition.serialize(resourceName, attrs), options);
       })
       .then(function (res) {
-        var func = options.afterUpdate ? DS.$q.promisify(options.afterUpdate) : definition.afterUpdate;
         var attrs = options.deserialize ? options.deserialize(resourceName, res) : definition.deserialize(resourceName, res);
-        return func.call(attrs, resourceName, attrs);
+        return options.afterUpdate.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
         if (options.notify) {
-          DS.emit(definition, 'afterUpdate', DS.utils.merge({}, attrs));
+          DS.emit(definition, 'afterUpdate', DSUtils.merge({}, attrs));
         }
         if (options.cacheResponse) {
           var resource = DS.store[resourceName];
           var saved = DS.inject(definition.name, attrs, options);
-          resource.previousAttributes[id] = DS.utils.deepMixIn({}, saved);
-          resource.saved[id] = DS.utils.updateTimestamp(resource.saved[id]);
+          resource.previousAttributes[id] = DSUtils.deepMixIn({}, saved);
+          resource.saved[id] = DSUtils.updateTimestamp(resource.saved[id]);
           resource.observers[id].discardChanges();
           return DS.get(resourceName, id);
         } else {

@@ -90,7 +90,7 @@ describe('DS.loadRelations(resourceName, instance(Id), relations[, options]): ',
       organizationId: 14
     });
 
-    $httpBackend.expectGET('http://test.angular-cache.com/organization/14?userId=10').respond(200, organization14);
+    $httpBackend.expectGET('http://test.angular-cache.com/organization/14').respond(200, organization14);
     $httpBackend.expectGET('http://test.angular-cache.com/user/10/comment?userId=10').respond(200, [
       comment11,
       comment12,
@@ -123,7 +123,7 @@ describe('DS.loadRelations(resourceName, instance(Id), relations[, options]): ',
       organizationId: 14
     });
 
-    $httpBackend.expectGET('http://test.angular-cache.com/organization/14?userId=10').respond(404, 'Not Found');
+    $httpBackend.expectGET('http://test.angular-cache.com/organization/14').respond(404, 'Not Found');
     $httpBackend.expectGET('http://test.angular-cache.com/user/10/comment?userId=10').respond(404, 'Not Found');
     $httpBackend.expectGET('http://test.angular-cache.com/profile?userId=10').respond(404, 'Not Found');
 

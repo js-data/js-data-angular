@@ -55,6 +55,7 @@ function errorPrefix(resourceName) {
  */
 function create(resourceName, attrs, options) {
   var DS = this;
+  var DSUtils = DS.utils;
   var deferred = DS.$q.defer();
 
   try {
@@ -65,24 +66,10 @@ function create(resourceName, attrs, options) {
 
     if (!definition) {
       throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
-    } else if (!DS.utils.isObject(attrs)) {
+    } else if (!DSUtils.isObject(attrs)) {
       throw new DS.errors.IA(errorPrefix(resourceName) + 'attrs: Must be an object!');
     }
-    if (!('cacheResponse' in options)) {
-      options.cacheResponse = true;
-    }
-
-    if (!('upsert' in options)) {
-      options.upsert = true;
-    }
-
-    if (!('eagerInject' in options)) {
-      options.eagerInject = definition.eagerInject;
-    }
-
-    if (!('notify' in options)) {
-      options.notify = definition.notify;
-    }
+    options = DSUtils._(definition, options);
 
     deferred.resolve(attrs);
 
@@ -91,39 +78,34 @@ function create(resourceName, attrs, options) {
     } else {
       return deferred.promise
         .then(function (attrs) {
-          var func = options.beforeValidate ? DS.$q.promisify(options.beforeValidate) : definition.beforeValidate;
-          return func.call(attrs, resourceName, attrs);
+          return options.beforeValidate.call(attrs, resourceName, attrs);
         })
         .then(function (attrs) {
-          var func = options.validate ? DS.$q.promisify(options.validate) : definition.validate;
-          return func.call(attrs, resourceName, attrs);
+          return options.validate.call(attrs, resourceName, attrs);
         })
         .then(function (attrs) {
-          var func = options.afterValidate ? DS.$q.promisify(options.afterValidate) : definition.afterValidate;
-          return func.call(attrs, resourceName, attrs);
+          return options.afterValidate.call(attrs, resourceName, attrs);
         })
         .then(function (attrs) {
-          var func = options.beforeCreate ? DS.$q.promisify(options.beforeCreate) : definition.beforeCreate;
-          return func.call(attrs, resourceName, attrs);
+          return options.beforeCreate.call(attrs, resourceName, attrs);
         })
         .then(function (attrs) {
           if (options.notify) {
-            DS.emit(definition, 'beforeCreate', DS.utils.merge({}, attrs));
+            DS.emit(definition, 'beforeCreate', DSUtils.merge({}, attrs));
           }
           if (options.eagerInject && options.cacheResponse) {
-            attrs[definition.idAttribute] = attrs[definition.idAttribute] || DS.utils.guid();
+            attrs[definition.idAttribute] = attrs[definition.idAttribute] || DSUtils.guid();
             injected = DS.inject(resourceName, attrs);
           }
           return DS.adapters[options.adapter || definition.defaultAdapter].create(definition, options.serialize ? options.serialize(resourceName, attrs) : definition.serialize(resourceName, attrs), options);
         })
         .then(function (res) {
-          var func = options.afterCreate ? DS.$q.promisify(options.afterCreate) : definition.afterCreate;
           var attrs = options.deserialize ? options.deserialize(resourceName, res) : definition.deserialize(resourceName, res);
-          return func.call(attrs, resourceName, attrs);
+          return options.afterCreate.call(attrs, resourceName, attrs);
         })
         .then(function (attrs) {
           if (options.notify) {
-            DS.emit(definition, 'afterCreate', DS.utils.merge({}, attrs));
+            DS.emit(definition, 'afterCreate', DSUtils.merge({}, attrs));
           }
           if (options.cacheResponse) {
             var resource = DS.store[resourceName];
@@ -144,8 +126,8 @@ function create(resourceName, attrs, options) {
             var created = DS.inject(resourceName, attrs, options);
             var id = created[definition.idAttribute];
             resource.completedQueries[id] = new Date().getTime();
-            resource.previousAttributes[id] = DS.utils.deepMixIn({}, created);
-            resource.saved[id] = DS.utils.updateTimestamp(resource.saved[id]);
+            resource.previousAttributes[id] = DSUtils.deepMixIn({}, created);
+            resource.saved[id] = DSUtils.updateTimestamp(resource.saved[id]);
             return DS.get(resourceName, id);
           } else {
             return DS.createInstance(resourceName, attrs, options);

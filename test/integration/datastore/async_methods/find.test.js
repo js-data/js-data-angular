@@ -172,8 +172,8 @@ describe('DS.find(resourceName, id[, options]): ', function () {
         organizationId: 14
       }
     }).then(function (comment) {
-      assert.deepEqual(angular.toJson(comment), angular.toJson(comment19));
-      assert.deepEqual(angular.toJson(comment), angular.toJson(DS.get('comment', 19)));
+      assert.equal(comment.id, comment19.id);
+      assert.equal(comment.id, DS.get('comment', 19).id);
     }, function () {
       fail('Should not have failed!');
     });

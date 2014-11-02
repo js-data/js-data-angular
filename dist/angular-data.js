@@ -1,7 +1,7 @@
 /**
 * @author Jason Dobry <jason.dobry@gmail.com>
 * @file angular-data.js
-* @version 1.0.0 - Homepage <http://angular-data.pseudobry.com/>
+* @version 1.2.0 - Homepage <http://angular-data.pseudobry.com/>
 * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>
 * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
 *
@@ -2745,6 +2745,7 @@ function errorPrefix(resourceName) {
  */
 function create(resourceName, attrs, options) {
   var DS = this;
+  var DSUtils = DS.utils;
   var deferred = DS.$q.defer();
 
   try {
@@ -2755,24 +2756,10 @@ function create(resourceName, attrs, options) {
 
     if (!definition) {
       throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
-    } else if (!DS.utils.isObject(attrs)) {
+    } else if (!DSUtils.isObject(attrs)) {
       throw new DS.errors.IA(errorPrefix(resourceName) + 'attrs: Must be an object!');
     }
-    if (!('cacheResponse' in options)) {
-      options.cacheResponse = true;
-    }
-
-    if (!('upsert' in options)) {
-      options.upsert = true;
-    }
-
-    if (!('eagerInject' in options)) {
-      options.eagerInject = definition.eagerInject;
-    }
-
-    if (!('notify' in options)) {
-      options.notify = definition.notify;
-    }
+    options = DSUtils._(definition, options);
 
     deferred.resolve(attrs);
 
@@ -2781,39 +2768,34 @@ function create(resourceName, attrs, options) {
     } else {
       return deferred.promise
         .then(function (attrs) {
-          var func = options.beforeValidate ? DS.$q.promisify(options.beforeValidate) : definition.beforeValidate;
-          return func.call(attrs, resourceName, attrs);
+          return options.beforeValidate.call(attrs, resourceName, attrs);
         })
         .then(function (attrs) {
-          var func = options.validate ? DS.$q.promisify(options.validate) : definition.validate;
-          return func.call(attrs, resourceName, attrs);
+          return options.validate.call(attrs, resourceName, attrs);
         })
         .then(function (attrs) {
-          var func = options.afterValidate ? DS.$q.promisify(options.afterValidate) : definition.afterValidate;
-          return func.call(attrs, resourceName, attrs);
+          return options.afterValidate.call(attrs, resourceName, attrs);
         })
         .then(function (attrs) {
-          var func = options.beforeCreate ? DS.$q.promisify(options.beforeCreate) : definition.beforeCreate;
-          return func.call(attrs, resourceName, attrs);
+          return options.beforeCreate.call(attrs, resourceName, attrs);
         })
         .then(function (attrs) {
           if (options.notify) {
-            DS.emit(definition, 'beforeCreate', DS.utils.merge({}, attrs));
+            DS.emit(definition, 'beforeCreate', DSUtils.merge({}, attrs));
           }
           if (options.eagerInject && options.cacheResponse) {
-            attrs[definition.idAttribute] = attrs[definition.idAttribute] || DS.utils.guid();
+            attrs[definition.idAttribute] = attrs[definition.idAttribute] || DSUtils.guid();
             injected = DS.inject(resourceName, attrs);
           }
           return DS.adapters[options.adapter || definition.defaultAdapter].create(definition, options.serialize ? options.serialize(resourceName, attrs) : definition.serialize(resourceName, attrs), options);
         })
         .then(function (res) {
-          var func = options.afterCreate ? DS.$q.promisify(options.afterCreate) : definition.afterCreate;
           var attrs = options.deserialize ? options.deserialize(resourceName, res) : definition.deserialize(resourceName, res);
-          return func.call(attrs, resourceName, attrs);
+          return options.afterCreate.call(attrs, resourceName, attrs);
         })
         .then(function (attrs) {
           if (options.notify) {
-            DS.emit(definition, 'afterCreate', DS.utils.merge({}, attrs));
+            DS.emit(definition, 'afterCreate', DSUtils.merge({}, attrs));
           }
           if (options.cacheResponse) {
             var resource = DS.store[resourceName];
@@ -2834,8 +2816,8 @@ function create(resourceName, attrs, options) {
             var created = DS.inject(resourceName, attrs, options);
             var id = created[definition.idAttribute];
             resource.completedQueries[id] = new Date().getTime();
-            resource.previousAttributes[id] = DS.utils.deepMixIn({}, created);
-            resource.saved[id] = DS.utils.updateTimestamp(resource.saved[id]);
+            resource.previousAttributes[id] = DSUtils.deepMixIn({}, created);
+            resource.saved[id] = DSUtils.updateTimestamp(resource.saved[id]);
             return DS.get(resourceName, id);
           } else {
             return DS.createInstance(resourceName, attrs, options);
@@ -2907,6 +2889,7 @@ function errorPrefix(resourceName, id) {
  */
 function destroy(resourceName, id, options) {
   var DS = this;
+  var DSUtils = DS.utils;
   var deferred = DS.$q.defer();
 
   try {
@@ -2914,10 +2897,10 @@ function destroy(resourceName, id, options) {
 
     options = options || {};
 
-    id = DS.utils.resolveId(definition, id);
+    id = DSUtils.resolveId(definition, id);
     if (!definition) {
       throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
-    } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {
+    } else if (!DSUtils.isString(id) && !DSUtils.isNumber(id)) {
       throw new DS.errors.IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
     }
 
@@ -2926,24 +2909,17 @@ function destroy(resourceName, id, options) {
       throw new DS.errors.R(errorPrefix(resourceName, id) + 'id: "' + id + '" not found!');
     }
 
+    options = DSUtils._(definition, options);
+
     deferred.resolve(item);
-
-    if (!('eagerEject' in options)) {
-      options.eagerEject = definition.eagerEject;
-    }
-
-    if (!('notify' in options)) {
-      options.notify = definition.notify;
-    }
 
     return deferred.promise
       .then(function (attrs) {
-        var func = options.beforeDestroy ? DS.$q.promisify(options.beforeDestroy) : definition.beforeDestroy;
-        return func.call(attrs, resourceName, attrs);
+        return options.beforeDestroy.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
         if (options.notify) {
-          DS.emit(definition, 'beforeDestroy', DS.utils.merge({}, attrs));
+          DS.emit(definition, 'beforeDestroy', DSUtils.merge({}, attrs));
         }
         if (options.eagerEject) {
           DS.eject(resourceName, id);
@@ -2951,12 +2927,11 @@ function destroy(resourceName, id, options) {
         return DS.adapters[options.adapter || definition.defaultAdapter].destroy(definition, id, options);
       })
       .then(function () {
-        var func = options.afterDestroy ? DS.$q.promisify(options.afterDestroy) : definition.afterDestroy;
-        return func.call(item, resourceName, item);
+        return options.afterDestroy.call(item, resourceName, item);
       })
       .then(function () {
         if (options.notify) {
-          DS.emit(definition, 'afterDestroy', DS.utils.merge({}, item));
+          DS.emit(definition, 'afterDestroy', DSUtils.merge({}, item));
         }
         DS.eject(resourceName, id);
         return id;
@@ -3031,6 +3006,7 @@ function errorPrefix(resourceName) {
  */
 function destroyAll(resourceName, params, options) {
   var DS = this;
+  var DSUtils = DS.utils;
   var deferred = DS.$q.defer();
 
   try {
@@ -3041,11 +3017,13 @@ function destroyAll(resourceName, params, options) {
 
     if (!definition) {
       throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
-    } else if (!DS.utils.isObject(params)) {
+    } else if (!DSUtils.isObject(params)) {
       throw new IA(errorPrefix(resourceName) + 'params: Must be an object!');
-    } else if (!DS.utils.isObject(options)) {
+    } else if (!DSUtils.isObject(options)) {
       throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
     }
+
+    options = DSUtils._(definition, options);
 
     deferred.resolve();
 
@@ -3115,6 +3093,7 @@ function errorPrefix(resourceName, id) {
  */
 function find(resourceName, id, options) {
   var DS = this;
+  var DSUtils = DS.utils;
   var deferred = DS.$q.defer();
   var promise = deferred.promise;
 
@@ -3126,15 +3105,14 @@ function find(resourceName, id, options) {
 
     if (!definition) {
       throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
-    } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {
+    } else if (!DSUtils.isString(id) && !DSUtils.isNumber(id)) {
       throw new IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
-    } else if (!DS.utils.isObject(options)) {
+    } else if (!DSUtils.isObject(options)) {
       throw new IA(errorPrefix(resourceName, id) + 'options: Must be an object!');
     }
 
-    if (!('cacheResponse' in options)) {
-      options.cacheResponse = true;
-    }
+    options = DSUtils._(definition, options);
+
     var resource = DS.store[resourceName];
 
     if (options.bypassCache || !options.cacheResponse) {
@@ -3146,9 +3124,9 @@ function find(resourceName, id, options) {
         promise = resource.pendingQueries[id] = DS.adapters[options.adapter || definition.defaultAdapter].find(definition, id, options)
           .then(function (res) {
             var data = options.deserialize ? options.deserialize(resourceName, res) : definition.deserialize(resourceName, res);
+            // Query is no longer pending
+            delete resource.pendingQueries[id];
             if (options.cacheResponse) {
-              // Query is no longer pending
-              delete resource.pendingQueries[id];
               resource.completedQueries[id] = new Date().getTime();
               return DS.inject(resourceName, data, options);
             } else {
@@ -3180,6 +3158,7 @@ function errorPrefix(resourceName) {
 
 function processResults(data, resourceName, queryHash, options) {
   var DS = this;
+  var DSUtils = DS.utils;
   var resource = DS.store[resourceName];
   var idAttribute = DS.definitions[resourceName].idAttribute;
   var date = new Date().getTime();
@@ -3191,13 +3170,13 @@ function processResults(data, resourceName, queryHash, options) {
   resource.completedQueries[queryHash] = date;
 
   // Update modified timestamp of collection
-  resource.collectionModified = DS.utils.updateTimestamp(resource.collectionModified);
+  resource.collectionModified = DSUtils.updateTimestamp(resource.collectionModified);
 
   // Merge the new values into the cache
   var injected = DS.inject(resourceName, data, options);
 
   // Make sure each object is added to completedQueries
-  if (DS.utils.isArray(injected)) {
+  if (DSUtils.isArray(injected)) {
     angular.forEach(injected, function (item) {
       if (item && item[idAttribute]) {
         resource.completedQueries[item[idAttribute]] = date;
@@ -3213,9 +3192,10 @@ function processResults(data, resourceName, queryHash, options) {
 
 function _findAll(resourceName, params, options) {
   var DS = this;
+  var DSUtils = DS.utils;
   var definition = DS.definitions[resourceName];
   var resource = DS.store[resourceName];
-  var queryHash = DS.utils.toJson(params);
+  var queryHash = DSUtils.toJson(params);
 
   if (options.bypassCache || !options.cacheResponse) {
     delete resource.completedQueries[queryHash];
@@ -3238,7 +3218,7 @@ function _findAll(resourceName, params, options) {
               return DS.$q.reject(err);
             }
           } else {
-            DS.utils.forEach(data, function (item, i) {
+            DSUtils.forEach(data, function (item, i) {
               data[i] = DS.createInstance(resourceName, item, options);
             });
             return data;
@@ -3318,7 +3298,9 @@ function _findAll(resourceName, params, options) {
  */
 function findAll(resourceName, params, options) {
   var DS = this;
+  var DSUtils = DS.utils;
   var deferred = DS.$q.defer();
+  var definition = DS.definitions[resourceName];
 
   try {
     var IA = DS.errors.IA;
@@ -3326,17 +3308,15 @@ function findAll(resourceName, params, options) {
     options = options || {};
     params = params || {};
 
-    if (!DS.definitions[resourceName]) {
+    if (!definition) {
       throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
-    } else if (!DS.utils.isObject(params)) {
+    } else if (!DSUtils.isObject(params)) {
       throw new IA(errorPrefix(resourceName) + 'params: Must be an object!');
-    } else if (!DS.utils.isObject(options)) {
+    } else if (!DSUtils.isObject(options)) {
       throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
     }
 
-    if (!('cacheResponse' in options)) {
-      options.cacheResponse = true;
-    }
+    options = DSUtils._(definition, options);
 
     deferred.resolve();
 
@@ -3514,6 +3494,7 @@ function errorPrefix(resourceName) {
  */
 function loadRelations(resourceName, instance, relations, options) {
   var DS = this;
+  var DSUtils = DS.utils;
   var deferred = DS.$q.defer();
 
   try {
@@ -3522,7 +3503,7 @@ function loadRelations(resourceName, instance, relations, options) {
 
     options = options || {};
 
-    if (angular.isString(instance) || angular.isNumber(instance)) {
+    if (DSUtils.isString(instance) || DSUtils.isNumber(instance)) {
       instance = DS.get(resourceName, instance);
     }
 
@@ -3532,28 +3513,29 @@ function loadRelations(resourceName, instance, relations, options) {
 
     if (!definition) {
       throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
-    } else if (!DS.utils.isObject(instance)) {
+    } else if (!DSUtils.isObject(instance)) {
       throw new IA(errorPrefix(resourceName) + 'instance(Id): Must be a string, number or object!');
-    } else if (!DS.utils.isArray(relations)) {
+    } else if (!DSUtils.isArray(relations)) {
       throw new IA(errorPrefix(resourceName) + 'relations: Must be a string or an array!');
-    } else if (!DS.utils.isObject(options)) {
+    } else if (!DSUtils.isObject(options)) {
       throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
     }
 
-    if (!('findBelongsTo' in options)) {
+    options = DSUtils._(definition, options);
+
+    if (!options.hasOwnProperty('findBelongsTo')) {
       options.findBelongsTo = true;
     }
-
-    if (!('findHasMany' in options)) {
+    if (!options.hasOwnProperty('findHasMany')) {
       options.findHasMany = true;
     }
 
     var tasks = [];
     var fields = [];
 
-    DS.utils.forEach(definition.relationList, function (def) {
+    DSUtils.forEach(definition.relationList, function (def) {
       var relationName = def.relation;
-      if (DS.utils.contains(relations, relationName)) {
+      if (DSUtils.contains(relations, relationName)) {
         var task;
         var params = {};
         params[def.foreignKey] = instance[definition.idAttribute];
@@ -3655,18 +3637,21 @@ function errorPrefix(resourceName, id) {
  */
 function refresh(resourceName, id, options) {
   var DS = this;
+  var DSUtils = DS.utils;
   var IA = DS.errors.IA;
+  var definition = DS.definitions[resourceName];
 
   options = options || {};
 
-  id = DS.utils.resolveId(DS.definitions[resourceName], id);
-  if (!DS.definitions[resourceName]) {
+  id = DSUtils.resolveId(DS.definitions[resourceName], id);
+  if (!definition) {
     throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
-  } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {
+  } else if (!DSUtils.isString(id) && !DSUtils.isNumber(id)) {
     throw new IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
-  } else if (!DS.utils.isObject(options)) {
+  } else if (!DSUtils.isObject(options)) {
     throw new IA(errorPrefix(resourceName, id) + 'options: Must be an object!');
   } else {
+    options = DSUtils._(definition, options);
     options.bypassCache = true;
 
     if (DS.get(resourceName, id)) {
@@ -3737,6 +3722,7 @@ function errorPrefix(resourceName, id) {
  */
 function save(resourceName, id, options) {
   var DS = this;
+  var DSUtils = DS.utils;
   var deferred = DS.$q.defer();
 
   try {
@@ -3745,12 +3731,12 @@ function save(resourceName, id, options) {
 
     options = options || {};
 
-    id = DS.utils.resolveId(definition, id);
+    id = DSUtils.resolveId(definition, id);
     if (!definition) {
       throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
-    } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {
+    } else if (!DSUtils.isString(id) && !DSUtils.isNumber(id)) {
       throw new IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
-    } else if (!DS.utils.isObject(options)) {
+    } else if (!DSUtils.isObject(options)) {
       throw new IA(errorPrefix(resourceName, id) + 'options: Must be an object!');
     }
 
@@ -3759,36 +3745,26 @@ function save(resourceName, id, options) {
       throw new DS.errors.R(errorPrefix(resourceName, id) + 'id: "' + id + '" not found!');
     }
 
-    if (!('cacheResponse' in options)) {
-      options.cacheResponse = true;
-    }
-
-    if (!('notify' in options)) {
-      options.notify = definition.notify;
-    }
+    options = DSUtils._(definition, options);
 
     deferred.resolve(item);
 
     return deferred.promise
       .then(function (attrs) {
-        var func = options.beforeValidate ? DS.$q.promisify(options.beforeValidate) : definition.beforeValidate;
-        return func.call(attrs, resourceName, attrs);
+        return options.beforeValidate.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        var func = options.validate ? DS.$q.promisify(options.validate) : definition.validate;
-        return func.call(attrs, resourceName, attrs);
+        return options.validate.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        var func = options.afterValidate ? DS.$q.promisify(options.afterValidate) : definition.afterValidate;
-        return func.call(attrs, resourceName, attrs);
+        return options.afterValidate.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        var func = options.beforeUpdate ? DS.$q.promisify(options.beforeUpdate) : definition.beforeUpdate;
-        return func.call(attrs, resourceName, attrs);
+        return options.beforeUpdate.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
         if (options.notify) {
-          DS.emit(definition, 'beforeUpdate', DS.utils.merge({}, attrs));
+          DS.emit(definition, 'beforeUpdate', DSUtils.merge({}, attrs));
         }
         if (options.changesOnly) {
           var resource = DS.store[resourceName];
@@ -3802,8 +3778,8 @@ function save(resourceName, id, options) {
           for (key in changes.changed) {
             toKeep.push(key);
           }
-          changes = DS.utils.pick(attrs, toKeep);
-          if (DS.utils.isEmpty(changes)) {
+          changes = DSUtils.pick(attrs, toKeep);
+          if (DSUtils.isEmpty(changes)) {
             // no changes, return
             return attrs;
           } else {
@@ -3813,19 +3789,18 @@ function save(resourceName, id, options) {
         return DS.adapters[options.adapter || definition.defaultAdapter].update(definition, id, options.serialize ? options.serialize(resourceName, attrs) : definition.serialize(resourceName, attrs), options);
       })
       .then(function (res) {
-        var func = options.afterUpdate ? DS.$q.promisify(options.afterUpdate) : definition.afterUpdate;
         var attrs = options.deserialize ? options.deserialize(resourceName, res) : definition.deserialize(resourceName, res);
-        return func.call(attrs, resourceName, attrs);
+        return options.afterUpdate.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
         if (options.notify) {
-          DS.emit(definition, 'afterUpdate', DS.utils.merge({}, attrs));
+          DS.emit(definition, 'afterUpdate', DSUtils.merge({}, attrs));
         }
         if (options.cacheResponse) {
           var resource = DS.store[resourceName];
           var saved = DS.inject(definition.name, attrs, options);
-          resource.previousAttributes[id] = DS.utils.deepMixIn({}, saved);
-          resource.saved[id] = DS.utils.updateTimestamp(resource.saved[id]);
+          resource.previousAttributes[id] = DSUtils.deepMixIn({}, saved);
+          resource.saved[id] = DSUtils.updateTimestamp(resource.saved[id]);
           resource.observers[id].discardChanges();
           return DS.get(resourceName, id);
         } else {
@@ -3898,6 +3873,7 @@ function errorPrefix(resourceName, id) {
  */
 function update(resourceName, id, attrs, options) {
   var DS = this;
+  var DSUtils = DS.utils;
   var deferred = DS.$q.defer();
 
   try {
@@ -3906,65 +3882,54 @@ function update(resourceName, id, attrs, options) {
 
     options = options || {};
 
-    id = DS.utils.resolveId(definition, id);
+    id = DSUtils.resolveId(definition, id);
     if (!definition) {
       throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
-    } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {
+    } else if (!DSUtils.isString(id) && !DSUtils.isNumber(id)) {
       throw new IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
-    } else if (!DS.utils.isObject(attrs)) {
+    } else if (!DSUtils.isObject(attrs)) {
       throw new IA(errorPrefix(resourceName, id) + 'attrs: Must be an object!');
-    } else if (!DS.utils.isObject(options)) {
+    } else if (!DSUtils.isObject(options)) {
       throw new IA(errorPrefix(resourceName, id) + 'options: Must be an object!');
     }
 
-    if (!('cacheResponse' in options)) {
-      options.cacheResponse = true;
-    }
-
-    if (!('notify' in options)) {
-      options.notify = definition.notify;
-    }
+    options = DSUtils._(definition, options);
 
     deferred.resolve(attrs);
 
     return deferred.promise
       .then(function (attrs) {
-        var func = options.beforeValidate ? DS.$q.promisify(options.beforeValidate) : definition.beforeValidate;
-        return func.call(attrs, resourceName, attrs);
+        return options.beforeValidate.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        var func = options.validate ? DS.$q.promisify(options.validate) : definition.validate;
-        return func.call(attrs, resourceName, attrs);
+        return options.validate.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        var func = options.afterValidate ? DS.$q.promisify(options.afterValidate) : definition.afterValidate;
-        return func.call(attrs, resourceName, attrs);
+        return options.afterValidate.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        var func = options.beforeUpdate ? DS.$q.promisify(options.beforeUpdate) : definition.beforeUpdate;
-        return func.call(attrs, resourceName, attrs);
+        return options.beforeUpdate.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
         if (options.notify) {
-          DS.emit(definition, 'beforeUpdate', DS.utils.merge({}, attrs));
+          DS.emit(definition, 'beforeUpdate', DSUtils.merge({}, attrs));
         }
         return DS.adapters[options.adapter || definition.defaultAdapter].update(definition, id, options.serialize ? options.serialize(resourceName, attrs) : definition.serialize(resourceName, attrs), options);
       })
       .then(function (res) {
-        var func = options.afterUpdate ? DS.$q.promisify(options.afterUpdate) : definition.afterUpdate;
         var attrs = options.deserialize ? options.deserialize(resourceName, res) : definition.deserialize(resourceName, res);
-        return func.call(attrs, resourceName, attrs);
+        return options.afterUpdate.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
         if (options.notify) {
-          DS.emit(definition, 'afterUpdate', DS.utils.merge({}, attrs));
+          DS.emit(definition, 'afterUpdate', DSUtils.merge({}, attrs));
         }
         if (options.cacheResponse) {
           var resource = DS.store[resourceName];
           var updated = DS.inject(definition.name, attrs, options);
           var id = updated[definition.idAttribute];
-          resource.previousAttributes[id] = DS.utils.deepMixIn({}, updated);
-          resource.saved[id] = DS.utils.updateTimestamp(resource.saved[id]);
+          resource.previousAttributes[id] = DSUtils.deepMixIn({}, updated);
+          resource.saved[id] = DSUtils.updateTimestamp(resource.saved[id]);
           resource.observers[id].discardChanges();
           return DS.get(definition.name, id);
         } else {
@@ -4049,6 +4014,7 @@ function errorPrefix(resourceName) {
  */
 function updateAll(resourceName, attrs, params, options) {
   var DS = this;
+  var DSUtils = DS.utils;
   var deferred = DS.$q.defer();
 
   try {
@@ -4059,55 +4025,44 @@ function updateAll(resourceName, attrs, params, options) {
 
     if (!definition) {
       throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
-    } else if (!DS.utils.isObject(attrs)) {
+    } else if (!DSUtils.isObject(attrs)) {
       throw new IA(errorPrefix(resourceName) + 'attrs: Must be an object!');
-    } else if (!DS.utils.isObject(params)) {
+    } else if (!DSUtils.isObject(params)) {
       throw new IA(errorPrefix(resourceName) + 'params: Must be an object!');
-    } else if (!DS.utils.isObject(options)) {
+    } else if (!DSUtils.isObject(options)) {
       throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
     }
 
-    if (!('cacheResponse' in options)) {
-      options.cacheResponse = true;
-    }
-
-    if (!('notify' in options)) {
-      options.notify = definition.notify;
-    }
+    options = DSUtils._(definition, options);
 
     deferred.resolve(attrs);
 
     return deferred.promise
       .then(function (attrs) {
-        var func = options.beforeValidate ? DS.$q.promisify(options.beforeValidate) : definition.beforeValidate;
-        return func.call(attrs, resourceName, attrs);
+        return options.beforeValidate.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        var func = options.validate ? DS.$q.promisify(options.validate) : definition.validate;
-        return func.call(attrs, resourceName, attrs);
+        return options.validate.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        var func = options.afterValidate ? DS.$q.promisify(options.afterValidate) : definition.afterValidate;
-        return func.call(attrs, resourceName, attrs);
+        return options.afterValidate.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        var func = options.beforeUpdate ? DS.$q.promisify(options.beforeUpdate) : definition.beforeUpdate;
-        return func.call(attrs, resourceName, attrs);
+        return options.beforeUpdate.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
         if (options.notify) {
-          DS.emit(definition, 'beforeUpdate', DS.utils.merge({}, attrs));
+          DS.emit(definition, 'beforeUpdate', DSUtils.merge({}, attrs));
         }
         return DS.adapters[options.adapter || definition.defaultAdapter].updateAll(definition, options.serialize ? options.serialize(resourceName, attrs) : definition.serialize(resourceName, attrs), params, options);
       })
       .then(function (res) {
-        var func = options.afterUpdate ? DS.$q.promisify(options.afterUpdate) : definition.afterUpdate;
         var attrs = options.deserialize ? options.deserialize(resourceName, res) : definition.deserialize(resourceName, res);
-        return func.call(attrs, resourceName, attrs);
+        return options.afterUpdate.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
         if (options.notify) {
-          DS.emit(definition, 'afterUpdate', DS.utils.merge({}, attrs));
+          DS.emit(definition, 'afterUpdate', DSUtils.merge({}, attrs));
         }
         if (options.cacheResponse) {
           return DS.inject(definition.name, attrs, options);
@@ -4124,8 +4079,6 @@ function updateAll(resourceName, attrs, params, options) {
 module.exports = updateAll;
 
 },{}],67:[function(require,module,exports){
-var utils = require('../utils')[0]();
-
 function lifecycleNoop(resourceName, attrs, cb) {
   cb(null, attrs);
 }
@@ -4148,14 +4101,14 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
     sort: ''
   };
 
-  if (this.utils.isObject(params.where)) {
+  if (_this.utils.isObject(params.where)) {
     where = params.where;
   } else {
     where = {};
   }
 
   if (options.allowSimpleWhere) {
-    this.utils.forEach(params, function (value, key) {
+    _this.utils.forEach(params, function (value, key) {
       if (!(key in reserved) && !(key in where)) {
         where[key] = {
           '==': value
@@ -4164,12 +4117,12 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
     });
   }
 
-  if (this.utils.isEmpty(where)) {
+  if (_this.utils.isEmpty(where)) {
     where = null;
   }
 
   if (where) {
-    filtered = this.utils.filter(filtered, function (attrs) {
+    filtered = _this.utils.filter(filtered, function (attrs) {
       var first = true;
       var keep = true;
       _this.utils.forEach(where, function (clause, field) {
@@ -4235,19 +4188,19 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
 
   var orderBy = null;
 
-  if (this.utils.isString(params.orderBy)) {
+  if (_this.utils.isString(params.orderBy)) {
     orderBy = [
       [params.orderBy, 'ASC']
     ];
-  } else if (this.utils.isArray(params.orderBy)) {
+  } else if (_this.utils.isArray(params.orderBy)) {
     orderBy = params.orderBy;
   }
 
-  if (!orderBy && this.utils.isString(params.sort)) {
+  if (!orderBy && _this.utils.isString(params.sort)) {
     orderBy = [
       [params.sort, 'ASC']
     ];
-  } else if (!orderBy && this.utils.isArray(params.sort)) {
+  } else if (!orderBy && _this.utils.isArray(params.sort)) {
     orderBy = params.sort;
   }
 
@@ -4299,12 +4252,12 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
 
   // Apply 'limit' and 'skip'
   if (limit && skip) {
-    filtered = this.utils.slice(filtered, skip, Math.min(filtered.length, skip + limit));
-  } else if (this.utils.isNumber(limit)) {
-    filtered = this.utils.slice(filtered, 0, Math.min(filtered.length, limit));
-  } else if (this.utils.isNumber(skip)) {
+    filtered = _this.utils.slice(filtered, skip, Math.min(filtered.length, skip + limit));
+  } else if (_this.utils.isNumber(limit)) {
+    filtered = _this.utils.slice(filtered, 0, Math.min(filtered.length, limit));
+  } else if (_this.utils.isNumber(skip)) {
     if (skip < filtered.length) {
-      filtered = this.utils.slice(filtered, skip);
+      filtered = _this.utils.slice(filtered, skip);
     } else {
       filtered = [];
     }
@@ -4320,6 +4273,8 @@ Defaults.prototype.resetHistoryOnInject = true;
 Defaults.prototype.eagerInject = false;
 Defaults.prototype.eagerEject = false;
 Defaults.prototype.notify = true;
+Defaults.prototype.cacheResponse = true;
+Defaults.prototype.upsert = true;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.ignoredChanges
@@ -4330,7 +4285,7 @@ Defaults.prototype.notify = true;
  * ## Example:
  * ```js
  *  // ignore $ or _ prefixed changes
- *  DSProvider.defaults.ignoreChanges = [/\$|\_/];
+ *  DSProvider.defaults.ignoredChanges = [/\$|\_/];
  * ```
  *
  * @value {array} ignoredChanges Array of changes to ignore. Defaults to ignoring $ prefixed changes: [/\$/]
@@ -4905,7 +4860,7 @@ function DSProvider() {
 
 module.exports = DSProvider;
 
-},{"../utils":92,"./async_methods":61,"./sync_methods":81}],68:[function(require,module,exports){
+},{"./async_methods":61,"./sync_methods":81}],68:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.bindAll(scope, expr, ' + resourceName + ', params[, cb]): ';
 }
@@ -5169,32 +5124,45 @@ function errorPrefix(resourceName) {
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item of the changes to retrieve.
+ * @param {=object} options Optional configuration. Properties:
+ *
+ * - `{array=}` - `blacklist` - Array of strings or RegExp that specify fields that should be ignored when checking for changes.
+ *
  * @returns {object} The changes of the item of the type specified by `resourceName` with the primary key specified by `id`.
  */
-function changes(resourceName, id) {
+function changes(resourceName, id, options) {
   var DS = this;
+  var DSUtils = DS.utils;
+  var definition = DS.definitions[resourceName];
 
-  id = DS.utils.resolveId(DS.definitions[resourceName], id);
-  if (!DS.definitions[resourceName]) {
+  options = options || {};
+
+  id = DSUtils.resolveId(DS.definitions[resourceName], id);
+  if (!definition) {
     throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
-  } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {
+  } else if (!DSUtils.isString(id) && !DSUtils.isNumber(id)) {
     throw new DS.errors.IA(errorPrefix(resourceName) + 'id: Must be a string or a number!');
+  } else if (!DSUtils.isObject(options)) {
+    throw new DS.errors.IA(errorPrefix(resourceName) + 'options: Must be an object!');
   }
+
+  options = DSUtils._(definition, options);
+
 
   var item = DS.get(resourceName, id);
   if (item) {
     DS.store[resourceName].observers[id].deliver();
-    var diff = DS.utils.diffObjectFromOldObject(item, DS.store[resourceName].previousAttributes[id], DS.defaults.ignoredChanges);
-    DS.utils.forEach(diff, function (changeset, name) {
+    var diff = DSUtils.diffObjectFromOldObject(item, DS.store[resourceName].previousAttributes[id], options.ignoredChanges);
+    DSUtils.forEach(diff, function (changeset, name) {
       var toKeep = [];
-      DS.utils.forEach(changeset, function (value, field) {
+      DSUtils.forEach(changeset, function (value, field) {
         if (!angular.isFunction(value)) {
           toKeep.push(field);
         }
       });
-      diff[name] = DS.utils.pick(diff[name], toKeep);
+      diff[name] = DSUtils.pick(diff[name], toKeep);
     });
-    DS.utils.forEach(DS.definitions[resourceName].relationFields, function (field) {
+    DSUtils.forEach(DS.definitions[resourceName].relationFields, function (field) {
       delete diff.added[field];
       delete diff.removed[field];
       delete diff.changed[field];
@@ -5423,6 +5391,7 @@ var methodsToProxy = [
   'createInstance',
   'destroy',
   'destroyAll',
+  'digest',
   'eject',
   'ejectAll',
   'filter',
@@ -5571,6 +5540,7 @@ function defineResource(definition) {
     }
 
     def.getEndpoint = function (attrs, options) {
+      options = DSUtils.deepMixIn({}, options);
       var parent = this.parent;
       var parentKey = this.parentKey;
       var item;
@@ -6028,7 +5998,7 @@ function errorPrefix(resourceName) {
  *
  * ## Example:
  *
- * For many examples see the [tests for DS.filter](https://github.com/jmdobry/angular-data/blob/master/test/integration/datastore/sync methods/filter.test.js).
+ * For many examples see the [tests for DS.filter](https://github.com/jmdobry/angular-data/blob/master/test/integration/datastore/sync_methods/filter.test.js).
  *
  * ## Throws
  *
@@ -6554,6 +6524,7 @@ function _inject(definition, resource, attrs, options) {
         definition.beforeInject(definition.name, attrs);
         var id = attrs[idA];
         var item = DS.get(definition.name, id);
+        var initialLastModified = item ? resource.modified[id] : 0;
 
         if (!item) {
           if (options.useClass) {
@@ -6602,6 +6573,7 @@ function _inject(definition, resource, attrs, options) {
           resource.observers[id].deliver();
         }
         resource.saved[id] = DS.utils.updateTimestamp(resource.saved[id]);
+        resource.modified[id] = initialLastModified && resource.modified[id] === initialLastModified ? DS.utils.updateTimestamp(resource.modified[id]) : resource.modified[id];
         definition.afterInject(definition.name, item);
         injected = item;
       } catch (err) {
@@ -6707,9 +6679,11 @@ function inject(resourceName, attrs, options) {
   if (!DS.$rootScope.$$phase) {
     DS.$rootScope.$apply(function () {
       injected = _inject.call(DS, definition, resource, attrs, options);
+      resource.collectionModified = DS.utils.updateTimestamp(resource.collectionModified);
     });
   } else {
     injected = _inject.call(DS, definition, resource, attrs, options);
+    resource.collectionModified = DS.utils.updateTimestamp(resource.collectionModified);
   }
 
   if (options.linkInverse) {
@@ -7478,8 +7452,6 @@ module.exports = [function () {
    * @id angular-data
    * @name angular-data
    * @description
-   * __Version:__ 1.0.0
-   *
    * ## Install
    *
    * #### Bower
@@ -7561,6 +7533,8 @@ module.exports = [function () {
 })(window, window.angular);
 
 },{"./adapters/http":54,"./adapters/localStorage":55,"./datastore":67,"./errors":90,"./utils":92}],92:[function(require,module,exports){
+var DSErrors = require('./errors');
+
 function Events(target) {
   var events = {};
   target = target || this;
@@ -7605,7 +7579,34 @@ function Events(target) {
   };
 }
 
-module.exports = [function () {
+var toPromisify = [
+  'beforeValidate',
+  'validate',
+  'afterValidate',
+  'beforeCreate',
+  'afterCreate',
+  'beforeUpdate',
+  'afterUpdate',
+  'beforeDestroy',
+  'afterDestroy'
+];
+
+var find = require('mout/array/find');
+var isRegExp = require('mout/lang/isRegExp');
+
+function isBlacklisted(prop, blacklist) {
+  if (!blacklist || !blacklist.length) {
+    return false;
+  }
+  var matches = find(blacklist, function (blItem) {
+    if ((isRegExp(blItem) && blItem.test(prop)) || blItem === prop) {
+      return prop;
+    }
+  });
+  return !!matches;
+}
+
+module.exports = ['$q', function ($q) {
   return {
     isBoolean: require('mout/lang/isBoolean'),
     isString: angular.isString,
@@ -7614,26 +7615,46 @@ module.exports = [function () {
     isNumber: angular.isNumber,
     isFunction: angular.isFunction,
     isEmpty: require('mout/lang/isEmpty'),
-    isRegExp: require('mout/lang/isRegExp'),
+    isRegExp: isRegExp,
     toJson: angular.toJson,
     fromJson: angular.fromJson,
     makePath: require('mout/string/makePath'),
     upperCase: require('mout/string/upperCase'),
     pascalCase: require('mout/string/pascalCase'),
     deepMixIn: require('mout/object/deepMixIn'),
+    mixIn: require('mout/object/mixIn'),
     forEach: angular.forEach,
     pick: require('mout/object/pick'),
     set: require('mout/object/set'),
     merge: require('mout/object/merge'),
     contains: require('mout/array/contains'),
     filter: require('mout/array/filter'),
-    find: require('mout/array/find'),
+    find: find,
     toLookup: require('mout/array/toLookup'),
     remove: require('mout/array/remove'),
     slice: require('mout/array/slice'),
     sort: require('mout/array/sort'),
     guid: require('mout/random/guid'),
     keys: require('mout/object/keys'),
+    _: function (parent, options) {
+      var _this = this;
+      options = options || {};
+      if (options && options.constructor === parent.constructor) {
+        return options;
+      } else if (!_this.isObject(options)) {
+        throw new DSErrors.IA('"options" must be an object!');
+      }
+      _this.forEach(toPromisify, function (name) {
+        if (typeof options[name] === 'function') {
+          options[name] = $q.promisify(options[name]);
+        }
+      });
+      var O = function Options(attrs) {
+        _this.mixIn(this, attrs);
+      };
+      O.prototype = parent;
+      return new O(options);
+    },
     resolveItem: function (resource, idOrInstance) {
       if (resource && (this.isString(idOrInstance) || this.isNumber(idOrInstance))) {
         return resource.index[idOrInstance] || idOrInstance;
@@ -7679,36 +7700,36 @@ module.exports = [function () {
       var added = {};
       var removed = {};
       var changed = {};
-      var isBlacklisted = function (prop) {
-        if (!blacklist || !blacklist.length) return false;
-        var matches = this.find(blacklist, function (blItem) {
-          if ((this.isRegExp(blItem) && blItem.test(prop)) || blItem === prop) return prop;
-        }, this);
-        if (matches) return true; else return false;
-      };
 
       for (var prop in oldObject) {
         var newValue = object[prop];
 
-        if (isBlacklisted.call(this, prop)) continue;
-
-        if (newValue !== undefined && newValue === oldObject[prop])
+        if (isBlacklisted(prop, blacklist)) {
           continue;
+        }
+
+        if (newValue !== undefined && newValue === oldObject[prop]) {
+          continue;
+        }
 
         if (!(prop in object)) {
           removed[prop] = undefined;
           continue;
         }
 
-        if (newValue !== oldObject[prop])
+        if (newValue !== oldObject[prop]) {
           changed[prop] = newValue;
+        }
       }
 
       for (var prop2 in object) {
-        if (prop2 in oldObject)
+        if (prop2 in oldObject) {
           continue;
+        }
 
-        if (isBlacklisted.call(this, prop2)) continue;
+        if (isBlacklisted(prop2, blacklist)) {
+          continue;
+        }
 
         added[prop2] = object[prop2];
       }
@@ -7723,4 +7744,4 @@ module.exports = [function () {
   };
 }];
 
-},{"mout/array/contains":2,"mout/array/filter":3,"mout/array/find":4,"mout/array/remove":9,"mout/array/slice":10,"mout/array/sort":11,"mout/array/toLookup":12,"mout/lang/isBoolean":19,"mout/lang/isEmpty":20,"mout/lang/isRegExp":25,"mout/object/deepMixIn":31,"mout/object/keys":35,"mout/object/merge":36,"mout/object/pick":39,"mout/object/set":40,"mout/random/guid":42,"mout/string/makePath":49,"mout/string/pascalCase":50,"mout/string/upperCase":53}]},{},[91]);
+},{"./errors":90,"mout/array/contains":2,"mout/array/filter":3,"mout/array/find":4,"mout/array/remove":9,"mout/array/slice":10,"mout/array/sort":11,"mout/array/toLookup":12,"mout/lang/isBoolean":19,"mout/lang/isEmpty":20,"mout/lang/isRegExp":25,"mout/object/deepMixIn":31,"mout/object/keys":35,"mout/object/merge":36,"mout/object/mixIn":37,"mout/object/pick":39,"mout/object/set":40,"mout/random/guid":42,"mout/string/makePath":49,"mout/string/pascalCase":50,"mout/string/upperCase":53}]},{},[91]);

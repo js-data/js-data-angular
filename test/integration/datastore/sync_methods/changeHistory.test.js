@@ -22,11 +22,11 @@ describe('DS.changeHistory(resourceName, id)', function () {
     assert.isUndefined(DS.changeHistory('post', 5));
   });
   it('should return the changeHistory in an object', function (done) {
-    DS.inject('post', p1);
+    Post.inject(p1);
 
-    var initialModified = DS.store['post'].modified[5];
+    var initialModified = Post.lastModified(5);
     assert.deepEqual(DS.changeHistory('post', 5), [
-      {resourceName: 'post', added: {}, changed: {}, removed: {}, timestamp: initialModified, target: DS.get('post', 5)}
+      {resourceName: 'post', added: {}, changed: {}, removed: {}, timestamp: Post.lastModified(5), target: DS.get('post', 5)}
     ]);
 
     var post = DS.get('post', 5);
@@ -42,11 +42,11 @@ describe('DS.changeHistory(resourceName, id)', function () {
           {resourceName: 'post', added: {}, changed: { author: 'Jake' }, removed: {}, timestamp: DS.store['post'].modified[5], target: DS.get('post', 5)}
         ]);
 
-        DS.inject('post', p1);
 
-        initialModified = DS.store['post'].modified[5];
+        DS.inject('post', p1);
+        initialModified = Post.lastModified(5);
         assert.deepEqual(DS.changeHistory('post', 5), [
-          {resourceName: 'post', added: {}, changed: { author: 'John' }, removed: {}, timestamp: initialModified, target: DS.get('post', 5)}
+          {resourceName: 'post', added: {}, changed: { author: 'John' }, removed: {}, timestamp: Post.lastModified(5), target: DS.get('post', 5)}
         ]);
         var post = DS.get('post', 5);
         post.author = 'Johnny';
@@ -58,7 +58,7 @@ describe('DS.changeHistory(resourceName, id)', function () {
             DS.digest();
             assert.deepEqual(DS.changeHistory('post', 5), [
               {resourceName: 'post', added: {}, changed: { author: 'John' }, removed: {}, timestamp: initialModified, target: DS.get('post', 5)},
-              {resourceName: 'post', added: {}, changed: { author: 'Johnny' }, removed: {}, timestamp: DS.store['post'].modified[5], target: DS.get('post', 5)}
+              {resourceName: 'post', added: {}, changed: { author: 'Johnny' }, removed: {}, timestamp: Post.lastModified(5), target: DS.get('post', 5)}
             ]);
             done();
           } catch (err) {

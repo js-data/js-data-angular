@@ -34,7 +34,7 @@ describe('DS.changes(resourceName, id)', function () {
       author: 'Jake'
     }, removed: {}});
   });
-  it('should ignore changes blacklisted changes in an object', function () {
+  it('should ignore default blacklisted changes in an object', function () {
 
     DS.inject('post', p1);
 
@@ -47,5 +47,47 @@ describe('DS.changes(resourceName, id)', function () {
     DS.digest();
 
     assert.deepEqual(DS.changes('post', 5), {added: {}, changed: {}, removed: {}});
+  });
+  it('should ignore per resource blacklisted changes in an object', function () {
+
+    var Thing = DS.defineResource({
+      name: 'thing',
+      ignoredChanges: [/\$|\_/]
+    });
+
+    var thing = Thing.inject({ id: 1, $$hashKey: '$123', _thing: 'thing' });
+
+    assert.deepEqual(Thing.changes(1), {added: {}, changed: {}, removed: {}});
+
+    thing.$$hashKey = '$567';
+    thing._thing = 'gniht';
+
+    Thing.digest();
+
+    assert.deepEqual(Thing.changes(1), {added: {}, changed: {}, removed: {}});
+  });
+  it('should ignore per method call blacklisted changes in an object', function () {
+
+    var Thing = DS.defineResource({
+      name: 'thing',
+      ignoredChanges: [/\$|\_/]
+    });
+
+    var thing = Thing.inject({ id: 1, $$hashKey: '$123', _thing: 'thing' });
+
+    assert.deepEqual(Thing.changes(1, {
+      ignoredChanges: [/\$/]
+    }), {added: {}, changed: {}, removed: {}});
+
+    thing.$$hashKey = '$567';
+    thing._thing = 'gniht';
+
+    Thing.digest();
+
+    assert.deepEqual(Thing.changes(1, {
+      ignoredChanges: [/\$/]
+    }), {added: {}, changed: {
+      '_thing': 'gniht'
+    }, removed: {}});
   });
 });

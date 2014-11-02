@@ -1,5 +1,3 @@
-var utils = require('../utils')[0]();
-
 function lifecycleNoop(resourceName, attrs, cb) {
   cb(null, attrs);
 }
@@ -22,14 +20,14 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
     sort: ''
   };
 
-  if (this.utils.isObject(params.where)) {
+  if (_this.utils.isObject(params.where)) {
     where = params.where;
   } else {
     where = {};
   }
 
   if (options.allowSimpleWhere) {
-    this.utils.forEach(params, function (value, key) {
+    _this.utils.forEach(params, function (value, key) {
       if (!(key in reserved) && !(key in where)) {
         where[key] = {
           '==': value
@@ -38,12 +36,12 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
     });
   }
 
-  if (this.utils.isEmpty(where)) {
+  if (_this.utils.isEmpty(where)) {
     where = null;
   }
 
   if (where) {
-    filtered = this.utils.filter(filtered, function (attrs) {
+    filtered = _this.utils.filter(filtered, function (attrs) {
       var first = true;
       var keep = true;
       _this.utils.forEach(where, function (clause, field) {
@@ -109,19 +107,19 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
 
   var orderBy = null;
 
-  if (this.utils.isString(params.orderBy)) {
+  if (_this.utils.isString(params.orderBy)) {
     orderBy = [
       [params.orderBy, 'ASC']
     ];
-  } else if (this.utils.isArray(params.orderBy)) {
+  } else if (_this.utils.isArray(params.orderBy)) {
     orderBy = params.orderBy;
   }
 
-  if (!orderBy && this.utils.isString(params.sort)) {
+  if (!orderBy && _this.utils.isString(params.sort)) {
     orderBy = [
       [params.sort, 'ASC']
     ];
-  } else if (!orderBy && this.utils.isArray(params.sort)) {
+  } else if (!orderBy && _this.utils.isArray(params.sort)) {
     orderBy = params.sort;
   }
 
@@ -173,12 +171,12 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
 
   // Apply 'limit' and 'skip'
   if (limit && skip) {
-    filtered = this.utils.slice(filtered, skip, Math.min(filtered.length, skip + limit));
-  } else if (this.utils.isNumber(limit)) {
-    filtered = this.utils.slice(filtered, 0, Math.min(filtered.length, limit));
-  } else if (this.utils.isNumber(skip)) {
+    filtered = _this.utils.slice(filtered, skip, Math.min(filtered.length, skip + limit));
+  } else if (_this.utils.isNumber(limit)) {
+    filtered = _this.utils.slice(filtered, 0, Math.min(filtered.length, limit));
+  } else if (_this.utils.isNumber(skip)) {
     if (skip < filtered.length) {
-      filtered = this.utils.slice(filtered, skip);
+      filtered = _this.utils.slice(filtered, skip);
     } else {
       filtered = [];
     }
@@ -194,6 +192,8 @@ Defaults.prototype.resetHistoryOnInject = true;
 Defaults.prototype.eagerInject = false;
 Defaults.prototype.eagerEject = false;
 Defaults.prototype.notify = true;
+Defaults.prototype.cacheResponse = true;
+Defaults.prototype.upsert = true;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.ignoredChanges
@@ -204,7 +204,7 @@ Defaults.prototype.notify = true;
  * ## Example:
  * ```js
  *  // ignore $ or _ prefixed changes
- *  DSProvider.defaults.ignoreChanges = [/\$|\_/];
+ *  DSProvider.defaults.ignoredChanges = [/\$|\_/];
  * ```
  *
  * @value {array} ignoredChanges Array of changes to ignore. Defaults to ignoring $ prefixed changes: [/\$/]
