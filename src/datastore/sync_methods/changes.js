@@ -50,7 +50,7 @@ function changes(resourceName, id) {
   var item = DS.get(resourceName, id);
   if (item) {
     DS.store[resourceName].observers[id].deliver();
-    var diff = DS.utils.diffObjectFromOldObject(item, DS.store[resourceName].previousAttributes[id]);
+    var diff = DS.utils.diffObjectFromOldObject(item, DS.store[resourceName].previousAttributes[id], DS.defaults.ignoredChanges);
     DS.utils.forEach(diff, function (changeset, name) {
       var toKeep = [];
       DS.utils.forEach(changeset, function (value, field) {

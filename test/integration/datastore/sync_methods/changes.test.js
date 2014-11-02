@@ -34,4 +34,18 @@ describe('DS.changes(resourceName, id)', function () {
       author: 'Jake'
     }, removed: {}});
   });
+  it('should ignore changes blacklisted changes in an object', function () {
+
+    DS.inject('post', p1);
+
+    assert.deepEqual(DS.changes('post', 5), {added: {}, changed: {}, removed: {}});
+    var post = DS.get('post', 5);
+
+    post.$$hashKey = '$123';
+    post.$$id = '321';
+
+    DS.digest();
+
+    assert.deepEqual(DS.changes('post', 5), {added: {}, changed: {}, removed: {}});
+  });
 });
