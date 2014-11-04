@@ -1,3 +1,8 @@
+##### 1.2.1 - 04 November 2014
+
+###### Backwards compatible bug fixes
+- #225 - If the server returned an empty array for a get request (valid scenario), angular-data throws an exception
+
 ##### 1.2.0 - 02 November 2014
 
 ###### Backwards compatible API changes

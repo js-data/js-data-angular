@@ -1,7 +1,7 @@
 /**
 * @author Jason Dobry <jason.dobry@gmail.com>
 * @file angular-data.js
-* @version 1.2.0 - Homepage <http://angular-data.pseudobry.com/>
+* @version 1.2.1 - Homepage <http://angular-data.pseudobry.com/>
 * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>
 * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
 *
@@ -5124,7 +5124,7 @@ function errorPrefix(resourceName) {
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
  * @param {string|number} id The primary key of the item of the changes to retrieve.
- * @param {=object} options Optional configuration. Properties:
+ * @param {object=} options Optional configuration. Properties:
  *
  * - `{array=}` - `blacklist` - Array of strings or RegExp that specify fields that should be ignored when checking for changes.
  *
@@ -6687,8 +6687,10 @@ function inject(resourceName, attrs, options) {
   }
 
   if (options.linkInverse) {
-    if (DS.utils.isArray(injected) && injected.length) {
-      DS.linkInverse(definition.name, injected[0][definition.idAttribute]);
+    if (DS.utils.isArray(injected)) {
+      if (injected.length) {
+        DS.linkInverse(definition.name, injected[0][definition.idAttribute]);
+      }
     } else {
       DS.linkInverse(definition.name, injected[definition.idAttribute]);
     }
@@ -7700,6 +7702,7 @@ module.exports = ['$q', function ($q) {
       var added = {};
       var removed = {};
       var changed = {};
+      blacklist = blacklist || [];
 
       for (var prop in oldObject) {
         var newValue = object[prop];
