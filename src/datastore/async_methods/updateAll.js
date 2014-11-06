@@ -30,7 +30,7 @@ function errorPrefix(resourceName) {
  *
  * DS.filter('document', params); // []
  *
- * DS.updateAll('document', 5, {
+ * DS.updateAll('document', {
  *   author: 'Sally'
  * }, params).then(function (documents) {
  *   documents; // The documents that were updated via an adapter
