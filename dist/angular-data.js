@@ -3977,7 +3977,7 @@ function errorPrefix(resourceName) {
  *
  * DS.filter('document', params); // []
  *
- * DS.updateAll('document', 5, {
+ * DS.updateAll('document', {
  *   author: 'Sally'
  * }, params).then(function (documents) {
  *   documents; // The documents that were updated via an adapter
@@ -4860,7 +4860,7 @@ function DSProvider() {
 
 module.exports = DSProvider;
 
-},{"./async_methods":61,"./sync_methods":81}],68:[function(require,module,exports){
+},{"./async_methods":61,"./sync_methods":82}],68:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.bindAll(scope, expr, ' + resourceName + ', params[, cb]): ';
 }
@@ -6127,6 +6127,65 @@ function get(resourceName, id, options) {
 module.exports = get;
 
 },{}],80:[function(require,module,exports){
+function errorPrefix(resourceName) {
+  return 'DS.getAll(' + resourceName + '[, ids]): ';
+}
+
+/**
+ * @doc method
+ * @id DS.sync methods:getAll
+ * @name getAll
+ * @description
+ * Synchronously return all of the resource.
+ *
+ * ## Signature:
+ * ```js
+ * DS.getAll(resourceName[, ids])
+ * ```
+ *
+ * ## Example:
+ *
+ * ```js
+ * DS.getAll('document'); // [{ author: 'John Anderson', id: 5 }]
+ * ```
+ *
+ * ## Throws
+ *
+ * - `{IllegalArgumentError}`
+ * - `{NonexistentResourceError}`
+ *
+ * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
+ * @param {array} ids Optional list of primary keys to filter the array of results by.
+ *
+ * @returns {array} The items of the type specified by `resourceName`.
+ */
+function getAll(resourceName, ids) {
+	var DS = this;
+  var IA = DS.errors.IA;
+  var resource;
+  var collection = [];
+
+  if (!DS.definitions[resourceName]) {
+    throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
+  } else if (arguments.length === 2 && !(ids instanceof Array)) {
+    throw new IA(errorPrefix(resourceName, ids) + 'ids: Must be an array!');
+  }
+
+  resource = DS.store[resourceName];  
+
+  if (ids instanceof Array) {
+    for (var i = 0; i < ids.length; i++) {
+      collection.push(resource.index.get(ids[i]));
+    }
+  } else {
+    collection = resource.collection;
+  }
+
+  return collection;
+}
+
+module.exports = getAll;
+},{}],81:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.hasChanges(' + resourceName + ', ' + id + '): ';
 }
@@ -6191,7 +6250,7 @@ function hasChanges(resourceName, id) {
 
 module.exports = hasChanges;
 
-},{}],81:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 module.exports = {
 
   /**
@@ -6316,6 +6375,16 @@ module.exports = {
 
   /**
    * @doc method
+   * @id DS.sync methods:getAll
+   * @name getAll
+   * @methodOf DS
+   * @description
+   * See [DS.getAll](/documentation/api/api/DS.sync methods:getAll).
+   */
+  getAll: require('./getAll'),
+  
+  /**
+   * @doc method
    * @id DS.sync methods:hasChanges
    * @name hasChanges
    * @methodOf DS
@@ -6405,7 +6474,7 @@ module.exports = {
   unlinkInverse: require('./unlinkInverse')
 };
 
-},{"./bindAll":68,"./bindOne":69,"./changeHistory":70,"./changes":71,"./compute":72,"./createInstance":73,"./defineResource":74,"./digest":75,"./eject":76,"./ejectAll":77,"./filter":78,"./get":79,"./hasChanges":80,"./inject":82,"./lastModified":83,"./lastSaved":84,"./link":85,"./linkAll":86,"./linkInverse":87,"./previous":88,"./unlinkInverse":89}],82:[function(require,module,exports){
+},{"./bindAll":68,"./bindOne":69,"./changeHistory":70,"./changes":71,"./compute":72,"./createInstance":73,"./defineResource":74,"./digest":75,"./eject":76,"./ejectAll":77,"./filter":78,"./get":79,"./getAll":80,"./hasChanges":81,"./inject":83,"./lastModified":84,"./lastSaved":85,"./link":86,"./linkAll":87,"./linkInverse":88,"./previous":89,"./unlinkInverse":90}],83:[function(require,module,exports){
 var observe = require('../../../lib/observe-js/observe-js');
 var _compute = require('./compute')._compute;
 
@@ -6712,7 +6781,7 @@ function inject(resourceName, attrs, options) {
 
 module.exports = inject;
 
-},{"../../../lib/observe-js/observe-js":1,"./compute":72}],83:[function(require,module,exports){
+},{"../../../lib/observe-js/observe-js":1,"./compute":72}],84:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.lastModified(' + resourceName + '[, ' + id + ']): ';
 }
@@ -6771,7 +6840,7 @@ function lastModified(resourceName, id) {
 
 module.exports = lastModified;
 
-},{}],84:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.lastSaved(' + resourceName + '[, ' + id + ']): ';
 }
@@ -6835,7 +6904,7 @@ function lastSaved(resourceName, id) {
 
 module.exports = lastSaved;
 
-},{}],85:[function(require,module,exports){
+},{}],86:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.link(' + resourceName + ', id[, relations]): ';
 }
@@ -6937,7 +7006,7 @@ function link(resourceName, id, relations) {
 
 module.exports = link;
 
-},{}],86:[function(require,module,exports){
+},{}],87:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.linkAll(' + resourceName + '[, params][, relations]): ';
 }
@@ -7054,7 +7123,7 @@ function linkAll(resourceName, params, relations) {
 
 module.exports = linkAll;
 
-},{}],87:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.linkInverse(' + resourceName + ', id[, relations]): ';
 }
@@ -7152,7 +7221,7 @@ function linkInverse(resourceName, id, relations) {
 
 module.exports = linkInverse;
 
-},{}],88:[function(require,module,exports){
+},{}],89:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.previous(' + resourceName + '[, ' + id + ']): ';
 }
@@ -7209,7 +7278,7 @@ function previous(resourceName, id) {
 
 module.exports = previous;
 
-},{}],89:[function(require,module,exports){
+},{}],90:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.unlinkInverse(' + resourceName + ', id[, relations]): ';
 }
@@ -7310,7 +7379,7 @@ function unlinkInverse(resourceName, id, relations) {
 
 module.exports = unlinkInverse;
 
-},{}],90:[function(require,module,exports){
+},{}],91:[function(require,module,exports){
 /**
  * @doc function
  * @id errors.types:IllegalArgumentError
@@ -7443,7 +7512,7 @@ module.exports = [function () {
   };
 }];
 
-},{}],91:[function(require,module,exports){
+},{}],92:[function(require,module,exports){
 (function (window, angular, undefined) {
   'use strict';
 
@@ -7532,7 +7601,7 @@ module.exports = [function () {
 
 })(window, window.angular);
 
-},{"./adapters/http":54,"./adapters/localStorage":55,"./datastore":67,"./errors":90,"./utils":92}],92:[function(require,module,exports){
+},{"./adapters/http":54,"./adapters/localStorage":55,"./datastore":67,"./errors":91,"./utils":93}],93:[function(require,module,exports){
 var DSErrors = require('./errors');
 
 function Events(target) {
@@ -7744,4 +7813,4 @@ module.exports = ['$q', function ($q) {
   };
 }];
 
-},{"./errors":90,"mout/array/contains":2,"mout/array/filter":3,"mout/array/find":4,"mout/array/remove":9,"mout/array/slice":10,"mout/array/sort":11,"mout/array/toLookup":12,"mout/lang/isBoolean":19,"mout/lang/isEmpty":20,"mout/lang/isRegExp":25,"mout/object/deepMixIn":31,"mout/object/keys":35,"mout/object/merge":36,"mout/object/mixIn":37,"mout/object/pick":39,"mout/object/set":40,"mout/random/guid":42,"mout/string/makePath":49,"mout/string/pascalCase":50,"mout/string/upperCase":53}]},{},[91]);
+},{"./errors":91,"mout/array/contains":2,"mout/array/filter":3,"mout/array/find":4,"mout/array/remove":9,"mout/array/slice":10,"mout/array/sort":11,"mout/array/toLookup":12,"mout/lang/isBoolean":19,"mout/lang/isEmpty":20,"mout/lang/isRegExp":25,"mout/object/deepMixIn":31,"mout/object/keys":35,"mout/object/merge":36,"mout/object/mixIn":37,"mout/object/pick":39,"mout/object/set":40,"mout/random/guid":42,"mout/string/makePath":49,"mout/string/pascalCase":50,"mout/string/upperCase":53}]},{},[92]);
