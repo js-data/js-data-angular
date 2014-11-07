@@ -8,14 +8,16 @@ Unlike Backbone and Ember Models, angular-data does not require the use of gette
 
 Supporting relations, computed properties, model lifecycle control and a slew of other features, angular-data is the tool for giving your data the respect it deserves.
 
-__Latest Release:__ [1.0.0-rc.2-1](http://angular-data.pseudobry.com/)
-__master:__ [1.0.0-rc.2-1](http://angular-data-next.pseudobry.com/)
+__Latest Release:__ [1.2.0](https://github.com/jmdobry/angular-data/releases/tag/1.2.0)
 
-Angular-data is in a 1.0.0 Beta. The API is rather stable and angular-data is well tested.
+Angular-data is finally 1.0.! 
 
-Although angular-data is being used in production, it's not fully 1.0.0. If you want to use Angular-data, keep an eye on the changelog. 1.0.0 will introduce strict semver (until then, minor number is bumped for breaking changes).
+Angular-data 1.x will continue to see bug fixes, but all new development will be on [js-data](https://github.com/js-data/js-data) and [js-data-angular](https://github.com/jmdobry/angular-data/pull/198) (Angular-data 2.0).
 
-## Documentation
+#### A note about Angular-data 2.0 (in development)
+See [angular-data/pull/198](https://github.com/jmdobry/angular-data/pull/198).
+
+## 1.x Documentation
 [http://angular-data.pseudobry.com](http://angular-data.pseudobry.com)
 
 ## Project Status
@@ -37,42 +39,41 @@ var app = angular.module('myApp', ['angular-data.DS']);
 ```
 
 ```js
-app.factory('User', function (DS) {
+app.factory('Post', function (DS) {
   // Simplest resource definition
-  return DS.defineResource('user');
+  return DS.defineResource('post');
+});
+app.factory('Comment', function (DS) {
+  return DS.defineResource('comment');
 });
 ```
 
 ```js
-app.controller('friendsCtrl', function ($scope, $routeParams, User) {
+app.controller('postCtrl', function ($scope, $routeParams, Post, Comment) {
   // it's up to your server to know how to interpret this query
   // or you can teach angular-data how to understand your servers' query language
   var query = {
-    where: {
-      friendIds: {
-        in: $routeParams.id
-      }
-    }
+    postId: $routeParams.id
   };
   
-  User.find($routeParams.id);
-  User.findAll(query);
+  Post.find($routeParams.id);
+  Comment.findAll(query);
   
   // My goodness this was easy
-  User.bindOne($scope, 'me', $routeParams.id);
-  User.bindAll($scope, 'friends', query);
+  Post.bindOne($scope, 'post', $routeParams.id);
+  Comment.bindAll($scope, 'comments', query);
   
-  // Long form
+  // Long form, functionally the same as above
   $scope.$watch(function () {
-    return User.lastModified($routeParams.id);
+    return Post.lastModified($routeParams.id);
   }, function () {
-    $scope.me = User.get($routeParams.id);
+    $scope.post = Post.get($routeParams.id);
   });
   $scope.$watch(function () {
-    // Changes when anything in the User collection is modified
-    return User.lastModified();
+    // Changes when anything in the Comment collection is modified
+    return Comment.lastModified();
   }, function () {
-    $scope.friends = User.filter(query);
+    $scope.comments = Comment.filter(query);
   });
 });
 ```
@@ -101,9 +102,7 @@ app.controller('friendsCtrl', function ($scope, $routeParams, User) {
 ## Community
 - [Mailing List](https://groups.google.com/forum/?fromgroups#!forum/angular-data) - Ask your questions!
 - [Issues](https://github.com/jmdobry/angular-data/issues) - Found a bug? Feature request? Submit an issue!
-- [GitHub](https://github.com/jmdobry/angular-data) - View the source code for angular-data.
-- [Design Doc](https://docs.google.com/document/d/1o069KLuBH4jpwm1FCLZFwKMgM73Xi8_1JyjhSxVpidM/edit?usp=sharing) - Design document for Angular-data.
-- [Contributing Guide](#Contributing)
+- [Contributing Guide](https://github.com/jmdobry/angular-data/blob/master/CONTRIBUTING.md)
 
 ## Contributing
 
@@ -120,7 +119,9 @@ First, feel free to contact me with questions. [Mailing List](https://groups.goo
 
 ## License
 
-Copyright (C) 2014 Jason Dobry
+The MIT License (MIT)
+
+Copyright (c) 2014 Jason Dobry
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in

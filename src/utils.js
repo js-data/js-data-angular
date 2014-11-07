@@ -1,3 +1,5 @@
+var DSErrors = require('./errors');
+
 function Events(target) {
   var events = {};
   target = target || this;
@@ -42,7 +44,34 @@ function Events(target) {
   };
 }
 
-module.exports = [function () {
+var toPromisify = [
+  'beforeValidate',
+  'validate',
+  'afterValidate',
+  'beforeCreate',
+  'afterCreate',
+  'beforeUpdate',
+  'afterUpdate',
+  'beforeDestroy',
+  'afterDestroy'
+];
+
+var find = require('mout/array/find');
+var isRegExp = require('mout/lang/isRegExp');
+
+function isBlacklisted(prop, blacklist) {
+  if (!blacklist || !blacklist.length) {
+    return false;
+  }
+  var matches = find(blacklist, function (blItem) {
+    if ((isRegExp(blItem) && blItem.test(prop)) || blItem === prop) {
+      return prop;
+    }
+  });
+  return !!matches;
+}
+
+module.exports = ['$q', function ($q) {
   return {
     isBoolean: require('mout/lang/isBoolean'),
     isString: angular.isString,
@@ -51,24 +80,46 @@ module.exports = [function () {
     isNumber: angular.isNumber,
     isFunction: angular.isFunction,
     isEmpty: require('mout/lang/isEmpty'),
+    isRegExp: isRegExp,
     toJson: angular.toJson,
     fromJson: angular.fromJson,
     makePath: require('mout/string/makePath'),
     upperCase: require('mout/string/upperCase'),
     pascalCase: require('mout/string/pascalCase'),
     deepMixIn: require('mout/object/deepMixIn'),
+    mixIn: require('mout/object/mixIn'),
     forEach: angular.forEach,
     pick: require('mout/object/pick'),
     set: require('mout/object/set'),
     merge: require('mout/object/merge'),
     contains: require('mout/array/contains'),
     filter: require('mout/array/filter'),
+    find: find,
     toLookup: require('mout/array/toLookup'),
     remove: require('mout/array/remove'),
     slice: require('mout/array/slice'),
     sort: require('mout/array/sort'),
     guid: require('mout/random/guid'),
     keys: require('mout/object/keys'),
+    _: function (parent, options) {
+      var _this = this;
+      options = options || {};
+      if (options && options.constructor === parent.constructor) {
+        return options;
+      } else if (!_this.isObject(options)) {
+        throw new DSErrors.IA('"options" must be an object!');
+      }
+      _this.forEach(toPromisify, function (name) {
+        if (typeof options[name] === 'function') {
+          options[name] = $q.promisify(options[name]);
+        }
+      });
+      var O = function Options(attrs) {
+        _this.mixIn(this, attrs);
+      };
+      O.prototype = parent;
+      return new O(options);
+    },
     resolveItem: function (resource, idOrInstance) {
       if (resource && (this.isString(idOrInstance) || this.isNumber(idOrInstance))) {
         return resource.index[idOrInstance] || idOrInstance;
@@ -110,7 +161,7 @@ module.exports = [function () {
         }
       }
     },
-    diffObjectFromOldObject: function (object, oldObject) {
+    diffObjectFromOldObject: function (object, oldObject, blacklist) {
       var added = {};
       var removed = {};
       var changed = {};
@@ -118,21 +169,32 @@ module.exports = [function () {
       for (var prop in oldObject) {
         var newValue = object[prop];
 
-        if (newValue !== undefined && newValue === oldObject[prop])
+        if (isBlacklisted(prop, blacklist)) {
           continue;
+        }
+
+        if (newValue !== undefined && newValue === oldObject[prop]) {
+          continue;
+        }
 
         if (!(prop in object)) {
           removed[prop] = undefined;
           continue;
         }
 
-        if (newValue !== oldObject[prop])
+        if (newValue !== oldObject[prop]) {
           changed[prop] = newValue;
+        }
       }
 
       for (var prop2 in object) {
-        if (prop2 in oldObject)
+        if (prop2 in oldObject) {
           continue;
+        }
+
+        if (isBlacklisted(prop2, blacklist)) {
+          continue;
+        }
 
         added[prop2] = object[prop2];
       }

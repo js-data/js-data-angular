@@ -53,18 +53,21 @@ function errorPrefix(resourceName, id) {
  */
 function refresh(resourceName, id, options) {
   var DS = this;
+  var DSUtils = DS.utils;
   var IA = DS.errors.IA;
+  var definition = DS.definitions[resourceName];
 
   options = options || {};
 
-  id = DS.utils.resolveId(DS.definitions[resourceName], id);
-  if (!DS.definitions[resourceName]) {
+  id = DSUtils.resolveId(DS.definitions[resourceName], id);
+  if (!definition) {
     throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
-  } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {
+  } else if (!DSUtils.isString(id) && !DSUtils.isNumber(id)) {
     throw new IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
-  } else if (!DS.utils.isObject(options)) {
+  } else if (!DSUtils.isObject(options)) {
     throw new IA(errorPrefix(resourceName, id) + 'options: Must be an object!');
   } else {
+    options = DSUtils._(definition, options);
     options.bypassCache = true;
 
     if (DS.get(resourceName, id)) {

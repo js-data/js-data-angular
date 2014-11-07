@@ -119,7 +119,7 @@ Params definition:
     }
   },
   skip: <number>,
-  offset: <number>, // same as offset
+  offset: <number>, // same as skip
   limit: <number>,
   orderBy: <array>,
   sort: <array> // same as orderBy

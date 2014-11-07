@@ -21,6 +21,7 @@ var methodsToProxy = [
   'createInstance',
   'destroy',
   'destroyAll',
+  'digest',
   'eject',
   'ejectAll',
   'filter',
@@ -169,6 +170,7 @@ function defineResource(definition) {
     }
 
     def.getEndpoint = function (attrs, options) {
+      options = DSUtils.deepMixIn({}, options);
       var parent = this.parent;
       var parentKey = this.parentKey;
       var item;

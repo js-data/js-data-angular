@@ -2,7 +2,7 @@
   "author": "Jason Dobry",
   "name": "angular-data",
   "description": "Data store for Angular.js.",
-  "version": "1.0.0-rc.2-1",
+  "version": "1.2.0",
   "homepage": "http://angular-data.pseudobry.com/",
   "repository": {
     "type": "git",
@@ -25,12 +25,15 @@
     "karma.conf.js",
     "karma.start.js"
   ],
+  "dependencies": {
+    "angular": "1.x"
+  },
   "devDependencies": {
-    "angular": "~1.2.22",
-    "angular-mocks": "~1.2.22",
-    "angular-cache": "~3.1.1",
+    "angular": "1.2.25",
+    "angular-mocks": "1.2.25",
+    "angular-cache": "3.1.1",
     "observe-js": "0.3.4",
-    "angular-data-mocks": "1.0.0-rc.1",
-    "bootstrap": "~3.2.0"
+    "angular-data-mocks": "1.0.0",
+    "bootstrap": "3.2.0"
   }
 }

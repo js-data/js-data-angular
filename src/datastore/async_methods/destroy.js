@@ -48,6 +48,7 @@ function errorPrefix(resourceName, id) {
  */
 function destroy(resourceName, id, options) {
   var DS = this;
+  var DSUtils = DS.utils;
   var deferred = DS.$q.defer();
 
   try {
@@ -55,10 +56,10 @@ function destroy(resourceName, id, options) {
 
     options = options || {};
 
-    id = DS.utils.resolveId(definition, id);
+    id = DSUtils.resolveId(definition, id);
     if (!definition) {
       throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
-    } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {
+    } else if (!DSUtils.isString(id) && !DSUtils.isNumber(id)) {
       throw new DS.errors.IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
     }
 
@@ -67,24 +68,17 @@ function destroy(resourceName, id, options) {
       throw new DS.errors.R(errorPrefix(resourceName, id) + 'id: "' + id + '" not found!');
     }
 
+    options = DSUtils._(definition, options);
+
     deferred.resolve(item);
-
-    if (!('eagerEject' in options)) {
-      options.eagerEject = definition.eagerEject;
-    }
-
-    if (!('notify' in options)) {
-      options.notify = definition.notify;
-    }
 
     return deferred.promise
       .then(function (attrs) {
-        var func = options.beforeDestroy ? DS.$q.promisify(options.beforeDestroy) : definition.beforeDestroy;
-        return func.call(attrs, resourceName, attrs);
+        return options.beforeDestroy.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
         if (options.notify) {
-          DS.emit(definition, 'beforeDestroy', DS.utils.merge({}, attrs));
+          DS.emit(definition, 'beforeDestroy', DSUtils.merge({}, attrs));
         }
         if (options.eagerEject) {
           DS.eject(resourceName, id);
@@ -92,12 +86,11 @@ function destroy(resourceName, id, options) {
         return DS.adapters[options.adapter || definition.defaultAdapter].destroy(definition, id, options);
       })
       .then(function () {
-        var func = options.afterDestroy ? DS.$q.promisify(options.afterDestroy) : definition.afterDestroy;
-        return func.call(item, resourceName, item);
+        return options.afterDestroy.call(item, resourceName, item);
       })
       .then(function () {
         if (options.notify) {
-          DS.emit(definition, 'afterDestroy', DS.utils.merge({}, item));
+          DS.emit(definition, 'afterDestroy', DSUtils.merge({}, item));
         }
         DS.eject(resourceName, id);
         return id;

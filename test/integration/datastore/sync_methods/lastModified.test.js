@@ -18,7 +18,7 @@ describe('DS.lastModified(resourceName[, id])', function () {
       }
     });
   });
-  it('should lastModified an item into the store', function () {
+  it('should change lastModified when items are injected', function () {
 
     var collectionLastModified;
 
@@ -51,9 +51,62 @@ describe('DS.lastModified(resourceName[, id])', function () {
     });
 
     assert.notEqual(DS.lastModified('post'), collectionLastModified);
-
-    collectionLastModified = DS.lastModified('post');
     assert.equal(DS.lastModified('post', 5), lastModified);
+  });
+  it('should update lastModified when top-level "own" properties change', function (done) {
+
+    var Thing = DS.defineResource('thing');
+
+    var thing = Thing.inject({ id: 1, foo: 'bar', bing: { boom: 'bam' } });
+    var time = Thing.lastModified(1);
+
+    thing.foo = 'baz';
+    if (typeof Object.observe !== 'function') {
+      Thing.digest();
+    }
+    setTimeout(function () {
+      try {
+        assert.notEqual(time, Thing.lastModified(1));
+        time = Thing.lastModified(1);
+        thing.bing.boom = 'kazaam';
+        if (typeof Object.observe !== 'function') {
+          Thing.digest();
+        }
+        setTimeout(function () {
+          try {
+            assert.equal(time, Thing.lastModified(1));
+            done();
+          } catch (e) {
+            console.log(e.stack);
+            done(e);
+          }
+        }, 100);
+      } catch (e) {
+        console.log(e.stack);
+        done(e);
+      }
+    }, 100);
+  });
+  it('should update the lastModified timestamp of an item when the item is re-injected', function (done) {
+
+    var Thing = DS.defineResource('thing');
+
+    var thing = Thing.inject({ id: 1, foo: 'bar', bing: { boom: 'bam' } });
+    var time = Thing.lastModified(1);
+
+    Thing.inject(thing);
+    if (typeof Object.observe !== 'function') {
+      Thing.digest();
+    }
+    setTimeout(function () {
+      try {
+        assert.notEqual(time, Thing.lastModified(1));
+        done();
+      } catch (e) {
+        console.log(e.stack);
+        done(e);
+      }
+    }, 100);
   });
 //	it('should lastModified an item into the store', function (done) {
 //

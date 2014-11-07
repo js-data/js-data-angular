@@ -48,6 +48,7 @@ function errorPrefix(resourceName, id) {
  */
 function find(resourceName, id, options) {
   var DS = this;
+  var DSUtils = DS.utils;
   var deferred = DS.$q.defer();
   var promise = deferred.promise;
 
@@ -59,15 +60,14 @@ function find(resourceName, id, options) {
 
     if (!definition) {
       throw new DS.errors.NER(errorPrefix(resourceName, id) + resourceName);
-    } else if (!DS.utils.isString(id) && !DS.utils.isNumber(id)) {
+    } else if (!DSUtils.isString(id) && !DSUtils.isNumber(id)) {
       throw new IA(errorPrefix(resourceName, id) + 'id: Must be a string or a number!');
-    } else if (!DS.utils.isObject(options)) {
+    } else if (!DSUtils.isObject(options)) {
       throw new IA(errorPrefix(resourceName, id) + 'options: Must be an object!');
     }
 
-    if (!('cacheResponse' in options)) {
-      options.cacheResponse = true;
-    }
+    options = DSUtils._(definition, options);
+
     var resource = DS.store[resourceName];
 
     if (options.bypassCache || !options.cacheResponse) {
@@ -79,9 +79,9 @@ function find(resourceName, id, options) {
         promise = resource.pendingQueries[id] = DS.adapters[options.adapter || definition.defaultAdapter].find(definition, id, options)
           .then(function (res) {
             var data = options.deserialize ? options.deserialize(resourceName, res) : definition.deserialize(resourceName, res);
+            // Query is no longer pending
+            delete resource.pendingQueries[id];
             if (options.cacheResponse) {
-              // Query is no longer pending
-              delete resource.pendingQueries[id];
               resource.completedQueries[id] = new Date().getTime();
               return DS.inject(resourceName, data, options);
             } else {

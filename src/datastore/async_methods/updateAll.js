@@ -30,7 +30,7 @@ function errorPrefix(resourceName) {
  *
  * DS.filter('document', params); // []
  *
- * DS.updateAll('document', 5, {
+ * DS.updateAll('document', {
  *   author: 'Sally'
  * }, params).then(function (documents) {
  *   documents; // The documents that were updated via an adapter
@@ -67,6 +67,7 @@ function errorPrefix(resourceName) {
  */
 function updateAll(resourceName, attrs, params, options) {
   var DS = this;
+  var DSUtils = DS.utils;
   var deferred = DS.$q.defer();
 
   try {
@@ -77,55 +78,44 @@ function updateAll(resourceName, attrs, params, options) {
 
     if (!definition) {
       throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
-    } else if (!DS.utils.isObject(attrs)) {
+    } else if (!DSUtils.isObject(attrs)) {
       throw new IA(errorPrefix(resourceName) + 'attrs: Must be an object!');
-    } else if (!DS.utils.isObject(params)) {
+    } else if (!DSUtils.isObject(params)) {
       throw new IA(errorPrefix(resourceName) + 'params: Must be an object!');
-    } else if (!DS.utils.isObject(options)) {
+    } else if (!DSUtils.isObject(options)) {
       throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
     }
 
-    if (!('cacheResponse' in options)) {
-      options.cacheResponse = true;
-    }
-
-    if (!('notify' in options)) {
-      options.notify = definition.notify;
-    }
+    options = DSUtils._(definition, options);
 
     deferred.resolve(attrs);
 
     return deferred.promise
       .then(function (attrs) {
-        var func = options.beforeValidate ? DS.$q.promisify(options.beforeValidate) : definition.beforeValidate;
-        return func.call(attrs, resourceName, attrs);
+        return options.beforeValidate.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        var func = options.validate ? DS.$q.promisify(options.validate) : definition.validate;
-        return func.call(attrs, resourceName, attrs);
+        return options.validate.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        var func = options.afterValidate ? DS.$q.promisify(options.afterValidate) : definition.afterValidate;
-        return func.call(attrs, resourceName, attrs);
+        return options.afterValidate.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
-        var func = options.beforeUpdate ? DS.$q.promisify(options.beforeUpdate) : definition.beforeUpdate;
-        return func.call(attrs, resourceName, attrs);
+        return options.beforeUpdate.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
         if (options.notify) {
-          DS.emit(definition, 'beforeUpdate', DS.utils.merge({}, attrs));
+          DS.emit(definition, 'beforeUpdate', DSUtils.merge({}, attrs));
         }
         return DS.adapters[options.adapter || definition.defaultAdapter].updateAll(definition, options.serialize ? options.serialize(resourceName, attrs) : definition.serialize(resourceName, attrs), params, options);
       })
       .then(function (res) {
-        var func = options.afterUpdate ? DS.$q.promisify(options.afterUpdate) : definition.afterUpdate;
         var attrs = options.deserialize ? options.deserialize(resourceName, res) : definition.deserialize(resourceName, res);
-        return func.call(attrs, resourceName, attrs);
+        return options.afterUpdate.call(attrs, resourceName, attrs);
       })
       .then(function (attrs) {
         if (options.notify) {
-          DS.emit(definition, 'afterUpdate', DS.utils.merge({}, attrs));
+          DS.emit(definition, 'afterUpdate', DSUtils.merge({}, attrs));
         }
         if (options.cacheResponse) {
           return DS.inject(definition.name, attrs, options);

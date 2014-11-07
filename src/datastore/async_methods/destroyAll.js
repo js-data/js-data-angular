@@ -54,6 +54,7 @@ function errorPrefix(resourceName) {
  */
 function destroyAll(resourceName, params, options) {
   var DS = this;
+  var DSUtils = DS.utils;
   var deferred = DS.$q.defer();
 
   try {
@@ -64,11 +65,13 @@ function destroyAll(resourceName, params, options) {
 
     if (!definition) {
       throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
-    } else if (!DS.utils.isObject(params)) {
+    } else if (!DSUtils.isObject(params)) {
       throw new IA(errorPrefix(resourceName) + 'params: Must be an object!');
-    } else if (!DS.utils.isObject(options)) {
+    } else if (!DSUtils.isObject(options)) {
       throw new IA(errorPrefix(resourceName) + 'options: Must be an object!');
     }
+
+    options = DSUtils._(definition, options);
 
     deferred.resolve();
 
