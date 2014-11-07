@@ -2,11 +2,11 @@
   "author": "Jason Dobry",
   "name": "angular-data",
   "description": "Data store for Angular.js.",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "homepage": "http://angular-data.pseudobry.com/",
   "repository": {
     "type": "git",
-    "url": "git://github.com/jmdobry/angular-data.git"
+    "url": "https://github.com/jmdobry/angular-data.git"
   },
   "main": "./dist/angular-data.min.js",
   "ignore": [
@@ -31,7 +31,7 @@
   "devDependencies": {
     "angular": "1.2.25",
     "angular-mocks": "1.2.25",
-    "angular-cache": "3.1.1",
+    "angular-cache": "3.2.0",
     "observe-js": "0.3.4",
     "angular-data-mocks": "1.0.0",
     "bootstrap": "3.2.0"

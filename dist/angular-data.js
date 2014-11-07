@@ -1,7 +1,7 @@
 /**
 * @author Jason Dobry <jason.dobry@gmail.com>
 * @file angular-data.js
-* @version 1.2.1 - Homepage <http://angular-data.pseudobry.com/>
+* @version 1.3.0 - Homepage <http://angular-data.pseudobry.com/>
 * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>
 * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
 *
@@ -4079,6 +4079,10 @@ function updateAll(resourceName, attrs, params, options) {
 module.exports = updateAll;
 
 },{}],67:[function(require,module,exports){
+var observe = require('../../lib/observe-js/observe-js');
+
+var total = 0;
+
 function lifecycleNoop(resourceName, attrs, cb) {
   cb(null, attrs);
 }
@@ -4210,7 +4214,14 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
       if (_this.utils.isString(def)) {
         def = [def, 'ASC'];
       } else if (!_this.utils.isArray(def)) {
-        throw new _this.errors.IllegalArgumentError('DS.filter(resourceName[, params][, options]): ' + angular.toJson(def) + ': Must be a string or an array!', { params: { 'orderBy[i]': { actual: typeof def, expected: 'string|array' } } });
+        throw new _this.errors.IllegalArgumentError('DS.filter(resourceName[, params][, options]): ' + angular.toJson(def) + ': Must be a string or an array!', {
+          params: {
+            'orderBy[i]': {
+              actual: typeof def,
+              expected: 'string|array'
+            }
+          }
+        });
       }
       filtered = _this.utils.sort(filtered, function (a, b) {
         var cA = a[def[0]], cB = b[def[0]];
@@ -4734,9 +4745,9 @@ function DSProvider() {
     '$rootScope', '$log', '$q', 'DSHttpAdapter', 'DSLocalStorageAdapter', 'DSUtils', 'DSErrors',
     function ($rootScope, $log, $q, DSHttpAdapter, DSLocalStorageAdapter, DSUtils, DSErrors) {
 
-      var syncMethods = require('./sync_methods'),
-        asyncMethods = require('./async_methods'),
-        cache;
+      var syncMethods = require('./sync_methods');
+      var asyncMethods = require('./async_methods');
+      var cache;
 
       try {
         cache = angular.injector(['angular-data.DSCacheFactory']).get('DSCacheFactory');
@@ -4846,10 +4857,7 @@ function DSProvider() {
       if (typeof Object.observe !== 'function' ||
         typeof Array.observe !== 'function') {
         $rootScope.$watch(function () {
-          // Throttle angular-data's digest loop to tenths of a second
-          return new Date().getTime() / 100 | 0;
-        }, function () {
-          DS.digest();
+          observe.Platform.performMicrotaskCheckpoint();
         });
       }
 
@@ -4860,7 +4868,7 @@ function DSProvider() {
 
 module.exports = DSProvider;
 
-},{"./async_methods":61,"./sync_methods":82}],68:[function(require,module,exports){
+},{"../../lib/observe-js/observe-js":1,"./async_methods":61,"./sync_methods":82}],68:[function(require,module,exports){
 function errorPrefix(resourceName) {
   return 'DS.bindAll(scope, expr, ' + resourceName + ', params[, cb]): ';
 }
@@ -5382,6 +5390,13 @@ function Resource(utils, options) {
   }
 }
 
+var instanceMethods = [
+  'save',
+  'update',
+  'destroy',
+  'refresh'
+];
+
 var methodsToProxy = [
   'bindAll',
   'bindOne',
@@ -5398,6 +5413,7 @@ var methodsToProxy = [
   'find',
   'findAll',
   'get',
+  'getAll',
   'hasChanges',
   'inject',
   'lastModified',
@@ -5488,24 +5504,27 @@ function defineResource(definition) {
       name: definition
     };
   }
+
+  var defName = definition ? definition.name : undefined;
+
   if (!DSUtils.isObject(definition)) {
     throw new IA(errorPrefix + 'definition: Must be an object!');
-  } else if (!DSUtils.isString(definition.name)) {
+  } else if (!DSUtils.isString(defName)) {
     throw new IA(errorPrefix + 'definition.name: Must be a string!');
   } else if (definition.idAttribute && !DSUtils.isString(definition.idAttribute)) {
     throw new IA(errorPrefix + 'definition.idAttribute: Must be a string!');
   } else if (definition.endpoint && !DSUtils.isString(definition.endpoint)) {
     throw new IA(errorPrefix + 'definition.endpoint: Must be a string!');
-  } else if (DS.store[definition.name]) {
-    throw new DS.errors.R(errorPrefix + definition.name + ' is already registered!');
+  } else if (DS.store[defName]) {
+    throw new DS.errors.R(errorPrefix + defName + ' is already registered!');
   }
 
   try {
     // Inherit from global defaults
     Resource.prototype = DS.defaults;
-    definitions[definition.name] = new Resource(DSUtils, definition);
+    definitions[defName] = new Resource(DSUtils, definition);
 
-    var def = definitions[definition.name];
+    var def = definitions[defName];
 
     // Setup nested parent configuration
     if (def.relations) {
@@ -5597,7 +5616,7 @@ function defineResource(definition) {
     });
 
     // Create the wrapper class for the new resource
-    def.class = DSUtils.pascalCase(definition.name);
+    def.class = DSUtils.pascalCase(defName);
     eval('function ' + def.class + '() {}');
     def[def.class] = eval(def.class);
 
@@ -5640,19 +5659,14 @@ function defineResource(definition) {
       };
     }
 
-    def[def.class].prototype.DSUpdate = function () {
-      var args = Array.prototype.slice.call(arguments);
-      args.unshift(this[def.idAttribute]);
-      args.unshift(def.name);
-      return DS.update.apply(DS, args);
-    };
-
-    def[def.class].prototype.DSSave = function () {
-      var args = Array.prototype.slice.call(arguments);
-      args.unshift(this[def.idAttribute]);
-      args.unshift(def.name);
-      return DS.save.apply(DS, args);
-    };
+    DSUtils.forEach(instanceMethods, function (name) {
+      def[def.class].prototype['DS' + DSUtils.pascalCase(name)] = function () {
+        var args = Array.prototype.slice.call(arguments);
+        args.unshift(this[def.idAttribute]);
+        args.unshift(def.name);
+        return DS[name].apply(DS, args);
+      };
+    });
 
     // Initialize store data for the new resource
     DS.store[def.name] = {
@@ -5702,8 +5716,8 @@ function defineResource(definition) {
     return def;
   } catch (err) {
     DS.$log.error(err);
-    delete definitions[definition.name];
-    delete DS.store[definition.name];
+    delete definitions[defName];
+    delete DS.store[defName];
     throw err;
   }
 }
@@ -6136,7 +6150,7 @@ function errorPrefix(resourceName) {
  * @id DS.sync methods:getAll
  * @name getAll
  * @description
- * Synchronously return all of the resource.
+ * Synchronously return all items of the given resource, or optionally, a subset based on the given primary keys.
  *
  * ## Signature:
  * ```js
@@ -6155,27 +6169,27 @@ function errorPrefix(resourceName) {
  * - `{NonexistentResourceError}`
  *
  * @param {string} resourceName The resource type, e.g. 'user', 'comment', etc.
- * @param {array} ids Optional list of primary keys to filter the array of results by.
+ * @param {array} ids Optional list of primary keys by which to filter the results.
  *
  * @returns {array} The items of the type specified by `resourceName`.
  */
 function getAll(resourceName, ids) {
-	var DS = this;
+  var DS = this;
   var IA = DS.errors.IA;
-  var resource;
+  var resource = DS.store[resourceName];
   var collection = [];
 
   if (!DS.definitions[resourceName]) {
     throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
-  } else if (arguments.length === 2 && !DS.utils.isArray(ids)) {
+  } else if (ids && !DS.utils.isArray(ids)) {
     throw new IA(errorPrefix(resourceName, ids) + 'ids: Must be an array!');
   }
 
-  resource = DS.store[resourceName];  
-
   if (DS.utils.isArray(ids)) {
     for (var i = 0; i < ids.length; i++) {
-      collection.push(resource.index.get(ids[i]));
+      if (resource.index.get(ids[i])) {
+        collection.push(resource.index.get(ids[i]));
+      }
     }
   } else {
     collection = resource.collection.slice();
@@ -6185,6 +6199,7 @@ function getAll(resourceName, ids) {
 }
 
 module.exports = getAll;
+
 },{}],81:[function(require,module,exports){
 function errorPrefix(resourceName, id) {
   return 'DS.hasChanges(' + resourceName + ', ' + id + '): ';

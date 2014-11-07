@@ -320,121 +320,94 @@ describe('DS.findAll(resourceName, params[, options]): ', function () {
     $httpBackend.flush();
   });
   it('stress test repeated injection', function () {
-    $httpBackend.expectGET('http://test.angular-cache.com/comment').respond(200, createComments(100));
-
-    var start = new Date().getTime();
-
-    DS.findAll('comment', {}, {
-      bypassCache: true
-    }).then(function () {
-      console.log('100 - time taken: ' + (new Date().getTime() - start) + 'ms');
-    }, function () {
-      fail('Should not have failed!');
-    });
-
-    $httpBackend.flush();
-
-    $httpBackend.expectGET('http://test.angular-cache.com/comment').respond(200, createComments(100));
-
-    start = new Date().getTime();
-
-    DS.findAll('comment', {}, {
-      bypassCache: true
-    }).then(function () {
-      console.log('100 - time taken: ' + (new Date().getTime() - start) + 'ms');
-    }, function () {
-      fail('Should not have failed!');
-    });
-
-    $httpBackend.flush();
-
-    $httpBackend.expectGET('http://test.angular-cache.com/comment').respond(200, createComments(100));
-
-    start = new Date().getTime();
-
-    DS.findAll('comment', {}, {
-      bypassCache: true
-    }).then(function () {
-      console.log('100 - time taken: ' + (new Date().getTime() - start) + 'ms');
-    }, function () {
-      fail('Should not have failed!');
-    });
-
-    $httpBackend.flush();
-  });
-  it('stress test 1000', function () {
-    $httpBackend.expectGET('http://test.angular-cache.com/comment').respond(200, createComments(1000));
-
-    var start = new Date().getTime();
-
-    DS.findAll('comment', {}, {
-      bypassCache: true
-    }).then(function () {
-      console.log('1000 - time taken: ' + (new Date().getTime() - start) + 'ms');
-    }, function () {
-      fail('Should not have failed!');
-    });
-
-    $httpBackend.flush();
-  });
-  it('stress test 2000', function () {
-    $httpBackend.expectGET('http://test.angular-cache.com/comment').respond(200, createComments(2000));
-
-    var start = new Date().getTime();
-
-    DS.findAll('comment', {}, {
-      bypassCache: true
-    }).then(function () {
-      console.log('2000 - time taken: ' + (new Date().getTime() - start) + 'ms');
-    }, function () {
-      fail('Should not have failed!');
-    });
-
-    $httpBackend.flush();
-  });
-  it('stress test 3000', function () {
-    this.timeout(10000);
-    $httpBackend.expectGET('http://test.angular-cache.com/comment').respond(200, createComments(3000));
-    var start = new Date().getTime();
-
-    DS.findAll('comment', {}, {
-      bypassCache: true
-    }).then(function () {
-      console.log('3000 - time taken: ' + (new Date().getTime() - start) + 'ms');
-    }, function () {
-      fail('Should not have failed!');
-    });
-
-    $httpBackend.flush();
-  });
-  it('stress test 4000', function () {
-    this.timeout(10000);
-    $httpBackend.expectGET('http://test.angular-cache.com/comment').respond(200, createComments(4000));
-    var start = new Date().getTime();
-
-    DS.findAll('comment', {}, {
-      bypassCache: true
-    }).then(function () {
-      console.log('4000 - time taken: ' + (new Date().getTime() - start) + 'ms');
-    }, function () {
-      fail('Should not have failed!');
-    });
-
-    $httpBackend.flush();
-  });
-  it('stress test 5000', function () {
     this.timeout(15000);
-    $httpBackend.expectGET('http://test.angular-cache.com/comment').respond(200, createComments(5000));
+    $httpBackend.expectGET('http://test.angular-cache.com/comment').respond(200, createComments(100));
+
     var start = new Date().getTime();
 
     DS.findAll('comment', {}, {
       bypassCache: true
     }).then(function () {
-      console.log('5000 - time taken: ' + (new Date().getTime() - start) + 'ms');
+      console.log('100 - time taken: ' + (new Date().getTime() - start) + 'ms');
+    }, function () {
+      fail('Should not have failed!');
+    });
+
+    $httpBackend.flush();
+
+    $httpBackend.expectGET('http://test.angular-cache.com/comment').respond(200, createComments(100));
+
+    start = new Date().getTime();
+
+    DS.findAll('comment', {}, {
+      bypassCache: true
+    }).then(function () {
+      console.log('100 - time taken: ' + (new Date().getTime() - start) + 'ms');
+    }, function () {
+      fail('Should not have failed!');
+    });
+
+    $httpBackend.flush();
+
+    $httpBackend.expectGET('http://test.angular-cache.com/comment').respond(200, createComments(100));
+
+    start = new Date().getTime();
+
+    DS.findAll('comment', {}, {
+      bypassCache: true
+    }).then(function () {
+      console.log('100 - time taken: ' + (new Date().getTime() - start) + 'ms');
     }, function () {
       fail('Should not have failed!');
     });
 
     $httpBackend.flush();
   });
+  //it('stress test 1000', function () {
+  //  this.timeout(15000);
+  //  $httpBackend.expectGET('http://test.angular-cache.com/comment').respond(200, createComments(1000));
+  //
+  //  var start = new Date().getTime();
+  //
+  //  DS.findAll('comment', {}, {
+  //    bypassCache: true
+  //  }).then(function () {
+  //    console.log('1000 - time taken: ' + (new Date().getTime() - start) + 'ms');
+  //  }, function () {
+  //    fail('Should not have failed!');
+  //  });
+  //
+  //  $httpBackend.flush();
+  //});
+  //it('stress test 2000', function () {
+  //  this.timeout(30000);
+  //  $httpBackend.expectGET('http://test.angular-cache.com/comment').respond(200, createComments(2000));
+  //
+  //  var start = new Date().getTime();
+  //
+  //  DS.findAll('comment', {}, {
+  //    bypassCache: true
+  //  }).then(function () {
+  //    console.log('2000 - time taken: ' + (new Date().getTime() - start) + 'ms');
+  //  }, function () {
+  //    fail('Should not have failed!');
+  //  });
+  //
+  //  $httpBackend.flush();
+  //});
+  //it('stress test 3000', function () {
+  //  this.timeout(30000);
+  //  $httpBackend.expectGET('http://test.angular-cache.com/comment').respond(200, createComments(3000));
+  //  var start = new Date().getTime();
+  //
+  //  DS.findAll('comment', {}, {
+  //    bypassCache: true
+  //  }).then(function () {
+  //    console.log('3000 - time taken: ' + (new Date().getTime() - start) + 'ms');
+  //  }, function () {
+  //    fail('Should not have failed!');
+  //  });
+  //
+  //  $httpBackend.flush();
+  //});
 });

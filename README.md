@@ -8,9 +8,9 @@ Unlike Backbone and Ember Models, angular-data does not require the use of gette
 
 Supporting relations, computed properties, model lifecycle control and a slew of other features, angular-data is the tool for giving your data the respect it deserves.
 
-__Latest Release:__ [1.2.1](https://github.com/jmdobry/angular-data/releases/tag/1.2.1)
+__Latest Release:__ [1.3.0](https://github.com/jmdobry/angular-data/releases/tag/1.3.0)
 
-Angular-data is finally 1.0.! 
+Angular-data is finally 1.0.!
 
 Angular-data 1.x will continue to see bug fixes, but all new development will be on [js-data](https://github.com/js-data/js-data) and [js-data-angular](https://github.com/jmdobry/angular-data/pull/198) (Angular-data 2.0).
 
@@ -55,14 +55,14 @@ app.controller('postCtrl', function ($scope, $routeParams, Post, Comment) {
   var query = {
     postId: $routeParams.id
   };
-  
+
   Post.find($routeParams.id);
   Comment.findAll(query);
-  
+
   // My goodness this was easy
   Post.bindOne($scope, 'post', $routeParams.id);
   Comment.bindAll($scope, 'comments', query);
-  
+
   // Long form, functionally the same as above
   $scope.$watch(function () {
     return Post.lastModified($routeParams.id);

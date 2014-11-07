@@ -1,3 +1,12 @@
+##### 1.3.0 - 07 November 2014
+
+###### Backwards compatible API changes
+- #227 - Added DSDestroy and DSRefresh to instance methods
+- #228 - Added DS.getAll(resourceName[, ids])
+
+###### Backwards compatible bug fixes
+- #207 - digest iterations error
+
 ##### 1.2.1 - 04 November 2014
 
 ###### Backwards compatible bug fixes

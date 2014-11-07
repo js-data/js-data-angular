@@ -1,3 +1,7 @@
+var observe = require('../../lib/observe-js/observe-js');
+
+var total = 0;
+
 function lifecycleNoop(resourceName, attrs, cb) {
   cb(null, attrs);
 }
@@ -129,7 +133,14 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
       if (_this.utils.isString(def)) {
         def = [def, 'ASC'];
       } else if (!_this.utils.isArray(def)) {
-        throw new _this.errors.IllegalArgumentError('DS.filter(resourceName[, params][, options]): ' + angular.toJson(def) + ': Must be a string or an array!', { params: { 'orderBy[i]': { actual: typeof def, expected: 'string|array' } } });
+        throw new _this.errors.IllegalArgumentError('DS.filter(resourceName[, params][, options]): ' + angular.toJson(def) + ': Must be a string or an array!', {
+          params: {
+            'orderBy[i]': {
+              actual: typeof def,
+              expected: 'string|array'
+            }
+          }
+        });
       }
       filtered = _this.utils.sort(filtered, function (a, b) {
         var cA = a[def[0]], cB = b[def[0]];
@@ -653,9 +664,9 @@ function DSProvider() {
     '$rootScope', '$log', '$q', 'DSHttpAdapter', 'DSLocalStorageAdapter', 'DSUtils', 'DSErrors',
     function ($rootScope, $log, $q, DSHttpAdapter, DSLocalStorageAdapter, DSUtils, DSErrors) {
 
-      var syncMethods = require('./sync_methods'),
-        asyncMethods = require('./async_methods'),
-        cache;
+      var syncMethods = require('./sync_methods');
+      var asyncMethods = require('./async_methods');
+      var cache;
 
       try {
         cache = angular.injector(['angular-data.DSCacheFactory']).get('DSCacheFactory');
@@ -765,10 +776,7 @@ function DSProvider() {
       if (typeof Object.observe !== 'function' ||
         typeof Array.observe !== 'function') {
         $rootScope.$watch(function () {
-          // Throttle angular-data's digest loop to tenths of a second
-          return new Date().getTime() / 100 | 0;
-        }, function () {
-          DS.digest();
+          observe.Platform.performMicrotaskCheckpoint();
         });
       }
 
