@@ -122,6 +122,16 @@ module.exports = {
 
   /**
    * @doc method
+   * @id DS.sync methods:getAll
+   * @name getAll
+   * @methodOf DS
+   * @description
+   * See [DS.getAll](/documentation/api/api/DS.sync methods:getAll).
+   */
+  getAll: require('./getAll'),
+
+  /**
+   * @doc method
    * @id DS.sync methods:hasChanges
    * @name hasChanges
    * @methodOf DS
