@@ -6167,7 +6167,7 @@ function getAll(resourceName, ids) {
 
   if (!DS.definitions[resourceName]) {
     throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
-  } else if (arguments.length === 2 && !(ids instanceof Array)) {
+  } else if (arguments.length === 2 && !DS.utils.isArray(ids)) {
     throw new IA(errorPrefix(resourceName, ids) + 'ids: Must be an array!');
   }
 
@@ -6178,7 +6178,7 @@ function getAll(resourceName, ids) {
       collection.push(resource.index.get(ids[i]));
     }
   } else {
-    collection = resource.collection;
+    collection = resource.collection.slice();
   }
 
   return collection;
