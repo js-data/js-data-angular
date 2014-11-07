@@ -143,10 +143,13 @@ describe('DS.save(resourceName, id[, options])', function () {
 
     DS.inject('post', p1);
 
-    var initialModified = DS.lastModified('post', 5);
     var initialSaved = DS.lastSaved('post', 5);
 
     DS.get('post', 5).author = 'Jake';
+
+    $rootScope.$apply();
+
+    var initialModified = DS.lastModified('post', 5);
 
     DS.save('post', 5, { cacheResponse: false }).then(function (post) {
       assert.deepEqual(post, {

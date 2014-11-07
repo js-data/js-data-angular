@@ -12,6 +12,13 @@ function Resource(utils, options) {
   }
 }
 
+var instanceMethods = [
+  'save',
+  'update',
+  'destroy',
+  'refresh'
+];
+
 var methodsToProxy = [
   'bindAll',
   'bindOne',
@@ -28,6 +35,7 @@ var methodsToProxy = [
   'find',
   'findAll',
   'get',
+  'getAll',
   'hasChanges',
   'inject',
   'lastModified',
@@ -118,24 +126,27 @@ function defineResource(definition) {
       name: definition
     };
   }
+
+  var defName = definition ? definition.name : undefined;
+
   if (!DSUtils.isObject(definition)) {
     throw new IA(errorPrefix + 'definition: Must be an object!');
-  } else if (!DSUtils.isString(definition.name)) {
+  } else if (!DSUtils.isString(defName)) {
     throw new IA(errorPrefix + 'definition.name: Must be a string!');
   } else if (definition.idAttribute && !DSUtils.isString(definition.idAttribute)) {
     throw new IA(errorPrefix + 'definition.idAttribute: Must be a string!');
   } else if (definition.endpoint && !DSUtils.isString(definition.endpoint)) {
     throw new IA(errorPrefix + 'definition.endpoint: Must be a string!');
-  } else if (DS.store[definition.name]) {
-    throw new DS.errors.R(errorPrefix + definition.name + ' is already registered!');
+  } else if (DS.store[defName]) {
+    throw new DS.errors.R(errorPrefix + defName + ' is already registered!');
   }
 
   try {
     // Inherit from global defaults
     Resource.prototype = DS.defaults;
-    definitions[definition.name] = new Resource(DSUtils, definition);
+    definitions[defName] = new Resource(DSUtils, definition);
 
-    var def = definitions[definition.name];
+    var def = definitions[defName];
 
     // Setup nested parent configuration
     if (def.relations) {
@@ -227,7 +238,7 @@ function defineResource(definition) {
     });
 
     // Create the wrapper class for the new resource
-    def.class = DSUtils.pascalCase(definition.name);
+    def.class = DSUtils.pascalCase(defName);
     eval('function ' + def.class + '() {}');
     def[def.class] = eval(def.class);
 
@@ -270,19 +281,14 @@ function defineResource(definition) {
       };
     }
 
-    def[def.class].prototype.DSUpdate = function () {
-      var args = Array.prototype.slice.call(arguments);
-      args.unshift(this[def.idAttribute]);
-      args.unshift(def.name);
-      return DS.update.apply(DS, args);
-    };
-
-    def[def.class].prototype.DSSave = function () {
-      var args = Array.prototype.slice.call(arguments);
-      args.unshift(this[def.idAttribute]);
-      args.unshift(def.name);
-      return DS.save.apply(DS, args);
-    };
+    DSUtils.forEach(instanceMethods, function (name) {
+      def[def.class].prototype['DS' + DSUtils.pascalCase(name)] = function () {
+        var args = Array.prototype.slice.call(arguments);
+        args.unshift(this[def.idAttribute]);
+        args.unshift(def.name);
+        return DS[name].apply(DS, args);
+      };
+    });
 
     // Initialize store data for the new resource
     DS.store[def.name] = {
@@ -332,8 +338,8 @@ function defineResource(definition) {
     return def;
   } catch (err) {
     DS.$log.error(err);
-    delete definitions[definition.name];
-    delete DS.store[definition.name];
+    delete definitions[defName];
+    delete DS.store[defName];
     throw err;
   }
 }

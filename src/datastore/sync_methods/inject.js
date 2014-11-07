@@ -279,8 +279,10 @@ function inject(resourceName, attrs, options) {
   }
 
   if (options.linkInverse) {
-    if (DS.utils.isArray(injected) && injected.length) {
-      DS.linkInverse(definition.name, injected[0][definition.idAttribute]);
+    if (DS.utils.isArray(injected)) {
+      if (injected.length) {
+        DS.linkInverse(definition.name, injected[0][definition.idAttribute]);
+      }
     } else {
       DS.linkInverse(definition.name, injected[definition.idAttribute]);
     }

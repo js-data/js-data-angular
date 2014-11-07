@@ -165,6 +165,7 @@ module.exports = ['$q', function ($q) {
       var added = {};
       var removed = {};
       var changed = {};
+      blacklist = blacklist || [];
 
       for (var prop in oldObject) {
         var newValue = object[prop];
