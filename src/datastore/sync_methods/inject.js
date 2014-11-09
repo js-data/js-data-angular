@@ -85,8 +85,8 @@ function _inject(definition, resource, attrs, options) {
 
     if (definition.idAttribute in changed) {
       $log.error('Doh! You just changed the primary key of an object! ' +
-        'I don\'t know how to handle this yet, so your data for the "' + definition.name +
-        '" resource is now in an undefined (probably broken) state.');
+      'I don\'t know how to handle this yet, so your data for the "' + definition.name +
+      '" resource is now in an undefined (probably broken) state.');
     }
   }
 
@@ -120,10 +120,10 @@ function _inject(definition, resource, attrs, options) {
 
         if (!item) {
           if (options.useClass) {
-            if (attrs instanceof definition[definition.class]) {
+            if (attrs instanceof definition[definition['class']]) {
               item = attrs;
             } else {
-              item = new definition[definition.class]();
+              item = new definition[definition['class']]();
             }
           } else {
             item = {};

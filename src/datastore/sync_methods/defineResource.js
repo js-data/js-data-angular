@@ -16,7 +16,17 @@ var instanceMethods = [
   'save',
   'update',
   'destroy',
-  'refresh'
+  'refresh',
+  'loadRelations',
+  'changeHistory',
+  'changes',
+  'hasChanges',
+  'lastModified',
+  'lastSaved',
+  'link',
+  'linkInverse',
+  'previous',
+  'unlinkInverse'
 ];
 
 var methodsToProxy = [
@@ -238,13 +248,13 @@ function defineResource(definition) {
     });
 
     // Create the wrapper class for the new resource
-    def.class = DSUtils.pascalCase(defName);
-    eval('function ' + def.class + '() {}');
-    def[def.class] = eval(def.class);
+    def['class'] = DSUtils.pascalCase(defName);
+    eval('function ' + def['class'] + '() {}');
+    def[def['class']] = eval(def['class']);
 
     // Apply developer-defined methods
     if (def.methods) {
-      DSUtils.deepMixIn(def[def.class].prototype, def.methods);
+      DSUtils.deepMixIn(def[def['class']].prototype, def.methods);
     }
 
     // Prepare for computed properties
@@ -276,13 +286,13 @@ function defineResource(definition) {
         });
       });
 
-      def[def.class].prototype.DSCompute = function () {
+      def[def['class']].prototype.DSCompute = function () {
         return DS.compute(def.name, this);
       };
     }
 
     DSUtils.forEach(instanceMethods, function (name) {
-      def[def.class].prototype['DS' + DSUtils.pascalCase(name)] = function () {
+      def[def['class']].prototype['DS' + DSUtils.pascalCase(name)] = function () {
         var args = Array.prototype.slice.call(arguments);
         args.unshift(this[def.idAttribute]);
         args.unshift(def.name);

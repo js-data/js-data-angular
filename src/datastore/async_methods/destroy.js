@@ -94,12 +94,12 @@ function destroy(resourceName, id, options) {
         }
         DS.eject(resourceName, id);
         return id;
-      }).catch(function (err) {
-        if (options.eagerEject && item) {
-          DS.inject(resourceName, item);
-        }
-        return DS.$q.reject(err);
-      });
+      })['catch'](function (err) {
+      if (options.eagerEject && item) {
+        DS.inject(resourceName, item);
+      }
+      return DS.$q.reject(err);
+    });
   } catch (err) {
     deferred.reject(err);
     return deferred.promise;

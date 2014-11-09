@@ -1,7 +1,7 @@
 /**
 * @author Jason Dobry <jason.dobry@gmail.com>
 * @file angular-data.js
-* @version 1.3.0 - Homepage <http://angular-data.pseudobry.com/>
+* @version 1.4.0 - Homepage <http://angular-data.pseudobry.com/>
 * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>
 * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
 *
@@ -26,6 +26,7 @@
 // Copyright 2014 Jason Dobry
 //
 // Summary of modifications:
+// Fixed use of "delete" keyword for IE8 compatibility
 // Removed all code related to:
 // - ArrayObserver
 // - ArraySplice
@@ -523,7 +524,7 @@
   var expectedRecordTypes = {
     add: true,
     update: true,
-    delete: true
+    'delete': true
   };
 
   function diffObjectFromChangeRecords(object, changeRecords, oldValues) {
@@ -2826,13 +2827,12 @@ function create(resourceName, attrs, options) {
           } else {
             return DS.createInstance(resourceName, attrs, options);
           }
-        })
-        .catch(function (err) {
-          if (options.eagerInject && options.cacheResponse) {
-            DS.eject(resourceName, injected[definition.idAttribute], { notify: false });
-          }
-          return DS.$q.reject(err);
-        });
+        })['catch'](function (err) {
+        if (options.eagerInject && options.cacheResponse) {
+          DS.eject(resourceName, injected[definition.idAttribute], { notify: false });
+        }
+        return DS.$q.reject(err);
+      });
     }
   } catch (err) {
     deferred.reject(err);
@@ -2939,12 +2939,12 @@ function destroy(resourceName, id, options) {
         }
         DS.eject(resourceName, id);
         return id;
-      }).catch(function (err) {
-        if (options.eagerEject && item) {
-          DS.inject(resourceName, item);
-        }
-        return DS.$q.reject(err);
-      });
+      })['catch'](function (err) {
+      if (options.eagerEject && item) {
+        DS.inject(resourceName, item);
+      }
+      return DS.$q.reject(err);
+    });
   } catch (err) {
     deferred.reject(err);
     return deferred.promise;
@@ -5369,7 +5369,7 @@ function createInstance(resourceName, attrs, options) {
   var item;
 
   if (options.useClass) {
-    var Func = definition[definition.class];
+    var Func = definition[definition['class']];
     item = new Func();
   } else {
     item = {};
@@ -5398,7 +5398,17 @@ var instanceMethods = [
   'save',
   'update',
   'destroy',
-  'refresh'
+  'refresh',
+  'loadRelations',
+  'changeHistory',
+  'changes',
+  'hasChanges',
+  'lastModified',
+  'lastSaved',
+  'link',
+  'linkInverse',
+  'previous',
+  'unlinkInverse'
 ];
 
 var methodsToProxy = [
@@ -5620,13 +5630,13 @@ function defineResource(definition) {
     });
 
     // Create the wrapper class for the new resource
-    def.class = DSUtils.pascalCase(defName);
-    eval('function ' + def.class + '() {}');
-    def[def.class] = eval(def.class);
+    def['class'] = DSUtils.pascalCase(defName);
+    eval('function ' + def['class'] + '() {}');
+    def[def['class']] = eval(def['class']);
 
     // Apply developer-defined methods
     if (def.methods) {
-      DSUtils.deepMixIn(def[def.class].prototype, def.methods);
+      DSUtils.deepMixIn(def[def['class']].prototype, def.methods);
     }
 
     // Prepare for computed properties
@@ -5658,13 +5668,13 @@ function defineResource(definition) {
         });
       });
 
-      def[def.class].prototype.DSCompute = function () {
+      def[def['class']].prototype.DSCompute = function () {
         return DS.compute(def.name, this);
       };
     }
 
     DSUtils.forEach(instanceMethods, function (name) {
-      def[def.class].prototype['DS' + DSUtils.pascalCase(name)] = function () {
+      def[def['class']].prototype['DS' + DSUtils.pascalCase(name)] = function () {
         var args = Array.prototype.slice.call(arguments);
         args.unshift(this[def.idAttribute]);
         args.unshift(def.name);
@@ -6581,8 +6591,8 @@ function _inject(definition, resource, attrs, options) {
 
     if (definition.idAttribute in changed) {
       $log.error('Doh! You just changed the primary key of an object! ' +
-        'I don\'t know how to handle this yet, so your data for the "' + definition.name +
-        '" resource is now in an undefined (probably broken) state.');
+      'I don\'t know how to handle this yet, so your data for the "' + definition.name +
+      '" resource is now in an undefined (probably broken) state.');
     }
   }
 
@@ -6616,10 +6626,10 @@ function _inject(definition, resource, attrs, options) {
 
         if (!item) {
           if (options.useClass) {
-            if (attrs instanceof definition[definition.class]) {
+            if (attrs instanceof definition[definition['class']]) {
               item = attrs;
             } else {
-              item = new definition[definition.class]();
+              item = new definition[definition['class']]();
             }
           } else {
             item = {};
@@ -7434,7 +7444,7 @@ function IllegalArgumentError(message) {
   this.message = message || 'Illegal Argument!';
 }
 
-IllegalArgumentError.prototype = Object.create(Error.prototype);
+IllegalArgumentError.prototype = new Error();
 IllegalArgumentError.prototype.constructor = IllegalArgumentError;
 
 /**
@@ -7470,7 +7480,7 @@ function RuntimeError(message) {
   this.message = message || 'RuntimeError Error!';
 }
 
-RuntimeError.prototype = Object.create(Error.prototype);
+RuntimeError.prototype = new Error();
 RuntimeError.prototype.constructor = RuntimeError;
 
 /**
@@ -7506,7 +7516,7 @@ function NonexistentResourceError(resourceName) {
   this.message = (resourceName || '') + ' is not a registered resource!';
 }
 
-NonexistentResourceError.prototype = Object.create(Error.prototype);
+NonexistentResourceError.prototype = new Error();
 NonexistentResourceError.prototype.constructor = NonexistentResourceError;
 
 /**

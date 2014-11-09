@@ -84,7 +84,7 @@ function createInstance(resourceName, attrs, options) {
   var item;
 
   if (options.useClass) {
-    var Func = definition[definition.class];
+    var Func = definition[definition['class']];
     item = new Func();
   } else {
     item = {};

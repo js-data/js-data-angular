@@ -31,7 +31,7 @@ function IllegalArgumentError(message) {
   this.message = message || 'Illegal Argument!';
 }
 
-IllegalArgumentError.prototype = Object.create(Error.prototype);
+IllegalArgumentError.prototype = new Error();
 IllegalArgumentError.prototype.constructor = IllegalArgumentError;
 
 /**
@@ -67,7 +67,7 @@ function RuntimeError(message) {
   this.message = message || 'RuntimeError Error!';
 }
 
-RuntimeError.prototype = Object.create(Error.prototype);
+RuntimeError.prototype = new Error();
 RuntimeError.prototype.constructor = RuntimeError;
 
 /**
@@ -103,7 +103,7 @@ function NonexistentResourceError(resourceName) {
   this.message = (resourceName || '') + ' is not a registered resource!';
 }
 
-NonexistentResourceError.prototype = Object.create(Error.prototype);
+NonexistentResourceError.prototype = new Error();
 NonexistentResourceError.prototype.constructor = NonexistentResourceError;
 
 /**

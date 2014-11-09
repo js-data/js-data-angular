@@ -1,3 +1,12 @@
+##### 1.4.0 - 09 November 2014
+
+###### Backwards compatible API changes
+- #227 - Supporting methods on model instances (again)
+
+###### Backwards compatible bug fixes
+- #234 - Fixed an issue with DSLocalStorageAdapter.update
+- #235 - IE 8 support
+
 ##### 1.3.0 - 07 November 2014
 
 ###### Backwards compatible API changes

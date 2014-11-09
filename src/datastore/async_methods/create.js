@@ -132,13 +132,12 @@ function create(resourceName, attrs, options) {
           } else {
             return DS.createInstance(resourceName, attrs, options);
           }
-        })
-        .catch(function (err) {
-          if (options.eagerInject && options.cacheResponse) {
-            DS.eject(resourceName, injected[definition.idAttribute], { notify: false });
-          }
-          return DS.$q.reject(err);
-        });
+        })['catch'](function (err) {
+        if (options.eagerInject && options.cacheResponse) {
+          DS.eject(resourceName, injected[definition.idAttribute], { notify: false });
+        }
+        return DS.$q.reject(err);
+      });
     }
   } catch (err) {
     deferred.reject(err);
