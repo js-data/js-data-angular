@@ -2580,7 +2580,11 @@ function DSLocalStorageAdapterProvider() {
        */
       update: function (resourceConfig, id, attrs, options) {
         options = options || {};
-        return this.PUT(DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id, options), id), attrs);
+        var _this = this;
+        return _this.find(resourceConfig, id, options).then(function (item) {
+          DSUtils.deepMixIn(item, attrs);
+          return _this.PUT(DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id, options), id), item);
+        });
       },
 
       /**
@@ -3977,7 +3981,7 @@ function errorPrefix(resourceName) {
  *
  * DS.filter('document', params); // []
  *
- * DS.updateAll('document', 5, {
+ * DS.updateAll('document', {
  *   author: 'Sally'
  * }, params).then(function (documents) {
  *   documents; // The documents that were updated via an adapter
@@ -4081,8 +4085,6 @@ module.exports = updateAll;
 },{}],67:[function(require,module,exports){
 var observe = require('../../lib/observe-js/observe-js');
 
-var total = 0;
-
 function lifecycleNoop(resourceName, attrs, cb) {
   cb(null, attrs);
 }
@@ -4104,6 +4106,8 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
     orderBy: '',
     sort: ''
   };
+
+  params = params || {};
 
   if (_this.utils.isObject(params.where)) {
     where = params.where;

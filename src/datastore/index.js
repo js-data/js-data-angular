@@ -1,7 +1,5 @@
 var observe = require('../../lib/observe-js/observe-js');
 
-var total = 0;
-
 function lifecycleNoop(resourceName, attrs, cb) {
   cb(null, attrs);
 }
@@ -23,6 +21,8 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
     orderBy: '',
     sort: ''
   };
+
+  params = params || {};
 
   if (_this.utils.isObject(params.where)) {
     where = params.where;

@@ -284,7 +284,11 @@ function DSLocalStorageAdapterProvider() {
        */
       update: function (resourceConfig, id, attrs, options) {
         options = options || {};
-        return this.PUT(DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id, options), id), attrs);
+        var _this = this;
+        return _this.find(resourceConfig, id, options).then(function (item) {
+          DSUtils.deepMixIn(item, attrs);
+          return _this.PUT(DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id, options), id), item);
+        });
       },
 
       /**
