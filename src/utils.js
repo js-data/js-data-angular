@@ -81,7 +81,7 @@ module.exports = ['$q', function ($q) {
     isFunction: angular.isFunction,
     isEmpty: require('mout/lang/isEmpty'),
     isRegExp: isRegExp,
-    toJson: angular.toJson,
+    toJson: JSON.stringify,
     fromJson: angular.fromJson,
     makePath: require('mout/string/makePath'),
     upperCase: require('mout/string/upperCase'),

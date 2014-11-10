@@ -95,7 +95,7 @@ function DSLocalStorageAdapterProvider() {
           if (item) {
             DSUtils.deepMixIn(item, value);
           }
-          localStorage.setItem(key, angular.toJson(item || value));
+          localStorage.setItem(key, JSON.stringify(item || value));
           return DSLocalStorageAdapter.GET(key);
         });
       },

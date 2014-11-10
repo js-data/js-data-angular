@@ -2392,7 +2392,7 @@ function DSLocalStorageAdapterProvider() {
           if (item) {
             DSUtils.deepMixIn(item, value);
           }
-          localStorage.setItem(key, angular.toJson(item || value));
+          localStorage.setItem(key, JSON.stringify(item || value));
           return DSLocalStorageAdapter.GET(key);
         });
       },
@@ -4218,7 +4218,7 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
       if (_this.utils.isString(def)) {
         def = [def, 'ASC'];
       } else if (!_this.utils.isArray(def)) {
-        throw new _this.errors.IllegalArgumentError('DS.filter(resourceName[, params][, options]): ' + angular.toJson(def) + ': Must be a string or an array!', {
+        throw new _this.errors.IllegalArgumentError('DS.filter(resourceName[, params][, options]): ' + JSON.stringify(def) + ': Must be a string or an array!', {
           params: {
             'orderBy[i]': {
               actual: typeof def,
@@ -7716,7 +7716,7 @@ module.exports = ['$q', function ($q) {
     isFunction: angular.isFunction,
     isEmpty: require('mout/lang/isEmpty'),
     isRegExp: isRegExp,
-    toJson: angular.toJson,
+    toJson: JSON.stringify,
     fromJson: angular.fromJson,
     makePath: require('mout/string/makePath'),
     upperCase: require('mout/string/upperCase'),

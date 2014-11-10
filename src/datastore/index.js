@@ -133,7 +133,7 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
       if (_this.utils.isString(def)) {
         def = [def, 'ASC'];
       } else if (!_this.utils.isArray(def)) {
-        throw new _this.errors.IllegalArgumentError('DS.filter(resourceName[, params][, options]): ' + angular.toJson(def) + ': Must be a string or an array!', {
+        throw new _this.errors.IllegalArgumentError('DS.filter(resourceName[, params][, options]): ' + JSON.stringify(def) + ': Must be a string or an array!', {
           params: {
             'orderBy[i]': {
               actual: typeof def,
