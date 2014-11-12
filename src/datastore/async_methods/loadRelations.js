@@ -105,9 +105,8 @@ function loadRelations(resourceName, instance, relations, options) {
 
         if (def.type === 'hasMany' && params[def.foreignKey]) {
           // Convert foreign key to where clause
-          var key = Object.keys(params)[0];
           var where = {};
-          where[key] = {'==':params[key]};
+          where[def.foreignKey] = {'==':params[def.foreignKey]};
           params = {where: where};
         
           task = DS.findAll(relationName, params, options);
