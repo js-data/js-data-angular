@@ -104,6 +104,12 @@ function loadRelations(resourceName, instance, relations, options) {
         params[def.foreignKey] = instance[definition.idAttribute];
 
         if (def.type === 'hasMany' && params[def.foreignKey]) {
+          // Convert foreign key to where clause
+          var key = Object.keys(params)[0];
+          var where = {};
+          where[key] = {'==':params[key]};
+          var params = {where: where};
+        
           task = DS.findAll(relationName, params, options);
         } else if (def.type === 'hasOne') {
           if (def.localKey && instance[def.localKey]) {
