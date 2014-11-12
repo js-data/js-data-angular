@@ -108,7 +108,7 @@ function loadRelations(resourceName, instance, relations, options) {
           var key = Object.keys(params)[0];
           var where = {};
           where[key] = {'==':params[key]};
-          var params = {where: where};
+          params = {where: where};
         
           task = DS.findAll(relationName, params, options);
         } else if (def.type === 'hasOne') {
