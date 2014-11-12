@@ -364,4 +364,69 @@ describe('DS.filter(resourceName[, params][, options])', function () {
 
     assert.deepEqual(angular.toJson(DS.filter('Comment', params)), angular.toJson([p1, p2]), 'should keep p1 and p2');
   });
+  it('should work with multiple orderBy', function () {
+    var items = [
+      { id: 1, test: 1, test2: 1 },
+      { id: 2, test: 2, test2: 2 },
+      { id: 3, test: 3, test2: 3 },
+      { id: 4, test: 1, test2: 4 },
+      { id: 5, test: 2, test2: 5 },
+      { id: 6, test: 3, test2: 6 },
+      { id: 7, test: 1, test2: 1 },
+      { id: 8, test: 2, test2: 2 },
+      { id: 9, test: 3, test2: 3 },
+      { id: 10, test: 1, test2: 4 },
+      { id: 11, test: 2, test2: 5 },
+      { id: 12, test: 3, test2: 6 }
+    ];
+    var params = {};
+
+    Post.inject(items);
+
+    params.orderBy = [
+      ['test', 'DESC'],
+      ['test2', 'ASC'],
+      ['id', 'ASC']
+    ];
+
+    var posts = Post.filter(params);
+
+    assert.deepEqual(JSON.stringify(posts), JSON.stringify([
+      items[2],
+      items[8],
+      items[5],
+      items[11],
+      items[1],
+      items[7],
+      items[4],
+      items[10],
+      items[0],
+      items[6],
+      items[3],
+      items[9]
+    ]));
+
+    params.orderBy = [
+      ['test', 'DESC'],
+      ['test2', 'ASC'],
+      ['id', 'DESC']
+    ];
+
+    posts = Post.filter(params);
+
+    assert.deepEqual(JSON.stringify(posts), JSON.stringify([
+      items[8],
+      items[2],
+      items[11],
+      items[5],
+      items[7],
+      items[1],
+      items[10],
+      items[4],
+      items[6],
+      items[0],
+      items[9],
+      items[3]
+    ]));
+  });
 });

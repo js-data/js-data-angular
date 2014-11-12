@@ -4,6 +4,42 @@ function lifecycleNoop(resourceName, attrs, cb) {
   cb(null, attrs);
 }
 
+function compare(DSUtils, orderBy, index, a, b) {
+  var def = orderBy[index];
+  var cA = a[def[0]], cB = b[def[0]];
+  if (DSUtils.isString(cA)) {
+    cA = DSUtils.upperCase(cA);
+  }
+  if (DSUtils.isString(cB)) {
+    cB = DSUtils.upperCase(cB);
+  }
+  if (def[1] === 'DESC') {
+    if (cB < cA) {
+      return -1;
+    } else if (cB > cA) {
+      return 1;
+    } else {
+      if (index < orderBy.length - 1) {
+        return compare(DSUtils, orderBy, index + 1, a, b);
+      } else {
+        return 0;
+      }
+    }
+  } else {
+    if (cA < cB) {
+      return -1;
+    } else if (cA > cB) {
+      return 1;
+    } else {
+      if (index < orderBy.length - 1) {
+        return compare(DSUtils, orderBy, index + 1, a, b);
+      } else {
+        return 0;
+      }
+    }
+  }
+}
+
 function Defaults() {
 }
 
@@ -129,9 +165,10 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
 
   // Apply 'orderBy'
   if (orderBy) {
-    angular.forEach(orderBy, function (def) {
+    var index = 0;
+    angular.forEach(orderBy, function (def, i) {
       if (_this.utils.isString(def)) {
-        def = [def, 'ASC'];
+        orderBy[i] = [def, 'ASC'];
       } else if (!_this.utils.isArray(def)) {
         throw new _this.errors.IllegalArgumentError('DS.filter(resourceName[, params][, options]): ' + JSON.stringify(def) + ': Must be a string or an array!', {
           params: {
@@ -143,30 +180,7 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
         });
       }
       filtered = _this.utils.sort(filtered, function (a, b) {
-        var cA = a[def[0]], cB = b[def[0]];
-        if (_this.utils.isString(cA)) {
-          cA = _this.utils.upperCase(cA);
-        }
-        if (_this.utils.isString(cB)) {
-          cB = _this.utils.upperCase(cB);
-        }
-        if (def[1] === 'DESC') {
-          if (cB < cA) {
-            return -1;
-          } else if (cB > cA) {
-            return 1;
-          } else {
-            return 0;
-          }
-        } else {
-          if (cA < cB) {
-            return -1;
-          } else if (cA > cB) {
-            return 1;
-          } else {
-            return 0;
-          }
-        }
+        return compare(_this.utils, orderBy, index, a, b);
       });
     });
   }
