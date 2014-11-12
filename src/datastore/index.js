@@ -219,6 +219,7 @@ Defaults.prototype.eagerEject = false;
 Defaults.prototype.notify = true;
 Defaults.prototype.cacheResponse = true;
 Defaults.prototype.upsert = true;
+Defaults.prototype.allowSimpleWhere = true;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.ignoredChanges

@@ -1,7 +1,7 @@
 /**
 * @author Jason Dobry <jason.dobry@gmail.com>
 * @file angular-data.js
-* @version 1.4.0 - Homepage <http://angular-data.pseudobry.com/>
+* @version 1.4.1 - Homepage <http://angular-data.pseudobry.com/>
 * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>
 * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
 *
@@ -3542,7 +3542,14 @@ function loadRelations(resourceName, instance, relations, options) {
       if (DSUtils.contains(relations, relationName)) {
         var task;
         var params = {};
-        params[def.foreignKey] = instance[definition.idAttribute];
+        if (options.allowSimpleWhere) {
+          params[def.foreignKey] = instance[definition.idAttribute];
+        } else {
+          params.where = {};
+          params.where[def.foreignKey] = {
+            '==': instance[definition.idAttribute]
+          };
+        }
 
         if (def.type === 'hasMany' && params[def.foreignKey]) {
           task = DS.findAll(relationName, params, options);
@@ -4304,6 +4311,7 @@ Defaults.prototype.eagerEject = false;
 Defaults.prototype.notify = true;
 Defaults.prototype.cacheResponse = true;
 Defaults.prototype.upsert = true;
+Defaults.prototype.allowSimpleWhere = true;
 /**
  * @doc property
  * @id DSProvider.properties:defaults.ignoredChanges
