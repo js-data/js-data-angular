@@ -1,3 +1,11 @@
+##### 1.4.2 - 18 November 2014
+
+###### Backwards compatible API changes
+- #238 - Filter by substring ("in", "notIn', "|in" and "|notIn" operators now work on strings)
+
+###### Backwards compatible bug fixes
+- Fixed "allowSimpleWhere" default not being set
+
 ##### 1.4.1 - 11 November 2014
 
 ###### Backwards compatible bug fixes

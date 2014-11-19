@@ -47,6 +47,7 @@ Defaults.prototype.idAttribute = 'id';
 Defaults.prototype.defaultAdapter = 'DSHttpAdapter';
 Defaults.prototype.defaultFilter = function (collection, resourceName, params, options) {
   var _this = this;
+  var DSUtils = _this.utils;
   var filtered = collection;
   var where = null;
   var reserved = {
@@ -60,14 +61,14 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
 
   params = params || {};
 
-  if (_this.utils.isObject(params.where)) {
+  if (DSUtils.isObject(params.where)) {
     where = params.where;
   } else {
     where = {};
   }
 
   if (options.allowSimpleWhere) {
-    _this.utils.forEach(params, function (value, key) {
+    DSUtils.forEach(params, function (value, key) {
       if (!(key in reserved) && !(key in where)) {
         where[key] = {
           '==': value
@@ -76,26 +77,26 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
     });
   }
 
-  if (_this.utils.isEmpty(where)) {
+  if (DSUtils.isEmpty(where)) {
     where = null;
   }
 
   if (where) {
-    filtered = _this.utils.filter(filtered, function (attrs) {
+    filtered = DSUtils.filter(filtered, function (attrs) {
       var first = true;
       var keep = true;
-      _this.utils.forEach(where, function (clause, field) {
-        if (_this.utils.isString(clause)) {
+      DSUtils.forEach(where, function (clause, field) {
+        if (DSUtils.isString(clause)) {
           clause = {
             '===': clause
           };
-        } else if (_this.utils.isNumber(clause) || _this.utils.isBoolean(clause)) {
+        } else if (DSUtils.isNumber(clause) || DSUtils.isBoolean(clause)) {
           clause = {
             '==': clause
           };
         }
-        if (_this.utils.isObject(clause)) {
-          _this.utils.forEach(clause, function (val, op) {
+        if (DSUtils.isObject(clause)) {
+          DSUtils.forEach(clause, function (val, op) {
             if (op === '==') {
               keep = first ? (attrs[field] == val) : keep && (attrs[field] == val);
             } else if (op === '===') {
@@ -113,9 +114,17 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
             } else if (op === '<=') {
               keep = first ? (attrs[field] <= val) : keep && (attrs[field] <= val);
             } else if (op === 'in') {
-              keep = first ? _this.utils.contains(val, attrs[field]) : keep && _this.utils.contains(val, attrs[field]);
+              if (DSUtils.isString(val)) {
+                keep = first ? val.indexOf(attrs[field]) !== -1 : keep && val.indexOf(attrs[field]) !== -1;
+              } else {
+                keep = first ? DSUtils.contains(val, attrs[field]) : keep && DSUtils.contains(val, attrs[field]);
+              }
             } else if (op === 'notIn') {
-              keep = first ? !_this.utils.contains(val, attrs[field]) : keep && !_this.utils.contains(val, attrs[field]);
+              if (DSUtils.isString(val)) {
+                keep = first ? val.indexOf(attrs[field]) === -1 : keep && val.indexOf(attrs[field]) === -1;
+              } else {
+                keep = first ? !DSUtils.contains(val, attrs[field]) : keep && !DSUtils.contains(val, attrs[field]);
+              }
             } else if (op === '|==') {
               keep = first ? (attrs[field] == val) : keep || (attrs[field] == val);
             } else if (op === '|===') {
@@ -133,9 +142,17 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
             } else if (op === '|<=') {
               keep = first ? (attrs[field] <= val) : keep || (attrs[field] <= val);
             } else if (op === '|in') {
-              keep = first ? _this.utils.contains(val, attrs[field]) : keep || _this.utils.contains(val, attrs[field]);
+              if (DSUtils.isString(val)) {
+                keep = first ? val.indexOf(attrs[field]) !== -1 : keep || val.indexOf(attrs[field]) !== -1;
+              } else {
+                keep = first ? DSUtils.contains(val, attrs[field]) : keep || DSUtils.contains(val, attrs[field]);
+              }
             } else if (op === '|notIn') {
-              keep = first ? !_this.utils.contains(val, attrs[field]) : keep || !_this.utils.contains(val, attrs[field]);
+              if (DSUtils.isString(val)) {
+                keep = first ? val.indexOf(attrs[field]) === -1 : keep || val.indexOf(attrs[field]) === -1;
+              } else {
+                keep = first ? !DSUtils.contains(val, attrs[field]) : keep || !DSUtils.contains(val, attrs[field]);
+              }
             }
             first = false;
           });
@@ -147,19 +164,19 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
 
   var orderBy = null;
 
-  if (_this.utils.isString(params.orderBy)) {
+  if (DSUtils.isString(params.orderBy)) {
     orderBy = [
       [params.orderBy, 'ASC']
     ];
-  } else if (_this.utils.isArray(params.orderBy)) {
+  } else if (DSUtils.isArray(params.orderBy)) {
     orderBy = params.orderBy;
   }
 
-  if (!orderBy && _this.utils.isString(params.sort)) {
+  if (!orderBy && DSUtils.isString(params.sort)) {
     orderBy = [
       [params.sort, 'ASC']
     ];
-  } else if (!orderBy && _this.utils.isArray(params.sort)) {
+  } else if (!orderBy && DSUtils.isArray(params.sort)) {
     orderBy = params.sort;
   }
 
@@ -167,9 +184,9 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
   if (orderBy) {
     var index = 0;
     angular.forEach(orderBy, function (def, i) {
-      if (_this.utils.isString(def)) {
+      if (DSUtils.isString(def)) {
         orderBy[i] = [def, 'ASC'];
-      } else if (!_this.utils.isArray(def)) {
+      } else if (!DSUtils.isArray(def)) {
         throw new _this.errors.IllegalArgumentError('DS.filter(resourceName[, params][, options]): ' + JSON.stringify(def) + ': Must be a string or an array!', {
           params: {
             'orderBy[i]': {
@@ -179,8 +196,8 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
           }
         });
       }
-      filtered = _this.utils.sort(filtered, function (a, b) {
-        return compare(_this.utils, orderBy, index, a, b);
+      filtered = DSUtils.sort(filtered, function (a, b) {
+        return compare(DSUtils, orderBy, index, a, b);
       });
     });
   }
