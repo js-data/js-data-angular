@@ -45,6 +45,6 @@
   },
   "dependencies": {
     "mout": "0.10.0",
-    "js-data": "~1.0.x"
+    "js-data": "^1.0.0-alpha.5-0"
   }
 }
