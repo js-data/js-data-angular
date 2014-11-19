@@ -83,7 +83,7 @@
         httpLoaded = true;
       }
       adapter.loaded = true;
-      angular.module(adapter.project, ['ng']).provider(adapter.class, function () {
+      angular.module('js-data').provider(adapter.class, function () {
         var _this = this;
         _this.defaults = {};
         _this.$get = [function () {
@@ -91,10 +91,6 @@
         }];
       });
     }
-  }
-
-  for (var i = 0; i < adapters.length; i++) {
-    registerAdapter(adapters[i]);
   }
 
   angular.module('js-data', ['ng'])
@@ -189,38 +185,25 @@
         var store = new JSData.DS(_this.defaults);
         var originals = {};
 
-        function QPromise(cb) {
+        function QPromise(executor) {
           var deferred = $q.defer();
+
           try {
-            cb(function (val) {
-              if (!$rootScope.$$phase) {
-                $rootScope.$apply(function () {
-                  deferred.resolve(val);
-                });
-              } else {
-                deferred.resolve(val);
-              }
-            }, function (err) {
-              console.log(err);
-              if (!$rootScope.$$phase) {
-                $rootScope.$apply(function () {
-                  deferred.reject(err);
-                });
-              } else {
-                deferred.reject(err);
-              }
-            });
+            executor.call(undefined,
+              angular.bind(deferred, deferred.resolve),
+              angular.bind(deferred, deferred.reject));
           } catch (err) {
             deferred.reject(err);
           }
+
           return deferred.promise;
         }
 
-        //QPromise.all = $q.all;
-        //QPromise.when = $q.when;
-        //QPromise.reject = $q.reject;
-        //
-        //DSUtils.Promise = QPromise;
+        QPromise.all = $q.all;
+        QPromise.when = $q.when;
+        QPromise.reject = $q.reject;
+
+        DSUtils.Promise = QPromise;
 
         // Register any adapters that have been loaded
         for (var i = 0; i < adapters.length; i++) {
@@ -249,12 +232,9 @@
         if (typeof Object.observe !== 'function' ||
           typeof Array.observe !== 'function') {
           $rootScope.$watch(function () {
-            // TODO: observe.Platform.performMicrotaskCheckpoint();
             // Throttle angular-data's digest loop to tenths of a second
             return new Date().getTime() / 100 | 0;
-          }, function () {
-            store.digest();
-          });
+          }, store.observe.Platform.performMicrotaskCheckpoint);
         }
 
         return store;
@@ -267,10 +247,15 @@
       _this.$get = deps;
     });
 
+
+  for (var i = 0; i < adapters.length; i++) {
+    registerAdapter(adapters[i]);
+  }
+
   if (!httpLoaded) {
     var defaultsPrototype = Defaults.prototype;
 
-    defaultsPrototype.queryTransform = function (resourceName, params) {
+    defaultsPrototype.queryTransform = function (resource, params) {
       return params;
     };
 
@@ -290,11 +275,11 @@
     } : function () {
     };
 
-    defaultsPrototype.deserialize = function (resourceName, data) {
+    defaultsPrototype.deserialize = function (resource, data) {
       return data ? ('data' in data ? data.data : data) : data;
     };
 
-    defaultsPrototype.serialize = function (resourceName, data) {
+    defaultsPrototype.serialize = function (resource, data) {
       return data;
     };
 
@@ -357,7 +342,7 @@
         _this.getIdPath(resourceConfig, options, id),
         options
       ).then(function (data) {
-          return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig.name, data);
+          return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig, data);
         });
     };
 
@@ -366,14 +351,14 @@
       options = options || {};
       options.params = options.params || {};
       if (params) {
-        params = _this.defaults.queryTransform(resourceConfig.name, params);
+        params = _this.defaults.queryTransform(resourceConfig, params);
         deepMixIn(options.params, params);
       }
       return _this.GET(
         _this.getAllPath(resourceConfig, options),
         options
       ).then(function (data) {
-          return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig.name, data);
+          return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig, data);
         });
     };
 
@@ -382,10 +367,10 @@
       options = options || {};
       return _this.POST(
         makePath(options.basePath || this.defaults.basePath || resourceConfig.basePath, resourceConfig.getEndpoint(attrs, options)),
-        options.serialize ? options.serialize(resourceConfig.name, attrs) : _this.defaults.serialize(resourceConfig.name, attrs),
+        (options.serialize ? options.serialize : _this.defaults.serialize)(resourceConfig, attrs),
         options
       ).then(function (data) {
-          return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig.name, data);
+          return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig, data);
         });
     };
 
@@ -394,10 +379,10 @@
       options = options || {};
       return _this.PUT(
         _this.getIdPath(resourceConfig, options, id),
-        options.serialize ? options.serialize(resourceConfig.name, attrs) : _this.defaults.serialize(resourceConfig.name, attrs),
+        (options.serialize ? options.serialize : _this.defaults.serialize)(resourceConfig, attrs),
         options
       ).then(function (data) {
-          return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig.name, data);
+          return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig, data);
         });
     };
 
@@ -406,15 +391,15 @@
       options = options || {};
       options.params = options.params || {};
       if (params) {
-        params = _this.defaults.queryTransform(resourceConfig.name, params);
+        params = _this.defaults.queryTransform(resourceConfig, params);
         deepMixIn(options.params, params);
       }
       return this.PUT(
         _this.getAllPath(resourceConfig, options),
-        options.serialize ? options.serialize(resourceConfig.name, attrs) : _this.defaults.serialize(resourceConfig.name, attrs),
+        (options.serialize ? options.serialize : _this.defaults.serialize)(resourceConfig, attrs),
         options
       ).then(function (data) {
-          return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig.name, data);
+          return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig, data);
         });
     };
 
@@ -425,7 +410,7 @@
         _this.getIdPath(resourceConfig, options, id),
         options
       ).then(function (data) {
-          return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig.name, data);
+          return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig, data);
         });
     };
 
@@ -434,14 +419,14 @@
       options = options || {};
       options.params = options.params || {};
       if (params) {
-        params = _this.defaults.queryTransform(resourceConfig.name, params);
+        params = _this.defaults.queryTransform(resourceConfig, params);
         deepMixIn(options.params, params);
       }
       return this.DEL(
         _this.getAllPath(resourceConfig, options),
         options
       ).then(function (data) {
-          return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig.name, data);
+          return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig, data);
         });
     };
 
@@ -481,6 +466,10 @@
         return adapter;
       }];
     });
+
+    angular.module('js-data').run(['DS', 'DSHttpAdapter', function (DS, DSHttpAdapter) {
+      DS.registerAdapter('http', DSHttpAdapter, { default: true });
+    }]);
   }
 
 })(window, window.angular);

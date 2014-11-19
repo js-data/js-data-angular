@@ -1,7 +1,7 @@
 describe('DS.loadRelations', function () {
   beforeEach(startInjector);
 
-  it('should get an item from the server', function (done) {
+  it('should get an item from the server', function () {
     DS.inject('user', user10);
 
     $httpBackend.expectGET('http://test.angular-cache.com/user/10/comment?userId=10').respond(200, [
@@ -32,40 +32,26 @@ describe('DS.loadRelations', function () {
             assert.equal(comment.user.id, user20.id);
             assert.isObject(comment.approvedByUser);
             assert.equal(comment.approvedByUser.id, user19.id);
-            done();
           } catch (err) {
             console.log(err, err.stack);
-            done(err);
+            fail(err);
           }
         }, function (err) {
           console.log(err, err.stack);
-          done(err);
+          fail(err);
         });
-        setTimeout(function () {
-          try {
-            $httpBackend.flush();
-          } catch (e) {
-            done(e);
-          }
-        }, 30);
       } catch (e) {
         console.log(e, e.stack);
-        done(e);
+        fail(e);
       }
     }, function (err) {
       console.log(err, err.stack);
-      done(err);
+      fail(err);
     });
 
-    setTimeout(function () {
-      try {
-        $httpBackend.flush();
-      } catch (e) {
-        done(e);
-      }
-    }, 30);
+    $httpBackend.flush();
   });
-  it('should get an item from the server but not store it if cacheResponse is false', function (done) {
+  it('should get an item from the server but not store it if cacheResponse is false', function () {
     DS.inject('user', {
       name: 'John Anderson',
       id: 10,
@@ -94,20 +80,13 @@ describe('DS.loadRelations', function () {
       assert.isUndefined(DS.get('comment', 13));
       assert.isUndefined(DS.get('organization', 14));
       assert.isUndefined(DS.get('profile', 15));
-      done();
     }, function () {
-      done('should not have failed!');
+      fail('should not have failed!');
     });
 
-    setTimeout(function () {
-      try {
-        $httpBackend.flush();
-      } catch (e) {
-        done(e);
-      }
-    }, 30);
+    $httpBackend.flush();
   });
-  it('should correctly propagate errors', function (done) {
+  it('should correctly propagate errors', function () {
     DS.inject('user', {
       name: 'John Anderson',
       id: 10,
@@ -119,21 +98,16 @@ describe('DS.loadRelations', function () {
     $httpBackend.expectGET('http://test.angular-cache.com/organization/14?userId=10').respond(404, 'Not Found');
 
     DS.loadRelations('user', 10, ['comment', 'profile', 'organization']).then(function () {
-      done('Should not have succeeded!');
-    }, function (err) {
-      assert.equal(err.data, 'Not Found');
-      done();
+      fail('Should not have succeeded!');
     });
 
-    setTimeout(function () {
-      try {
-        $httpBackend.flush();
-      } catch (e) {
-        done(e);
-      }
-    }, 30);
+    try {
+      $httpBackend.flush();
+    } catch (err) {
+      assert.equal(err.data, 'Not Found');
+    }
   });
-  it('should handle multiple belongsTo levels', function (done) {
+  it('should handle multiple belongsTo levels', function () {
     var organization = DS.inject('organization', organization14);
 
     var copy = angular.extend({}, user10);
@@ -150,29 +124,19 @@ describe('DS.loadRelations', function () {
 
       var user = DS.get('user', 10);
 
-      DS.loadRelations('user', user, ['comment']).then(function (user) {
+      return DS.loadRelations('user', user, ['comment']).then(function (user) {
         assert.isArray(user.comments);
-        done();
       }, function () {
-        done('Should not have succeeded!');
+        fail('Should not have succeeded!');
       });
-      setTimeout(function () {
-        $httpBackend.flush();
-      }, 30);
     }, function (err) {
       console.log(err.stack);
-      done('Should not have succeeded!');
+      fail('Should not have succeeded!');
     });
 
-    setTimeout(function () {
-      try {
-        $httpBackend.flush();
-      } catch (e) {
-        done(e);
-      }
-    }, 30);
+    $httpBackend.flush();
   });
-  it('should handle multiple belongsTo levels when the response includes nested resources', function (done) {
+  it('should handle multiple belongsTo levels when the response includes nested resources', function () {
     var organization = DS.inject('organization', {
       id: 1
     });
@@ -206,25 +170,15 @@ describe('DS.loadRelations', function () {
 
       var user = DS.get('user', 1);
 
-      DS.loadRelations('user', user, ['comment']).then(function (user) {
+      return DS.loadRelations('user', user, ['comment']).then(function (user) {
         assert.isArray(user.comments);
-        done();
       }, function () {
-        done('Should not have succeeded!');
+        fail('Should not have succeeded!');
       });
-      setTimeout(function () {
-        $httpBackend.flush();
-      }, 30);
     }, function () {
       fail('Should not have succeeded!');
     });
 
-    setTimeout(function () {
-      try {
-        $httpBackend.flush();
-      } catch (e) {
-        done(e);
-      }
-    }, 30);
+    $httpBackend.flush();
   });
 });

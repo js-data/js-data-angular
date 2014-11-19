@@ -1,7 +1,7 @@
 {
   "name": "js-data-angular",
   "description": "Angular wrapper for js-data.",
-  "version": "2.0.0-alpha.2-0",
+  "version": "2.0.0-alpha.3-0",
   "homepage": "http://js-data-angular.pseudobry.com",
   "repository": {
     "type": "git",

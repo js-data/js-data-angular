@@ -1,39 +1,27 @@
 describe('DS.create', function () {
   beforeEach(startInjector);
 
-  it('should create an item and save it to the server', function (done) {
+  it('should create an item and save it to the server', function () {
     $httpBackend.expectPOST('http://test.angular-cache.com/posts').respond(200, p1);
 
     DS.create('post', { author: 'John', age: 30 }).then(function (post) {
-      try {
-        assert.deepEqual(angular.toJson(post), angular.toJson(p1), 'post 5 should have been created');
+      assert.deepEqual(angular.toJson(post), angular.toJson(p1), 'post 5 should have been created');
 
-        assert.equal(lifecycle.beforeCreate.callCount, 1, 'beforeCreate should have been called');
-        assert.equal(lifecycle.afterCreate.callCount, 1, 'afterCreate should have been called');
-        assert.equal(lifecycle.beforeInject.callCount, 1, 'beforeInject should have been called');
-        assert.equal(lifecycle.afterInject.callCount, 1, 'afterInject should have been called');
-        assert.equal(lifecycle.serialize.callCount, 1, 'serialize should have been called');
-        assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
-        assert.deepEqual(angular.toJson(DS.get('post', 5)), angular.toJson(p1));
-
-        done();
-      } catch (e) {
-        done(e);
-      }
+      assert.equal(lifecycle.beforeCreate.callCount, 1, 'beforeCreate should have been called');
+      assert.equal(lifecycle.afterCreate.callCount, 1, 'afterCreate should have been called');
+      assert.equal(lifecycle.beforeInject.callCount, 1, 'beforeInject should have been called');
+      assert.equal(lifecycle.afterInject.callCount, 1, 'afterInject should have been called');
+      assert.equal(lifecycle.serialize.callCount, 1, 'serialize should have been called');
+      assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
+      assert.deepEqual(angular.toJson(DS.get('post', 5)), angular.toJson(p1));
     }, function (err) {
       console.error(err.stack);
-      done('should not have rejected');
+      fail('should not have rejected');
     });
 
-    setTimeout(function () {
-      try {
-        $httpBackend.flush();
-      } catch (e) {
-        done(e);
-      }
-    }, 30);
+    $httpBackend.flush();
   });
-  it('should create an item and save it to the server but not inject the result', function (done) {
+  it('should create an item and save it to the server but not inject the result', function () {
     DSHttpAdapter.defaults.forceTrailingSlash = true;
     $httpBackend.expectPOST('http://test.angular-cache.com/posts/').respond(200, p1);
 
@@ -44,33 +32,19 @@ describe('DS.create', function () {
       fail('should not have rejected');
     });
 
-    setTimeout(function () {
-      try {
-        $httpBackend.flush();
+    $httpBackend.flush();
 
-        setTimeout(function () {
-          try {
-            DSHttpAdapter.defaults.forceTrailingSlash = false;
+    DSHttpAdapter.defaults.forceTrailingSlash = false;
 
-            assert.equal(lifecycle.beforeCreate.callCount, 1, 'beforeCreate should have been called');
-            assert.equal(lifecycle.afterCreate.callCount, 1, 'afterCreate should have been called');
-            assert.equal(lifecycle.beforeInject.callCount, 0, 'beforeInject should not have been called');
-            assert.equal(lifecycle.afterInject.callCount, 0, 'afterInject should not have been called');
-            assert.equal(lifecycle.serialize.callCount, 1, 'serialize should have been called');
-            assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
-            assert.isUndefined(DS.get('post', 5));
-
-            done();
-          } catch (e) {
-            done(e);
-          }
-        }, 30);
-      } catch (e) {
-        done(e);
-      }
-    }, 30);
+    assert.equal(lifecycle.beforeCreate.callCount, 1, 'beforeCreate should have been called');
+    assert.equal(lifecycle.afterCreate.callCount, 1, 'afterCreate should have been called');
+    assert.equal(lifecycle.beforeInject.callCount, 0, 'beforeInject should not have been called');
+    assert.equal(lifecycle.afterInject.callCount, 0, 'afterInject should not have been called');
+    assert.equal(lifecycle.serialize.callCount, 1, 'serialize should have been called');
+    assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
+    assert.isUndefined(DS.get('post', 5));
   });
-  it('should work with the upsert option', function (done) {
+  it('should work with the upsert option', function () {
     $httpBackend.expectPUT('http://test.angular-cache.com/posts/5').respond(200, p1);
 
     DS.create('post', { author: 'John', age: 30, id: 5 }).then(function (post) {
@@ -80,56 +54,30 @@ describe('DS.create', function () {
       fail('should not have rejected');
     });
 
-    setTimeout(function () {
-      try {
-        $httpBackend.flush();
-        $httpBackend.expectPOST('http://test.angular-cache.com/posts').respond(200, p2);
+    $httpBackend.flush();
+    $httpBackend.expectPOST('http://test.angular-cache.com/posts').respond(200, p2);
 
-        setTimeout(function () {
-          try {
-            DS.create('post', { author: 'Sue', age: 70, id: 6 }, { upsert: false }).then(function (post) {
-              assert.deepEqual(angular.toJson(post), angular.toJson(p2), 'post 6 should have been created');
-            }, function (err) {
-              console.error(err.stack);
-              fail('should not have rejected');
-            });
+    DS.create('post', { author: 'Sue', age: 70, id: 6 }, { upsert: false }).then(function (post) {
+      assert.deepEqual(angular.toJson(post), angular.toJson(p2), 'post 6 should have been created');
+    }, function (err) {
+      console.error(err.stack);
+      fail('should not have rejected');
+    });
 
-            setTimeout(function () {
-              try {
-                $httpBackend.flush();
+    $httpBackend.flush();
 
-                setTimeout(function () {
-                  try {
-                    assert.equal(lifecycle.beforeUpdate.callCount, 1, 'beforeUpdate should have been called');
-                    assert.equal(lifecycle.afterUpdate.callCount, 1, 'afterUpdate should have been called');
-                    assert.equal(lifecycle.beforeCreate.callCount, 1, 'beforeCreate should have been called');
-                    assert.equal(lifecycle.afterCreate.callCount, 1, 'afterCreate should have been called');
-                    assert.equal(lifecycle.beforeInject.callCount, 2, 'beforeInject should have been called twice');
-                    assert.equal(lifecycle.afterInject.callCount, 2, 'afterInject should have been called twice');
-                    assert.equal(lifecycle.serialize.callCount, 2, 'serialize should have been called twice');
-                    assert.equal(lifecycle.deserialize.callCount, 2, 'deserialize should have been called twice');
-                    assert.isDefined(DS.get('post', 5));
-                    assert.isDefined(DS.get('post', 6));
-
-                    done();
-                  } catch (e) {
-                    done(e);
-                  }
-                }, 30);
-              } catch (e) {
-                done(e);
-              }
-            }, 30);
-          } catch (e) {
-            done(e);
-          }
-        }, 30);
-      } catch (e) {
-        done(e);
-      }
-    }, 30);
+    assert.equal(lifecycle.beforeUpdate.callCount, 1, 'beforeUpdate should have been called');
+    assert.equal(lifecycle.afterUpdate.callCount, 1, 'afterUpdate should have been called');
+    assert.equal(lifecycle.beforeCreate.callCount, 1, 'beforeCreate should have been called');
+    assert.equal(lifecycle.afterCreate.callCount, 1, 'afterCreate should have been called');
+    assert.equal(lifecycle.beforeInject.callCount, 2, 'beforeInject should have been called twice');
+    assert.equal(lifecycle.afterInject.callCount, 2, 'afterInject should have been called twice');
+    assert.equal(lifecycle.serialize.callCount, 2, 'serialize should have been called twice');
+    assert.equal(lifecycle.deserialize.callCount, 2, 'deserialize should have been called twice');
+    assert.isDefined(DS.get('post', 5));
+    assert.isDefined(DS.get('post', 6));
   });
-  it('should create an item that includes relations, save them to the server and inject the results', function (done) {
+  it('should create an item that includes relations, save them to the server and inject the results', function () {
     var payload = {
       id: 99,
       name: 'Sally',
@@ -158,34 +106,20 @@ describe('DS.create', function () {
       fail('should not have rejected');
     });
 
-    setTimeout(function () {
-      try {
-        $httpBackend.flush();
+    $httpBackend.flush();
 
-        setTimeout(function () {
-          try {
-            assert.equal(lifecycle.beforeCreate.callCount, 1, 'beforeCreate should have been called twice');
-            assert.equal(lifecycle.afterCreate.callCount, 1, 'afterCreate should have been called twice');
-            assert.equal(lifecycle.beforeInject.callCount, 2, 'beforeInject should have been called twice');
-            assert.equal(lifecycle.afterInject.callCount, 2, 'afterInject should have been called twice');
-            assert.equal(lifecycle.serialize.callCount, 1, 'serialize should have been called');
-            assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
-            assert.deepEqual(DS.get('user', 99).id, payload.id);
-            assert.isObject(DS.get('user', 99).profile);
-            assert.deepEqual(DS.get('profile', 999).id, 999);
-            assert.isObject(DS.get('profile', 999).user);
-
-            done();
-          } catch (e) {
-            done(e);
-          }
-        }, 30);
-      } catch (e) {
-        done(e);
-      }
-    }, 30);
+    assert.equal(lifecycle.beforeCreate.callCount, 1, 'beforeCreate should have been called twice');
+    assert.equal(lifecycle.afterCreate.callCount, 1, 'afterCreate should have been called twice');
+    assert.equal(lifecycle.beforeInject.callCount, 2, 'beforeInject should have been called twice');
+    assert.equal(lifecycle.afterInject.callCount, 2, 'afterInject should have been called twice');
+    assert.equal(lifecycle.serialize.callCount, 1, 'serialize should have been called');
+    assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
+    assert.deepEqual(DS.get('user', 99).id, payload.id);
+    assert.isObject(DS.get('user', 99).profile);
+    assert.deepEqual(DS.get('profile', 999).id, 999);
+    assert.isObject(DS.get('profile', 999).user);
   });
-  it('should handle nested resources', function (done) {
+  it('should handle nested resources', function () {
     var testComment = {
       id: 5,
       content: 'test',
@@ -208,72 +142,41 @@ describe('DS.create', function () {
       fail('Should not have failed!');
     });
 
-    setTimeout(function () {
-      try {
-        $httpBackend.flush();
-        $httpBackend.expectPOST('http://test.angular-cache.com/user/4/comment').respond(200, testComment2);
+    $httpBackend.flush();
+    $httpBackend.expectPOST('http://test.angular-cache.com/user/4/comment').respond(200, testComment2);
 
-        setTimeout(function () {
-          try {
-            DS.create('comment', {
-              content: 'test'
-            }, {
-              params: {
-                approvedBy: 4
-              }
-            }).then(function (comment) {
-              assert.deepEqual(angular.toJson(comment), angular.toJson(testComment2));
-              assert.deepEqual(angular.toJson(comment), angular.toJson(DS.get('comment', 6)));
-            }, function () {
-              fail('Should not have failed!');
-            });
-
-            setTimeout(function () {
-              try {
-                $httpBackend.flush();
-                $httpBackend.expectPOST('http://test.angular-cache.com/comment').respond(200, testComment2);
-
-                setTimeout(function () {
-                  try {
-                    DS.create('comment', {
-                      content: 'test',
-                      approvedBy: 4
-                    }, {
-                      params: {
-                        approvedBy: false
-                      }
-                    }).then(function (comment) {
-                      assert.deepEqual(angular.toJson(comment), angular.toJson(testComment2));
-                      assert.deepEqual(comment, DS.get('comment', 6));
-                    }, function () {
-                      fail('Should not have failed!');
-                    });
-                    setTimeout(function () {
-                      try {
-                        $httpBackend.flush();
-                        done();
-                      } catch (e) {
-                        done(e);
-                      }
-                    }, 30);
-                  } catch (e) {
-                    done(e);
-                  }
-                }, 30);
-              } catch (e) {
-                done(e);
-              }
-            }, 30);
-          } catch (e) {
-            done(e);
-          }
-        }, 30);
-      } catch (e) {
-        done(e);
+    DS.create('comment', {
+      content: 'test'
+    }, {
+      params: {
+        approvedBy: 4
       }
-    }, 30);
+    }).then(function (comment) {
+      assert.deepEqual(angular.toJson(comment), angular.toJson(testComment2));
+      assert.deepEqual(angular.toJson(comment), angular.toJson(DS.get('comment', 6)));
+    }, function () {
+      fail('Should not have failed!');
+    });
+
+    $httpBackend.flush();
+    $httpBackend.expectPOST('http://test.angular-cache.com/comment').respond(200, testComment2);
+
+    DS.create('comment', {
+      content: 'test',
+      approvedBy: 4
+    }, {
+      params: {
+        approvedBy: false
+      }
+    }).then(function (comment) {
+      assert.deepEqual(angular.toJson(comment), angular.toJson(testComment2));
+      assert.deepEqual(comment, DS.get('comment', 6));
+    }, function () {
+      fail('Should not have failed!');
+    });
+    $httpBackend.flush();
   });
-  it('should find inverse links', function (done) {
+  it('should find inverse links', function () {
     DS.inject('organization', {
       id: 77
     });
@@ -293,18 +196,11 @@ describe('DS.create', function () {
       assert.isObject(user.organization);
       assert.isTrue(user.organization === organization);
       assert.isTrue(user === organization.users[0]);
-      done();
     }, function () {
-      done('Should not have succeeded!');
+      fail('Should not have succeeded!');
     });
 
-    setTimeout(function () {
-      try {
-        $httpBackend.flush();
-      } catch (e) {
-        done(e);
-      }
-    }, 30);
+    $httpBackend.flush();
   });
   // Not yet implemented in js-data
   //it('should eager inject', function () {

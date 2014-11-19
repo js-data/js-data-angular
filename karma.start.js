@@ -335,7 +335,11 @@ function startInjector() {
 
 // Clean up after each test
 afterEach(function () {
-  $httpBackend.verifyNoOutstandingExpectation();
-  $httpBackend.verifyNoOutstandingRequest();
+  try {
+    $httpBackend.verifyNoOutstandingExpectation();
+    $httpBackend.verifyNoOutstandingRequest();
+  } catch (err) {
+    console.log(err);
+  }
   $log.reset();
 });

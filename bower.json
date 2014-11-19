@@ -2,7 +2,7 @@
   "author": "Jason Dobry",
   "name": "js-data-angular",
   "description": "Angular wrapper for js-data (originally angular-data).",
-  "version": "2.0.0-alpha.2-0",
+  "version": "2.0.0-alpha.3-0",
   "homepage": "http://www.js-data.io/js-data-angular",
   "repository": {
     "type": "git",

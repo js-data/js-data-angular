@@ -1,6 +1,6 @@
 describe('DS.refresh', function () {
   beforeEach(startInjector);
-  it('should get an item from the server', function (done) {
+  it('should get an item from the server', function () {
 
     // Should do nothing because the data isn't in the store
     DS.refresh('post', 5).then(function (post) {
@@ -32,27 +32,13 @@ describe('DS.refresh', function () {
       fail('Should not have rejected!');
     });
 
-    setTimeout(function () {
-      try {
-        $httpBackend.flush();
+    $httpBackend.flush();
 
-        setTimeout(function () {
-          try {
-            assert.deepEqual(angular.toJson(DS.get('post', 5)), angular.toJson({
-              author: 'John',
-              age: 31,
-              id: 5
-            }), 'The post has been refreshed');
-            assert.notEqual(DS.lastModified('post', 5), initialLastModified);
-
-            done();
-          } catch (e) {
-            done(e);
-          }
-        });
-      } catch (e) {
-        done(e);
-      }
-    }, 30);
+    assert.deepEqual(angular.toJson(DS.get('post', 5)), angular.toJson({
+      author: 'John',
+      age: 31,
+      id: 5
+    }), 'The post has been refreshed');
+    assert.notEqual(DS.lastModified('post', 5), initialLastModified);
   });
 });

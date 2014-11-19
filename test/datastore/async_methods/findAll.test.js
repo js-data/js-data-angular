@@ -2,7 +2,7 @@ describe('DS.findAll', function () {
 
   beforeEach(startInjector);
 
-  it('should query the server for a collection', function (done) {
+  it('should query the server for a collection', function () {
     $httpBackend.expectGET(/http:\/\/test\.angular-cache\.com\/posts\??/).respond(200, [p1, p2, p3, p4]);
 
     DS.findAll('post', {}).then(function (data) {
@@ -22,65 +22,40 @@ describe('DS.findAll', function () {
       fail('Should not have rejected!');
     });
 
-    setTimeout(function () {
-      try {
-        $httpBackend.flush();
+    $httpBackend.flush();
 
-        setTimeout(function () {
-          try {
-            assert.deepEqual(angular.toJson(DS.filter('post', {})), angular.toJson([p1, p2, p3, p4]), 'The posts are now in the store');
-            assert.isNumber(DS.lastModified('post', 5));
-            assert.isNumber(DS.lastSaved('post', 5));
-            DS.find('post', p1.id); // should not trigger another XHR
+    assert.deepEqual(angular.toJson(DS.filter('post', {})), angular.toJson([p1, p2, p3, p4]), 'The posts are now in the store');
+    assert.isNumber(DS.lastModified('post', 5));
+    assert.isNumber(DS.lastSaved('post', 5));
+    DS.find('post', p1.id); // should not trigger another XHR
 
 
-            // Should not make a request because the request was already completed
-            DS.findAll('post', {}).then(function (data) {
-              assert.deepEqual(angular.toJson(data), angular.toJson([p1, p2, p3, p4]));
-            }, function (err) {
-              console.error(err.stack);
-              fail('Should not have rejected!');
-            });
+    // Should not make a request because the request was already completed
+    DS.findAll('post', {}).then(function (data) {
+      assert.deepEqual(angular.toJson(data), angular.toJson([p1, p2, p3, p4]));
+    }, function (err) {
+      console.error(err.stack);
+      fail('Should not have rejected!');
+    });
 
-            $httpBackend.expectGET(/http:\/\/test\.angular-cache\.com\/posts\??/).respond(200, [p1, p2, p3, p4]);
+    $httpBackend.expectGET(/http:\/\/test\.angular-cache\.com\/posts\??/).respond(200, [p1, p2, p3, p4]);
 
-            // Should make a request because bypassCache is set to true
-            DS.findAll('post', {}, { bypassCache: true }).then(function (data) {
-              assert.deepEqual(angular.toJson(data), angular.toJson([p1, p2, p3, p4]));
-            }, function (err) {
-              console.error(err.stack);
-              fail('Should not have rejected!');
-            });
+    // Should make a request because bypassCache is set to true
+    DS.findAll('post', {}, { bypassCache: true }).then(function (data) {
+      assert.deepEqual(angular.toJson(data), angular.toJson([p1, p2, p3, p4]));
+    }, function (err) {
+      console.error(err.stack);
+      fail('Should not have rejected!');
+    });
 
-            setTimeout(function () {
-              try {
-                $httpBackend.flush();
+    $httpBackend.flush();
 
-                setTimeout(function () {
-                  try {
-                    assert.equal(lifecycle.beforeInject.callCount, 2, 'beforeInject should have been called');
-                    assert.equal(lifecycle.afterInject.callCount, 2, 'afterInject should have been called');
-                    assert.equal(lifecycle.serialize.callCount, 0, 'serialize should have been called');
-                    assert.equal(lifecycle.deserialize.callCount, 2, 'deserialize should have been called');
-                    done();
-                  } catch (e) {
-                    done(e);
-                  }
-                });
-              } catch (e) {
-                done(e);
-              }
-            }, 30);
-          } catch (e) {
-            done(e);
-          }
-        });
-      } catch (e) {
-        done(e);
-      }
-    }, 30);
+    assert.equal(lifecycle.beforeInject.callCount, 2, 'beforeInject should have been called');
+    assert.equal(lifecycle.afterInject.callCount, 2, 'afterInject should have been called');
+    assert.equal(lifecycle.serialize.callCount, 0, 'serialize should have been called');
+    assert.equal(lifecycle.deserialize.callCount, 2, 'deserialize should have been called');
   });
-  it('should query the server for a collection but not store the data if cacheResponse is false', function (done) {
+  it('should query the server for a collection but not store the data if cacheResponse is false', function () {
     $httpBackend.expectGET(/http:\/\/test\.angular-cache\.com\/posts\??/).respond(200, [p1, p2, p3, p4]);
 
     DS.findAll('post', {}, { cacheResponse: false }).then(function (data) {
@@ -90,48 +65,29 @@ describe('DS.findAll', function () {
       fail('Should not have rejected!');
     });
 
-    setTimeout(function () {
-      try {
-        $httpBackend.flush();
+    $httpBackend.flush();
 
-        setTimeout(function () {
-          try {
-            assert.deepEqual(angular.toJson(DS.filter('post', {})), angular.toJson([]), 'The posts should not have been injected into the store');
+    assert.deepEqual(angular.toJson(DS.filter('post', {})), angular.toJson([]), 'The posts should not have been injected into the store');
 
-            assert.equal(lifecycle.beforeInject.callCount, 0, 'beforeInject should have been called');
-            assert.equal(lifecycle.afterInject.callCount, 0, 'afterInject should have been called');
-            assert.equal(lifecycle.serialize.callCount, 0, 'serialize should have been called');
-            assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
-
-            done();
-          } catch (e) {
-            done(e);
-          }
-        });
-      } catch (e) {
-        done(e);
-      }
-    }, 30);
+    assert.equal(lifecycle.beforeInject.callCount, 0, 'beforeInject should have been called');
+    assert.equal(lifecycle.afterInject.callCount, 0, 'afterInject should have been called');
+    assert.equal(lifecycle.serialize.callCount, 0, 'serialize should have been called');
+    assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
   });
-  it('should correctly propagate errors', function (done) {
+  it('should correctly propagate errors', function () {
     $httpBackend.expectGET(/http:\/\/test\.angular-cache\.com\/posts\??/).respond(404, 'Not Found');
 
     DS.findAll('post', {}).then(function () {
-      done('Should not have succeeded!');
-    }, function (err) {
-      assert.equal(err.data, 'Not Found');
-      done();
+      fail('Should not have succeeded!');
     });
 
-    setTimeout(function () {
-      try {
-        $httpBackend.flush();
-      } catch (e) {
-        done(e);
-      }
-    }, 30);
+    try {
+      $httpBackend.flush();
+    } catch (err) {
+      assert.equal(err.data, 'Not Found');
+    }
   });
-  it('"params" argument is optional', function (done) {
+  it('"params" argument is optional', function () {
     $httpBackend.expectGET(/http:\/\/test\.angular-cache\.com\/posts\??/).respond(200, [p1, p2, p3, p4]);
 
     DS.findAll('post').then(function (data) {
@@ -141,30 +97,16 @@ describe('DS.findAll', function () {
       fail('Should not have rejected!');
     });
 
-    setTimeout(function () {
-      try {
-        $httpBackend.flush();
+    $httpBackend.flush();
 
-        setTimeout(function () {
-          try {
-            assert.deepEqual(angular.toJson(DS.filter('post', {})), angular.toJson([p1, p2, p3, p4]), 'The posts are now in the store');
+    assert.deepEqual(angular.toJson(DS.filter('post', {})), angular.toJson([p1, p2, p3, p4]), 'The posts are now in the store');
 
-            assert.equal(lifecycle.beforeInject.callCount, 1 , 'beforeInject should have been called');
-            assert.equal(lifecycle.afterInject.callCount, 1, 'afterInject should have been called');
-            assert.equal(lifecycle.serialize.callCount, 0, 'serialize should have been called');
-            assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
-
-            done();
-          } catch (e) {
-            done(e);
-          }
-        });
-      } catch (e) {
-        done(e);
-      }
-    }, 30);
+    assert.equal(lifecycle.beforeInject.callCount, 1, 'beforeInject should have been called');
+    assert.equal(lifecycle.afterInject.callCount, 1, 'afterInject should have been called');
+    assert.equal(lifecycle.serialize.callCount, 0, 'serialize should have been called');
+    assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
   });
-  it('"params"', function (done) {
+  it('"params"', function () {
     $httpBackend.expectGET('http://test.angular-cache.com/posts?where=%7B%22author%22:%22Adam%22%7D').respond(200, [p4, p5]);
 
     var params = {
@@ -179,37 +121,23 @@ describe('DS.findAll', function () {
       fail('Should not have rejected!');
     });
 
-    setTimeout(function () {
-      try {
-        $httpBackend.flush();
+    $httpBackend.flush();
 
-        setTimeout(function () {
-          try {
-            assert.deepEqual(angular.toJson(DS.filter('post', params)), angular.toJson([p4, p5]), 'The posts are now in the store');
-            assert.deepEqual(angular.toJson(DS.filter('post', {
-              where: {
-                id: {
-                  '>': 8
-                }
-              }
-            })), angular.toJson([p5]), 'The posts are now in the store');
-
-            assert.equal(lifecycle.beforeInject.callCount, 1, 'beforeInject should have been called');
-            assert.equal(lifecycle.afterInject.callCount, 1, 'afterInject should have been called');
-            assert.equal(lifecycle.serialize.callCount, 0, 'serialize should have been called');
-            assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
-
-            done();
-          } catch (e) {
-            done(e);
-          }
-        });
-      } catch (e) {
-        done(e);
+    assert.deepEqual(angular.toJson(DS.filter('post', params)), angular.toJson([p4, p5]), 'The posts are now in the store');
+    assert.deepEqual(angular.toJson(DS.filter('post', {
+      where: {
+        id: {
+          '>': 8
+        }
       }
-    }, 30);
+    })), angular.toJson([p5]), 'The posts are now in the store');
+
+    assert.equal(lifecycle.beforeInject.callCount, 1, 'beforeInject should have been called');
+    assert.equal(lifecycle.afterInject.callCount, 1, 'afterInject should have been called');
+    assert.equal(lifecycle.serialize.callCount, 0, 'serialize should have been called');
+    assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
   });
-  it('should return already injected items', function (done) {
+  it('should return already injected items', function () {
     var u1 = {
         id: 1,
         name: 'John'
@@ -244,33 +172,19 @@ describe('DS.findAll', function () {
       fail('Should not have rejected!');
     });
 
-    setTimeout(function () {
-      try {
-        $httpBackend.flush();
+    $httpBackend.flush();
 
-        setTimeout(function () {
-          try {
-            assert.deepEqual(angular.toJson(DS.filter('person')), angular.toJson([
-              DSUtils.deepMixIn(new DS.definitions.person[DS.definitions.person.class](), u1),
-              DSUtils.deepMixIn(new DS.definitions.person[DS.definitions.person.class](), u2)
-            ]), 'The users are now in the store');
+    assert.deepEqual(angular.toJson(DS.filter('person')), angular.toJson([
+      DSUtils.deepMixIn(new DS.definitions.person[DS.definitions.person.class](), u1),
+      DSUtils.deepMixIn(new DS.definitions.person[DS.definitions.person.class](), u2)
+    ]), 'The users are now in the store');
 
-            assert.equal(lifecycle.beforeInject.callCount, 1, 'beforeInject should have been called');
-            assert.equal(lifecycle.afterInject.callCount, 1, 'afterInject should have been called');
-            assert.equal(lifecycle.serialize.callCount, 0, 'serialize should have been called');
-            assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
-
-            done();
-          } catch (e) {
-            done(e);
-          }
-        });
-      } catch (e) {
-        done(e);
-      }
-    }, 30);
+    assert.equal(lifecycle.beforeInject.callCount, 1, 'beforeInject should have been called');
+    assert.equal(lifecycle.afterInject.callCount, 1, 'afterInject should have been called');
+    assert.equal(lifecycle.serialize.callCount, 0, 'serialize should have been called');
+    assert.equal(lifecycle.deserialize.callCount, 1, 'deserialize should have been called');
   });
-  it('should handle nested resources', function (done) {
+  it('should handle nested resources', function () {
     var testComment = {
       id: 5,
       content: 'test',
@@ -294,20 +208,13 @@ describe('DS.findAll', function () {
       assert.deepEqual(angular.toJson(comments), angular.toJson(DS.filter('comment', {
         content: 'test'
       })));
-      done();
     }, function () {
-      done('Should not have failed!');
+      fail('Should not have failed!');
     });
 
-    setTimeout(function () {
-      try {
-        $httpBackend.flush();
-      } catch (e) {
-        done(e);
-      }
-    }, 30);
+    $httpBackend.flush();
   });
-  it('should handle nested resources 2', function (done) {
+  it('should handle nested resources 2', function () {
     var testComment = {
       id: 5,
       content: 'test',
@@ -330,20 +237,13 @@ describe('DS.findAll', function () {
       assert.deepEqual(angular.toJson(comments), angular.toJson(DS.filter('comment', {
         content: 'test'
       })));
-      done();
     }, function () {
-      done('Should not have failed!');
+      fail('Should not have failed!');
     });
 
-    setTimeout(function () {
-      try {
-        $httpBackend.flush();
-      } catch (e) {
-        done(e);
-      }
-    }, 30);
+    $httpBackend.flush();
   });
-  it('should handle nested resources 3', function (done) {
+  it('should handle nested resources 3', function () {
     var testComment = {
       id: 5,
       content: 'test',
@@ -371,17 +271,10 @@ describe('DS.findAll', function () {
       assert.deepEqual(angular.toJson(comments), angular.toJson(DS.filter('comment', {
         content: 'test'
       })));
-      done();
     }, function () {
-      done('Should not have failed!');
+      fail('Should not have failed!');
     });
 
-    setTimeout(function () {
-      try {
-        $httpBackend.flush();
-      } catch (e) {
-        done(e);
-      }
-    }, 30);
+    $httpBackend.flush();
   });
 });

@@ -1,7 +1,7 @@
 describe('DS.updateAll', function () {
   beforeEach(startInjector);
 
-  it('should update a collection of items', function (done) {
+  it('should update a collection of items', function () {
     $httpBackend.expectPUT('http://test.angular-cache.com/posts?where=%7B%22age%22:%7B%22%3D%3D%22:33%7D%7D').respond(200, [
       { author: 'Adam', age: 27, id: 8 },
       { author: 'Adam', age: 27, id: 9 }
@@ -25,60 +25,34 @@ describe('DS.updateAll', function () {
       fail('should not have rejected');
     });
 
-    setTimeout(function () {
-      try {
-        $httpBackend.flush();
+    $httpBackend.flush();
 
-        setTimeout(function () {
-          try {
-            $httpBackend.expectPUT('http://test.angular-cache.com/posts?where=%7B%22age%22:%7B%22%3D%3D%22:31%7D%7D').respond(200, [
-              { author: 'Jane', age: 5, id: 6 }
-            ]);
+    $httpBackend.expectPUT('http://test.angular-cache.com/posts?where=%7B%22age%22:%7B%22%3D%3D%22:31%7D%7D').respond(200, [
+      { author: 'Jane', age: 5, id: 6 }
+    ]);
 
-            assert.equal(lifecycle.beforeUpdate.callCount, 1, 'beforeUpdate should have been called');
-            assert.equal(lifecycle.afterUpdate.callCount, 1, 'afterUpdate should have been called');
-            assert.deepEqual(angular.toJson(DS.filter('post', { where: { age: { '==': 27 } } })), angular.toJson(posts));
-            assert.notEqual(DS.lastModified('post', 8), initialModified);
-            assert.notEqual(DS.lastSaved('post', 8), initialSaved);
+    assert.equal(lifecycle.beforeUpdate.callCount, 1, 'beforeUpdate should have been called');
+    assert.equal(lifecycle.afterUpdate.callCount, 1, 'afterUpdate should have been called');
+    assert.deepEqual(angular.toJson(DS.filter('post', { where: { age: { '==': 27 } } })), angular.toJson(posts));
+    assert.notEqual(DS.lastModified('post', 8), initialModified);
+    assert.notEqual(DS.lastSaved('post', 8), initialSaved);
 
-            DS.updateAll('post', { age: 5 }, { where: { age: { '==': 31 } } }).then(function (ps) {
-              assert.deepEqual(angular.toJson(ps), angular.toJson(DS.filter('post', { where: { age: { '==': 5 } } })));
-              assert.deepEqual(angular.toJson(ps[0]), angular.toJson({ author: 'Jane', age: 5, id: 6 }));
-            }, function (err) {
-              console.error(err.stack);
-              fail('should not have rejected');
-            });
+    DS.updateAll('post', { age: 5 }, { where: { age: { '==': 31 } } }).then(function (ps) {
+      assert.deepEqual(angular.toJson(ps), angular.toJson(DS.filter('post', { where: { age: { '==': 5 } } })));
+      assert.deepEqual(angular.toJson(ps[0]), angular.toJson({ author: 'Jane', age: 5, id: 6 }));
+    }, function (err) {
+      console.error(err.stack);
+      fail('should not have rejected');
+    });
 
-            setTimeout(function () {
-              try {
-                $httpBackend.flush();
+    $httpBackend.flush();
 
-                setTimeout(function () {
-                  try {
-                    assert.equal(lifecycle.beforeInject.callCount, 4, 'beforeInject should have been called');
-                    assert.equal(lifecycle.afterInject.callCount, 4, 'afterInject should have been called');
-                    assert.equal(lifecycle.serialize.callCount, 2, 'serialize should have been called');
-                    assert.equal(lifecycle.deserialize.callCount, 2, 'deserialize should have been called');
-
-                    done();
-                  } catch (e) {
-                    done(e);
-                  }
-                });
-              } catch (e) {
-                done(e);
-              }
-            }, 30);
-          } catch (e) {
-            done(e);
-          }
-        });
-      } catch (e) {
-        done(e);
-      }
-    }, 30);
+    assert.equal(lifecycle.beforeInject.callCount, 4, 'beforeInject should have been called');
+    assert.equal(lifecycle.afterInject.callCount, 4, 'afterInject should have been called');
+    assert.equal(lifecycle.serialize.callCount, 2, 'serialize should have been called');
+    assert.equal(lifecycle.deserialize.callCount, 2, 'deserialize should have been called');
   });
-  it('should handle nested resources', function (done) {
+  it('should handle nested resources', function () {
     var testComment = {
       id: 5,
       content: 'stuff',
@@ -106,20 +80,13 @@ describe('DS.updateAll', function () {
       assert.deepEqual(angular.toJson(comments), angular.toJson(DS.filter('comment', {
         content: 'stuff'
       })));
-      done();
     }, function () {
-      done('Should not have failed!');
+      fail('Should not have failed!');
     });
 
-    setTimeout(function () {
-      try {
-        $httpBackend.flush();
-      } catch (e) {
-        done(e);
-      }
-    }, 30);
+    $httpBackend.flush();
   });
-  it('should handle nested resources 2', function (done) {
+  it('should handle nested resources 2', function () {
     var testComment = {
       id: 5,
       content: 'stuff',
@@ -145,20 +112,13 @@ describe('DS.updateAll', function () {
         content: 'stuff',
         sort: 'id'
       })));
-      done();
     }, function () {
-      done('Should not have failed!');
+      fail('Should not have failed!');
     });
 
-    setTimeout(function () {
-      try {
-        $httpBackend.flush();
-      } catch (e) {
-        done(e);
-      }
-    }, 30);
+    $httpBackend.flush();
   });
-  it('should handle nested resources 3', function (done) {
+  it('should handle nested resources 3', function () {
     var testComment = {
       id: 5,
       content: 'stuff',
@@ -188,17 +148,9 @@ describe('DS.updateAll', function () {
         content: 'stuff',
         sort: 'id'
       })));
-      done();
     }, function () {
-      done('Should not have failed!');
+      fail('Should not have failed!');
     });
-
-    setTimeout(function () {
-      try {
-        $httpBackend.flush();
-      } catch (e) {
-        done(e);
-      }
-    }, 30);
+    $httpBackend.flush();
   });
 });
