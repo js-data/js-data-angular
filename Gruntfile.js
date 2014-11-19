@@ -76,7 +76,7 @@ module.exports = function (grunt) {
         preprocessors: {}
       },
       min: {
-        browsers: ['Firefox', 'PhantomJS'],
+        browsers: ['Chrome', 'Firefox', 'PhantomJS'],
         options: {
           files: [
             'bower_components/angular-1.3.2/angular.js',
@@ -87,9 +87,6 @@ module.exports = function (grunt) {
             'test/**/*.js'
           ]
         }
-      },
-      ci: {
-        browsers: ['Firefox', 'PhantomJS']
       }
     },
     coveralls: {
