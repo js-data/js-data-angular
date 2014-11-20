@@ -1,7 +1,6 @@
 dependencies:
   pre:
     - bower install
-    - bower install
   cache_directories:
     - "bower_components"
 test:
