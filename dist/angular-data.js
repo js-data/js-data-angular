@@ -3516,11 +3516,12 @@ function loadRelations(resourceName, instance, relations, options) {
     }
 
     if (DSUtils.isArray(instance)) {
-      var instances = [];
-      angular.forEach(instance, function(object) {
-        instances.push(DS.get(resourceName, object));
+      instance = instance.map(function(object) {
+        if (DSUtils.isString(object) || DSUtils.isNumber(object)) {
+          object = DS.get(resourceName, object);
+        }
+        return object;
       });
-      instance = instances;
     }
 
     if (!definition) {
