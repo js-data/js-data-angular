@@ -209,4 +209,20 @@ describe('DS.loadRelations(resourceName, instance(Id), relations[, options]): ',
 
     $httpBackend.flush();
   });
+  it('should load relations from array of objects', function () {
+    DS.inject('user', user10);
+    DS.inject('user', user16);
+
+    $httpBackend.expectGET('http://test.angular-cache.com/organization/14').respond(200, organization14);
+    $httpBackend.expectGET('http://test.angular-cache.com/organization/15').respond(200, organization15);
+
+    DS.loadRelations('user', [10, 16], ['organization']).then(function (users) {
+      assert.isObject(users[0].organization);
+      assert.equal(users[0].organization.id, organization14.id);
+      assert.isObject(users[1].organization);
+      assert.equal(users[1].organization.id, organization15.id);
+    }, fail);
+
+    $httpBackend.flush();
+  });
 });
