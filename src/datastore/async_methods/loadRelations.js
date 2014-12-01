@@ -106,8 +106,11 @@ function loadRelations(resourceName, instance, relations, options) {
     var fields = [];
 
     if (DSUtils.isArray(instance)) {
-      angular.forEach(instance, function (object) {
-        tasks.push(DS.loadRelations(resourceName, object, relations, options));
+      angular.forEach(instance, function (object, index) {
+        options = DSUtils._({}, options);
+        tasks.push(DS.loadRelations(resourceName, object, relations, options).then(function(object) {
+          instance[index] = DSUtils.deepMixIn({}, object);
+        }));
       });
     } else {
       DSUtils.forEach(definition.relationList, function (def) {

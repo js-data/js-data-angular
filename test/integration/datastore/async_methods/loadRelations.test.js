@@ -209,7 +209,7 @@ describe('DS.loadRelations(resourceName, instance(Id), relations[, options]): ',
 
     $httpBackend.flush();
   });
-  it('should load relations from array of integers', function () {
+  it('should load belongsto relations from array of integers', function () {
     DS.inject('user', user10);
     DS.inject('user', user16);
 
@@ -225,7 +225,7 @@ describe('DS.loadRelations(resourceName, instance(Id), relations[, options]): ',
 
     $httpBackend.flush();
   });
-  it('should load relations from collection', function () {
+  it('should load belongsto relations from collection', function () {
     DS.inject('user', user10);
     DS.inject('user', user16);
 
@@ -238,6 +238,23 @@ describe('DS.loadRelations(resourceName, instance(Id), relations[, options]): ',
       assert.isObject(users[1].organization);
       assert.equal(users[1].organization.id, organization15.id);
     }, fail);
+
+    $httpBackend.flush();
+  });
+  it('should load hasmany relations from collection', function () {
+
+    DS.inject('organization', organization14);
+    DS.inject('organization', organization15);
+
+    $httpBackend.expectGET('http://test.angular-cache.com/organization/14/user').respond(200, [user10]);
+    $httpBackend.expectGET('http://test.angular-cache.com/organization/15/user').respond(200, [user16]);
+
+    DS.loadRelations('organization', [organization14, organization15], ['user']).then(function (organizations) {
+      assert.isObject(organization14.users[0]);
+      assert.equal(organization14.users[0].id, 10);
+      assert.isObject(organization15.users[0]);
+      assert.equal(organization15.users[0].id, 16);
+    });
 
     $httpBackend.flush();
   });
