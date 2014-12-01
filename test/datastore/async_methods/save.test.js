@@ -40,7 +40,7 @@ describe('DS.save', function () {
       fail('should not have succeeded');
     }, function (err) {
       assert.isTrue(err instanceof DS.errors.RuntimeError);
-      assert.equal(err.message, errorPrefix('post', 6) + 'id: "6" not found!');
+      assert.equal(err.message, 'id "6" not found in cache!');
     });
 
     assert.equal(lifecycle.beforeInject.callCount, 2, 'beforeInject should have been called');
@@ -175,7 +175,7 @@ describe('DS.save', function () {
       fail('should not have succeeded');
     }, function (err) {
       assert.isTrue(err instanceof DS.errors.RuntimeError);
-      assert.equal(err.message, 'id: "6" not found!');
+      assert.equal(err.message, 'id "6" not found in cache!');
     });
 
     assert.equal(lifecycle.beforeInject.callCount, 2, 'beforeInject should have been called');

@@ -1,7 +1,7 @@
 /**
 * @author Jason Dobry <jason.dobry@gmail.com>
 * @file js-data-angular.js
-* @version 2.0.0-alpha.3-0 - Homepage <http://www.js-data.io/js-data-angular/>
+* @version 2.0.0-alpha.3-1 - Homepage <http://www.js-data.io/js-data-angular/>
 * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>
 * @license MIT <https://github.com/js-data/js-data-angular/blob/master/LICENSE>
 *
@@ -295,12 +295,17 @@
 
     var dsHttpAdapterPrototype = DSHttpAdapter.prototype;
 
-    dsHttpAdapterPrototype.getIdPath = function (resourceConfig, options, id) {
-      return makePath(options.basePath || this.defaults.basePath || resourceConfig.basePath, resourceConfig.getEndpoint(id, options), id);
-    };
-
-    dsHttpAdapterPrototype.getAllPath = function (resourceConfig, options) {
-      return makePath(options.basePath || this.defaults.basePath || resourceConfig.basePath, resourceConfig.getEndpoint(null, options));
+    dsHttpAdapterPrototype.getPath = function (method, resourceConfig, id, options) {
+      var _this = this;
+      options = options || {};
+      var args = [
+        options.basePath || _this.defaults.basePath || resourceConfig.basePath,
+        resourceConfig.getEndpoint((DSUtils.isString(id) || DSUtils.isNumber(id) || method === 'create') ? id : null, options)
+      ];
+      if (method === 'find' || method === 'update' || method === 'destroy') {
+        args.push(id);
+      }
+      return DSUtils.makePath.apply(DSUtils, args);
     };
 
     dsHttpAdapterPrototype.GET = function (url, config) {
@@ -349,7 +354,7 @@
       var _this = this;
       options = options || {};
       return _this.GET(
-        _this.getIdPath(resourceConfig, options, id),
+        _this.getPath('find', resourceConfig, id, options),
         options
       ).then(function (data) {
           return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig, data);
@@ -365,7 +370,7 @@
         deepMixIn(options.params, params);
       }
       return _this.GET(
-        _this.getAllPath(resourceConfig, options),
+        _this.getPath('findAll', resourceConfig, params, options),
         options
       ).then(function (data) {
           return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig, data);
@@ -376,7 +381,7 @@
       var _this = this;
       options = options || {};
       return _this.POST(
-        makePath(options.basePath || this.defaults.basePath || resourceConfig.basePath, resourceConfig.getEndpoint(attrs, options)),
+        _this.getPath('create', resourceConfig, attrs, options),
         (options.serialize ? options.serialize : _this.defaults.serialize)(resourceConfig, attrs),
         options
       ).then(function (data) {
@@ -388,7 +393,7 @@
       var _this = this;
       options = options || {};
       return _this.PUT(
-        _this.getIdPath(resourceConfig, options, id),
+        _this.getPath('update', resourceConfig, id, options),
         (options.serialize ? options.serialize : _this.defaults.serialize)(resourceConfig, attrs),
         options
       ).then(function (data) {
@@ -405,7 +410,7 @@
         deepMixIn(options.params, params);
       }
       return this.PUT(
-        _this.getAllPath(resourceConfig, options),
+        _this.getPath('updateAll', resourceConfig, attrs, options),
         (options.serialize ? options.serialize : _this.defaults.serialize)(resourceConfig, attrs),
         options
       ).then(function (data) {
@@ -417,7 +422,7 @@
       var _this = this;
       options = options || {};
       return _this.DEL(
-        _this.getIdPath(resourceConfig, options, id),
+        _this.getPath('destroy', resourceConfig, id, options),
         options
       ).then(function (data) {
           return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig, data);
@@ -433,7 +438,7 @@
         deepMixIn(options.params, params);
       }
       return this.DEL(
-        _this.getAllPath(resourceConfig, options),
+        _this.getPath('destroyAll', resourceConfig, params, options),
         options
       ).then(function (data) {
           return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig, data);
