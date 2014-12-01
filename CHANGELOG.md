@@ -1,3 +1,11 @@
+##### 1.4.3 - 30 November 2014
+
+###### Backwards compatible bug fixes
+- #253 - Injecting an item with relationships a second time breaks relationships
+
+###### Backwards compatible bug fixes
+- Fixed "allowSimpleWhere" default not being set
+
 ##### 1.4.2 - 18 November 2014
 
 ###### Backwards compatible API changes

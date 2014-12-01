@@ -1,7 +1,7 @@
 /**
 * @author Jason Dobry <jason.dobry@gmail.com>
 * @file angular-data.js
-* @version 1.4.2 - Homepage <http://angular-data.pseudobry.com/>
+* @version 1.4.3 - Homepage <http://angular-data.pseudobry.com/>
 * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>
 * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
 *
@@ -6555,27 +6555,9 @@ function errorPrefix(resourceName) {
   return 'DS.inject(' + resourceName + ', attrs[, options]): ';
 }
 
-function _injectRelations(definition, injected, options) {
-  var DS = this;
-
-  DS.utils.forEach(definition.relationList, function (def) {
-    var relationName = def.relation;
-    var relationDef = DS.definitions[relationName];
-    if (injected[def.localField]) {
-      if (!relationDef) {
-        throw new DS.errors.R(definition.name + 'relation is defined but the resource is not!');
-      }
-      try {
-        injected[def.localField] = DS.inject(relationName, injected[def.localField], options);
-      } catch (err) {
-        DS.$log.error(errorPrefix(definition.name) + 'Failed to inject ' + def.type + ' relation: "' + relationName + '"!', err);
-      }
-    }
-  });
-}
-
 function _inject(definition, resource, attrs, options) {
   var DS = this;
+  var DSUtils = DS.utils;
   var $log = DS.$log;
 
   function _react(added, removed, changed, oldValueFn, firstTime) {
@@ -6583,16 +6565,16 @@ function _inject(definition, resource, attrs, options) {
     var item;
     var innerId = (oldValueFn && oldValueFn(definition.idAttribute)) ? oldValueFn(definition.idAttribute) : target[definition.idAttribute];
 
-    DS.utils.forEach(definition.relationFields, function (field) {
+    DSUtils.forEach(definition.relationFields, function (field) {
       delete added[field];
       delete removed[field];
       delete changed[field];
     });
 
-    if (!DS.utils.isEmpty(added) || !DS.utils.isEmpty(removed) || !DS.utils.isEmpty(changed) || firstTime) {
+    if (!DSUtils.isEmpty(added) || !DSUtils.isEmpty(removed) || !DSUtils.isEmpty(changed) || firstTime) {
       item = DS.get(definition.name, innerId);
-      resource.modified[innerId] = DS.utils.updateTimestamp(resource.modified[innerId]);
-      resource.collectionModified = DS.utils.updateTimestamp(resource.collectionModified);
+      resource.modified[innerId] = DSUtils.updateTimestamp(resource.modified[innerId]);
+      resource.collectionModified = DSUtils.updateTimestamp(resource.collectionModified);
       if (definition.keepChangeHistory) {
         var changeRecord = {
           resourceName: definition.name,
@@ -6609,7 +6591,7 @@ function _inject(definition, resource, attrs, options) {
 
     if (definition.computed) {
       item = item || DS.get(definition.name, innerId);
-      DS.utils.forEach(definition.computed, function (fn, field) {
+      DSUtils.forEach(definition.computed, function (fn, field) {
         var compute = false;
         // check if required fields changed
         angular.forEach(fn.deps, function (dep) {
@@ -6626,7 +6608,7 @@ function _inject(definition, resource, attrs, options) {
 
     if (definition.relations) {
       item = item || DS.get(definition.name, innerId);
-      DS.utils.forEach(definition.relationList, function (def) {
+      DSUtils.forEach(definition.relationList, function (def) {
         if (item[def.localField] && (def.localKey in added || def.localKey in removed || def.localKey in changed)) {
           DS.link(definition.name, item[definition.idAttribute], [def.relation]);
         }
@@ -6641,7 +6623,7 @@ function _inject(definition, resource, attrs, options) {
   }
 
   var injected;
-  if (DS.utils.isArray(attrs)) {
+  if (DSUtils.isArray(attrs)) {
     injected = [];
     for (var i = 0; i < attrs.length; i++) {
       injected.push(_inject.call(DS, definition, resource, attrs[i], options));
@@ -6663,6 +6645,45 @@ function _inject(definition, resource, attrs, options) {
       throw error;
     } else {
       try {
+        DSUtils.forEach(definition.relationList, function (def) {
+          var relationName = def.relation;
+          var relationDef = DS.definitions[relationName];
+          var toInject = attrs[def.localField];
+          if (toInject) {
+            if (!relationDef) {
+              throw new DS.errors.R(definition.name + 'relation is defined but the resource is not!');
+            }
+            if (DSUtils.isArray(toInject)) {
+              var items = [];
+              DSUtils.forEach(toInject, function (toInjectItem) {
+                if (toInjectItem !== DS.store[relationName][toInjectItem[relationDef.idAttribute]]) {
+                  try {
+                    var injectedItem = DS.inject(relationName, toInjectItem, options);
+                    if (def.foreignKey) {
+                      injectedItem[def.foreignKey] = attrs[definition.idAttribute];
+                    }
+                    items.push(injectedItem);
+                  } catch (err) {
+                    DS.$log.error(errorPrefix(definition.name) + 'Failed to inject ' + def.type + ' relation: "' + relationName + '"!', err);
+                  }
+                }
+              });
+              attrs[def.localField] = items;
+            } else {
+              if (toInject !== DS.store[relationName][toInject[relationDef.idAttribute]]) {
+                try {
+                  attrs[def.localField] = DS.inject(relationName, attrs[def.localField], options);
+                  if (def.foreignKey) {
+                    attrs[def.localField][def.foreignKey] = attrs[definition.idAttribute];
+                  }
+                } catch (err) {
+                  DS.$log.error(errorPrefix(definition.name) + 'Failed to inject ' + def.type + ' relation: "' + relationName + '"!', err);
+                }
+              }
+            }
+          }
+        });
+
         definition.beforeInject(definition.name, attrs);
         var id = attrs[idA];
         var item = DS.get(definition.name, id);
@@ -6680,8 +6701,8 @@ function _inject(definition, resource, attrs, options) {
           }
           resource.previousAttributes[id] = {};
 
-          DS.utils.deepMixIn(item, attrs);
-          DS.utils.deepMixIn(resource.previousAttributes[id], attrs);
+          DSUtils.deepMixIn(item, attrs);
+          DSUtils.deepMixIn(resource.previousAttributes[id], attrs);
 
           resource.collection.push(item);
 
@@ -6691,18 +6712,14 @@ function _inject(definition, resource, attrs, options) {
           resource.index.put(id, item);
 
           _react.call(item, {}, {}, {}, null, true);
-
-          if (definition.relations) {
-            _injectRelations.call(DS, definition, item, options);
-          }
         } else {
-          DS.utils.deepMixIn(item, attrs);
+          DSUtils.deepMixIn(item, attrs);
           if (definition.resetHistoryOnInject) {
             resource.previousAttributes[id] = {};
-            DS.utils.deepMixIn(resource.previousAttributes[id], attrs);
+            DSUtils.deepMixIn(resource.previousAttributes[id], attrs);
             if (resource.changeHistories[id].length) {
-              DS.utils.forEach(resource.changeHistories[id], function (changeRecord) {
-                DS.utils.remove(resource.changeHistory, changeRecord);
+              DSUtils.forEach(resource.changeHistories[id], function (changeRecord) {
+                DSUtils.remove(resource.changeHistory, changeRecord);
               });
               resource.changeHistories[id].splice(0, resource.changeHistories[id].length);
             }
@@ -6714,8 +6731,9 @@ function _inject(definition, resource, attrs, options) {
           }
           resource.observers[id].deliver();
         }
-        resource.saved[id] = DS.utils.updateTimestamp(resource.saved[id]);
-        resource.modified[id] = initialLastModified && resource.modified[id] === initialLastModified ? DS.utils.updateTimestamp(resource.modified[id]) : resource.modified[id];
+        resource.saved[id] = DSUtils.updateTimestamp(resource.saved[id]);
+        resource.modified[id] = initialLastModified && resource.modified[id] === initialLastModified ? DSUtils.updateTimestamp(resource.modified[id]) : resource.modified[id];
+
         definition.afterInject(definition.name, item);
         injected = item;
       } catch (err) {
@@ -6796,6 +6814,7 @@ function _link(definition, injected, options) {
  * the items that were injected into the data store.
  */
 function inject(resourceName, attrs, options) {
+  console.log('inject', resourceName, attrs);
   var DS = this;
   var IA = DS.errors.IA;
   var definition = DS.definitions[resourceName];
@@ -6828,7 +6847,9 @@ function inject(resourceName, attrs, options) {
     resource.collectionModified = DS.utils.updateTimestamp(resource.collectionModified);
   }
 
-  if (options.linkInverse) {
+  console.log(options);
+  if (options.linkInverse && typeof options.linkInverse === 'boolean') {
+    console.log('linkInverse', typeof options.linkInverse, options.linkInverse);
     if (DS.utils.isArray(injected)) {
       if (injected.length) {
         DS.linkInverse(definition.name, injected[0][definition.idAttribute]);
@@ -6837,6 +6858,8 @@ function inject(resourceName, attrs, options) {
       DS.linkInverse(definition.name, injected[definition.idAttribute]);
     }
   }
+
+  console.log(injected);
 
   if (DS.utils.isArray(injected)) {
     DS.utils.forEach(injected, function (injectedI) {
@@ -6849,7 +6872,6 @@ function inject(resourceName, attrs, options) {
   if (options.notify) {
     DS.emit(definition, 'inject', injected);
   }
-
 
   return injected;
 }
@@ -7050,6 +7072,7 @@ function _link(definition, linked, relations) {
  * @returns {object|array} A reference to the item with its linked relations.
  */
 function link(resourceName, id, relations) {
+  console.log('link', resourceName, id);
   var DS = this;
   var IA = DS.errors.IA;
   var definition = DS.definitions[resourceName];
@@ -7075,6 +7098,8 @@ function link(resourceName, id, relations) {
       _link.call(DS, definition, linked, relations);
     }
   }
+
+  console.log('linked', linked);
 
   return linked;
 }
