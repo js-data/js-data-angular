@@ -18,7 +18,8 @@
     throw new Error('js-data must be loaded!');
   }
 
-  var makePath = JSData.DSUtils.makePath;
+  var DSUtils = JSData.DSUtils;
+
   var deepMixIn = JSData.DSUtils.deepMixIn;
   var httpLoaded = false;
 
@@ -99,7 +100,6 @@
     .provider('DS', function () {
 
       var _this = this;
-      var DSUtils = JSData.DSUtils;
       var DSErrors = JSData.DSErrors;
       var deps = [];
 
