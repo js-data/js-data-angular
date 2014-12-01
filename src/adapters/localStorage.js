@@ -8,6 +8,36 @@ function DSLocalStorageAdapterProvider() {
   this.$get = ['$q', 'DSUtils', 'DSErrors', function ($q, DSUtils) {
 
     /**
+     * @doc method
+     * @id DSLocalStorageAdapter.methods:getPath
+     * @name getPath
+     * @description
+     * Return the path that would be used by this adapter for a given operation.
+     *
+     * ## Signature:
+     * ```js
+     * DSLocalStorageAdapter.getPath(method, resourceConfig, id|attrs|params, options))
+     * ```
+     *
+     * @param {string} method The name of the method .
+     * @param {object} resourceConfig The object returned by DS.defineResource.
+     * @param {string|object} id|attrs|params The id, attrs, or params that you would pass into the method.
+     * @param {object} options Configuration options.
+     * @returns {string} The path.
+     */
+    function getPath(method, resourceConfig, id, options) {
+      options = options || {};
+      var args = [
+        options.baseUrl || resourceConfig.baseUrl,
+        resourceConfig.getEndpoint((DSUtils.isString(id) || DSUtils.isNumber(id) || method === 'create') ? id : null, options)
+      ];
+      if (method === 'find' || method === 'update' || method === 'destroy') {
+        args.push(id);
+      }
+      return DSUtils.makePath.apply(DSUtils, args);
+    }
+
+    /**
      * @doc interface
      * @id DSLocalStorageAdapter
      * @name DSLocalStorageAdapter
@@ -157,7 +187,7 @@ function DSLocalStorageAdapterProvider() {
        */
       find: function find(resourceConfig, id, options) {
         options = options || {};
-        return this.GET(DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id)).then(function (item) {
+        return this.GET(getPath('find', resourceConfig, id, options)).then(function (item) {
           if (!item) {
             return $q.reject(new Error('Not Found!'));
           } else {
@@ -196,7 +226,7 @@ function DSLocalStorageAdapterProvider() {
         var items = [];
         var ids = DSUtils.keys(_this.getIds(resourceConfig.name, options));
         DSUtils.forEach(ids, function (id) {
-          var itemJson = localStorage.getItem(DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id, options), id));
+          var itemJson = localStorage.getItem(getPath('find', resourceConfig, id, options));
           if (itemJson) {
             items.push(DSUtils.fromJson(itemJson));
           }
@@ -239,15 +269,19 @@ function DSLocalStorageAdapterProvider() {
        */
       create: function (resourceConfig, attrs, options) {
         var _this = this;
-        attrs[resourceConfig.idAttribute] = attrs[resourceConfig.idAttribute] || DSUtils.guid();
+        var id = attrs[resourceConfig.idAttribute];
         options = options || {};
-        return this.PUT(
-          DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(attrs, options), attrs[resourceConfig.idAttribute]),
-          attrs
-        ).then(function (item) {
-            _this.ensureId(item[resourceConfig.idAttribute], resourceConfig.name, options);
-            return item;
-          });
+        return _this.GET(getPath('find', resourceConfig, id, options)).then(function (item) {
+          if (item) {
+            DSUtils.deepMixIn(item, attrs);
+          } else {
+            attrs[resourceConfig.idAttribute] = id = id || DSUtils.guid();
+          }
+          return _this.PUT(getPath('update', resourceConfig, id, options), item || attrs);
+        }).then(function (item) {
+          _this.ensureId(item[resourceConfig.idAttribute], resourceConfig.name, options);
+          return item;
+        });
       },
 
       /**
@@ -285,9 +319,13 @@ function DSLocalStorageAdapterProvider() {
       update: function (resourceConfig, id, attrs, options) {
         options = options || {};
         var _this = this;
-        return _this.find(resourceConfig, id, options).then(function (item) {
+        return _this.GET(getPath('find', resourceConfig, id, options)).then(function (item) {
+          item = item || {};
           DSUtils.deepMixIn(item, attrs);
-          return _this.PUT(DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id, options), id), item);
+          return _this.PUT(getPath('update', resourceConfig, id, options), item);
+        }).then(function (item) {
+          _this.ensureId(item[resourceConfig.idAttribute], resourceConfig.name, options);
+          return item;
         });
       },
 
@@ -356,7 +394,7 @@ function DSLocalStorageAdapterProvider() {
        */
       destroy: function (resourceConfig, id, options) {
         options = options || {};
-        return this.DEL(DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id, options), id));
+        return this.DEL(getPath('destroy', resourceConfig, id, options));
       },
 
       /**

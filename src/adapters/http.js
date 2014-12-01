@@ -70,6 +70,36 @@ function DSHttpAdapterProvider() {
   this.$get = ['$http', '$log', 'DSUtils', function ($http, $log, DSUtils) {
 
     /**
+     * @doc method
+     * @id DSHttpAdapter.methods:getPath
+     * @name getPath
+     * @description
+     * Return the path that would be used by this adapter for a given operation.
+     *
+     * ## Signature:
+     * ```js
+     * DSHttpAdapter.getPath(method, resourceConfig, id|attrs|params, options))
+     * ```
+     *
+     * @param {string} method The name of the method .
+     * @param {object} resourceConfig The object returned by DS.defineResource.
+     * @param {string|object} id|attrs|params The id, attrs, or params that you would pass into the method.
+     * @param {object} options Configuration options.
+     * @returns {string} The path.
+     */
+    function getPath(method, resourceConfig, id, options) {
+      options = options || {};
+      var args = [
+        options.baseUrl || resourceConfig.baseUrl,
+        resourceConfig.getEndpoint((DSUtils.isString(id) || DSUtils.isNumber(id) || method === 'create') ? id : null, options)
+      ];
+      if (method === 'find' || method === 'update' || method === 'destroy') {
+        args.push(id);
+      }
+      return DSUtils.makePath.apply(DSUtils, args);
+    }
+
+    /**
      * @doc interface
      * @id DSHttpAdapter
      * @name DSHttpAdapter
@@ -86,6 +116,8 @@ function DSHttpAdapterProvider() {
        * Reference to [DSHttpAdapterProvider.defaults](/documentation/api/api/DSHttpAdapterProvider.properties:defaults).
        */
       defaults: defaults,
+
+      getPath: getPath,
 
       /**
        * @doc method
@@ -250,7 +282,7 @@ function DSHttpAdapterProvider() {
       find: function (resourceConfig, id, options) {
         options = options || {};
         return this.GET(
-          DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id, options), id),
+          getPath('find', resourceConfig, id, options),
           options
         );
       },
@@ -287,7 +319,7 @@ function DSHttpAdapterProvider() {
           DSUtils.deepMixIn(options.params, params);
         }
         return this.GET(
-          DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(null, options)),
+          getPath('findAll', resourceConfig, params, options),
           options
         );
       },
@@ -319,7 +351,7 @@ function DSHttpAdapterProvider() {
       create: function (resourceConfig, attrs, options) {
         options = options || {};
         return this.POST(
-          DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(attrs, options)),
+          getPath('create', resourceConfig, attrs, options),
           attrs,
           options
         );
@@ -353,7 +385,7 @@ function DSHttpAdapterProvider() {
       update: function (resourceConfig, id, attrs, options) {
         options = options || {};
         return this.PUT(
-          DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id, options), id),
+          getPath('update', resourceConfig, id, options),
           attrs,
           options
         );
@@ -392,7 +424,7 @@ function DSHttpAdapterProvider() {
           DSUtils.deepMixIn(options.params, params);
         }
         return this.PUT(
-          DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(null, options)),
+          getPath('updateAll', resourceConfig, attrs, options),
           attrs,
           options
         );
@@ -425,7 +457,7 @@ function DSHttpAdapterProvider() {
       destroy: function (resourceConfig, id, options) {
         options = options || {};
         return this.DEL(
-          DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id, options), id),
+          getPath('destroy', resourceConfig, id, options),
           options
         );
       },
@@ -462,7 +494,7 @@ function DSHttpAdapterProvider() {
           DSUtils.deepMixIn(options.params, params);
         }
         return this.DEL(
-          DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(null, options)),
+          getPath('destroyAll', resourceConfig, params, options),
           options
         );
       }

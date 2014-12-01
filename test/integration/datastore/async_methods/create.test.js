@@ -139,7 +139,6 @@ describe('DS.create(resourceName, attrs[, options])', function () {
     assert.deepEqual(DS.get('user', 99).id, payload.id);
     assert.isObject(DS.get('user', 99).profile);
     assert.deepEqual(DS.get('profile', 999).id, 999);
-    console.log(DS.get('profile', 999));
     assert.isObject(DS.get('profile', 999).user);
   });
   it('should handle nested resources', function () {

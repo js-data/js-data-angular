@@ -1,7 +1,7 @@
 /**
 * @author Jason Dobry <jason.dobry@gmail.com>
 * @file angular-data.js
-* @version 1.4.3 - Homepage <http://angular-data.pseudobry.com/>
+* @version 1.5.0 - Homepage <http://angular-data.pseudobry.com/>
 * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>
 * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
 *
@@ -1892,6 +1892,36 @@ function DSHttpAdapterProvider() {
   this.$get = ['$http', '$log', 'DSUtils', function ($http, $log, DSUtils) {
 
     /**
+     * @doc method
+     * @id DSHttpAdapter.methods:getPath
+     * @name getPath
+     * @description
+     * Return the path that would be used by this adapter for a given operation.
+     *
+     * ## Signature:
+     * ```js
+     * DSHttpAdapter.getPath(method, resourceConfig, id|attrs|params, options))
+     * ```
+     *
+     * @param {string} method The name of the method .
+     * @param {object} resourceConfig The object returned by DS.defineResource.
+     * @param {string|object} id|attrs|params The id, attrs, or params that you would pass into the method.
+     * @param {object} options Configuration options.
+     * @returns {string} The path.
+     */
+    function getPath(method, resourceConfig, id, options) {
+      options = options || {};
+      var args = [
+        options.baseUrl || resourceConfig.baseUrl,
+        resourceConfig.getEndpoint((DSUtils.isString(id) || DSUtils.isNumber(id) || method === 'create') ? id : null, options)
+      ];
+      if (method === 'find' || method === 'update' || method === 'destroy') {
+        args.push(id);
+      }
+      return DSUtils.makePath.apply(DSUtils, args);
+    }
+
+    /**
      * @doc interface
      * @id DSHttpAdapter
      * @name DSHttpAdapter
@@ -1908,6 +1938,8 @@ function DSHttpAdapterProvider() {
        * Reference to [DSHttpAdapterProvider.defaults](/documentation/api/api/DSHttpAdapterProvider.properties:defaults).
        */
       defaults: defaults,
+
+      getPath: getPath,
 
       /**
        * @doc method
@@ -2072,7 +2104,7 @@ function DSHttpAdapterProvider() {
       find: function (resourceConfig, id, options) {
         options = options || {};
         return this.GET(
-          DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id, options), id),
+          getPath('find', resourceConfig, id, options),
           options
         );
       },
@@ -2109,7 +2141,7 @@ function DSHttpAdapterProvider() {
           DSUtils.deepMixIn(options.params, params);
         }
         return this.GET(
-          DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(null, options)),
+          getPath('findAll', resourceConfig, params, options),
           options
         );
       },
@@ -2141,7 +2173,7 @@ function DSHttpAdapterProvider() {
       create: function (resourceConfig, attrs, options) {
         options = options || {};
         return this.POST(
-          DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(attrs, options)),
+          getPath('create', resourceConfig, attrs, options),
           attrs,
           options
         );
@@ -2175,7 +2207,7 @@ function DSHttpAdapterProvider() {
       update: function (resourceConfig, id, attrs, options) {
         options = options || {};
         return this.PUT(
-          DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id, options), id),
+          getPath('update', resourceConfig, id, options),
           attrs,
           options
         );
@@ -2214,7 +2246,7 @@ function DSHttpAdapterProvider() {
           DSUtils.deepMixIn(options.params, params);
         }
         return this.PUT(
-          DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(null, options)),
+          getPath('updateAll', resourceConfig, attrs, options),
           attrs,
           options
         );
@@ -2247,7 +2279,7 @@ function DSHttpAdapterProvider() {
       destroy: function (resourceConfig, id, options) {
         options = options || {};
         return this.DEL(
-          DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id, options), id),
+          getPath('destroy', resourceConfig, id, options),
           options
         );
       },
@@ -2284,7 +2316,7 @@ function DSHttpAdapterProvider() {
           DSUtils.deepMixIn(options.params, params);
         }
         return this.DEL(
-          DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(null, options)),
+          getPath('destroyAll', resourceConfig, params, options),
           options
         );
       }
@@ -2303,6 +2335,36 @@ module.exports = DSHttpAdapterProvider;
 function DSLocalStorageAdapterProvider() {
 
   this.$get = ['$q', 'DSUtils', 'DSErrors', function ($q, DSUtils) {
+
+    /**
+     * @doc method
+     * @id DSLocalStorageAdapter.methods:getPath
+     * @name getPath
+     * @description
+     * Return the path that would be used by this adapter for a given operation.
+     *
+     * ## Signature:
+     * ```js
+     * DSLocalStorageAdapter.getPath(method, resourceConfig, id|attrs|params, options))
+     * ```
+     *
+     * @param {string} method The name of the method .
+     * @param {object} resourceConfig The object returned by DS.defineResource.
+     * @param {string|object} id|attrs|params The id, attrs, or params that you would pass into the method.
+     * @param {object} options Configuration options.
+     * @returns {string} The path.
+     */
+    function getPath(method, resourceConfig, id, options) {
+      options = options || {};
+      var args = [
+        options.baseUrl || resourceConfig.baseUrl,
+        resourceConfig.getEndpoint((DSUtils.isString(id) || DSUtils.isNumber(id) || method === 'create') ? id : null, options)
+      ];
+      if (method === 'find' || method === 'update' || method === 'destroy') {
+        args.push(id);
+      }
+      return DSUtils.makePath.apply(DSUtils, args);
+    }
 
     /**
      * @doc interface
@@ -2454,7 +2516,7 @@ function DSLocalStorageAdapterProvider() {
        */
       find: function find(resourceConfig, id, options) {
         options = options || {};
-        return this.GET(DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.endpoint, id)).then(function (item) {
+        return this.GET(getPath('find', resourceConfig, id, options)).then(function (item) {
           if (!item) {
             return $q.reject(new Error('Not Found!'));
           } else {
@@ -2493,7 +2555,7 @@ function DSLocalStorageAdapterProvider() {
         var items = [];
         var ids = DSUtils.keys(_this.getIds(resourceConfig.name, options));
         DSUtils.forEach(ids, function (id) {
-          var itemJson = localStorage.getItem(DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id, options), id));
+          var itemJson = localStorage.getItem(getPath('find', resourceConfig, id, options));
           if (itemJson) {
             items.push(DSUtils.fromJson(itemJson));
           }
@@ -2536,15 +2598,19 @@ function DSLocalStorageAdapterProvider() {
        */
       create: function (resourceConfig, attrs, options) {
         var _this = this;
-        attrs[resourceConfig.idAttribute] = attrs[resourceConfig.idAttribute] || DSUtils.guid();
+        var id = attrs[resourceConfig.idAttribute];
         options = options || {};
-        return this.PUT(
-          DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(attrs, options), attrs[resourceConfig.idAttribute]),
-          attrs
-        ).then(function (item) {
-            _this.ensureId(item[resourceConfig.idAttribute], resourceConfig.name, options);
-            return item;
-          });
+        return _this.GET(getPath('find', resourceConfig, id, options)).then(function (item) {
+          if (item) {
+            DSUtils.deepMixIn(item, attrs);
+          } else {
+            attrs[resourceConfig.idAttribute] = id = id || DSUtils.guid();
+          }
+          return _this.PUT(getPath('update', resourceConfig, id, options), item || attrs);
+        }).then(function (item) {
+          _this.ensureId(item[resourceConfig.idAttribute], resourceConfig.name, options);
+          return item;
+        });
       },
 
       /**
@@ -2582,9 +2648,13 @@ function DSLocalStorageAdapterProvider() {
       update: function (resourceConfig, id, attrs, options) {
         options = options || {};
         var _this = this;
-        return _this.find(resourceConfig, id, options).then(function (item) {
+        return _this.GET(getPath('find', resourceConfig, id, options)).then(function (item) {
+          item = item || {};
           DSUtils.deepMixIn(item, attrs);
-          return _this.PUT(DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id, options), id), item);
+          return _this.PUT(getPath('update', resourceConfig, id, options), item);
+        }).then(function (item) {
+          _this.ensureId(item[resourceConfig.idAttribute], resourceConfig.name, options);
+          return item;
         });
       },
 
@@ -2653,7 +2723,7 @@ function DSLocalStorageAdapterProvider() {
        */
       destroy: function (resourceConfig, id, options) {
         options = options || {};
-        return this.DEL(DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id, options), id));
+        return this.DEL(getPath('destroy', resourceConfig, id, options));
       },
 
       /**
@@ -6814,7 +6884,6 @@ function _link(definition, injected, options) {
  * the items that were injected into the data store.
  */
 function inject(resourceName, attrs, options) {
-  console.log('inject', resourceName, attrs);
   var DS = this;
   var IA = DS.errors.IA;
   var definition = DS.definitions[resourceName];
@@ -6847,9 +6916,7 @@ function inject(resourceName, attrs, options) {
     resource.collectionModified = DS.utils.updateTimestamp(resource.collectionModified);
   }
 
-  console.log(options);
   if (options.linkInverse && typeof options.linkInverse === 'boolean') {
-    console.log('linkInverse', typeof options.linkInverse, options.linkInverse);
     if (DS.utils.isArray(injected)) {
       if (injected.length) {
         DS.linkInverse(definition.name, injected[0][definition.idAttribute]);
@@ -6858,8 +6925,6 @@ function inject(resourceName, attrs, options) {
       DS.linkInverse(definition.name, injected[definition.idAttribute]);
     }
   }
-
-  console.log(injected);
 
   if (DS.utils.isArray(injected)) {
     DS.utils.forEach(injected, function (injectedI) {
@@ -7072,7 +7137,6 @@ function _link(definition, linked, relations) {
  * @returns {object|array} A reference to the item with its linked relations.
  */
 function link(resourceName, id, relations) {
-  console.log('link', resourceName, id);
   var DS = this;
   var IA = DS.errors.IA;
   var definition = DS.definitions[resourceName];
@@ -7098,8 +7162,6 @@ function link(resourceName, id, relations) {
       _link.call(DS, definition, linked, relations);
     }
   }
-
-  console.log('linked', linked);
 
   return linked;
 }

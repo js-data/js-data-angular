@@ -264,7 +264,6 @@ function _link(definition, injected, options) {
  * the items that were injected into the data store.
  */
 function inject(resourceName, attrs, options) {
-  console.log('inject', resourceName, attrs);
   var DS = this;
   var IA = DS.errors.IA;
   var definition = DS.definitions[resourceName];
@@ -297,9 +296,7 @@ function inject(resourceName, attrs, options) {
     resource.collectionModified = DS.utils.updateTimestamp(resource.collectionModified);
   }
 
-  console.log(options);
   if (options.linkInverse && typeof options.linkInverse === 'boolean') {
-    console.log('linkInverse', typeof options.linkInverse, options.linkInverse);
     if (DS.utils.isArray(injected)) {
       if (injected.length) {
         DS.linkInverse(definition.name, injected[0][definition.idAttribute]);
@@ -308,8 +305,6 @@ function inject(resourceName, attrs, options) {
       DS.linkInverse(definition.name, injected[definition.idAttribute]);
     }
   }
-
-  console.log(injected);
 
   if (DS.utils.isArray(injected)) {
     DS.utils.forEach(injected, function (injectedI) {

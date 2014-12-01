@@ -68,7 +68,6 @@ function _link(definition, linked, relations) {
  * @returns {object|array} A reference to the item with its linked relations.
  */
 function link(resourceName, id, relations) {
-  console.log('link', resourceName, id);
   var DS = this;
   var IA = DS.errors.IA;
   var definition = DS.definitions[resourceName];
@@ -94,8 +93,6 @@ function link(resourceName, id, relations) {
       _link.call(DS, definition, linked, relations);
     }
   }
-
-  console.log('linked', linked);
 
   return linked;
 }
