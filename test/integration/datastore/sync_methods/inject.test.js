@@ -46,8 +46,8 @@ describe('DS.inject(resourceName, attrs[, options])', function () {
 
     setTimeout(function () {
       assert.deepEqual('Doh! You just changed the primary key of an object! ' +
-        'I don\'t know how to handle this yet, so your data for the "post' +
-        '" resource is now in an undefined (probably broken) state.', $log.error.logs[0][0]);
+      'I don\'t know how to handle this yet, so your data for the "post' +
+      '" resource is now in an undefined (probably broken) state.', $log.error.logs[0][0]);
 
       done();
     }, 50);
@@ -275,5 +275,60 @@ describe('DS.inject(resourceName, attrs[, options])', function () {
     assert.isDefined(DS.get('foo', 5));
     assert.isDefined(DS.get('foo', 6));
     assert.isDefined(DS.get('foo', 7));
+  });
+  it('should work when injecting child relations multiple times', function () {
+    var Parent = DS.defineResource({
+      name: 'parent',
+      relations: {
+        hasMany: {
+          child: {
+            localField: 'children',
+            foreignKey: 'parentId'
+          }
+        }
+      }
+    });
+
+    var Child = DS.defineResource({
+      name: 'child',
+      relations: {
+        belongsTo: {
+          parent: {
+            localField: 'parent',
+            localKey: 'parentId'
+          }
+        }
+      }
+    });
+
+    Parent.inject({
+      id: 1,
+      name: 'parent1',
+      children: [{
+        id: 1,
+        name: 'child1'
+      }]
+    });
+
+    assert.isTrue(Parent.get(1).children[0] instanceof Child.Child);
+
+    Parent.inject({
+      id: 1,
+      name: 'parent',
+      children: [
+        {
+          id: 1,
+          name: 'Child-1'
+        },
+        {
+          id: 2,
+          name: 'Child-2'
+        }
+      ]
+    });
+
+    assert.isTrue(Parent.get(1).children[0] instanceof Child.Child);
+    assert.isTrue(Parent.get(1).children[1] instanceof Child.Child);
+    assert.deepEqual(Child.filter({ parentId: 1 }), Parent.get(1).children);
   });
 });
