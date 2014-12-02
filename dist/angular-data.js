@@ -4207,13 +4207,13 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
               keep = first ? (attrs[field] <= val) : keep && (attrs[field] <= val);
             } else if (op === 'in') {
               if (DSUtils.isString(val)) {
-                keep = first ? val.indexOf(attrs[field]) !== -1 : keep && val.indexOf(attrs[field]) !== -1;
+                keep = first ? attrs[field].indexOf(val) !== -1 : keep && attrs[field].indexOf(val) !== -1;
               } else {
                 keep = first ? DSUtils.contains(val, attrs[field]) : keep && DSUtils.contains(val, attrs[field]);
               }
             } else if (op === 'notIn') {
               if (DSUtils.isString(val)) {
-                keep = first ? val.indexOf(attrs[field]) === -1 : keep && val.indexOf(attrs[field]) === -1;
+                keep = first ? attrs[field].indexOf(val) === -1 : keep && attrs[field].indexOf(val) === -1;
               } else {
                 keep = first ? !DSUtils.contains(val, attrs[field]) : keep && !DSUtils.contains(val, attrs[field]);
               }
@@ -4235,13 +4235,13 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
               keep = first ? (attrs[field] <= val) : keep || (attrs[field] <= val);
             } else if (op === '|in') {
               if (DSUtils.isString(val)) {
-                keep = first ? val.indexOf(attrs[field]) !== -1 : keep || val.indexOf(attrs[field]) !== -1;
+                keep = first ? attrs[field].indexOf(val) !== -1 : keep || attrs[field].indexOf(val) !== -1;
               } else {
                 keep = first ? DSUtils.contains(val, attrs[field]) : keep || DSUtils.contains(val, attrs[field]);
               }
             } else if (op === '|notIn') {
               if (DSUtils.isString(val)) {
-                keep = first ? val.indexOf(attrs[field]) === -1 : keep || val.indexOf(attrs[field]) === -1;
+                keep = first ? attrs[field].indexOf(val) === -1 : keep || attrs[field].indexOf(val) === -1;
               } else {
                 keep = first ? !DSUtils.contains(val, attrs[field]) : keep || !DSUtils.contains(val, attrs[field]);
               }

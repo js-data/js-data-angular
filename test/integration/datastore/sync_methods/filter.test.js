@@ -186,7 +186,7 @@ describe('DS.filter(resourceName[, params][, options])', function () {
 
     params.where = {
       author: {
-        'in': 'John'
+        'in': 'oh'
       }
     };
 
@@ -194,11 +194,20 @@ describe('DS.filter(resourceName[, params][, options])', function () {
 
     params.where = {
       author: {
-        'notIn': 'John'
+        'notIn': 'oh'
       }
     };
 
     assert.deepEqual(JSON.stringify(DS.filter('post', params)), JSON.stringify([p2, p3, p4, p5]), 'should accept normal "notIn" clause with a string');
+
+    params.where = {
+      author: {
+        '|in': 'oh',
+        '|notIn': 'dam'
+      }
+    };
+
+    assert.deepEqual(JSON.stringify(DS.filter('post', params)), JSON.stringify([p1, p2, p3]), 'should accept or "in" and "notIn" clause with a string');
 
     params.where = {
       age: {
