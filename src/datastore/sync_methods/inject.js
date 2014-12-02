@@ -149,10 +149,9 @@ function _inject(definition, resource, attrs, options) {
           } else {
             item = {};
           }
-          resource.previousAttributes[id] = {};
+          resource.previousAttributes[id] = angular.copy(attrs);
 
           DSUtils.deepMixIn(item, attrs);
-          DSUtils.deepMixIn(resource.previousAttributes[id], attrs);
 
           resource.collection.push(item);
 

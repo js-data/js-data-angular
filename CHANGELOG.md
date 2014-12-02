@@ -1,3 +1,11 @@
+##### 1.5.1 - 02 December 2014
+
+###### Backwards compatible API changes
+- #259 - Added the "contains", "notContains", "|contains", and "|notContains" operators
+
+###### Backwards compatible bug fixes
+- #258 - No changes detected on nested fields
+
 ##### 1.5.0 - 01 December 2014
 
 ###### Backwards compatible API changes

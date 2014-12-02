@@ -201,6 +201,22 @@ describe('DS.filter(resourceName[, params][, options])', function () {
     assert.deepEqual(JSON.stringify(DS.filter('post', params)), JSON.stringify([p2, p3, p4, p5]), 'should accept normal "notIn" clause with a string');
 
     params.where = {
+      author: {
+        'contains': 'oh'
+      }
+    };
+
+    assert.deepEqual(JSON.stringify(DS.filter('post', params)), JSON.stringify([p1]), 'should accept normal "contains" clause with a string');
+
+    params.where = {
+      author: {
+        'notContains': 'oh'
+      }
+    };
+
+    assert.deepEqual(JSON.stringify(DS.filter('post', params)), JSON.stringify([p2, p3, p4, p5]), 'should accept normal "notContains" clause with a string');
+
+    params.where = {
       age: {
         '|in': [31]
       },

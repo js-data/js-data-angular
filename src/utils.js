@@ -58,6 +58,7 @@ var toPromisify = [
 
 var find = require('mout/array/find');
 var isRegExp = require('mout/lang/isRegExp');
+var deepEquals = angular.equals;
 
 function isBlacklisted(prop, blacklist) {
   if (!blacklist || !blacklist.length) {
@@ -87,6 +88,7 @@ module.exports = ['$q', function ($q) {
     upperCase: require('mout/string/upperCase'),
     pascalCase: require('mout/string/pascalCase'),
     deepMixIn: require('mout/object/deepMixIn'),
+    deepEquals: deepEquals,
     mixIn: require('mout/object/mixIn'),
     forEach: angular.forEach,
     pick: require('mout/object/pick'),
@@ -100,6 +102,7 @@ module.exports = ['$q', function ($q) {
     slice: require('mout/array/slice'),
     sort: require('mout/array/sort'),
     guid: require('mout/random/guid'),
+    copy: angular.copy,
     keys: require('mout/object/keys'),
     _: function (parent, options) {
       var _this = this;
@@ -174,7 +177,7 @@ module.exports = ['$q', function ($q) {
           continue;
         }
 
-        if (newValue !== undefined && newValue === oldObject[prop]) {
+        if (newValue !== undefined && deepEquals(newValue, oldObject[prop])) {
           continue;
         }
 
@@ -183,7 +186,7 @@ module.exports = ['$q', function ($q) {
           continue;
         }
 
-        if (newValue !== oldObject[prop]) {
+        if (!deepEquals(newValue, oldObject[prop])) {
           changed[prop] = newValue;
         }
       }

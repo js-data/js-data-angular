@@ -1,7 +1,7 @@
 /**
 * @author Jason Dobry <jason.dobry@gmail.com>
 * @file angular-data.js
-* @version 1.5.0 - Homepage <http://angular-data.pseudobry.com/>
+* @version 1.5.1 - Homepage <http://angular-data.pseudobry.com/>
 * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>
 * @license MIT <https://github.com/jmdobry/angular-data/blob/master/LICENSE>
 *
@@ -988,7 +988,7 @@ var mixIn = require('../object/mixIn');
         var flags = '';
         flags += r.multiline ? 'm' : '';
         flags += r.global ? 'g' : '';
-        flags += r.ignorecase ? 'i' : '';
+        flags += r.ignoreCase ? 'i' : '';
         return new RegExp(r.source, flags);
     }
 
@@ -4258,63 +4258,54 @@ Defaults.prototype.defaultFilter = function (collection, resourceName, params, o
           };
         }
         if (DSUtils.isObject(clause)) {
-          DSUtils.forEach(clause, function (val, op) {
+          DSUtils.forEach(clause, function (term, op) {
+            var expr;
+            var isOr = op[0] === '|';
+            var val = attrs[field];
+            op = isOr ? op.substr(1) : op;
             if (op === '==') {
-              keep = first ? (attrs[field] == val) : keep && (attrs[field] == val);
+              expr = val == term;
             } else if (op === '===') {
-              keep = first ? (attrs[field] === val) : keep && (attrs[field] === val);
+              expr = val === term;
             } else if (op === '!=') {
-              keep = first ? (attrs[field] != val) : keep && (attrs[field] != val);
+              expr = val != term;
             } else if (op === '!==') {
-              keep = first ? (attrs[field] !== val) : keep && (attrs[field] !== val);
+              expr = val !== term;
             } else if (op === '>') {
-              keep = first ? (attrs[field] > val) : keep && (attrs[field] > val);
+              expr = val > term;
             } else if (op === '>=') {
-              keep = first ? (attrs[field] >= val) : keep && (attrs[field] >= val);
+              expr = val >= term;
             } else if (op === '<') {
-              keep = first ? (attrs[field] < val) : keep && (attrs[field] < val);
+              expr = val < term;
             } else if (op === '<=') {
-              keep = first ? (attrs[field] <= val) : keep && (attrs[field] <= val);
+              expr = val <= term;
             } else if (op === 'in') {
-              if (DSUtils.isString(val)) {
-                keep = first ? val.indexOf(attrs[field]) !== -1 : keep && val.indexOf(attrs[field]) !== -1;
+              if (DSUtils.isString(term)) {
+                expr = term.indexOf(val) !== -1;
               } else {
-                keep = first ? DSUtils.contains(val, attrs[field]) : keep && DSUtils.contains(val, attrs[field]);
+                expr = DSUtils.contains(term, val);
               }
             } else if (op === 'notIn') {
-              if (DSUtils.isString(val)) {
-                keep = first ? val.indexOf(attrs[field]) === -1 : keep && val.indexOf(attrs[field]) === -1;
+              if (DSUtils.isString(term)) {
+                expr = term.indexOf(val) === -1;
               } else {
-                keep = first ? !DSUtils.contains(val, attrs[field]) : keep && !DSUtils.contains(val, attrs[field]);
+                expr = !DSUtils.contains(term, val);
               }
-            } else if (op === '|==') {
-              keep = first ? (attrs[field] == val) : keep || (attrs[field] == val);
-            } else if (op === '|===') {
-              keep = first ? (attrs[field] === val) : keep || (attrs[field] === val);
-            } else if (op === '|!=') {
-              keep = first ? (attrs[field] != val) : keep || (attrs[field] != val);
-            } else if (op === '|!==') {
-              keep = first ? (attrs[field] !== val) : keep || (attrs[field] !== val);
-            } else if (op === '|>') {
-              keep = first ? (attrs[field] > val) : keep || (attrs[field] > val);
-            } else if (op === '|>=') {
-              keep = first ? (attrs[field] >= val) : keep || (attrs[field] >= val);
-            } else if (op === '|<') {
-              keep = first ? (attrs[field] < val) : keep || (attrs[field] < val);
-            } else if (op === '|<=') {
-              keep = first ? (attrs[field] <= val) : keep || (attrs[field] <= val);
-            } else if (op === '|in') {
-              if (DSUtils.isString(val)) {
-                keep = first ? val.indexOf(attrs[field]) !== -1 : keep || val.indexOf(attrs[field]) !== -1;
+            } else if (op === 'contains') {
+              if (DSUtils.isString(term)) {
+                expr = (val || '').indexOf(term) !== -1;
               } else {
-                keep = first ? DSUtils.contains(val, attrs[field]) : keep || DSUtils.contains(val, attrs[field]);
+                expr = DSUtils.contains(val, term);
               }
-            } else if (op === '|notIn') {
-              if (DSUtils.isString(val)) {
-                keep = first ? val.indexOf(attrs[field]) === -1 : keep || val.indexOf(attrs[field]) === -1;
+            } else if (op === 'notContains') {
+              if (DSUtils.isString(term)) {
+                expr = (val || '').indexOf(term) === -1;
               } else {
-                keep = first ? !DSUtils.contains(val, attrs[field]) : keep || !DSUtils.contains(val, attrs[field]);
+                expr = !DSUtils.contains(val, term);
               }
+            }
+            if (expr !== undefined) {
+              keep = first ? expr : (isOr ? keep || expr : keep && expr);
             }
             first = false;
           });
@@ -6769,10 +6760,9 @@ function _inject(definition, resource, attrs, options) {
           } else {
             item = {};
           }
-          resource.previousAttributes[id] = {};
+          resource.previousAttributes[id] = angular.copy(attrs);
 
           DSUtils.deepMixIn(item, attrs);
-          DSUtils.deepMixIn(resource.previousAttributes[id], attrs);
 
           resource.collection.push(item);
 
@@ -7824,6 +7814,7 @@ var toPromisify = [
 
 var find = require('mout/array/find');
 var isRegExp = require('mout/lang/isRegExp');
+var deepEquals = angular.equals;
 
 function isBlacklisted(prop, blacklist) {
   if (!blacklist || !blacklist.length) {
@@ -7853,6 +7844,7 @@ module.exports = ['$q', function ($q) {
     upperCase: require('mout/string/upperCase'),
     pascalCase: require('mout/string/pascalCase'),
     deepMixIn: require('mout/object/deepMixIn'),
+    deepEquals: deepEquals,
     mixIn: require('mout/object/mixIn'),
     forEach: angular.forEach,
     pick: require('mout/object/pick'),
@@ -7866,6 +7858,7 @@ module.exports = ['$q', function ($q) {
     slice: require('mout/array/slice'),
     sort: require('mout/array/sort'),
     guid: require('mout/random/guid'),
+    copy: angular.copy,
     keys: require('mout/object/keys'),
     _: function (parent, options) {
       var _this = this;
@@ -7940,7 +7933,7 @@ module.exports = ['$q', function ($q) {
           continue;
         }
 
-        if (newValue !== undefined && newValue === oldObject[prop]) {
+        if (newValue !== undefined && deepEquals(newValue, oldObject[prop])) {
           continue;
         }
 
@@ -7949,7 +7942,7 @@ module.exports = ['$q', function ($q) {
           continue;
         }
 
-        if (newValue !== oldObject[prop]) {
+        if (!deepEquals(newValue, oldObject[prop])) {
           changed[prop] = newValue;
         }
       }

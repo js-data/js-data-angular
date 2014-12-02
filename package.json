@@ -1,7 +1,7 @@
 {
   "name": "angular-data",
   "description": "Data store for Angular.js.",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "homepage": "http://angular-data.pseudobry.com",
   "repository": {
     "type": "git",
@@ -47,6 +47,6 @@
     "test": "grunt test"
   },
   "dependencies": {
-    "mout": "0.10.0"
+    "mout": "0.11.0"
   }
 }
