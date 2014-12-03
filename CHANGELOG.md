@@ -1,3 +1,8 @@
+##### 1.5.3 - 03 December 2014
+
+###### Backwards compatible bug fixes
+- #263 - bower: update bower.json acc to the spec
+
 ##### 1.5.2 - 03 December 2014
 
 ###### Backwards compatible bug fixes
