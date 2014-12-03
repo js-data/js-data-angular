@@ -56,7 +56,6 @@ var toPromisify = [
   'afterDestroy'
 ];
 
-var isRegExp = require('mout/lang/isRegExp');
 var deepEquals = angular.equals;
 
 var observe = require('../lib/observe-js/observe-js');
@@ -73,7 +72,6 @@ module.exports = ['$q', function ($q) {
     isNumber: angular.isNumber,
     isFunction: angular.isFunction,
     isEmpty: require('mout/lang/isEmpty'),
-    isRegExp: isRegExp,
     toJson: JSON.stringify,
     fromJson: angular.fromJson,
     makePath: require('mout/string/makePath'),

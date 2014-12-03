@@ -1,5 +1,3 @@
-var observe = require('../../../lib/observe-js/observe-js');
-
 /**
  * @doc method
  * @id DS.sync methods:digest
@@ -22,12 +20,13 @@ var observe = require('../../../lib/observe-js/observe-js');
  *
  */
 function digest() {
-  if (!this.$rootScope.$$phase) {
-    this.$rootScope.$apply(function () {
-      observe.Platform.performMicrotaskCheckpoint();
+  var _this = this;
+  if (!_this.$rootScope.$$phase) {
+    _this.$rootScope.$apply(function () {
+      _this.utils.observe.Platform.performMicrotaskCheckpoint();
     });
   } else {
-    observe.Platform.performMicrotaskCheckpoint();
+    _this.utils.observe.Platform.performMicrotaskCheckpoint();
   }
 }
 

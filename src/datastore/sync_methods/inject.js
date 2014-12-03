@@ -1,4 +1,3 @@
-var observe = require('../../../lib/observe-js/observe-js');
 var _compute = require('./compute')._compute;
 
 function errorPrefix(resourceName) {
@@ -156,7 +155,7 @@ function _inject(definition, resource, attrs, options) {
           resource.collection.push(item);
 
           resource.changeHistories[id] = [];
-          resource.observers[id] = new observe.ObjectObserver(item);
+          resource.observers[id] = new DSUtils.observe.ObjectObserver(item);
           resource.observers[id].open(_react, item);
           resource.index.put(id, item);
 

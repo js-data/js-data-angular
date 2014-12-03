@@ -1,5 +1,3 @@
-var observe = require('../../lib/observe-js/observe-js');
-
 function lifecycleNoop(resourceName, attrs, cb) {
   cb(null, attrs);
 }
@@ -799,7 +797,7 @@ function DSProvider() {
       if (typeof Object.observe !== 'function' ||
         typeof Array.observe !== 'function') {
         $rootScope.$watch(function () {
-          observe.Platform.performMicrotaskCheckpoint();
+          DSUtils.observe.Platform.performMicrotaskCheckpoint();
         });
       }
 
