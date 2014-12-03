@@ -110,7 +110,7 @@ function update(resourceName, id, attrs, options) {
           var resource = DS.store[resourceName];
           var updated = DS.inject(definition.name, attrs, options);
           var id = updated[definition.idAttribute];
-          resource.previousAttributes[id] = DSUtils.deepMixIn({}, updated);
+          resource.previousAttributes[id] = DSUtils.copy(updated);
           resource.saved[id] = DSUtils.updateTimestamp(resource.saved[id]);
           resource.observers[id].discardChanges();
           return DS.get(definition.name, id);

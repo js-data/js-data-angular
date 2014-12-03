@@ -149,7 +149,7 @@ function _inject(definition, resource, attrs, options) {
           } else {
             item = {};
           }
-          resource.previousAttributes[id] = angular.copy(attrs);
+          resource.previousAttributes[id] = DSUtils.copy(attrs);
 
           DSUtils.deepMixIn(item, attrs);
 
@@ -164,8 +164,7 @@ function _inject(definition, resource, attrs, options) {
         } else {
           DSUtils.deepMixIn(item, attrs);
           if (definition.resetHistoryOnInject) {
-            resource.previousAttributes[id] = {};
-            DSUtils.deepMixIn(resource.previousAttributes[id], attrs);
+            resource.previousAttributes[id] = DSUtils.copy(attrs);
             if (resource.changeHistories[id].length) {
               DSUtils.forEach(resource.changeHistories[id], function (changeRecord) {
                 DSUtils.remove(resource.changeHistory, changeRecord);

@@ -56,23 +56,15 @@ var toPromisify = [
   'afterDestroy'
 ];
 
-var find = require('mout/array/find');
 var isRegExp = require('mout/lang/isRegExp');
 var deepEquals = angular.equals;
 
-function isBlacklisted(prop, blacklist) {
-  if (!blacklist || !blacklist.length) {
-    return false;
-  }
-  var matches = find(blacklist, function (blItem) {
-    if ((isRegExp(blItem) && blItem.test(prop)) || blItem === prop) {
-      return prop;
-    }
-  });
-  return !!matches;
-}
+var observe = require('../lib/observe-js/observe-js');
+
+observe.setEqualityFn(deepEquals);
 
 module.exports = ['$q', function ($q) {
+
   return {
     isBoolean: require('mout/lang/isBoolean'),
     isString: angular.isString,
@@ -96,7 +88,6 @@ module.exports = ['$q', function ($q) {
     merge: require('mout/object/merge'),
     contains: require('mout/array/contains'),
     filter: require('mout/array/filter'),
-    find: find,
     toLookup: require('mout/array/toLookup'),
     remove: require('mout/array/remove'),
     slice: require('mout/array/slice'),
@@ -104,6 +95,7 @@ module.exports = ['$q', function ($q) {
     guid: require('mout/random/guid'),
     copy: angular.copy,
     keys: require('mout/object/keys'),
+    observe: observe,
     _: function (parent, options) {
       var _this = this;
       options = options || {};
@@ -164,51 +156,7 @@ module.exports = ['$q', function ($q) {
         }
       }
     },
-    diffObjectFromOldObject: function (object, oldObject, blacklist) {
-      var added = {};
-      var removed = {};
-      var changed = {};
-      blacklist = blacklist || [];
-
-      for (var prop in oldObject) {
-        var newValue = object[prop];
-
-        if (isBlacklisted(prop, blacklist)) {
-          continue;
-        }
-
-        if (newValue !== undefined && deepEquals(newValue, oldObject[prop])) {
-          continue;
-        }
-
-        if (!(prop in object)) {
-          removed[prop] = undefined;
-          continue;
-        }
-
-        if (!deepEquals(newValue, oldObject[prop])) {
-          changed[prop] = newValue;
-        }
-      }
-
-      for (var prop2 in object) {
-        if (prop2 in oldObject) {
-          continue;
-        }
-
-        if (isBlacklisted(prop2, blacklist)) {
-          continue;
-        }
-
-        added[prop2] = object[prop2];
-      }
-
-      return {
-        added: added,
-        removed: removed,
-        changed: changed
-      };
-    },
+    diffObjectFromOldObject: observe.diffObjectFromOldObject,
     Events: Events
   };
 }];

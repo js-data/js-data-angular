@@ -130,7 +130,7 @@ function save(resourceName, id, options) {
         if (options.cacheResponse) {
           var resource = DS.store[resourceName];
           var saved = DS.inject(definition.name, attrs, options);
-          resource.previousAttributes[id] = DSUtils.deepMixIn({}, saved);
+          resource.previousAttributes[id] = DSUtils.copy(saved);
           resource.saved[id] = DSUtils.updateTimestamp(resource.saved[id]);
           resource.observers[id].discardChanges();
           return DS.get(resourceName, id);

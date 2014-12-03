@@ -1,3 +1,11 @@
+##### 1.5.2 - 03 December 2014
+
+###### Backwards compatible bug fixes
+- #262 - store.previousAttributes is storing references to nested objects, preventing changes from being detected
+
+###### Other
+- Change detection "should" work on nested attributes now
+
 ##### 1.5.1 - 02 December 2014
 
 ###### Backwards compatible API changes

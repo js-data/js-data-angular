@@ -126,7 +126,7 @@ function create(resourceName, attrs, options) {
             var created = DS.inject(resourceName, attrs, options);
             var id = created[definition.idAttribute];
             resource.completedQueries[id] = new Date().getTime();
-            resource.previousAttributes[id] = DSUtils.deepMixIn({}, created);
+            resource.previousAttributes[id] = DSUtils.copy(created);
             resource.saved[id] = DSUtils.updateTimestamp(resource.saved[id]);
             return DS.get(resourceName, id);
           } else {
