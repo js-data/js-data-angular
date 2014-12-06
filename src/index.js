@@ -310,6 +310,7 @@
 
     dsHttpAdapterPrototype.POST = function (url, attrs, config) {
       config = config || {};
+      config = DSUtils.copy(config);
       if (!('method' in config)) {
         config.method = 'post';
       }
@@ -354,6 +355,7 @@
     dsHttpAdapterPrototype.findAll = function (resourceConfig, params, options) {
       var _this = this;
       options = options || {};
+      options = DSUtils.copy(options);
       options.params = options.params || {};
       if (params) {
         params = _this.defaults.queryTransform(resourceConfig, params);
@@ -394,6 +396,7 @@
     dsHttpAdapterPrototype.updateAll = function (resourceConfig, attrs, params, options) {
       var _this = this;
       options = options || {};
+      options = DSUtils.copy(options);
       options.params = options.params || {};
       if (params) {
         params = _this.defaults.queryTransform(resourceConfig, params);
@@ -422,6 +425,7 @@
     dsHttpAdapterPrototype.destroyAll = function (resourceConfig, params, options) {
       var _this = this;
       options = options || {};
+      options = DSUtils.copy(options);
       options.params = options.params || {};
       if (params) {
         params = _this.defaults.queryTransform(resourceConfig, params);

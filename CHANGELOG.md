@@ -1,4 +1,4 @@
-##### 2.0.0-alpha.1-0 - xx October 2014
+##### 2.0.0-alpha.1-0 - xx December 2014
 
 ###### Breaking API changes
 - Refactored to be a wrapper for [js-data](https://github.com/js-data/js-data)
@@ -10,6 +10,7 @@
 - #200 - Need to properly trigger digest where angular-data would have before
 - Added DSHttpAdapter fallback that uses $http if js-data-http isn't loaded
 - Load an es6-style version of `$q` instead of `es6-promises` to maintain `$scope` integration with the promise lifecycle
+- Updated dependencies. Now safely making copies of the `options` passed into methods
 
 ##### 1.0.0 - 04 October 2014
 

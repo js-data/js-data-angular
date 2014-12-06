@@ -4,13 +4,13 @@ describe('DS.loadRelations', function () {
   it('should get an item from the server', function () {
     DS.inject('user', user10);
 
-    $httpBackend.expectGET('http://test.angular-cache.com/user/10/comment?userId=10').respond(200, [
+    $httpBackend.expectGET('http://test.angular-cache.com/organization/14/user/10/comment').respond(200, [
       comment11,
       comment12,
       comment13
     ]);
-    $httpBackend.expectGET('http://test.angular-cache.com/profile?userId=10').respond(200, [profile15]);
-    $httpBackend.expectGET('http://test.angular-cache.com/organization/14?userId=10').respond(200, organization14);
+    $httpBackend.expectGET('http://test.angular-cache.com/profile?approvedBy=10&userId=10').respond(200, [profile15]);
+    $httpBackend.expectGET('http://test.angular-cache.com/organization/14?approvedBy=10').respond(200, organization14);
 
     DS.loadRelations('user', 10, ['comment', 'profile', 'organization'], { params: { approvedBy: 10 } }).then(function (user) {
       try {
@@ -58,13 +58,13 @@ describe('DS.loadRelations', function () {
       organizationId: 14
     });
 
-    $httpBackend.expectGET('http://test.angular-cache.com/user/10/comment?userId=10').respond(200, [
+    $httpBackend.expectGET('http://test.angular-cache.com/organization/14/user/10/comment').respond(200, [
       comment11,
       comment12,
       comment13
     ]);
     $httpBackend.expectGET('http://test.angular-cache.com/profile?userId=10').respond(200, [profile15]);
-    $httpBackend.expectGET('http://test.angular-cache.com/organization/14?userId=10').respond(200, organization14);
+    $httpBackend.expectGET('http://test.angular-cache.com/organization/14').respond(200, organization14);
 
     DS.loadRelations('user', 10, ['comment', 'profile', 'organization'], { cacheResponse: false }).then(function (user) {
       assert.deepEqual(angular.toJson(user.comments), angular.toJson([
@@ -93,9 +93,9 @@ describe('DS.loadRelations', function () {
       organizationId: 14
     });
 
-    $httpBackend.expectGET('http://test.angular-cache.com/user/10/comment?userId=10').respond(404, 'Not Found');
+    $httpBackend.expectGET('http://test.angular-cache.com/organization/14/user/10/comment').respond(404, 'Not Found');
     $httpBackend.expectGET('http://test.angular-cache.com/profile?userId=10').respond(404, 'Not Found');
-    $httpBackend.expectGET('http://test.angular-cache.com/organization/14?userId=10').respond(404, 'Not Found');
+    $httpBackend.expectGET('http://test.angular-cache.com/organization/14').respond(404, 'Not Found');
 
     DS.loadRelations('user', 10, ['comment', 'profile', 'organization']).then(function () {
       fail('Should not have succeeded!');
@@ -120,7 +120,7 @@ describe('DS.loadRelations', function () {
     DS.loadRelations('organization', organization, ['user']).then(function (organization) {
       assert.equal(organization.users[0].id, 10);
 
-      $httpBackend.expectGET('http://test.angular-cache.com/user/10/comment').respond(200, [comment11, comment12]);
+      $httpBackend.expectGET('http://test.angular-cache.com/organization/14/user/10/comment').respond(200, [comment11, comment12]);
 
       var user = DS.get('user', 10);
 
@@ -151,7 +151,7 @@ describe('DS.loadRelations', function () {
     DS.loadRelations('organization', organization, ['user']).then(function (organization) {
       assert.equal(organization.users[0].id, 1);
 
-      $httpBackend.expectGET('http://test.angular-cache.com/user/1/comment').respond(200, [
+      $httpBackend.expectGET('http://test.angular-cache.com/organization/1/user/1/comment').respond(200, [
         {
           id: 1,
           userId: 1,
