@@ -149,7 +149,7 @@
         var _this = this;
 
         id = DSUtils.resolveId(_this.definitions[resourceName], id);
-        if (!DS.definitions[resourceName]) {
+        if (!_this.definitions[resourceName]) {
           throw new DSErrors.NER(resourceName);
         } else if (!DSUtils.isString(id) && !DSUtils.isNumber(id)) {
           throw new DSErrors.IA('"id" must be a string or a number!');
