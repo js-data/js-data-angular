@@ -1,4 +1,4 @@
-## angular-data [![Stories in Backlog](https://badge.waffle.io/jmdobry/angular-data.svg?label=backlog&title=Backlog)](http://waffle.io/jmdobry/angular-data) [![Stories in Ready](https://badge.waffle.io/jmdobry/angular-data.svg?label=ready&title=Ready)](http://waffle.io/jmdobry/angular-data) [![Stories in progress](https://badge.waffle.io/jmdobry/angular-data.svg?label=in%20progress&title=In%20Progress)](http://waffle.io/jmdobry/angular-data)
+## angular-data [![Bower version](https://badge.fury.io/bo/angular-data.png)](http://badge.fury.io/bo/angular-data) [![NPM version](https://badge.fury.io/js/angular-data.png)](http://badge.fury.io/js/angular-data)
 
 Inspired by [Ember Data](https://github.com/emberjs/data), Angular-data is the model layer Angular is missing. It consists of a convenient in-memory cache for managing your data, and several adapters for communicating with various persistence layers.
 
@@ -7,10 +7,6 @@ By default angular-data uses the http adapter–perfect for communicating with y
 Unlike Backbone and Ember Models, angular-data does not require the use of getters and setters, and doesn't wrap your data with custom classes if you don't want it to. Angular-data's internal dirty-checking (via [observe-js](https://github.com/Polymer/observe-js) or `Object.observe` in supporting browsers) allows for powerful use cases and an easy avenue for implementing your own [3-way data-binding](https://www.firebase.com/blog/2013-10-04-firebase-angular-data-binding.html).
 
 Supporting relations, computed properties, model lifecycle control and a slew of other features, angular-data is the tool for giving your data the respect it deserves.
-
-__Latest Release:__ [1.4.2](https://github.com/jmdobry/angular-data/releases/tag/1.4.2)
-
-Angular-data is finally 1.0.!
 
 Angular-data 1.x will continue to see bug fixes, but most new development will be on [js-data](https://github.com/js-data/js-data) and [js-data-angular](https://github.com/jmdobry/angular-data/pull/198) (Angular-data 2.0).
 
