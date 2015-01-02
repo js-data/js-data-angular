@@ -1,7 +1,7 @@
 /**
 * @author Jason Dobry <jason.dobry@gmail.com>
 * @file js-data-angular.js
-* @version 2.0.0-alpha.3-4 - Homepage <http://www.js-data.io/js-data-angular/>
+* @version 2.0.0-alpha.3-5 - Homepage <http://www.js-data.io/js-data-angular/>
 * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>
 * @license MIT <https://github.com/js-data/js-data-angular/blob/master/LICENSE>
 *
@@ -219,9 +219,9 @@
         if (args.length) {
           for (var i = 0; i < args.length; i++) {
             for (var j = 0; j < adapters.length; j++) {
-              if (adapters[i].loaded && !adapters[i].registered) {
-                adapters[i].registered = true;
-                store.registerAdapter(adapters[i].name, arguments[i]);
+              if (adapters[j].loaded && !adapters[j].registered) {
+                adapters[j].registered = true;
+                store.registerAdapter(adapters[j].name, args[i]);
               }
             }
           }

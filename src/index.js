@@ -209,9 +209,9 @@
         if (args.length) {
           for (var i = 0; i < args.length; i++) {
             for (var j = 0; j < adapters.length; j++) {
-              if (adapters[i].loaded && !adapters[i].registered) {
-                adapters[i].registered = true;
-                store.registerAdapter(adapters[i].name, arguments[i]);
+              if (adapters[j].loaded && !adapters[j].registered) {
+                adapters[j].registered = true;
+                store.registerAdapter(adapters[j].name, args[i]);
               }
             }
           }
