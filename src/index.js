@@ -206,16 +206,21 @@
         DSUtils.Promise = QPromise;
 
         // Register any adapters that have been loaded
-        for (var i = 0; i < adapters.length; i++) {
-          if (adapters[i].loaded) {
-            store.registerAdapter(adapters[i].name, arguments[i]);
+        if (args.length) {
+          for (var i = 0; i < args.length; i++) {
+            for (var j = 0; j < adapters.length; j++) {
+              if (adapters[i].loaded && !adapters[i].registered) {
+                adapters[i].registered = true;
+                store.registerAdapter(adapters[i].name, arguments[i]);
+              }
+            }
           }
         }
 
         // Wrap certain sync functions with $apply
-        for (i = 0; i < functionsToWrap.length; i++) {
-          originals[functionsToWrap[i]] = store[functionsToWrap[i]];
-          store[functionsToWrap[i]] = (function (name) {
+        for (var k = 0; k < functionsToWrap.length; k++) {
+          originals[functionsToWrap[k]] = store[functionsToWrap[k]];
+          store[functionsToWrap[k]] = (function (name) {
             return function () {
               var args = arguments;
               if (!$rootScope.$$phase) {
@@ -225,7 +230,7 @@
               }
               return originals[name].apply(store, args);
             };
-          })(functionsToWrap[i]);
+          })(functionsToWrap[k]);
         }
 
         // Hook into the digest loop (throttled)
