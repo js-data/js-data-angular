@@ -33,6 +33,7 @@ function errorPrefix(resourceName, id) {
  *
  * - `{boolean=}` - `cacheResponse` - Inject the data returned by the adapter into the data store. Default: `true`.
  * - `{boolean=}` - `changesOnly` - Only send changed and added values to the adapter. Default: `false`.
+ * - `{array=}` - `always` - Array of property names which are always send, even when not changed. Only relevant when changesOnly is `true`.
  * - `{function=}` - `beforeValidate` - Override the resource or global lifecycle hook.
  * - `{function=}` - `validate` - Override the resource or global lifecycle hook.
  * - `{function=}` - `afterValidate` - Override the resource or global lifecycle hook.
@@ -109,6 +110,12 @@ function save(resourceName, id, options) {
           for (key in changes.changed) {
             toKeep.push(key);
           }
+          DSUtils.forEach(options.always, function (value, key) {
+            if (value in attrs) {
+              toKeep.push(value);
+            }
+          });
+		  
           changes = DSUtils.pick(attrs, toKeep);
           if (DSUtils.isEmpty(changes)) {
             // no changes, return
