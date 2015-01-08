@@ -233,13 +233,11 @@
           })(functionsToWrap[k]);
         }
 
-        // Hook into the digest loop (throttled)
-        if (typeof Object.observe !== 'function' ||
-          typeof Array.observe !== 'function') {
+        // Hook into the digest loop
+        if (typeof Object.observe !== 'function' || typeof Array.observe !== 'function') {
           $rootScope.$watch(function () {
-            // Throttle angular-data's digest loop to tenths of a second
-            return new Date().getTime() / 100 | 0;
-          }, store.observe.Platform.performMicrotaskCheckpoint);
+            store.observe.Platform.performMicrotaskCheckpoint();
+          });
         }
 
         return store;
