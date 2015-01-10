@@ -1,17 +1,35 @@
 <img src="https://raw.githubusercontent.com/js-data/js-data/master/js-data.png" alt="js-data logo" title="js-data" align="right" width="64" height="64" />
 
-## js-data-angular
+## js-data-angular [![Bower version](https://badge.fury.io/bo/js-data-angular.png)](http://badge.fury.io/bo/js-data-angular) [![NPM version](https://badge.fury.io/js/js-data-angular.png)](http://badge.fury.io/js/js-data-angular)
 
 Angular wrapper for [js-data](http://www.js-data.io).
 
-#### What about Angular-data?
-Documentation for Angular-data 1.x can be found at [angular-data.pseudobry.com](http://angular-data.pseudobry.com).
+#### What happened Angular-data?
+Js-data-angular is Angular-data 2.0, with [js-data](http://www.js-data.io) as the framework-agnostic core. Documentation for Angular-data 1.x can be found at [angular-data.pseudobry.com](http://angular-data.pseudobry.com).
 
-## API Documentation
-[DS](http://www.js-data.io/docs/js-data-angular)
+## Guides
+- [Angular + JSData (js-data-angular)](http://www.js-data.io/docs/js-data-angular)
+- [Getting Started with js-data](http://www.js-data.io/docs/home)
+- [Resources/Models](http://www.js-data.io/docs/resources)
+- [Working with the Data Store](http://www.js-data.io/docs/working-with-the-data-store)
+- [Adapters](http://www.js-data.io/docs/working-with-adapters)
+- [Model Lifecycle](http://www.js-data.io/docs/model-lifecycle)
+- [Custom Instance Behavior](http://www.js-data.io/docs/custom-instance-behavior)
+- [Computed Properties](http://www.js-data.io/docs/computed-properties)
+- [Relations](http://www.js-data.io/docs/relations)
+- [Schemata & Validation](http://www.js-data.io/docs/schemata--validation)
+- [FAQ](http://www.js-data.io/docs/faq)
 
-## Demo
-[js-data-angular.firebaseapp.com/](https://js-data-angular.firebaseapp.com/)
+## Js-data-angular API Documentation
+- [js-data-angular](http://www.js-data.io/docs/js-data-angular)
+- [DS](http://www.js-data.io/docs/ds)
+- [Schemator](http://www.js-data.io/docs/js-data-schema)
+- [DSHttpAdapter](http://www.js-data.io/docs/dshttpadapter)
+- [DSLocalStorageAdapter](http://www.js-data.io/docs/dslocalstorageadapter)
+- [DSLocalForageAdapter](http://www.js-data.io/docs/dslocalforageadapter)
+- [DSFirebaseAdapter](http://www.js-data.io/docs/dsfirebaseadapter)
+- [DSRedisAdapter](http://www.js-data.io/docs/dsredisadapter)
+- [DSRethinkDBAdapter](http://www.js-data.io/docs/dsrethinkdbadapter)
 
 ## Project Status
 
@@ -28,8 +46,6 @@ Documentation for Angular-data 1.x can be found at [angular-data.pseudobry.com](
 `bower install --save js-data js-data-angular` or `npm install --save js-data js-data-angular`.
 
 Load `js-data-angular.js` after `js-data.js`.
-
-__Note:__ You only have to use `js-data-http` if you want to use the `DSHttpAdapter`.
 
 ```js
 angular.module('myApp', ['js-data']);
@@ -100,7 +116,7 @@ First, feel free to contact me with questions. [Mailing List](https://groups.io/
 
 The MIT License (MIT)
 
-Copyright (c) 2014 Jason Dobry
+Copyright (c) 2014-2015 Jason Dobry
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

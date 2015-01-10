@@ -1,4 +1,4 @@
-##### 2.0.0-alpha.1-0 - xx December 2014
+##### 2.0.0-beta.1 - 10 January 2014
 
 ###### Breaking API changes
 - Refactored to be a wrapper for [js-data](https://github.com/js-data/js-data)
