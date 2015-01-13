@@ -1,4 +1,4 @@
-## angular-data [![Bower version](https://badge.fury.io/bo/angular-data.png)](http://badge.fury.io/bo/angular-data) [![NPM version](https://badge.fury.io/js/angular-data.png)](http://badge.fury.io/js/angular-data)
+## angular-data [![Bower version](https://badge.fury.io/bo/angular-data.svg)](http://badge.fury.io/bo/angular-data) [![NPM version](https://badge.fury.io/js/angular-data.svg)](http://badge.fury.io/js/angular-data)
 
 Inspired by [Ember Data](https://github.com/emberjs/data), Angular-data is the model layer Angular is missing. It consists of a convenient in-memory cache for managing your data, and several adapters for communicating with various persistence layers.
 
@@ -20,11 +20,11 @@ See [angular-data/pull/198](https://github.com/jmdobry/angular-data/pull/198).
 
 | Branch | Master |
 | ------ | ------ |
-| Bower | [![Bower version](https://badge.fury.io/bo/angular-data.png)](http://badge.fury.io/bo/angular-data) |
-| NPM | [![NPM version](https://badge.fury.io/js/angular-data.png)](http://badge.fury.io/js/angular-data) |
-| Build Status | [![Build Status](https://travis-ci.org/jmdobry/angular-data.png?branch=master)](https://travis-ci.org/jmdobry/angular-data) |
-| Code Climate | [![Code Climate](https://codeclimate.com/github/jmdobry/angular-data.png)](https://codeclimate.com/github/jmdobry/angular-data) |
-| Dependency Status | [![Dependency Status](https://gemnasium.com/jmdobry/angular-data.png)](https://gemnasium.com/jmdobry/angular-data) |
+| Bower | [![Bower version](https://badge.fury.io/bo/angular-data.svg)](http://badge.fury.io/bo/angular-data) |
+| NPM | [![NPM version](https://badge.fury.io/js/angular-data.svg)](http://badge.fury.io/js/angular-data) |
+| Build Status | [![Build Status](https://travis-ci.org/jmdobry/angular-data.svg?branch=master)](https://travis-ci.org/jmdobry/angular-data) |
+| Code Climate | [![Code Climate](https://codeclimate.com/github/jmdobry/angular-data.svg)](https://codeclimate.com/github/jmdobry/angular-data) |
+| Dependency Status | [![Dependency Status](https://gemnasium.com/jmdobry/angular-data.svg)](https://gemnasium.com/jmdobry/angular-data) |
 | Coverage | [![Coverage Status](https://coveralls.io/repos/jmdobry/angular-data/badge.png?branch=master)](https://coveralls.io/r/jmdobry/angular-data?branch=master) |
 
 ## Quick Start
