@@ -1,4 +1,4 @@
-## angular-data [![Bower version](https://badge.fury.io/bo/angular-data.svg)](http://badge.fury.io/bo/angular-data) [![NPM version](https://badge.fury.io/js/angular-data.svg)](http://badge.fury.io/js/angular-data)
+## angular-data [![Build Status](https://travis-ci.org/jmdobry/angular-data.svg?branch=master)](https://travis-ci.org/jmdobry/angular-data) [![Dependency Status](https://david-dm.org/jmdobry/angular-data.svg)](https://david-dm.org/jmdobry/angular-data) [![devDependency Status](https://david-dm.org/jmdobry/angular-data/dev-status.svg)](https://david-dm.org/jmdobry/angular-data#info=devDependencies) [![Bower version](https://badge.fury.io/bo/angular-data.svg)](http://badge.fury.io/bo/angular-data) [![NPM version](https://badge.fury.io/js/angular-data.svg)](http://badge.fury.io/js/angular-data)
 
 Inspired by [Ember Data](https://github.com/emberjs/data), Angular-data is the model layer Angular is missing. It consists of a convenient in-memory cache for managing your data, and several adapters for communicating with various persistence layers.
 
