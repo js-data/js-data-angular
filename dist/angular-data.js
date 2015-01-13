@@ -2168,6 +2168,7 @@ function DSHttpAdapterProvider() {
        *
        * - `{string=}` - `baseUrl` - Override the default base url.
        * - `{string=}` - `endpoint` - Override the default endpoint.
+       * - `{string=}` - `segment` - Add an additional route segment to the end of the url
        * - `{object=}` - `params` - Additional query string parameters to add to the url.
        *
        * @returns {Promise} Promise.
@@ -2175,7 +2176,7 @@ function DSHttpAdapterProvider() {
       update: function (resourceConfig, id, attrs, options) {
         options = options || {};
         return this.PUT(
-          DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id, options), id),
+          DSUtils.makePath(options.baseUrl || resourceConfig.baseUrl, resourceConfig.getEndpoint(id, options), id, options.segment),
           attrs,
           options
         );
