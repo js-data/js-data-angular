@@ -3515,6 +3515,15 @@ function loadRelations(resourceName, instance, relations, options) {
       relations = [relations];
     }
 
+    if (DSUtils.isArray(instance)) {
+      instance = instance.map(function(object) {
+        if (DSUtils.isString(object) || DSUtils.isNumber(object)) {
+          object = DS.get(resourceName, object);
+        }
+        return object;
+      });
+    }
+
     if (!definition) {
       throw new DS.errors.NER(errorPrefix(resourceName) + resourceName);
     } else if (!DSUtils.isObject(instance)) {
@@ -3537,40 +3546,46 @@ function loadRelations(resourceName, instance, relations, options) {
     var tasks = [];
     var fields = [];
 
-    DSUtils.forEach(definition.relationList, function (def) {
-      var relationName = def.relation;
-      if (DSUtils.contains(relations, relationName)) {
-        var task;
-        var params = {};
-        if (options.allowSimpleWhere) {
-          params[def.foreignKey] = instance[definition.idAttribute];
-        } else {
-          params.where = {};
-          params.where[def.foreignKey] = {
-            '==': instance[definition.idAttribute]
-          };
-        }
-
-        if (def.type === 'hasMany' && params[def.foreignKey]) {
-          task = DS.findAll(relationName, params, options);
-        } else if (def.type === 'hasOne') {
-          if (def.localKey && instance[def.localKey]) {
-            task = DS.find(relationName, instance[def.localKey], options);
-          } else if (def.foreignKey && params[def.foreignKey]) {
-            task = DS.findAll(relationName, params, options).then(function (hasOnes) {
-              return hasOnes.length ? hasOnes[0] : null;
-            });
+    if (DSUtils.isArray(instance)) {
+      angular.forEach(instance, function (object) {
+        tasks.push(DS.loadRelations(resourceName, object, relations, options));
+      });
+    } else {
+      DSUtils.forEach(definition.relationList, function (def) {
+        var relationName = def.relation;
+        if (DSUtils.contains(relations, relationName)) {
+          var task;
+          var params = {};
+          if (options.allowSimpleWhere) {
+            params[def.foreignKey] = instance[definition.idAttribute];
+          } else {
+            params.where = {};
+            params.where[def.foreignKey] = {
+              '==': instance[definition.idAttribute]
+            };
           }
-        } else if (instance[def.localKey]) {
-          task = DS.find(relationName, instance[def.localKey], options);
-        }
 
-        if (task) {
-          tasks.push(task);
-          fields.push(def.localField);
+          if (def.type === 'hasMany' && params[def.foreignKey]) {
+            task = DS.findAll(relationName, params, options);
+          } else if (def.type === 'hasOne') {
+            if (def.localKey && instance[def.localKey]) {
+              task = DS.find(relationName, instance[def.localKey], options);
+            } else if (def.foreignKey && params[def.foreignKey]) {
+              task = DS.findAll(relationName, params, options).then(function (hasOnes) {
+                return hasOnes.length ? hasOnes[0] : null;
+              });
+            }
+          } else if (instance[def.localKey]) {
+            task = DS.find(relationName, instance[def.localKey], options);
+          }
+
+          if (task) {
+            tasks.push(task);
+            fields.push(def.localField);
+          }
         }
-      }
-    });
+      });
+    }
 
     deferred.resolve();
 
