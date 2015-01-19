@@ -7,6 +7,7 @@
     "type": "git",
     "url": "https://github.com/js-data/js-data-angular.git"
   },
+  "main": "dist/js-data-angular.js",
   "author": {
     "name": "Jason Dobry",
     "url": "http://www.pseudobry.com",
