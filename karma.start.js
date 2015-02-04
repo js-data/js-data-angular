@@ -1,5 +1,5 @@
 // Setup global test variables
-var $rootScope, $q, $log, $timeout, DSHttpAdapterProvider, DSProvider, DSLocalStorageAdapter, DS, DSUtils, DSHttpAdapter, app, $httpBackend, p1, p2, p3, p4, p5;
+var $rootScope, $q, $log, $timeout, DSHttpAdapterProvider, DSProvider, DS, DSUtils, DSHttpAdapter, app, $httpBackend, p1, p2, p3, p4, p5;
 
 var Post, User, Organization, Comment, Profile;
 var user1, organization2, comment3, profile4;
@@ -37,7 +37,7 @@ var fail = function (msg) {
   }],
   TYPES_EXCEPT_FUNCTION = ['string', 123, 123.123, null, undefined, {}, [], true, false];
 
-angular.module('app', ['ng', 'angular-data.DS']);
+angular.module('app', ['ng', 'js-data']);
 
 // Setup before each test
 beforeEach(function () {
@@ -97,7 +97,7 @@ beforeEach(function () {
   };
   module('app', function (_DSProvider_, _DSHttpAdapterProvider_) {
     DSProvider = _DSProvider_;
-    DSProvider.defaults.baseUrl = 'http://test.angular-cache.com';
+    DSProvider.defaults.basePath = 'http://test.angular-cache.com';
     DSProvider.defaults.beforeValidate = lifecycle.beforeValidate;
     DSProvider.defaults.validate = lifecycle.validate;
     DSProvider.defaults.afterValidate = lifecycle.afterValidate;
@@ -113,11 +113,12 @@ beforeEach(function () {
     DSProvider.defaults.deserialize = lifecycle.deserialize;
     DSHttpAdapterProvider = _DSHttpAdapterProvider_;
     DSHttpAdapterProvider.defaults.queryTransform = lifecycle.queryTransform;
+    DSHttpAdapterProvider.defaults.log = false;
   });
 });
 
 function startInjector() {
-  inject(function (_$rootScope_, _$q_, _$timeout_, _$httpBackend_, _DS_, _$log_, _DSUtils_, _DSHttpAdapter_, _DSLocalStorageAdapter_) {
+  inject(function (_$rootScope_, _$q_, _$timeout_, _$httpBackend_, _DS_, _$log_, _DSUtils_, _DSHttpAdapter_) {
     // Setup global mocks
 
     localStorage.clear();
@@ -127,7 +128,6 @@ function startInjector() {
     $timeout = _$timeout_;
     DSUtils = _DSUtils_;
     DSHttpAdapter = _DSHttpAdapter_;
-    DSLocalStorageAdapter = _DSLocalStorageAdapter_;
     $httpBackend = _$httpBackend_;
     Post = DS.defineResource({
       name: 'post',
@@ -335,7 +335,11 @@ function startInjector() {
 
 // Clean up after each test
 afterEach(function () {
-  $httpBackend.verifyNoOutstandingExpectation();
-  $httpBackend.verifyNoOutstandingRequest();
+  try {
+    $httpBackend.verifyNoOutstandingExpectation();
+    $httpBackend.verifyNoOutstandingRequest();
+  } catch (err) {
+    console.log(err);
+  }
   $log.reset();
 });

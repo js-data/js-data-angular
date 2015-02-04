@@ -1,59 +1,27 @@
-##### 1.4.2 - 18 November 2014
+##### 2.0.0 - 03 February 2015
 
-###### Backwards compatible API changes
-- #238 - Filter by substring ("in", "notIn', "|in" and "|notIn" operators now work on strings)
+_Note:_ Please see the [js-data CHANGELOG](https://github.com/js-data/js-data/blob/master/CHANGELOG.md).
 
-###### Backwards compatible bug fixes
-- Fixed "allowSimpleWhere" default not being set
+###### Breaking API changes
+- Angular module renamed from `angular-data.DS` to `js-data`
+- Refactored to be a wrapper for [js-data](https://github.com/js-data/js-data)
+- `deserialize` and `serialize` are now properties of `DSHttpAdapter.defaults`
+- `deserialize` and `serialize` are now configuration options used solely by the http adapter
+- All hooks (`validate`, `afterCreate`, `serialize`, etc.) now take the actual resource definition as the first argument instead of just the name of the resource
+- `DSLocalStorageAdapter` is no longer bundled, but is each separate from js-data-angular.
+- The API for `bindOne` and `bindAll` has been changed to be more consistent with the rest of the API
+- `eagerInject` has not yet been implemented in `js-data`.
 
-##### 1.4.1 - 11 November 2014
+##### Backwards compatible API changes
+- GitHub project renamed to js-data-angular
+- GitHub project moved to the js-data organization
 
-###### Backwards compatible bug fixes
-- #213 - multiple orderBy does not work
-
-##### 1.4.0 - 09 November 2014
-
-###### Backwards compatible API changes
-- #227 - Supporting methods on model instances (again)
-
-###### Backwards compatible bug fixes
-- #234 - Fixed an issue with DSLocalStorageAdapter.update
-- #235 - IE 8 support
-
-##### 1.3.0 - 07 November 2014
-
-###### Backwards compatible API changes
-- #227 - Added DSDestroy and DSRefresh to instance methods
-- #228 - Added DS.getAll(resourceName[, ids])
-
-###### Backwards compatible bug fixes
-- #207 - digest iterations error
-
-##### 1.2.1 - 04 November 2014
-
-###### Backwards compatible bug fixes
-- #225 - If the server returned an empty array for a get request (valid scenario), angular-data throws an exception
-
-##### 1.2.0 - 02 November 2014
-
-###### Backwards compatible API changes
-- #208 - ng-repeat $$hashKey affecting hasChanges
-
-###### Backwards compatible bug fixes
-- #223 - need to update lastModified when an item is re-injected
-
-##### 1.1.0 - 30 October 2014
-
-###### Backwards compatible API changes
-- #214 - back port js-data/js-data#9
-
-###### Backwards compatible bug fixes
-- #215 - bower.json - angular not listed as non-dev dependency
-
-##### 1.0.1 - 10 October 2014
-
-###### Backwards compatible bug fixes
-- #204 - pending query isn't deleted properly in DS.find
+###### Other
+- #199 - Re-implement bindOne & bindAll in js-data-angular (they're missing from js-data)
+- #200 - Need to properly trigger digest where angular-data would have before
+- Added DSHttpAdapter fallback that uses $http if js-data-http isn't loaded
+- Load an es6-style version of `$q` instead of `es6-promises` to maintain `$scope` integration with the promise lifecycle
+- Updated dependencies. Now safely making copies of the `options` passed into methods
 
 ##### 1.0.0 - 04 October 2014
 
@@ -181,7 +149,7 @@ Stable Version 1.0.0
 
 ###### Backwards compatible bug fixes
 - #90 - DS.create isn't added to completedQueries (`DS.create` now adds a completed query entry)
-- #91 - dist/angular-data(.min).js doesn't end with a semicolon (upgraded Browserify)
+- #91 - dist/js-data-angular(.min).js doesn't end with a semicolon (upgraded Browserify)
 - #94 - Resource object name/class inconsistency (added `useClass` option to `DS.defineResource`)
 - #95 - observe-js outdated (Upgraded observe-js.js an refactored to new API)
 - #98 - Missing id warning
@@ -204,8 +172,8 @@ Official Release
 ##### 0.10.0-beta.1 - 28 June 2014
 
 ###### Breaking API changes
-- #76 - Queries and filtering. See [TRANSITION.md](https://github.com/jmdobry/angular-data/blob/master/TRANSITION.md).
-- #82 - Simplify error handling. Reduced size of angular-data.min.js by 4kb.
+- #76 - Queries and filtering. See [TRANSITION.md](https://github.com/js-data/js-data-angular/blob/master/TRANSITION.md).
+- #82 - Simplify error handling. Reduced size of js-data-angular.min.js by 4kb.
 - #42 - Relations/Associations. `DS.inject` now looks for relations and injects them as well.
 
 ###### Backwards compatible API changes
@@ -314,7 +282,7 @@ Developers can provide their own more robust filters for more powerful queries.
 - #3 - Pluggable async adapters
 
 ###### Backwards API changes
-- #2 - angular-data query language
+- #2 - js-data-angular query language
 - #4 - Query caching
 - #17 - Where predicates should be able to handle OR, not just AND
 - #22 - Reorganize infrastructure to utilize angular's DI
@@ -327,7 +295,7 @@ Developers can provide their own more robust filters for more powerful queries.
 - #7 - Model lifecycle hooks
 
 ###### Backwards compatible bug fixes
-- #19 - Null pointer exception in several places where angular-data tries to use the $q service
+- #19 - Null pointer exception in several places where js-data-angular tries to use the $q service
 
 ##### Other
 - #15 - Integration test coverage

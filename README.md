@@ -1,45 +1,61 @@
-## angular-data [![Bower version](https://badge.fury.io/bo/angular-data.svg)](http://badge.fury.io/bo/angular-data) [![NPM version](https://badge.fury.io/js/angular-data.svg)](http://badge.fury.io/js/angular-data)
+<img src="https://raw.githubusercontent.com/js-data/js-data/master/js-data.png" alt="js-data logo" title="js-data" align="right" width="64" height="64" />
 
-Inspired by [Ember Data](https://github.com/emberjs/data), Angular-data is the model layer Angular is missing. It consists of a convenient in-memory cache for managing your data, and several adapters for communicating with various persistence layers.
+## js-data-angular [![Bower version](https://badge.fury.io/bo/js-data-angular.png)](http://badge.fury.io/bo/js-data-angular) [![NPM version](https://badge.fury.io/js/js-data-angular.png)](http://badge.fury.io/js/js-data-angular)
 
-By default angular-data uses the http adapter–perfect for communicating with your RESTful backend. It includes a localStorage adapter, and another [localforage adapter](https://github.com/jmdobry/angular-data-localForage) is also available. More adapters are coming, and you're free to implement your own.
+Angular wrapper for [js-data](http://www.js-data.io).
 
-Unlike Backbone and Ember Models, angular-data does not require the use of getters and setters, and doesn't wrap your data with custom classes if you don't want it to. Angular-data's internal dirty-checking (via [observe-js](https://github.com/Polymer/observe-js) or `Object.observe` in supporting browsers) allows for powerful use cases and an easy avenue for implementing your own [3-way data-binding](https://www.firebase.com/blog/2013-10-04-firebase-angular-data-binding.html).
+#### What happened Angular-data?
+Js-data-angular is Angular-data 2.0, with [js-data](http://www.js-data.io) as the framework-agnostic core. Documentation for Angular-data 1.x can be found at [angular-data.pseudobry.com](http://angular-data.pseudobry.com).
 
-Supporting relations, computed properties, model lifecycle control and a slew of other features, angular-data is the tool for giving your data the respect it deserves.
+## Guides
+- [Angular + JSData (js-data-angular)](http://www.js-data.io/docs/js-data-angular)
+- [Getting Started with js-data](http://www.js-data.io/docs/home)
+- [Resources/Models](http://www.js-data.io/docs/resources)
+- [Working with the Data Store](http://www.js-data.io/docs/working-with-the-data-store)
+- [Adapters](http://www.js-data.io/docs/working-with-adapters)
+- [Model Lifecycle](http://www.js-data.io/docs/model-lifecycle)
+- [Custom Instance Behavior](http://www.js-data.io/docs/custom-instance-behavior)
+- [Computed Properties](http://www.js-data.io/docs/computed-properties)
+- [Relations](http://www.js-data.io/docs/relations)
+- [Schemata & Validation](http://www.js-data.io/docs/schemata--validation)
+- [FAQ](http://www.js-data.io/docs/faq)
 
-Angular-data 1.x will continue to see bug fixes, but most new development will be on [js-data](https://github.com/js-data/js-data) and [js-data-angular](https://github.com/jmdobry/angular-data/pull/198) (Angular-data 2.0).
-
-#### A note about Angular-data 2.0 (in development)
-See [angular-data/pull/198](https://github.com/jmdobry/angular-data/pull/198).
-
-## 1.x Documentation
-[http://angular-data.pseudobry.com](http://angular-data.pseudobry.com)
+## Js-data-angular API Documentation
+- [js-data-angular](http://www.js-data.io/docs/js-data-angular)
+- [DS](http://www.js-data.io/docs/ds)
+- [js-data-schema](http://www.js-data.io/docs/js-data-schema)
+- [DSHttpAdapter](http://www.js-data.io/docs/dshttpadapter)
+- [DSLocalStorageAdapter](http://www.js-data.io/docs/dslocalstorageadapter)
+- [DSLocalForageAdapter](http://www.js-data.io/docs/dslocalforageadapter)
+- [DSFirebaseAdapter](http://www.js-data.io/docs/dsfirebaseadapter)
+- [DSRedisAdapter](http://www.js-data.io/docs/dsredisadapter)
+- [DSRethinkDBAdapter](http://www.js-data.io/docs/dsrethinkdbadapter)
 
 ## Project Status
 
 | Branch | Master |
 | ------ | ------ |
-| Bower | [![Bower version](https://badge.fury.io/bo/angular-data.svg)](http://badge.fury.io/bo/angular-data) |
-| NPM | [![NPM version](https://badge.fury.io/js/angular-data.svg)](http://badge.fury.io/js/angular-data) |
-| Build Status | [![Build Status](https://travis-ci.org/jmdobry/angular-data.svg?branch=master)](https://travis-ci.org/jmdobry/angular-data) |
-| Code Climate | [![Code Climate](https://codeclimate.com/github/jmdobry/angular-data.svg)](https://codeclimate.com/github/jmdobry/angular-data) |
-| Dependency Status | [![Dependency Status](https://gemnasium.com/jmdobry/angular-data.svg)](https://gemnasium.com/jmdobry/angular-data) |
-| Coverage | [![Coverage Status](https://coveralls.io/repos/jmdobry/angular-data/badge.png?branch=master)](https://coveralls.io/r/jmdobry/angular-data?branch=master) |
+| Bower | [![Bower version](https://badge.fury.io/bo/js-data-angular.png)](http://badge.fury.io/bo/js-data-angular) |
+| NPM | [![NPM version](https://badge.fury.io/js/js-data-angular.png)](http://badge.fury.io/js/js-data-angular) |
+| Build Status | [![Build Status](https://travis-ci.org/js-data/js-data-angular.png?branch=master)](https://travis-ci.org/js-data/js-data-angular) |
+| Code Climate | [![Code Climate](https://codeclimate.com/github/js-data/js-data-angular.png)](https://codeclimate.com/github/js-data/js-data-angular) |
+| Dependency Status | [![Dependency Status](https://gemnasium.com/js-data/js-data-angular.png)](https://gemnasium.com/js-data/js-data-angular) |
+| Coverage | [![Coverage Status](https://coveralls.io/repos/js-data/js-data-angular/badge.png?branch=master)](https://coveralls.io/r/js-data/js-data-angular?branch=master) |
 
 ## Quick Start
-`bower install --save angular-data` or `npm install --save angular-data`.
+`bower install --save js-data js-data-angular` or `npm install --save js-data js-data-angular`.
+
+Load `js-data-angular.js` after `js-data.js`.
 
 ```js
-var app = angular.module('myApp', ['angular-data.DS']);
+angular.module('myApp', ['js-data']);
 ```
 
 ```js
-app.factory('Post', function (DS) {
-  // Simplest resource definition
+angular.module('myApp').factory('Post', function (DS) {
   return DS.defineResource('post');
 });
-app.factory('Comment', function (DS) {
+angular.module('myApp').factory('Comment', function (DS) {
   return DS.defineResource('comment');
 });
 ```
@@ -47,7 +63,7 @@ app.factory('Comment', function (DS) {
 ```js
 app.controller('postCtrl', function ($scope, $routeParams, Post, Comment) {
   // it's up to your server to know how to interpret this query
-  // or you can teach angular-data how to understand your servers' query language
+  // or you can teach js-data how to understand your servers' query language
   var query = {
     postId: $routeParams.id
   };
@@ -59,7 +75,7 @@ app.controller('postCtrl', function ($scope, $routeParams, Post, Comment) {
   Post.bindOne($scope, 'post', $routeParams.id);
   Comment.bindAll($scope, 'comments', query);
 
-  // Long form, functionally the same as above
+  // Long form (same effect as above)
   $scope.$watch(function () {
     return Post.lastModified($routeParams.id);
   }, function () {
@@ -74,40 +90,23 @@ app.controller('postCtrl', function ($scope, $routeParams, Post, Comment) {
 });
 ```
 
-## Guide
-- [Overview](http://angular-data.pseudobry.com/documentation/guide/angular-data/index)
-- [Basics](http://angular-data.pseudobry.com/documentation/guide/angular-data/overview)
-- [Defining Resources](http://angular-data.pseudobry.com/documentation/guide/angular-data-resource/basic)
-- [Asynchronous Methods](http://angular-data.pseudobry.com/documentation/guide/angular-data/asynchronous)
-- [Synchronous Methods](http://angular-data.pseudobry.com/documentation/guide/angular-data/synchronous)
-- [Queries & Filtering](http://angular-data.pseudobry.com/documentation/guide/angular-data/queries)
-- [Adapters](http://angular-data.pseudobry.com/documentation/guide/angular-data/adapters)
-- [How do I...?](http://angular-data.pseudobry.com/documentation/guide/angular-data/how)
-
-## API
-- [Overview](http://angular-data.pseudobry.com/documentation/api/angular-data/angular-data)
-- [DS](http://angular-data.pseudobry.com/documentation/api/angular-data/DS)
-- [DSHttpAdapter](http://angular-data.pseudobry.com/documentation/api/angular-data/DSHttpAdapter)
-
 ## Changelog
-[CHANGELOG.md](https://github.com/jmdobry/angular-data/blob/master/CHANGELOG.md)
-
-## Version Migration
-[TRANSITION.md](https://github.com/jmdobry/angular-data/blob/master/TRANSITION.md)
+[CHANGELOG.md](https://github.com/js-data/js-data-angular/blob/master/CHANGELOG.md)
 
 ## Community
-- [Mailing List](https://groups.google.com/forum/?fromgroups#!forum/angular-data) - Ask your questions!
-- [Issues](https://github.com/jmdobry/angular-data/issues) - Found a bug? Feature request? Submit an issue!
-- [Contributing Guide](https://github.com/jmdobry/angular-data/blob/master/CONTRIBUTING.md)
+- [Mailing List](https://groups.io/org/groupsio/jsdata) - Ask your questions!
+- [Issues](https://github.com/js-data/js-data-angular/issues) - Found a bug? Feature request? Submit an issue!
+- [GitHub](https://github.com/js-data/js-data-angular) - View the source code for js-data.
+- [Contributing Guide](https://github.com/js-data/js-data-angular/blob/master/CONTRIBUTING.md)
 
 ## Contributing
 
-First, feel free to contact me with questions. [Mailing List](https://groups.google.com/forum/?fromgroups#!forum/angular-data). [Issues](https://github.com/jmdobry/angular-data/issues).
+First, feel free to contact me with questions. [Mailing List](https://groups.io/org/groupsio/jsdata). [Issues](https://github.com/js-data/js-data-angular/issues).
 
 1. Contribute to the issue that is the reason you'll be developing in the first place
-1. Fork angular-data
-1. `git clone https://github.com/<you>/angular-data.git`
-1. `cd angular-data; npm install; bower install;`
+1. Fork js-data-angular
+1. `git clone https://github.com/<you>/js-data-angular.git`
+1. `cd js-data-angular; npm install; bower install;`
 1. `grunt go` (builds and starts a watch)
 1. (in another terminal) `grunt karma:dev` (runs the tests)
 1. Write your code, including relevant documentation and tests
@@ -117,21 +116,23 @@ First, feel free to contact me with questions. [Mailing List](https://groups.goo
 
 The MIT License (MIT)
 
-Copyright (c) 2014 Jason Dobry
+Copyright (c) 2014-2015 Jason Dobry
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-of the Software, and to permit persons to whom the Software is furnished to do
-so, subject to the following conditions:
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
