@@ -23,7 +23,7 @@ Js-data-angular is Angular-data 2.0, with [js-data](http://www.js-data.io) as th
 ## Js-data-angular API Documentation
 - [js-data-angular](http://www.js-data.io/docs/js-data-angular)
 - [DS](http://www.js-data.io/docs/ds)
-- [Schemator](http://www.js-data.io/docs/js-data-schema)
+- [js-data-schema](http://www.js-data.io/docs/js-data-schema)
 - [DSHttpAdapter](http://www.js-data.io/docs/dshttpadapter)
 - [DSLocalStorageAdapter](http://www.js-data.io/docs/dslocalstorageadapter)
 - [DSLocalForageAdapter](http://www.js-data.io/docs/dslocalforageadapter)

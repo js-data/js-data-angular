@@ -1,7 +1,7 @@
 {
   "name": "js-data-angular",
   "description": "Angular wrapper for js-data.",
-  "version": "2.0.0-beta.1",
+  "version": "2.0.0",
   "homepage": "http://www.js-data.io/docs/js-data-angular",
   "repository": {
     "type": "git",
@@ -18,11 +18,12 @@
       "url": "https://github.com/js-data/js-data-angular/blob/master/LICENSE"
     }
   ],
+  "main": "src/index.js",
   "devDependencies": {
     "grunt": "0.4.5",
-    "grunt-browserify": "3.2.1",
+    "grunt-browserify": "3.3.0",
     "grunt-contrib-clean": "0.6.0",
-    "grunt-contrib-jshint": "0.10.0",
+    "grunt-contrib-jshint": "0.11.0",
     "grunt-contrib-uglify": "0.7.0",
     "grunt-contrib-watch": "0.6.1",
     "grunt-karma": "0.10.1",
@@ -38,13 +39,13 @@
     "karma-sinon": "1.0.4",
     "karma-spec-reporter": "0.0.16",
     "time-grunt": "1.0.0",
-    "jit-grunt": "0.9.0"
+    "jit-grunt": "0.9.1"
   },
   "scripts": {
     "test": "grunt test"
   },
   "dependencies": {
     "mout": "0.11.0",
-    "js-data": "^1.0.0-beta.1"
+    "js-data": ">=1.0.0"
   }
 }

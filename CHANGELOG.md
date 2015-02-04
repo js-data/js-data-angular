@@ -1,9 +1,20 @@
-##### 2.0.0-beta.1 - 10 January 2014
+##### 2.0.0 - 03 February 2015
+
+_Note:_ Please see the [js-data CHANGELOG](https://github.com/js-data/js-data/blob/master/CHANGELOG.md).
 
 ###### Breaking API changes
+- Angular module renamed from `angular-data.DS` to `js-data`
 - Refactored to be a wrapper for [js-data](https://github.com/js-data/js-data)
 - `deserialize` and `serialize` are now properties of `DSHttpAdapter.defaults`
-- All hooks (`validate`, `afterCreate`, `serialize`, etc.) now take the resource definition as the first argument instead of just the name of the resource
+- `deserialize` and `serialize` are now configuration options used solely by the http adapter
+- All hooks (`validate`, `afterCreate`, `serialize`, etc.) now take the actual resource definition as the first argument instead of just the name of the resource
+- `DSLocalStorageAdapter` is no longer bundled, but is each separate from js-data-angular.
+- The API for `bindOne` and `bindAll` has been changed to be more consistent with the rest of the API
+- `eagerInject` has not yet been implemented in `js-data`.
+
+##### Backwards compatible API changes
+- GitHub project renamed to js-data-angular
+- GitHub project moved to the js-data organization
 
 ###### Other
 - #199 - Re-implement bindOne & bindAll in js-data-angular (they're missing from js-data)
