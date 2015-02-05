@@ -118,9 +118,9 @@ describe('DS.save', function () {
     $rootScope.$apply();
 
     DS.save('post', 5, { cacheResponse: false }).then(function (post) {
-      assert.deepEqual(post, {
+      assert.deepEqual(DS.utils.toJson(post), DS.utils.toJson({
         random: 'stuff'
-      }, 'should have the right response');
+      }), 'should have the right response');
       assert.equal(lifecycle.beforeUpdate.callCount, 1, 'beforeUpdate should have been called');
       assert.equal(lifecycle.afterUpdate.callCount, 1, 'afterUpdate should have been called');
       assert.equal(lifecycle.beforeInject.callCount, 1, 'beforeInject should have been called only once');

@@ -454,6 +454,9 @@
             config.url += '/';
           }
           config.method = config.method.toUpperCase();
+          if (typeof config.data === 'object') {
+            config.data = DSUtils.removeCircular(config.data);
+          }
 
           function logResponse(data) {
             var str = start.toUTCString() + ' - ' + data.config.method.toUpperCase() + ' ' + data.config.url + ' - ' + data.status + ' ' + (new Date().getTime() - start.getTime()) + 'ms';

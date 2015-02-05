@@ -1,7 +1,7 @@
 {
   "name": "js-data-angular",
   "description": "Angular wrapper for js-data.",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "homepage": "http://www.js-data.io/docs/js-data-angular",
   "repository": {
     "type": "git",
@@ -46,6 +46,6 @@
   },
   "dependencies": {
     "mout": "0.11.0",
-    "js-data": ">=1.0.0"
+    "js-data": ">=1.1.0"
   }
 }

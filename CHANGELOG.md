@@ -1,3 +1,7 @@
+##### 2.1.0 - 04 February 2015
+
+Now requiring >= js-data 1.1.0 in order to use removeCircular to safely safe cyclic objects
+
 ##### 2.0.0 - 03 February 2015
 
 _Note:_ Please see the [js-data CHANGELOG](https://github.com/js-data/js-data/blob/master/CHANGELOG.md).
