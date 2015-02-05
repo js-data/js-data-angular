@@ -72,8 +72,8 @@ app.controller('postCtrl', function ($scope, $routeParams, Post, Comment) {
   Comment.findAll(query);
 
   // My goodness this was easy
-  Post.bindOne($scope, 'post', $routeParams.id);
-  Comment.bindAll($scope, 'comments', query);
+  Post.bindOne($routeParams.id, $scope, 'post');
+  Comment.bindAll(query, $scope, 'comments');
 
   // Long form (same effect as above)
   $scope.$watch(function () {
