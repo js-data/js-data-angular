@@ -1,3 +1,8 @@
+##### 2.2.0 - 24 February 2015
+
+###### Backwards compatible API changes
+- Added `suffix` option
+
 ##### 2.1.0 - 04 February 2015
 
 Now requiring >= js-data 1.1.0 in order to use removeCircular to safely safe cyclic objects

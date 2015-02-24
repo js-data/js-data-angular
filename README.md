@@ -13,11 +13,13 @@ Js-data-angular is Angular-data 2.0, with [js-data](http://www.js-data.io) as th
 - [Resources/Models](http://www.js-data.io/docs/resources)
 - [Working with the Data Store](http://www.js-data.io/docs/working-with-the-data-store)
 - [Adapters](http://www.js-data.io/docs/working-with-adapters)
+- [Query Syntax](http://www.js-data.io/docs/query-syntax)
 - [Model Lifecycle](http://www.js-data.io/docs/model-lifecycle)
 - [Custom Instance Behavior](http://www.js-data.io/docs/custom-instance-behavior)
 - [Computed Properties](http://www.js-data.io/docs/computed-properties)
 - [Relations](http://www.js-data.io/docs/relations)
 - [Schemata & Validation](http://www.js-data.io/docs/schemata--validation)
+- [JSData on the Server](http://www.js-data.io/docs/jsdata-on-the-server)
 - [FAQ](http://www.js-data.io/docs/faq)
 
 ## Js-data-angular API Documentation
@@ -30,6 +32,8 @@ Js-data-angular is Angular-data 2.0, with [js-data](http://www.js-data.io) as th
 - [DSFirebaseAdapter](http://www.js-data.io/docs/dsfirebaseadapter)
 - [DSRedisAdapter](http://www.js-data.io/docs/dsredisadapter)
 - [DSRethinkDBAdapter](http://www.js-data.io/docs/dsrethinkdbadapter)
+- [DSMongoDBAdapter](http://www.js-data.io/docs/dsmongodbadapter)
+- [DSSqlAdapter](http://www.js-data.io/docs/dssqladapter)
 
 ## Project Status
 

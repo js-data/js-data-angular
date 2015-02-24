@@ -357,6 +357,7 @@
     dsHttpAdapterPrototype.find = function (resourceConfig, id, options) {
       var _this = this;
       options = options || {};
+      options.suffix = options.suffix || resourceConfig.suffix;
       return _this.GET(
         _this.getPath('find', resourceConfig, id, options),
         options
@@ -369,6 +370,7 @@
       var _this = this;
       options = options || {};
       options = DSUtils.copy(options);
+      options.suffix = options.suffix || resourceConfig.suffix;
       options.params = options.params || {};
       if (params) {
         params = _this.defaults.queryTransform(resourceConfig, params);
@@ -385,6 +387,7 @@
     dsHttpAdapterPrototype.create = function (resourceConfig, attrs, options) {
       var _this = this;
       options = options || {};
+      options.suffix = options.suffix || resourceConfig.suffix;
       return _this.POST(
         _this.getPath('create', resourceConfig, attrs, options),
         (options.serialize ? options.serialize : _this.defaults.serialize)(resourceConfig, attrs),
@@ -397,6 +400,7 @@
     dsHttpAdapterPrototype.update = function (resourceConfig, id, attrs, options) {
       var _this = this;
       options = options || {};
+      options.suffix = options.suffix || resourceConfig.suffix;
       return _this.PUT(
         _this.getPath('update', resourceConfig, id, options),
         (options.serialize ? options.serialize : _this.defaults.serialize)(resourceConfig, attrs),
@@ -410,6 +414,7 @@
       var _this = this;
       options = options || {};
       options = DSUtils.copy(options);
+      options.suffix = options.suffix || resourceConfig.suffix;
       options.params = options.params || {};
       if (params) {
         params = _this.defaults.queryTransform(resourceConfig, params);
@@ -427,6 +432,7 @@
     dsHttpAdapterPrototype.destroy = function (resourceConfig, id, options) {
       var _this = this;
       options = options || {};
+      options.suffix = options.suffix || resourceConfig.suffix;
       return _this.DEL(
         _this.getPath('destroy', resourceConfig, id, options),
         options
@@ -439,6 +445,7 @@
       var _this = this;
       options = options || {};
       options = DSUtils.copy(options);
+      options.suffix = options.suffix || resourceConfig.suffix;
       options.params = options.params || {};
       if (params) {
         params = _this.defaults.queryTransform(resourceConfig, params);
@@ -460,12 +467,16 @@
           var _this = this;
           var start = new Date();
           config = deepMixIn(config, _this.defaults.httpConfig);
-          if (_this.defaults.forceTrailingSlash && config.url[config.url.length] !== '/') {
+          if (_this.defaults.forceTrailingSlash && config.url[config.url.length-1] !== '/') {
             config.url += '/';
           }
           config.method = config.method.toUpperCase();
           if (typeof config.data === 'object') {
             config.data = DSUtils.removeCircular(config.data);
+          }
+          var suffix = config.suffix || _this.defaults.suffix;
+          if (suffix && config.url.substr(config.url.length - suffix.length) !== suffix) {
+            config.url += suffix;
           }
 
           function logResponse(data) {

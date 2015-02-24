@@ -49,4 +49,26 @@ describe('DSHttpAdapter.find', function () {
     delete DSHttpAdapter.defaults.httpConfig.params;
     delete DSHttpAdapter.defaults.httpConfig.headers;
   });
+
+  it('should use suffixes', function () {
+    var Thing = DS.defineResource({
+      name: 'thing',
+      endpoint: 'things',
+      suffix: '.xml'
+    });
+
+    DSHttpAdapter.defaults.suffix = '.json';
+
+    $httpBackend.expectGET('http://test.angular-cache.com/things/1.xml').respond(200, { id: 1 });
+
+    DSHttpAdapter.find(Thing, 1);
+
+    $httpBackend.expectGET('http://test.angular-cache.com/posts/1.json').respond(200, { id: 1 });
+
+    DSHttpAdapter.find(Post, 1);
+
+    $httpBackend.flush();
+
+    DSHttpAdapter.defaults.suffix = '';
+  });
 });

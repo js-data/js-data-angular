@@ -34,6 +34,8 @@ module.exports = function (grunt) {
     uglify: {
       main: {
         options: {
+          sourceMap: true,
+          sourceMapName: 'dist/js-data-angular.min.map',
           banner: '/**\n' +
           '* @author Jason Dobry <jason.dobry@gmail.com>\n' +
           '* @file js-data-angular.min.js\n' +
