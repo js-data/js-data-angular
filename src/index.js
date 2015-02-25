@@ -451,7 +451,9 @@
 
     angular.module('js-data').provider('DSHttpAdapter', function () {
       var _this = this;
-      _this.defaults = {};
+      _this.defaults = {
+        debug: true
+      };
       _this.$get = ['$http', 'DS', '$q', function ($http, DS, $q) {
         dsHttpAdapterPrototype.HTTP = function (config) {
           var _this = this;
@@ -472,7 +474,7 @@
           function logResponse(data) {
             var str = start.toUTCString() + ' - ' + data.config.method.toUpperCase() + ' ' + data.config.url + ' - ' + data.status + ' ' + (new Date().getTime() - start.getTime()) + 'ms';
             if (data.status >= 200 && data.status < 300) {
-              if (_this.defaults.log) {
+              if (_this.defaults.log && _this.defaults.debug) {
                 _this.defaults.log(str, data);
               }
               return data;
