@@ -1,7 +1,7 @@
 /**
 * @author Jason Dobry <jason.dobry@gmail.com>
 * @file js-data-angular.js
-* @version 2.2.0 - Homepage <http://www.js-data.io/js-data-angular/>
+* @version 2.2.1 - Homepage <http://www.js-data.io/js-data-angular/>
 * @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>
 * @license MIT <https://github.com/js-data/js-data-angular/blob/master/LICENSE>
 *
@@ -30,7 +30,7 @@
 
   var DSUtils = JSData.DSUtils;
 
-  var deepMixIn = JSData.DSUtils.deepMixIn;
+  var deepMixIn = DSUtils.deepMixIn;
   var httpLoaded = false;
 
   var adapters = [
@@ -362,7 +362,12 @@
         _this.getPath('find', resourceConfig, id, options),
         options
       ).then(function (data) {
-          return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig, data);
+          var item = (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig, data);
+          if (!item) {
+            return JSData.DSUtils.Promise.reject(new Error('Not Found!'));
+          } else {
+            return item;
+          }
         });
     };
 

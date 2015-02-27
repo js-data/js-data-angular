@@ -40,7 +40,7 @@ Js-data-angular is Angular-data 2.0, with [js-data](http://www.js-data.io) as th
 | Branch | Master |
 | ------ | ------ |
 | Bower | [![Bower version](https://badge.fury.io/bo/js-data-angular.png)](http://badge.fury.io/bo/js-data-angular) |
-| NPM | [![NPM version](https://badge.fury.io/js/js-data-angular.png)](http://badge.fury.io/js/js-data-angular) |
+| NPM | [![NPM](https://nodei.co/npm/js-data-angular.png?downloads=true&stars=true)](https://nodei.co/npm/js-data-angular/) |
 | Build Status | [![Build Status](https://travis-ci.org/js-data/js-data-angular.png?branch=master)](https://travis-ci.org/js-data/js-data-angular) |
 | Code Climate | [![Code Climate](https://codeclimate.com/github/js-data/js-data-angular.png)](https://codeclimate.com/github/js-data/js-data-angular) |
 | Dependency Status | [![Dependency Status](https://gemnasium.com/js-data/js-data-angular.png)](https://gemnasium.com/js-data/js-data-angular) |

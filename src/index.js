@@ -20,7 +20,7 @@
 
   var DSUtils = JSData.DSUtils;
 
-  var deepMixIn = JSData.DSUtils.deepMixIn;
+  var deepMixIn = DSUtils.deepMixIn;
   var httpLoaded = false;
 
   var adapters = [
@@ -352,7 +352,12 @@
         _this.getPath('find', resourceConfig, id, options),
         options
       ).then(function (data) {
-          return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig, data);
+          var item = (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig, data);
+          if (!item) {
+            return JSData.DSUtils.Promise.reject(new Error('Not Found!'));
+          } else {
+            return item;
+          }
         });
     };
 

@@ -28,6 +28,19 @@ describe('DSHttpAdapter.find', function () {
     assert.equal(lifecycle.queryTransform.callCount, 0, 'queryTransform should not have been called');
   });
 
+  it('should error if the item is undefined', function () {
+    $httpBackend.expectGET('http://test.angular-cache.com/posts/1').respond(200);
+
+    DSHttpAdapter.find(Post, 1).then(function () {
+      fail('should not have reached this');
+    }).catch(function (err) {
+      assert.equal(err.message, 'Not Found!');
+      return true;
+    });
+
+    $httpBackend.flush();
+  });
+
   it('should use default configs', function () {
     $httpBackend.expectGET('http://test.angular-cache.com/posts/1?test=test', {
       Authorization: 'test',
