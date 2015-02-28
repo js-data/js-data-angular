@@ -122,7 +122,7 @@ var methodsToProxy = [
  * - `{function=}` - `serialize` - Serialization hook. Overrides global. Signature: `serialize(resourceName, attrs)`.
  * - `{function=}` - `deserialize` - Deserialization hook. Overrides global. Signature: `deserialize(resourceName, attrs)`.
  *
- * See [DSProvider.defaults](/documentation/api/angular-data/DSProvider.properties:defaults).
+ * See [DSProvider.defaults](/documentation/api/angular-data/DSProvider.properties_defaults).
  */
 function defineResource(definition) {
   var DS = this;
