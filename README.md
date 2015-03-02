@@ -1,13 +1,13 @@
 <img src="https://raw.githubusercontent.com/js-data/js-data/master/js-data.png" alt="js-data logo" title="js-data" align="right" width="64" height="64" />
 
-## js-data-angular [![Bower version](https://badge.fury.io/bo/js-data-angular.png)](http://badge.fury.io/bo/js-data-angular) [![NPM version](https://badge.fury.io/js/js-data-angular.png)](http://badge.fury.io/js/js-data-angular)
+## js-data-angular [![bower version](https://img.shields.io/bower/v/js-data-angular.svg?style=flat-square)](https://www.npmjs.org/package/js-data-angular) [![npm version](https://img.shields.io/npm/v/js-data-angular.svg?style=flat-square)](https://www.npmjs.org/package/js-data-angular) [![Circle CI](https://img.shields.io/circleci/project/js-data/js-data-angular/master.svg?style=flat-square)](https://circleci.com/gh/js-data/js-data-angular/tree/master) [![npm downloads](https://img.shields.io/npm/dm/js-data-angular.svg?style=flat-square)](https://www.npmjs.org/package/js-data-angular) [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/js-data/js-data-angular/blob/master/LICENSE)
 
 Angular wrapper for [js-data](http://www.js-data.io).
 
 #### What happened Angular-data?
 Js-data-angular is Angular-data 2.0, with [js-data](http://www.js-data.io) as the framework-agnostic core. Documentation for Angular-data 1.x can be found at [angular-data.pseudobry.com](http://angular-data.pseudobry.com).
 
-## Guides
+### Guides
 - [Angular + JSData (js-data-angular)](http://www.js-data.io/docs/js-data-angular)
 - [Getting Started with js-data](http://www.js-data.io/docs/home)
 - [Resources/Models](http://www.js-data.io/docs/resources)
@@ -22,7 +22,7 @@ Js-data-angular is Angular-data 2.0, with [js-data](http://www.js-data.io) as th
 - [JSData on the Server](http://www.js-data.io/docs/jsdata-on-the-server)
 - [FAQ](http://www.js-data.io/docs/faq)
 
-## Js-data-angular API Documentation
+### Js-data-angular API Documentation
 - [js-data-angular](http://www.js-data.io/docs/js-data-angular)
 - [DS](http://www.js-data.io/docs/ds)
 - [js-data-schema](http://www.js-data.io/docs/js-data-schema)
@@ -35,18 +35,19 @@ Js-data-angular is Angular-data 2.0, with [js-data](http://www.js-data.io) as th
 - [DSMongoDBAdapter](http://www.js-data.io/docs/dsmongodbadapter)
 - [DSSqlAdapter](http://www.js-data.io/docs/dssqladapter)
 
-## Project Status
+### Project Status
 
-| Branch | Master |
-| ------ | ------ |
-| Bower | [![Bower version](https://badge.fury.io/bo/js-data-angular.png)](http://badge.fury.io/bo/js-data-angular) |
-| NPM | [![NPM](https://nodei.co/npm/js-data-angular.png?downloads=true&stars=true)](https://nodei.co/npm/js-data-angular/) |
-| Build Status | [![Build Status](https://travis-ci.org/js-data/js-data-angular.png?branch=master)](https://travis-ci.org/js-data/js-data-angular) |
-| Code Climate | [![Code Climate](https://codeclimate.com/github/js-data/js-data-angular.png)](https://codeclimate.com/github/js-data/js-data-angular) |
-| Dependency Status | [![Dependency Status](https://gemnasium.com/js-data/js-data-angular.png)](https://gemnasium.com/js-data/js-data-angular) |
-| Coverage | [![Coverage Status](https://coveralls.io/repos/js-data/js-data-angular/badge.png?branch=master)](https://coveralls.io/r/js-data/js-data-angular?branch=master) |
+__Latest Release:__ [![Latest Release](https://img.shields.io/github/release/js-data/js-data-angular.svg?style=flat-square)](https://github.com/js-data/js-data-angular/releases)
 
-## Quick Start
+__Status:__
+
+[![Dependency Status](https://img.shields.io/gemnasium/js-data/js-data-angular.svg?style=flat-square)](https://gemnasium.com/js-data/js-data-angular) [![Coverage Status](https://img.shields.io/coveralls/js-data/js-data-angular/master.svg?style=flat-square)](https://coveralls.io/r/js-data/js-data-angular?branch=master) [![Codacity](https://img.shields.io/codacy/e7690b906dfa471ebcc8b2bdc52e9662.svg?style=flat-square)](https://www.codacy.com/public/jasondobry/js-data-angular/dashboard) 
+
+__Supported Platforms:__
+
+[![browsers](https://img.shields.io/badge/Browser-Chrome%2CFirefox%2CSafari%2COpera%2CIE%209%2B%2CiOS%20Safari%207.1%2B%2CAndroid%20Browser%202.3%2B-green.svg?style=flat-square)](https://github.com/js-data/js-data)
+
+### Quick Start
 `bower install --save js-data js-data-angular` or `npm install --save js-data js-data-angular`.
 
 Load `js-data-angular.js` after `js-data.js`.
@@ -94,16 +95,16 @@ app.controller('postCtrl', function ($scope, $routeParams, Post, Comment) {
 });
 ```
 
-## Changelog
+### Changelog
 [CHANGELOG.md](https://github.com/js-data/js-data-angular/blob/master/CHANGELOG.md)
 
-## Community
+### Community
 - [Mailing List](https://groups.io/org/groupsio/jsdata) - Ask your questions!
 - [Issues](https://github.com/js-data/js-data-angular/issues) - Found a bug? Feature request? Submit an issue!
 - [GitHub](https://github.com/js-data/js-data-angular) - View the source code for js-data.
 - [Contributing Guide](https://github.com/js-data/js-data-angular/blob/master/CONTRIBUTING.md)
 
-## Contributing
+### Contributing
 
 First, feel free to contact me with questions. [Mailing List](https://groups.io/org/groupsio/jsdata). [Issues](https://github.com/js-data/js-data-angular/issues).
 
@@ -116,7 +117,7 @@ First, feel free to contact me with questions. [Mailing List](https://groups.io/
 1. Write your code, including relevant documentation and tests
 1. Submit a PR and we'll review
 
-## License
+### License
 
 The MIT License (MIT)
 
