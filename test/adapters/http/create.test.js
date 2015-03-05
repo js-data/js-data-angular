@@ -31,6 +31,6 @@ describe('DSHttpAdapter.create', function () {
 
     $httpBackend.flush();
 
-    assert.equal(lifecycle.queryTransform.callCount, 0, 'queryTransform should not have been called');
+    assert.equal(lifecycle.queryTransform.callCount, 2, 'queryTransform should have been called twice');
   });
 });

@@ -2,7 +2,7 @@
  * js-data-angular
  * http://github.com/js-data/js-data-angular
  *
- * Copyright (c) 2014 Jason Dobry <http://www.js-data.io/js-data-angular>
+ * Copyright (c) 2014-2015 Jason Dobry <http://www.js-data.io/docs/js-data-angular>
  * Licensed under the MIT license. <https://github.com/js-data/js-data-angular/blob/master/LICENSE>
  */
 module.exports = function (grunt) {
@@ -40,7 +40,7 @@ module.exports = function (grunt) {
           '* @author Jason Dobry <jason.dobry@gmail.com>\n' +
           '* @file js-data-angular.min.js\n' +
           '* @version <%= pkg.version %> - Homepage <https://www.js-data.io/js-data-angular/>\n' +
-          '* @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>\n' +
+          '* @copyright (c) 2014-2015 Jason Dobry <https://github.com/jmdobry/>\n' +
           '* @license MIT <https://github.com/js-data/js-data-angular/blob/master/LICENSE>\n' +
           '*\n' +
           '* @overview Angular wrapper for js-data.\n' +
@@ -48,21 +48,6 @@ module.exports = function (grunt) {
         },
         files: {
           'dist/js-data-angular.min.js': ['dist/js-data-angular.js']
-        }
-      },
-      scripts: {
-        files: {
-          'doc/resources/js/libs.min.js': ['doc/resources/js/libs.js']
-        }
-      }
-    },
-    browserify: {
-      options: {
-        external: ['js-data']
-      },
-      dist: {
-        files: {
-          'dist/js-data-angular.js': ['src/index.js']
         }
       }
     },
@@ -107,13 +92,13 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('banner', function () {
-    var file = grunt.file.read('dist/js-data-angular.js');
+    var file = grunt.file.read('./src/index.js');
 
     var banner = '/**\n' +
       '* @author Jason Dobry <jason.dobry@gmail.com>\n' +
       '* @file js-data-angular.js\n' +
-      '* @version ' + pkg.version + ' - Homepage <http://www.js-data.io/js-data-angular/>\n' +
-      '* @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>\n' +
+      '* @version ' + pkg.version + ' - Homepage <http://www.js-data.io/docs/js-data-angular/>\n' +
+      '* @copyright (c) 2014-2015 Jason Dobry <https://github.com/jmdobry/>\n' +
       '* @license MIT <https://github.com/js-data/js-data-angular/blob/master/LICENSE>\n' +
       '*\n' +
       '* @overview Angular wrapper for js-data.js.\n' +
@@ -121,15 +106,14 @@ module.exports = function (grunt) {
 
     file = banner + file;
 
-    grunt.file.write('dist/js-data-angular.js', file);
+    grunt.file.write('./dist/js-data-angular.js', file);
   });
 
   grunt.registerTask('build', [
     'clean',
     'jshint',
-    'browserify',
     'banner',
-    'uglify:main'
+    'uglify'
   ]);
   grunt.registerTask('go', ['build', 'watch:dist']);
   grunt.registerTask('default', ['build']);

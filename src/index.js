@@ -3,15 +3,17 @@
   'use strict';
 
   if (typeof define === 'function' && define.amd) {
-    define(['angular', 'js-data'], function(angular, JSData) {
+    define(['angular', 'js-data'], function (angular, JSData) {
       return factory(root, angular, JSData, undefined);
     });
-  } else if (typeof module !== 'undefined' && module.exports) {
-    module.exports = factory(root, require('angular') || root.angular, require('js-data'), undefined);
+  } else if (typeof exports === 'object' && typeof module === 'object') {
+    module.exports = factory(root, require('angular') || root.angular, require('js-data') || root.JSData, undefined);
+  } else if (typeof exports === 'object') {
+    exports.jsDataAngularModuleName = factory(root, require('angular') || root.angular, require('js-data') || root.JSData, undefined);
   } else {
     root.jsDataAngularModuleName = factory(root, root.angular, root.JSData, undefined);
   }
-}(this, function(window, angular, JSData, undefined) {
+}(this, function (window, angular, JSData, undefined) {
   'use strict';
 
   if (!JSData || !angular) {
@@ -348,6 +350,8 @@
       var _this = this;
       options = options || {};
       options.suffix = options.suffix || resourceConfig.suffix;
+      options.params = options.params || {};
+      options.params = _this.defaults.queryTransform(resourceConfig, options.params);
       return _this.GET(
         _this.getPath('find', resourceConfig, id, options),
         options
@@ -383,6 +387,8 @@
       var _this = this;
       options = options || {};
       options.suffix = options.suffix || resourceConfig.suffix;
+      options.params = options.params || {};
+      options.params = _this.defaults.queryTransform(resourceConfig, options.params);
       return _this.POST(
         _this.getPath('create', resourceConfig, attrs, options),
         (options.serialize ? options.serialize : _this.defaults.serialize)(resourceConfig, attrs),
@@ -396,6 +402,8 @@
       var _this = this;
       options = options || {};
       options.suffix = options.suffix || resourceConfig.suffix;
+      options.params = options.params || {};
+      options.params = _this.defaults.queryTransform(resourceConfig, options.params);
       return _this.PUT(
         _this.getPath('update', resourceConfig, id, options),
         (options.serialize ? options.serialize : _this.defaults.serialize)(resourceConfig, attrs),
@@ -428,6 +436,8 @@
       var _this = this;
       options = options || {};
       options.suffix = options.suffix || resourceConfig.suffix;
+      options.params = options.params || {};
+      options.params = _this.defaults.queryTransform(resourceConfig, options.params);
       return _this.DEL(
         _this.getPath('destroy', resourceConfig, id, options),
         options
@@ -462,7 +472,7 @@
           var _this = this;
           var start = new Date();
           config = deepMixIn(config, _this.defaults.httpConfig);
-          if (_this.defaults.forceTrailingSlash && config.url[config.url.length-1] !== '/') {
+          if (_this.defaults.forceTrailingSlash && config.url[config.url.length - 1] !== '/') {
             config.url += '/';
           }
           config.method = config.method.toUpperCase();
@@ -502,8 +512,7 @@
       DS.registerAdapter('http', DSHttpAdapter, { default: true });
     }]);
   }
-  
+
   // return the module name
   return 'js-data';
-
-});
+}));

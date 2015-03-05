@@ -1,31 +1,32 @@
 /**
 * @author Jason Dobry <jason.dobry@gmail.com>
 * @file js-data-angular.js
-* @version 2.2.1 - Homepage <http://www.js-data.io/js-data-angular/>
-* @copyright (c) 2014 Jason Dobry <https://github.com/jmdobry/>
+* @version 2.2.2 - Homepage <http://www.js-data.io/docs/js-data-angular/>
+* @copyright (c) 2014-2015 Jason Dobry <https://github.com/jmdobry/>
 * @license MIT <https://github.com/js-data/js-data-angular/blob/master/LICENSE>
 *
 * @overview Angular wrapper for js-data.js.
 */
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 /*jshint loopfunc:true*/
-(function (window, angular, undefined) {
+(function (root, factory) {
   'use strict';
 
-  var JSData;
-
-  try {
-    JSData = require('js-data');
-  } catch (e) {
-
+  if (typeof define === 'function' && define.amd) {
+    define(['angular', 'js-data'], function (angular, JSData) {
+      return factory(root, angular, JSData, undefined);
+    });
+  } else if (typeof exports === 'object' && typeof module === 'object') {
+    module.exports = factory(root, require('angular') || root.angular, require('js-data') || root.JSData, undefined);
+  } else if (typeof exports === 'object') {
+    exports.jsDataAngularModuleName = factory(root, require('angular') || root.angular, require('js-data') || root.JSData, undefined);
+  } else {
+    root.jsDataAngularModuleName = factory(root, root.angular, root.JSData, undefined);
   }
+}(this, function (window, angular, JSData, undefined) {
+  'use strict';
 
-  if (!JSData) {
-    JSData = window.JSData;
-  }
-
-  if (!JSData) {
-    throw new Error('js-data must be loaded!');
+  if (!JSData || !angular) {
+    throw new Error('js-data and angular must be loaded!');
   }
 
   var DSUtils = JSData.DSUtils;
@@ -358,6 +359,8 @@
       var _this = this;
       options = options || {};
       options.suffix = options.suffix || resourceConfig.suffix;
+      options.params = options.params || {};
+      options.params = _this.defaults.queryTransform(resourceConfig, options.params);
       return _this.GET(
         _this.getPath('find', resourceConfig, id, options),
         options
@@ -393,6 +396,8 @@
       var _this = this;
       options = options || {};
       options.suffix = options.suffix || resourceConfig.suffix;
+      options.params = options.params || {};
+      options.params = _this.defaults.queryTransform(resourceConfig, options.params);
       return _this.POST(
         _this.getPath('create', resourceConfig, attrs, options),
         (options.serialize ? options.serialize : _this.defaults.serialize)(resourceConfig, attrs),
@@ -406,6 +411,8 @@
       var _this = this;
       options = options || {};
       options.suffix = options.suffix || resourceConfig.suffix;
+      options.params = options.params || {};
+      options.params = _this.defaults.queryTransform(resourceConfig, options.params);
       return _this.PUT(
         _this.getPath('update', resourceConfig, id, options),
         (options.serialize ? options.serialize : _this.defaults.serialize)(resourceConfig, attrs),
@@ -438,6 +445,8 @@
       var _this = this;
       options = options || {};
       options.suffix = options.suffix || resourceConfig.suffix;
+      options.params = options.params || {};
+      options.params = _this.defaults.queryTransform(resourceConfig, options.params);
       return _this.DEL(
         _this.getPath('destroy', resourceConfig, id, options),
         options
@@ -472,7 +481,7 @@
           var _this = this;
           var start = new Date();
           config = deepMixIn(config, _this.defaults.httpConfig);
-          if (_this.defaults.forceTrailingSlash && config.url[config.url.length-1] !== '/') {
+          if (_this.defaults.forceTrailingSlash && config.url[config.url.length - 1] !== '/') {
             config.url += '/';
           }
           config.method = config.method.toUpperCase();
@@ -513,6 +522,6 @@
     }]);
   }
 
-})(window, window.angular);
-
-},{"js-data":"js-data"}]},{},[1]);
+  // return the module name
+  return 'js-data';
+}));
