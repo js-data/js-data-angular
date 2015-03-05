@@ -1,21 +1,21 @@
 /*jshint loopfunc:true*/
-(function (window, angular, undefined) {
+(function (root, factory) {
   'use strict';
 
-  var JSData;
-
-  try {
-    JSData = require('js-data');
-  } catch (e) {
-
+  if (typeof define === 'function' && define.amd) {
+    define(['angular', 'js-data'], function(angular, JSData) {
+      return factory(root, angular, JSData, undefined);
+    });
+  } else if (typeof module !== 'undefined' && module.exports) {
+    module.exports = factory(root, require('angular') || root.angular, require('js-data'), undefined);
+  } else {
+    root.jsDataAngularModuleName = factory(root, root.angular, root.JSData, undefined);
   }
+}(this, function(window, angular, JSData, undefined) {
+  'use strict';
 
-  if (!JSData) {
-    JSData = window.JSData;
-  }
-
-  if (!JSData) {
-    throw new Error('js-data must be loaded!');
+  if (!JSData || !angular) {
+    throw new Error('js-data and angular must be loaded!');
   }
 
   var DSUtils = JSData.DSUtils;
@@ -502,5 +502,8 @@
       DS.registerAdapter('http', DSHttpAdapter, { default: true });
     }]);
   }
+  
+  // return the module name
+  return 'js-data';
 
-})(window, window.angular);
+});
