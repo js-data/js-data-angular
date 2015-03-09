@@ -1,7 +1,12 @@
+##### 2.2.3 - 08 March 2015
+
+###### Other
+- Converted to ES6, using Babel.js to transpile to ES5.
+
 ##### 2.2.2 - 04 March 2015
 
 ###### Backwards compatible bug fixes
-- #312 - UMDifying js-data-angular  
+- #312 - UMDifying js-data-angular
 - #313 - DSHttpAdapter#find/create/update/destroy do not call queryTransform
 
 ##### 2.2.1 - 25 February 2015
