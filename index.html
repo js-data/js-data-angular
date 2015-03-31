@@ -1,34 +1,25 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en-us">
   <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta charset="UTF-8">
     <title>Js-data-angular by js-data</title>
-
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
   </head>
   <body>
-    <div class="wrapper">
-      <header>
-        <h1>Js-data-angular</h1>
-        <p>Angular wrapper for js-data</p>
+    <section class="page-header">
+      <h1 class="project-name">Js-data-angular</h1>
+      <h2 class="project-tagline">Angular wrapper for js-data</h2>
+      <a href="https://github.com/js-data/js-data-angular" class="btn">View on GitHub</a>
+      <a href="https://github.com/js-data/js-data-angular/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/js-data/js-data-angular/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
 
-        <p class="view"><a href="https://github.com/js-data/js-data-angular">View the Project on GitHub <small>js-data/js-data-angular</small></a></p>
-
-
-        <ul>
-          <li><a href="https://github.com/js-data/js-data-angular/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/js-data/js-data-angular/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/js-data/js-data-angular">View On <strong>GitHub</strong></a></li>
-        </ul>
-      </header>
-      <section>
-        <p><img src="https://raw.githubusercontent.com/js-data/js-data/master/js-data.png" alt="js-data logo" title="js-data" align="right" width="64" height="64"></p>
+    <section class="main-content">
+      <p><img src="https://raw.githubusercontent.com/js-data/js-data/master/js-data.png" alt="js-data logo" title="js-data" align="right" width="64" height="64"></p>
 
 <h2>
 <a id="js-data-angular-----" class="anchor" href="#js-data-angular-----" aria-hidden="true"><span class="octicon octicon-link"></span></a>js-data-angular <a href="https://www.npmjs.org/package/js-data-angular"><img src="https://img.shields.io/bower/v/js-data-angular.svg?style=flat-square" alt="bower version"></a> <a href="https://www.npmjs.org/package/js-data-angular"><img src="https://img.shields.io/npm/v/js-data-angular.svg?style=flat-square" alt="npm version"></a> <a href="https://circleci.com/gh/js-data/js-data-angular/tree/master"><img src="https://img.shields.io/circleci/project/js-data/js-data-angular/master.svg?style=flat-square" alt="Circle CI"></a> <a href="https://www.npmjs.org/package/js-data-angular"><img src="https://img.shields.io/npm/dm/js-data-angular.svg?style=flat-square" alt="npm downloads"></a> <a href="https://github.com/js-data/js-data-angular/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="License"></a>
@@ -97,39 +88,39 @@
 
 <p>Load <code>js-data-angular.js</code> after <code>js-data.js</code>.</p>
 
-<div class="highlight highlight-js"><pre>angular.module(<span class="pl-s1"><span class="pl-pds">'</span>myApp<span class="pl-pds">'</span></span>, [<span class="pl-s1"><span class="pl-pds">'</span>js-data<span class="pl-pds">'</span></span>]);</pre></div>
+<div class="highlight highlight-js"><pre>angular.module(<span class="pl-s"><span class="pl-pds">'</span>myApp<span class="pl-pds">'</span></span>, [<span class="pl-s"><span class="pl-pds">'</span>js-data<span class="pl-pds">'</span></span>]);</pre></div>
 
-<div class="highlight highlight-js"><pre>angular.module(<span class="pl-s1"><span class="pl-pds">'</span>myApp<span class="pl-pds">'</span></span>).factory(<span class="pl-s1"><span class="pl-pds">'</span>Post<span class="pl-pds">'</span></span>, <span class="pl-st">function</span> (<span class="pl-vpf">DS</span>) {
-  <span class="pl-k">return</span> DS.defineResource(<span class="pl-s1"><span class="pl-pds">'</span>post<span class="pl-pds">'</span></span>);
+<div class="highlight highlight-js"><pre>angular.module(<span class="pl-s"><span class="pl-pds">'</span>myApp<span class="pl-pds">'</span></span>).factory(<span class="pl-s"><span class="pl-pds">'</span>Post<span class="pl-pds">'</span></span>, <span class="pl-k">function</span> (<span class="pl-smi">DS</span>) {
+  <span class="pl-k">return</span> DS.defineResource(<span class="pl-s"><span class="pl-pds">'</span>post<span class="pl-pds">'</span></span>);
 });
-angular.module(<span class="pl-s1"><span class="pl-pds">'</span>myApp<span class="pl-pds">'</span></span>).factory(<span class="pl-s1"><span class="pl-pds">'</span>Comment<span class="pl-pds">'</span></span>, <span class="pl-st">function</span> (<span class="pl-vpf">DS</span>) {
-  <span class="pl-k">return</span> DS.defineResource(<span class="pl-s1"><span class="pl-pds">'</span>comment<span class="pl-pds">'</span></span>);
+angular.module(<span class="pl-s"><span class="pl-pds">'</span>myApp<span class="pl-pds">'</span></span>).factory(<span class="pl-s"><span class="pl-pds">'</span>Comment<span class="pl-pds">'</span></span>, <span class="pl-k">function</span> (<span class="pl-smi">DS</span>) {
+  <span class="pl-k">return</span> DS.defineResource(<span class="pl-s"><span class="pl-pds">'</span>comment<span class="pl-pds">'</span></span>);
 });</pre></div>
 
-<div class="highlight highlight-js"><pre>app.controller(<span class="pl-s1"><span class="pl-pds">'</span>postCtrl<span class="pl-pds">'</span></span>, <span class="pl-st">function</span> (<span class="pl-vpf">$scope</span>, <span class="pl-vpf">$routeParams</span>, <span class="pl-vpf">Post</span>, <span class="pl-vpf">Comment</span>) {
+<div class="highlight highlight-js"><pre>app.controller(<span class="pl-s"><span class="pl-pds">'</span>postCtrl<span class="pl-pds">'</span></span>, <span class="pl-k">function</span> (<span class="pl-smi">$scope</span>, <span class="pl-smi">$routeParams</span>, <span class="pl-smi">Post</span>, <span class="pl-smi">Comment</span>) {
   <span class="pl-c">// it's up to your server to know how to interpret this query</span>
   <span class="pl-c">// or you can teach js-data how to understand your servers' query language</span>
-  <span class="pl-s">var</span> query <span class="pl-k">=</span> {
-    postId<span class="pl-k">:</span> $routeParams.<span class="pl-sc">id</span>
+  <span class="pl-k">var</span> query <span class="pl-k">=</span> {
+    postId<span class="pl-k">:</span> $routeParams.<span class="pl-c1">id</span>
   };
 
-  Post.<span class="pl-s3">find</span>($routeParams.<span class="pl-sc">id</span>);
+  Post.<span class="pl-c1">find</span>($routeParams.<span class="pl-c1">id</span>);
   Comment.findAll(query);
 
   <span class="pl-c">// My goodness this was easy</span>
-  Post.bindOne($routeParams.<span class="pl-sc">id</span>, $scope, <span class="pl-s1"><span class="pl-pds">'</span>post<span class="pl-pds">'</span></span>);
-  Comment.bindAll(query, $scope, <span class="pl-s1"><span class="pl-pds">'</span>comments<span class="pl-pds">'</span></span>);
+  Post.bindOne($routeParams.<span class="pl-c1">id</span>, $scope, <span class="pl-s"><span class="pl-pds">'</span>post<span class="pl-pds">'</span></span>);
+  Comment.bindAll(query, $scope, <span class="pl-s"><span class="pl-pds">'</span>comments<span class="pl-pds">'</span></span>);
 
   <span class="pl-c">// Long form (same effect as above)</span>
-  $scope.$<span class="pl-s3">watch</span>(<span class="pl-st">function</span> () {
-    <span class="pl-k">return</span> Post.<span class="pl-sc">lastModified</span>($routeParams.<span class="pl-sc">id</span>);
-  }, <span class="pl-st">function</span> () {
-    $scope.post <span class="pl-k">=</span> Post.get($routeParams.<span class="pl-sc">id</span>);
+  $scope.$<span class="pl-c1">watch</span>(<span class="pl-k">function</span> () {
+    <span class="pl-k">return</span> Post.<span class="pl-c1">lastModified</span>($routeParams.<span class="pl-c1">id</span>);
+  }, <span class="pl-k">function</span> () {
+    $scope.post <span class="pl-k">=</span> Post.get($routeParams.<span class="pl-c1">id</span>);
   });
-  $scope.$<span class="pl-s3">watch</span>(<span class="pl-st">function</span> () {
+  $scope.$<span class="pl-c1">watch</span>(<span class="pl-k">function</span> () {
     <span class="pl-c">// Changes when anything in the Comment collection is modified</span>
-    <span class="pl-k">return</span> Comment.<span class="pl-sc">lastModified</span>();
-  }, <span class="pl-st">function</span> () {
+    <span class="pl-k">return</span> Comment.<span class="pl-c1">lastModified</span>();
+  }, <span class="pl-k">function</span> () {
     $scope.comments <span class="pl-k">=</span> Comment.filter(query);
   });
 });</pre></div>
@@ -193,13 +184,16 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.</p>
-      </section>
-      <footer>
-        <p>This project is maintained by <a href="https://github.com/js-data">js-data</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/js-data/js-data-angular">Js-data-angular</a> is maintained by <a href="https://github.com/js-data">js-data</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
       </footer>
-    </div>
-    <script src="javascripts/scale.fix.js"></script>
-    
+
+    </section>
+
+  
   </body>
 </html>
+
