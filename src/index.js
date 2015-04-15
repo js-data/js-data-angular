@@ -59,6 +59,11 @@ let adapters = [
     project: 'js-data-firebase',
     name: 'firebase',
     class: 'DSFirebaseAdapter'
+  },
+  {
+    project: 'js-data-sql',
+    name: 'sql',
+    class: 'DSSqlAdapter'
   }
 ];
 
