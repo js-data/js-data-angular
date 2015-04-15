@@ -166,6 +166,9 @@ class DSProvider {
       try {
         return scope.$watch(() => _this.lastModified(resourceName, id), () => {
           let item = _this.get(resourceName, id);
+          if (item) {
+            _this.compute(resourceName, id);
+          }
           DSUtils.set(scope, expr, item);
           if (cb) {
             cb(null, item);

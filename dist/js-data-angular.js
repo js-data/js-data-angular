@@ -1,6 +1,6 @@
 /*!
  * js-data-angular
- * @version 2.3.0 - Homepage <https://www.js-data.io/docs/js-data-angular/>
+ * @version 2.4.0 - Homepage <https://www.js-data.io/docs/js-data-angular/>
  * @author Jason Dobry <jason.dobry@gmail.com>
  * @copyright (c) 2014-2015 Jason Dobry 
  * @license MIT <https://github.com/js-data/js-data-angular/blob/master/LICENSE>
@@ -225,6 +225,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return _this.lastModified(resourceName, id);
 	      }, function () {
 	        var item = _this.get(resourceName, id);
+	        if (item) {
+	          _this.compute(resourceName, id);
+	        }
 	        DSUtils.set(scope, expr, item);
 	        if (cb) {
 	          cb(null, item);

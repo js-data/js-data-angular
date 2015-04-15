@@ -1,3 +1,8 @@
+##### 2.4.0 - 15 April 2015
+
+###### Backwards compatible API changes
+- #327 - `bindOne` now updates computed properties on change
+
 ##### 2.3.0 - 15 April 2015
 
 ###### Backwards compatible API changes
