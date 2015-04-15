@@ -59,6 +59,11 @@ let adapters = [
     project: 'js-data-firebase',
     name: 'firebase',
     class: 'DSFirebaseAdapter'
+  },
+  {
+    project: 'js-data-sql',
+    name: 'sql',
+    class: 'DSSqlAdapter'
   }
 ];
 
@@ -208,6 +213,7 @@ class DSProvider {
             if (adapters[j].loaded && !adapters[j].registered) {
               adapters[j].registered = true;
               store.registerAdapter(adapters[j].name, args[i]);
+              break;
             }
           }
         }
