@@ -1,3 +1,11 @@
+##### 2.3.0 - 15 April 2015
+
+###### Backwards compatible API changes
+- #328 - Add support for `js-data-sql` adapter
+
+###### Backwards compatible bug fixes
+- #328 - Fixed adapter registration
+
 ##### 2.2.3 - 08 March 2015
 
 ###### Other

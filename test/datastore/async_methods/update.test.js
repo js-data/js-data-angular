@@ -102,20 +102,26 @@ describe('DS.update', function () {
 
     $httpBackend.flush();
 
-    $httpBackend.expectPUT('http://test.angular-cache.com/user/4/comment/6', { content: 'stuff' }).respond(200, testComment2);
+    $httpBackend.expectPUT('http://test.angular-cache.com/user/4/comment/6', { content: 'stuff', other: 'stuff' }).respond(200, testComment2);
 
     var comment = DS.inject('comment', testComment2);
 
-    function onBeforeUpdate(resourceName, attrs) {
-      attrs.other = 'stuff';
-      assert.equal(resourceName, 'comment');
-      assert.deepEqual(angular.toJson(attrs), angular.toJson({ content: 'stuff', other: 'stuff' }));
+    function onBeforeUpdate(resource, attrs) {
+      try {
+        attrs.other = 'stuff';
+        assert.equal(angular.toJson(attrs), angular.toJson({ content: 'stuff', other: 'stuff' }));
+      } catch (e) {
+        console.log(e.stack);
+      }
     }
 
-    function onAfterUpdate(resourceName, attrs) {
-      assert.equal(resourceName, 'comment');
-      assert.deepEqual(angular.toJson(attrs), angular.toJson(testComment2));
-      assert.isFalse(testComment2 === attrs);
+    function onAfterUpdate(resource, attrs) {
+      try {
+        assert.deepEqual(angular.toJson(attrs), angular.toJson(testComment2));
+        assert.isFalse(testComment2 === attrs);
+      } catch (e) {
+        console.log(e.stack);
+      }
     }
 
     Comment.on('DS.beforeUpdate', onBeforeUpdate);
@@ -128,8 +134,12 @@ describe('DS.update', function () {
         approvedBy: 4
       }
     }).then(function (comment) {
-      assert.deepEqual(angular.toJson(comment), angular.toJson(testComment2));
-      assert.deepEqual(angular.toJson(comment), angular.toJson(DS.get('comment', 6)));
+      try {
+        assert.deepEqual(angular.toJson(comment), angular.toJson(testComment2));
+        assert.deepEqual(angular.toJson(comment), angular.toJson(DS.get('comment', 6)));
+      } catch (e) {
+        console.log(e.stack);
+      }
     }, function () {
       fail('Should not have failed!');
     });
@@ -147,8 +157,12 @@ describe('DS.update', function () {
         approvedBy: false
       }
     }).then(function (comment) {
-      assert.deepEqual(angular.toJson(comment), angular.toJson(testComment2));
-      assert.deepEqual(angular.toJson(comment), angular.toJson(DS.get('comment', 6)));
+      try {
+        assert.deepEqual(angular.toJson(comment), angular.toJson(testComment2));
+        assert.deepEqual(angular.toJson(comment), angular.toJson(DS.get('comment', 6)));
+      } catch (e) {
+        console.log(e.stack);
+      }
     }, function () {
       fail('Should not have failed!');
     });

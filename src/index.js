@@ -43,27 +43,27 @@ let adapters = [
   {
     project: 'js-data-http',
     name: 'http',
-    class: 'DSHttpAdapter'
+    'class': 'DSHttpAdapter'
   },
   {
     project: 'js-data-localstorage',
     name: 'localstorage',
-    class: 'DSLocalStorageAdapter'
+    'class': 'DSLocalStorageAdapter'
   },
   {
     project: 'js-data-localforage',
     name: 'localforage',
-    class: 'DSLocalForageAdapter'
+    'class': 'DSLocalForageAdapter'
   },
   {
     project: 'js-data-firebase',
     name: 'firebase',
-    class: 'DSFirebaseAdapter'
+    'class': 'DSFirebaseAdapter'
   },
   {
     project: 'js-data-sql',
     name: 'sql',
-    class: 'DSSqlAdapter'
+    'class': 'DSSqlAdapter'
   }
 ];
 

@@ -104,11 +104,11 @@ module.exports = function (grunt) {
         },
         module: {
           loaders: [
-            { test: /(src)(.+)\.js$/, exclude: /node_modules/, loader: 'babel-loader?blacklist=useStrict' }
+            { test: /(.+)\.js$/, exclude: /node_modules/, loader: 'babel-loader?blacklist=useStrict' }
           ],
           preLoaders: [
             {
-              test: /(src)(.+)\.js$|(test)(.+)\.js$/, // include .js files
+              test: /(.+)\.js$/, // include .js files
               exclude: /node_modules/, // exclude any and all files in the node_modules folder
               loader: "jshint-loader?failOnHint=true"
             }

@@ -1,6 +1,6 @@
 /*!
  * js-data-angular
- * @version 2.2.3 - Homepage <https://www.js-data.io/docs/js-data-angular/>
+ * @version 2.3.0 - Homepage <https://www.js-data.io/docs/js-data-angular/>
  * @author Jason Dobry <jason.dobry@gmail.com>
  * @copyright (c) 2014-2015 Jason Dobry 
  * @license MIT <https://github.com/js-data/js-data-angular/blob/master/LICENSE>
@@ -63,10 +63,13 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-	var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
+	var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } };
 
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
 	/*jshint loopfunc:true*/
 	var angular = undefined,
 	    JSData = undefined;
@@ -80,7 +83,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  } catch (e) {}
 	}
 	if (!JSData) {
-	  throw new Error("js-data must be loaded!");
+	  throw new Error('js-data must be loaded!');
 	}
 	try {
 	  angular = __webpack_require__(2);
@@ -92,7 +95,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  } catch (e) {}
 	}
 	if (!angular) {
-	  throw new Error("angular must be loaded!");
+	  throw new Error('angular must be loaded!');
 	}
 
 	var DSUtils = JSData.DSUtils;
@@ -106,24 +109,28 @@ return /******/ (function(modules) { // webpackBootstrap
 	var httpLoaded = false;
 
 	var adapters = [{
-	  project: "js-data-http",
-	  name: "http",
-	  "class": "DSHttpAdapter"
+	  project: 'js-data-http',
+	  name: 'http',
+	  'class': 'DSHttpAdapter'
 	}, {
-	  project: "js-data-localstorage",
-	  name: "localstorage",
-	  "class": "DSLocalStorageAdapter"
+	  project: 'js-data-localstorage',
+	  name: 'localstorage',
+	  'class': 'DSLocalStorageAdapter'
 	}, {
-	  project: "js-data-localforage",
-	  name: "localforage",
-	  "class": "DSLocalForageAdapter"
+	  project: 'js-data-localforage',
+	  name: 'localforage',
+	  'class': 'DSLocalForageAdapter'
 	}, {
-	  project: "js-data-firebase",
-	  name: "firebase",
-	  "class": "DSFirebaseAdapter"
+	  project: 'js-data-firebase',
+	  name: 'firebase',
+	  'class': 'DSFirebaseAdapter'
+	}, {
+	  project: 'js-data-sql',
+	  name: 'sql',
+	  'class': 'DSSqlAdapter'
 	}];
 
-	var functionsToWrap = ["compute", "digest", "eject", "inject", "link", "linkAll", "linkInverse", "unlinkInverse"];
+	var functionsToWrap = ['compute', 'digest', 'eject', 'inject', 'link', 'linkAll', 'linkInverse', 'unlinkInverse'];
 
 	function registerAdapter(adapter) {
 	  var Adapter = undefined;
@@ -133,15 +140,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	  } catch (e) {}
 
 	  if (!Adapter) {
-	    Adapter = window[adapter["class"]];
+	    Adapter = window[adapter['class']];
 	  }
 
 	  if (Adapter) {
-	    if (adapter.name === "http") {
+	    if (adapter.name === 'http') {
 	      httpLoaded = true;
 	    }
 	    adapter.loaded = true;
-	    angular.module("js-data").provider(adapter["class"], function () {
+	    angular.module('js-data').provider(adapter['class'], function () {
 	      var _this = this;
 	      _this.defaults = {};
 	      _this.$get = [function () {
@@ -159,7 +166,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  for (var i = 0; i < adapters.length; i++) {
 	    if (adapters[i].loaded) {
-	      deps.push(adapters[i]["class"]);
+	      deps.push(adapters[i]['class']);
 	    }
 	  }
 
@@ -173,11 +180,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (!_this.definitions[resourceName]) {
 	      throw new DSErrors.NER(resourceName);
 	    } else if (!DSUtils.isObject(params)) {
-	      throw new DSErrors.IA("\"params\" must be an object!");
+	      throw new DSErrors.IA('"params" must be an object!');
 	    } else if (!DSUtils.isObject(scope)) {
-	      throw new DSErrors.IA("\"scope\" must be an object!");
+	      throw new DSErrors.IA('"scope" must be an object!');
 	    } else if (!DSUtils.isString(expr)) {
-	      throw new DSErrors.IA("\"expr\" must be a string!");
+	      throw new DSErrors.IA('"expr" must be a string!');
 	    }
 
 	    try {
@@ -206,11 +213,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (!_this.definitions[resourceName]) {
 	      throw new DSErrors.NER(resourceName);
 	    } else if (!DSUtils.isString(id) && !DSUtils.isNumber(id)) {
-	      throw new DSErrors.IA("\"id\" must be a string or a number!");
+	      throw new DSErrors.IA('"id" must be a string or a number!');
 	    } else if (!DSUtils.isObject(scope)) {
-	      throw new DSErrors.IA("\"scope\" must be an object!");
+	      throw new DSErrors.IA('"scope" must be an object!');
 	    } else if (!DSUtils.isString(expr)) {
-	      throw new DSErrors.IA("\"expr\" must be a string!");
+	      throw new DSErrors.IA('"expr" must be a string!');
 	    }
 
 	    try {
@@ -267,33 +274,36 @@ return /******/ (function(modules) { // webpackBootstrap
 	          if (adapters[j].loaded && !adapters[j].registered) {
 	            adapters[j].registered = true;
 	            store.registerAdapter(adapters[j].name, args[i]);
+	            break;
 	          }
 	        }
 	      }
 	    }
 
+	    var _loop = function () {
+	      var name = functionsToWrap[k];
+	      originals[name] = store[name];
+	      store[name] = function () {
+	        for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+	          args[_key2] = arguments[_key2];
+	        }
+
+	        if (!$rootScope.$$phase) {
+	          return $rootScope.$apply(function () {
+	            return originals[name].apply(store, args);
+	          });
+	        }
+	        return originals[name].apply(store, args);
+	      };
+	    };
+
 	    // Wrap certain sync functions with $apply
 	    for (var k = 0; k < functionsToWrap.length; k++) {
-	      (function () {
-	        var name = functionsToWrap[k];
-	        originals[name] = store[name];
-	        store[name] = function () {
-	          for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-	            args[_key2] = arguments[_key2];
-	          }
-
-	          if (!$rootScope.$$phase) {
-	            return $rootScope.$apply(function () {
-	              return originals[name].apply(store, args);
-	            });
-	          }
-	          return originals[name].apply(store, args);
-	        };
-	      })();
+	      _loop();
 	    }
 
 	    // Hook into the digest loop
-	    if (typeof Object.observe !== "function" || typeof Array.observe !== "function") {
+	    if (typeof Object.observe !== 'function' || typeof Array.observe !== 'function') {
 	      $rootScope.$watch(function () {
 	        return store.observe.Platform.performMicrotaskCheckpoint();
 	      });
@@ -302,14 +312,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return store;
 	  }
 
-	  deps.push("$rootScope");
-	  deps.push("$q");
+	  deps.push('$rootScope');
+	  deps.push('$q');
 	  deps.push(load);
 
 	  _this.$get = deps;
 	};
 
-	angular.module("js-data", ["ng"]).value("DSUtils", JSData.DSUtils).value("DSErrors", JSData.DSErrors).provider("DS", DSProvider);
+	angular.module('js-data', ['ng']).value('DSUtils', JSData.DSUtils).value('DSErrors', JSData.DSErrors).provider('DS', DSProvider);
 
 	for (var i = 0; i < adapters.length; i++) {
 	  registerAdapter(adapters[i]);
@@ -322,38 +332,37 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _classCallCheck(this, Defaults);
 	      }
 
-	      _createClass(Defaults, {
-	        queryTransform: {
-	          value: function queryTransform(resourceConfig, params) {
-	            return params;
-	          }
-	        },
-	        deserialize: {
-	          value: function deserialize(resourceConfig, data) {
-	            return data ? "data" in data ? data.data : data : data;
-	          }
-	        },
-	        serialize: {
-	          value: function serialize(resourceConfig, data) {
-	            return data;
-	          }
-	        },
-	        log: {
-	          value: function log() {}
-	        },
-	        error: {
-	          value: function error() {}
+	      _createClass(Defaults, [{
+	        key: 'queryTransform',
+	        value: function queryTransform(resourceConfig, params) {
+	          return params;
 	        }
-	      });
+	      }, {
+	        key: 'deserialize',
+	        value: function deserialize(resourceConfig, data) {
+	          return data ? 'data' in data ? data.data : data : data;
+	        }
+	      }, {
+	        key: 'serialize',
+	        value: function serialize(resourceConfig, data) {
+	          return data;
+	        }
+	      }, {
+	        key: 'log',
+	        value: function log() {}
+	      }, {
+	        key: 'error',
+	        value: function error() {}
+	      }]);
 
 	      return Defaults;
 	    })();
 
 	    var defaultsPrototype = Defaults.prototype;
 
-	    defaultsPrototype.basePath = "";
+	    defaultsPrototype.basePath = '';
 
-	    defaultsPrototype.forceTrailingSlash = "";
+	    defaultsPrototype.forceTrailingSlash = '';
 
 	    defaultsPrototype.httpConfig = {};
 
@@ -364,171 +373,170 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.defaults = new Defaults();
 	        if (console) {
 	          this.defaults.log = function (a, b) {
-	            return console[typeof console.info === "function" ? "info" : "log"](a, b);
+	            return console[typeof console.info === 'function' ? 'info' : 'log'](a, b);
 	          };
 	        }
 	        if (console) {
 	          this.defaults.error = function (a, b) {
-	            return console[typeof console.error === "function" ? "error" : "log"](a, b);
+	            return console[typeof console.error === 'function' ? 'error' : 'log'](a, b);
 	          };
 	        }
 	        deepMixIn(this.defaults, options);
 	      }
 
-	      _createClass(DSHttpAdapter, {
-	        getPath: {
-	          value: function getPath(method, resourceConfig, id, options) {
-	            var _this = this;
-	            options = options || {};
-	            var args = [options.basePath || _this.defaults.basePath || resourceConfig.basePath, resourceConfig.getEndpoint(isString(id) || isNumber(id) || method === "create" ? id : null, options)];
-	            if (method === "find" || method === "update" || method === "destroy") {
-	              args.push(id);
-	            }
-	            return makePath.apply(DSUtils, args);
+	      _createClass(DSHttpAdapter, [{
+	        key: 'getPath',
+	        value: function getPath(method, resourceConfig, id, options) {
+	          var _this = this;
+	          options = options || {};
+	          var args = [options.basePath || _this.defaults.basePath || resourceConfig.basePath, resourceConfig.getEndpoint(isString(id) || isNumber(id) || method === 'create' ? id : null, options)];
+	          if (method === 'find' || method === 'update' || method === 'destroy') {
+	            args.push(id);
 	          }
-	        },
-	        GET: {
-	          value: function GET(url, config) {
-	            config = config || {};
-	            if (!("method" in config)) {
-	              config.method = "get";
-	            }
-	            return this.HTTP(deepMixIn(config, {
-	              url: url
-	            }));
-	          }
-	        },
-	        POST: {
-	          value: function POST(url, attrs, config) {
-	            config = config || {};
-	            config = DSUtils.copy(config);
-	            if (!("method" in config)) {
-	              config.method = "post";
-	            }
-	            return this.HTTP(deepMixIn(config, {
-	              url: url,
-	              data: attrs
-	            }));
-	          }
-	        },
-	        PUT: {
-	          value: function PUT(url, attrs, config) {
-	            config = config || {};
-	            if (!("method" in config)) {
-	              config.method = "put";
-	            }
-	            return this.HTTP(deepMixIn(config, {
-	              url: url,
-	              data: attrs || {}
-	            }));
-	          }
-	        },
-	        DEL: {
-	          value: function DEL(url, config) {
-	            config = config || {};
-	            if (!("method" in config)) {
-	              config.method = "delete";
-	            }
-	            return this.HTTP(deepMixIn(config, {
-	              url: url
-	            }));
-	          }
-	        },
-	        find: {
-	          value: function find(resourceConfig, id, options) {
-	            var _this = this;
-	            options = options ? copy(options) : {};
-	            options.suffix = options.suffix || resourceConfig.suffix;
-	            options.params = options.params || {};
-	            options.params = _this.defaults.queryTransform(resourceConfig, options.params);
-	            return _this.GET(_this.getPath("find", resourceConfig, id, options), options).then(function (data) {
-	              var item = (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig, data);
-	              return !item ? JSData.DSUtils.Promise.reject(new Error("Not Found!")) : item;
-	            });
-	          }
-	        },
-	        findAll: {
-	          value: function findAll(resourceConfig, params, options) {
-	            var _this = this;
-	            options = options ? copy(options) : {};
-	            options.suffix = options.suffix || resourceConfig.suffix;
-	            options.params = options.params || {};
-	            if (params) {
-	              params = _this.defaults.queryTransform(resourceConfig, params);
-	              deepMixIn(options.params, params);
-	            }
-	            return _this.GET(_this.getPath("findAll", resourceConfig, params, options), options).then(function (data) {
-	              return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig, data);
-	            });
-	          }
-	        },
-	        create: {
-	          value: function create(resourceConfig, attrs, options) {
-	            var _this = this;
-	            options = options ? copy(options) : {};
-	            options.suffix = options.suffix || resourceConfig.suffix;
-	            options.params = options.params || {};
-	            options.params = _this.defaults.queryTransform(resourceConfig, options.params);
-	            return _this.POST(_this.getPath("create", resourceConfig, attrs, options), (options.serialize ? options.serialize : _this.defaults.serialize)(resourceConfig, attrs), options).then(function (data) {
-	              return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig, data);
-	            });
-	          }
-	        },
-	        update: {
-	          value: function update(resourceConfig, id, attrs, options) {
-	            var _this = this;
-	            options = options ? copy(options) : {};
-	            options.suffix = options.suffix || resourceConfig.suffix;
-	            options.params = options.params || {};
-	            options.params = _this.defaults.queryTransform(resourceConfig, options.params);
-	            return _this.PUT(_this.getPath("update", resourceConfig, id, options), (options.serialize ? options.serialize : _this.defaults.serialize)(resourceConfig, attrs), options).then(function (data) {
-	              return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig, data);
-	            });
-	          }
-	        },
-	        updateAll: {
-	          value: function updateAll(resourceConfig, attrs, params, options) {
-	            var _this = this;
-	            options = options ? copy(options) : {};
-	            options.suffix = options.suffix || resourceConfig.suffix;
-	            options.params = options.params || {};
-	            if (params) {
-	              params = _this.defaults.queryTransform(resourceConfig, params);
-	              deepMixIn(options.params, params);
-	            }
-	            return this.PUT(_this.getPath("updateAll", resourceConfig, attrs, options), (options.serialize ? options.serialize : _this.defaults.serialize)(resourceConfig, attrs), options).then(function (data) {
-	              return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig, data);
-	            });
-	          }
-	        },
-	        destroy: {
-	          value: function destroy(resourceConfig, id, options) {
-	            var _this = this;
-	            options = options ? copy(options) : {};
-	            options.suffix = options.suffix || resourceConfig.suffix;
-	            options.params = options.params || {};
-	            options.params = _this.defaults.queryTransform(resourceConfig, options.params);
-	            return _this.DEL(_this.getPath("destroy", resourceConfig, id, options), options).then(function (data) {
-	              return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig, data);
-	            });
-	          }
-	        },
-	        destroyAll: {
-	          value: function destroyAll(resourceConfig, params, options) {
-	            var _this = this;
-	            options = options ? copy(options) : {};
-	            options.suffix = options.suffix || resourceConfig.suffix;
-	            options.params = options.params || {};
-	            if (params) {
-	              params = _this.defaults.queryTransform(resourceConfig, params);
-	              deepMixIn(options.params, params);
-	            }
-	            return this.DEL(_this.getPath("destroyAll", resourceConfig, params, options), options).then(function (data) {
-	              return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig, data);
-	            });
-	          }
+	          return makePath.apply(DSUtils, args);
 	        }
-	      });
+	      }, {
+	        key: 'GET',
+	        value: function GET(url, config) {
+	          config = config || {};
+	          if (!('method' in config)) {
+	            config.method = 'get';
+	          }
+	          return this.HTTP(deepMixIn(config, {
+	            url: url
+	          }));
+	        }
+	      }, {
+	        key: 'POST',
+	        value: function POST(url, attrs, config) {
+	          config = config || {};
+	          config = DSUtils.copy(config);
+	          if (!('method' in config)) {
+	            config.method = 'post';
+	          }
+	          return this.HTTP(deepMixIn(config, {
+	            url: url,
+	            data: attrs
+	          }));
+	        }
+	      }, {
+	        key: 'PUT',
+	        value: function PUT(url, attrs, config) {
+	          config = config || {};
+	          if (!('method' in config)) {
+	            config.method = 'put';
+	          }
+	          return this.HTTP(deepMixIn(config, {
+	            url: url,
+	            data: attrs || {}
+	          }));
+	        }
+	      }, {
+	        key: 'DEL',
+	        value: function DEL(url, config) {
+	          config = config || {};
+	          if (!('method' in config)) {
+	            config.method = 'delete';
+	          }
+	          return this.HTTP(deepMixIn(config, {
+	            url: url
+	          }));
+	        }
+	      }, {
+	        key: 'find',
+	        value: function find(resourceConfig, id, options) {
+	          var _this = this;
+	          options = options ? copy(options) : {};
+	          options.suffix = options.suffix || resourceConfig.suffix;
+	          options.params = options.params || {};
+	          options.params = _this.defaults.queryTransform(resourceConfig, options.params);
+	          return _this.GET(_this.getPath('find', resourceConfig, id, options), options).then(function (data) {
+	            var item = (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig, data);
+	            return !item ? JSData.DSUtils.Promise.reject(new Error('Not Found!')) : item;
+	          });
+	        }
+	      }, {
+	        key: 'findAll',
+	        value: function findAll(resourceConfig, params, options) {
+	          var _this = this;
+	          options = options ? copy(options) : {};
+	          options.suffix = options.suffix || resourceConfig.suffix;
+	          options.params = options.params || {};
+	          if (params) {
+	            params = _this.defaults.queryTransform(resourceConfig, params);
+	            deepMixIn(options.params, params);
+	          }
+	          return _this.GET(_this.getPath('findAll', resourceConfig, params, options), options).then(function (data) {
+	            return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig, data);
+	          });
+	        }
+	      }, {
+	        key: 'create',
+	        value: function create(resourceConfig, attrs, options) {
+	          var _this = this;
+	          options = options ? copy(options) : {};
+	          options.suffix = options.suffix || resourceConfig.suffix;
+	          options.params = options.params || {};
+	          options.params = _this.defaults.queryTransform(resourceConfig, options.params);
+	          return _this.POST(_this.getPath('create', resourceConfig, attrs, options), (options.serialize ? options.serialize : _this.defaults.serialize)(resourceConfig, attrs), options).then(function (data) {
+	            return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig, data);
+	          });
+	        }
+	      }, {
+	        key: 'update',
+	        value: function update(resourceConfig, id, attrs, options) {
+	          var _this = this;
+	          options = options ? copy(options) : {};
+	          options.suffix = options.suffix || resourceConfig.suffix;
+	          options.params = options.params || {};
+	          options.params = _this.defaults.queryTransform(resourceConfig, options.params);
+	          return _this.PUT(_this.getPath('update', resourceConfig, id, options), (options.serialize ? options.serialize : _this.defaults.serialize)(resourceConfig, attrs), options).then(function (data) {
+	            return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig, data);
+	          });
+	        }
+	      }, {
+	        key: 'updateAll',
+	        value: function updateAll(resourceConfig, attrs, params, options) {
+	          var _this = this;
+	          options = options ? copy(options) : {};
+	          options.suffix = options.suffix || resourceConfig.suffix;
+	          options.params = options.params || {};
+	          if (params) {
+	            params = _this.defaults.queryTransform(resourceConfig, params);
+	            deepMixIn(options.params, params);
+	          }
+	          return this.PUT(_this.getPath('updateAll', resourceConfig, attrs, options), (options.serialize ? options.serialize : _this.defaults.serialize)(resourceConfig, attrs), options).then(function (data) {
+	            return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig, data);
+	          });
+	        }
+	      }, {
+	        key: 'destroy',
+	        value: function destroy(resourceConfig, id, options) {
+	          var _this = this;
+	          options = options ? copy(options) : {};
+	          options.suffix = options.suffix || resourceConfig.suffix;
+	          options.params = options.params || {};
+	          options.params = _this.defaults.queryTransform(resourceConfig, options.params);
+	          return _this.DEL(_this.getPath('destroy', resourceConfig, id, options), options).then(function (data) {
+	            return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig, data);
+	          });
+	        }
+	      }, {
+	        key: 'destroyAll',
+	        value: function destroyAll(resourceConfig, params, options) {
+	          var _this = this;
+	          options = options ? copy(options) : {};
+	          options.suffix = options.suffix || resourceConfig.suffix;
+	          options.params = options.params || {};
+	          if (params) {
+	            params = _this.defaults.queryTransform(resourceConfig, params);
+	            deepMixIn(options.params, params);
+	          }
+	          return this.DEL(_this.getPath('destroyAll', resourceConfig, params, options), options).then(function (data) {
+	            return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig, data);
+	          });
+	        }
+	      }]);
 
 	      return DSHttpAdapter;
 	    })();
@@ -540,17 +548,17 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      var _this = this;
 	      _this.defaults = {};
-	      _this.$get = ["$http", "DS", "$q", function ($http, DS, $q) {
+	      _this.$get = ['$http', 'DS', '$q', function ($http, DS, $q) {
 	        dsHttpAdapterPrototype.HTTP = function (config) {
 	          var _this = this;
 	          var start = new Date();
 	          config = copy(config);
 	          config = deepMixIn(config, _this.defaults.httpConfig);
-	          if (_this.defaults.forceTrailingSlash && config.url[config.url.length - 1] !== "/") {
-	            config.url += "/";
+	          if (_this.defaults.forceTrailingSlash && config.url[config.url.length - 1] !== '/') {
+	            config.url += '/';
 	          }
 	          config.method = config.method.toUpperCase();
-	          if (typeof config.data === "object") {
+	          if (typeof config.data === 'object') {
 	            config.data = removeCircular(config.data);
 	          }
 	          var suffix = config.suffix || _this.defaults.suffix;
@@ -559,7 +567,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          }
 
 	          function logResponse(data) {
-	            var str = "" + start.toUTCString() + " - " + data.config.method.toUpperCase() + " " + data.config.url + " - " + data.status + " " + (new Date().getTime() - start.getTime()) + "ms";
+	            var str = '' + start.toUTCString() + ' - ' + data.config.method.toUpperCase() + ' ' + data.config.url + ' - ' + data.status + ' ' + (new Date().getTime() - start.getTime()) + 'ms';
 	            if (data.status >= 200 && data.status < 300) {
 	              if (_this.defaults.log) {
 	                _this.defaults.log(str, data);
@@ -567,7 +575,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	              return data;
 	            } else {
 	              if (_this.defaults.error) {
-	                _this.defaults.error("FAILED: " + str, data);
+	                _this.defaults.error('FAILED: ' + str, data);
 	              }
 	              return $q.reject(data);
 	            }
@@ -577,20 +585,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	        };
 
 	        var adapter = new DSHttpAdapter(_this.defaults);
-	        DS.registerAdapter("http", adapter, { "default": true });
+	        DS.registerAdapter('http', adapter, { 'default': true });
 	        return adapter;
 	      }];
 	    };
 
-	    angular.module("js-data").provider("DSHttpAdapter", DSHttpAdapterProvider);
+	    angular.module('js-data').provider('DSHttpAdapter', DSHttpAdapterProvider);
 	  })();
 	}
-	angular.module("js-data").run(["DS", "DSHttpAdapter", function (DS, DSHttpAdapter) {
-	  return DS.registerAdapter("http", DSHttpAdapter, { "default": true });
+	angular.module('js-data').run(['DS', 'DSHttpAdapter', function (DS, DSHttpAdapter) {
+	  return DS.registerAdapter('http', DSHttpAdapter, { 'default': true });
 	}]);
 
 	// return the module name
-	module.exports = "js-data";
+	exports['default'] = 'js-data';
+	module.exports = exports['default'];
 
 /***/ },
 /* 1 */
