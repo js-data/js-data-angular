@@ -72,7 +72,7 @@ module.exports = function (grunt) {
           files: [
             'bower_components/angular-1.3.2/angular.js',
             'bower_components/angular-mocks-1.3.2/angular-mocks.js',
-            'bower_components/js-data/dist/js-data.js',
+            'node_modules/js-data/dist/js-data.js',
             'dist/js-data-angular.min.js',
             'karma.start.js',
             'test/**/*.js'
@@ -87,24 +87,26 @@ module.exports = function (grunt) {
     },
     webpack: {
       dist: {
+        debug: true,
         entry: './src/index.js',
         output: {
           filename: './dist/js-data-angular.js',
-          libraryTarget: 'umd',
+          libraryTarget: 'umd2',
           library: 'jsDataAngularModuleName'
         },
         externals: {
           'js-data': {
-            amd: 'js-data',
+            amd: 'JSData',
             commonjs: 'js-data',
             commonjs2: 'js-data',
             root: 'JSData'
           },
+          'axios': 'axios',
           'angular': 'angular'
         },
         module: {
           loaders: [
-            { test: /(.+)\.js$/, exclude: /node_modules/, loader: 'babel-loader?blacklist=useStrict' }
+            { test: /(.+)\.js$/, loader: 'babel-loader?blacklist=useStrict' }
           ],
           preLoaders: [
             {

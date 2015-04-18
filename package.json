@@ -1,7 +1,7 @@
 {
   "name": "js-data-angular",
   "description": "Angular wrapper for js-data.",
-  "version": "2.4.0",
+  "version": "3.0.0-beta.1",
   "homepage": "http://www.js-data.io/docs/js-data-angular",
   "repository": {
     "type": "git",
@@ -20,7 +20,7 @@
   ],
   "main": "dist/js-data-angular.js",
   "devDependencies": {
-    "babel-core": "5.1.9",
+    "babel-core": "5.1.10",
     "babel-loader": "5.0.0",
     "grunt": "0.4.5",
     "grunt-contrib-clean": "0.6.0",
@@ -30,27 +30,28 @@
     "grunt-karma-coveralls": "2.5.3",
     "grunt-webpack": "1.0.8",
     "jit-grunt": "0.9.1",
-    "jshint": "2.7.0",
     "jshint-loader": "0.8.3",
     "karma": "0.12.31",
     "karma-chai": "0.1.0",
-    "karma-chrome-launcher": "0.1.7",
-    "karma-coverage": "0.2.7",
+    "karma-chrome-launcher": "0.1.8",
+    "karma-coverage": "0.3.1",
     "karma-firefox-launcher": "0.1.4",
     "karma-mocha": "0.1.10",
     "karma-phantomjs-launcher": "0.1.4",
     "karma-script-launcher": "0.1.0",
     "karma-sinon": "1.0.4",
-    "karma-spec-reporter": "0.0.18",
-    "time-grunt": "1.1.0",
-    "webpack": "1.8.4",
+    "karma-spec-reporter": "0.0.19",
+    "time-grunt": "1.1.1",
     "webpack-dev-server": "1.8.0"
   },
   "scripts": {
     "test": "grunt test"
   },
   "peerDependencies": {
-    "angular": ">=1.1.0",
-    "js-data": ">=1.5.7"
+    "angular": ">=1.1.0"
+  },
+  "dependencies": {
+    "js-data": ">=2.0.0-beta.3",
+    "js-data-http": ">=2.0.0-beta.3"
   }
 }

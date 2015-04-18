@@ -20,3 +20,5 @@ bower_components/
 
 *.iml
 .idea/
+
+build_examples/r.js/bundle.js

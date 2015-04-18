@@ -1,3 +1,5 @@
+##### 3.0.0-beta.1 - 17 April 2015
+
 ##### 2.4.0 - 15 April 2015
 
 ###### Backwards compatible API changes

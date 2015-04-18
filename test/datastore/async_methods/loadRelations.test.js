@@ -12,7 +12,7 @@ describe('DS.loadRelations', function () {
     $httpBackend.expectGET('http://test.angular-cache.com/profile?approvedBy=10&userId=10').respond(200, [profile15]);
     $httpBackend.expectGET('http://test.angular-cache.com/organization/14?approvedBy=10').respond(200, organization14);
 
-    DS.loadRelations('user', 10, ['comment', 'profile', 'organization'], { params: { approvedBy: 10 } }).then(function (user) {
+    DS.loadRelations('user', 10, ['comment', 'profile', 'organization'], { params: { approvedBy: 10 }, findStrictCache: true }).then(function (user) {
       try {
         assert.deepEqual(user.comments[0].id, DS.get('comment', user.comments[0].id).id);
         assert.deepEqual(user.comments[0].user, DS.get('comment', user.comments[0].id).user);
@@ -26,7 +26,7 @@ describe('DS.loadRelations', function () {
         DS.inject('comment', comment19);
         $httpBackend.expectGET('http://test.angular-cache.com/user/20').respond(200, user20);
         $httpBackend.expectGET('http://test.angular-cache.com/user/19').respond(200, user19);
-        DS.loadRelations('comment', 19, ['user']).then(function (comment) {
+        DS.loadRelations('comment', 19, ['user'], { findStrictCache: true }).then(function (comment) {
           try {
             assert.isObject(comment.user);
             assert.equal(comment.user.id, user20.id);
@@ -49,7 +49,9 @@ describe('DS.loadRelations', function () {
       fail(err);
     });
 
-    $httpBackend.flush();
+    setTimeout(function () {
+      $httpBackend.flush();
+    }, 30);
   });
   it('should get an item from the server but not store it if cacheResponse is false', function () {
     DS.inject('user', {
@@ -66,7 +68,7 @@ describe('DS.loadRelations', function () {
     $httpBackend.expectGET('http://test.angular-cache.com/profile?userId=10').respond(200, [profile15]);
     $httpBackend.expectGET('http://test.angular-cache.com/organization/14').respond(200, organization14);
 
-    DS.loadRelations('user', 10, ['comment', 'profile', 'organization'], { cacheResponse: false }).then(function (user) {
+    DS.loadRelations('user', 10, ['comment', 'profile', 'organization'], { cacheResponse: false, findStrictCache: true }).then(function (user) {
       assert.deepEqual(angular.toJson(user.comments), angular.toJson([
         comment11,
         comment12,
@@ -80,11 +82,13 @@ describe('DS.loadRelations', function () {
       assert.isUndefined(DS.get('comment', 13));
       assert.isUndefined(DS.get('organization', 14));
       assert.isUndefined(DS.get('profile', 15));
-    }, function () {
+    }).catch(function (e) {
       fail('should not have failed!');
     });
 
-    $httpBackend.flush();
+    setTimeout(function () {
+      $httpBackend.flush();
+    }, 30);
   });
   it('should correctly propagate errors', function () {
     DS.inject('user', {
@@ -117,7 +121,7 @@ describe('DS.loadRelations', function () {
 
     $httpBackend.expectGET('http://test.angular-cache.com/organization/14/user').respond(200, [copy]);
 
-    DS.loadRelations('organization', organization, ['user']).then(function (organization) {
+    DS.loadRelations('organization', organization, ['user'], { findStrictCache: true }).then(function (organization) {
       assert.equal(organization.users[0].id, 10);
 
       $httpBackend.expectGET('http://test.angular-cache.com/organization/14/user/10/comment').respond(200, [comment11, comment12]);

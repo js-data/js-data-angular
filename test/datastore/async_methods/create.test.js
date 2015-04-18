@@ -177,7 +177,7 @@ describe('DS.create', function () {
     $httpBackend.flush();
   });
   it('should find inverse links', function () {
-    DS.inject('organization', {
+    var organization = DS.inject('organization', {
       id: 77
     });
 
@@ -189,15 +189,14 @@ describe('DS.create', function () {
     DS.create('user', {
       organizationId: 77,
       id: 88
-    }, { upsert: false, findBelongsTo: true }).then(function (user) {
-      var organization = DS.link('organization', 77, ['user']);
+    }, { upsert: false }).then(function (user) {
       assert.isArray(organization.users);
       assert.equal(1, organization.users.length);
       assert.isObject(user.organization);
       assert.isTrue(user.organization === organization);
       assert.isTrue(user === organization.users[0]);
     }, function () {
-      fail('Should not have succeeded!');
+      fail('Should not have failed!');
     });
 
     $httpBackend.flush();
