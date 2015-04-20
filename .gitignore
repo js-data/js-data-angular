@@ -22,3 +22,5 @@ bower_components/
 .idea/
 
 build_examples/r.js/bundle.js
+build_examples/browserify/bundle.js
+build_examples/webpack/bundle.js

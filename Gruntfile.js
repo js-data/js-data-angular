@@ -96,7 +96,7 @@ module.exports = function (grunt) {
         },
         externals: {
           'js-data': {
-            amd: 'JSData',
+            amd: 'js-data',
             commonjs: 'js-data',
             commonjs2: 'js-data',
             root: 'JSData'

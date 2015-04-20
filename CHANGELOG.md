@@ -1,4 +1,14 @@
+##### 3.0.0-beta.2 - 19 April 2015
+
+Added examples of various build setups `./build_examples/`
+
 ##### 3.0.0-beta.1 - 17 April 2015
+
+###### Backwards compatible API changes
+- #306 - Keep it DRY
+
+###### Other
+- #314 - Switch to using peerDependencies
 
 ##### 2.4.0 - 15 April 2015
 
