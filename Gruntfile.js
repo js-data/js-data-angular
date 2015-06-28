@@ -72,7 +72,7 @@ module.exports = function (grunt) {
           files: [
             'bower_components/angular-1.3.2/angular.js',
             'bower_components/angular-mocks-1.3.2/angular-mocks.js',
-            'node_modules/js-data/dist/js-data.js',
+            'node_modules/js-data/dist/js-data.min.js',
             'dist/js-data-angular.min.js',
             'karma.start.js',
             'test/**/*.js'
