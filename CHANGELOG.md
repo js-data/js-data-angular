@@ -1,3 +1,7 @@
+##### 3.0.0-rc.1 - 28 June 2015
+
+Stable Version 3.0.0-rc.1
+
 ##### 3.0.0-beta.2 - 19 April 2015
 
 Added examples of various build setups `./build_examples/`

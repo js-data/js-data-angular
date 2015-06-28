@@ -1,7 +1,7 @@
 /*jshint loopfunc:true*/
-import JSData from 'js-data';
-import DSHttpAdapter from '../node_modules/js-data-http/src/index.js';
-import angular from 'angular';
+let JSData = require('js-data');
+let DSHttpAdapter = require('../node_modules/js-data-http/src/index.js');
+let angular = require('angular');
 
 let { DSUtils, DSErrors } = JSData;
 let { isString, isNumber, isObject, set, resolveId } = DSUtils;
@@ -234,4 +234,5 @@ for (var i = 0; i < adapters.length; i++) {
 }
 
 // return the module name
-export default 'js-data';
+module.exports = 'js-data';
+module.exports.name = 'js-data';

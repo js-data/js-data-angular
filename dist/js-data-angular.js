@@ -1,6 +1,6 @@
 /*!
  * js-data-angular
- * @version 3.0.0-beta.2 - Homepage <https://www.js-data.io/docs/js-data-angular/>
+ * @version 3.0.0-rc.1 - Homepage <https://www.js-data.io/docs/js-data-angular/>
  * @author Jason Dobry <jason.dobry@gmail.com>
  * @copyright (c) 2014-2015 Jason Dobry 
  * @license MIT <https://github.com/js-data/js-data-angular/blob/master/LICENSE>
@@ -65,29 +65,15 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var _interopRequireWildcard = function (obj) { return obj && obj.__esModule ? obj : { 'default': obj }; };
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-	var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } };
-
-	Object.defineProperty(exports, '__esModule', {
-	  value: true
-	});
 	/*jshint loopfunc:true*/
+	var JSData = __webpack_require__(1);
+	var DSHttpAdapter = __webpack_require__(4);
+	var angular = __webpack_require__(2);
 
-	var _JSData = __webpack_require__(1);
-
-	var _JSData2 = _interopRequireWildcard(_JSData);
-
-	var _DSHttpAdapter = __webpack_require__(4);
-
-	var _DSHttpAdapter2 = _interopRequireWildcard(_DSHttpAdapter);
-
-	var _angular = __webpack_require__(2);
-
-	var _angular2 = _interopRequireWildcard(_angular);
-
-	var DSUtils = _JSData2['default'].DSUtils;
-	var DSErrors = _JSData2['default'].DSErrors;
+	var DSUtils = JSData.DSUtils;
+	var DSErrors = JSData.DSErrors;
 	var isString = DSUtils.isString;
 	var isNumber = DSUtils.isNumber;
 	var isObject = DSUtils.isObject;
@@ -127,7 +113,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  if (Adapter) {
 	    adapter.loaded = true;
-	    _angular2['default'].module('js-data').provider(adapter['class'], function () {
+	    angular.module('js-data').provider(adapter['class'], function () {
 	      var _this = this;
 	      _this.defaults = {};
 	      _this.$get = [function () {
@@ -145,7 +131,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  this.$get = ['$http', 'DS', function ($http, DS) {
 	    defaults.http = defaults.http || $http;
-	    var adapter = new _DSHttpAdapter2['default'](defaults);
+	    var adapter = new DSHttpAdapter(defaults);
 	    DS.registerAdapter('http', adapter, { 'default': true });
 	    return adapter;
 	  }];
@@ -165,7 +151,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  _this.defaults = {};
 
-	  _JSData2['default'].DS.prototype.bindAll = function (resourceName, params, scope, expr, cb) {
+	  JSData.DS.prototype.bindAll = function (resourceName, params, scope, expr, cb) {
 	    var _this = this;
 
 	    params = params || {};
@@ -199,7 +185,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  };
 
-	  _JSData2['default'].DS.prototype.bindOne = function (resourceName, id, scope, expr, cb) {
+	  JSData.DS.prototype.bindOne = function (resourceName, id, scope, expr, cb) {
 	    var _this = this;
 
 	    id = resolveId(_this.definitions[resourceName], id);
@@ -242,14 +228,14 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    var $rootScope = args[args.length - 2];
 	    var $q = args[args.length - 1];
-	    var store = new _JSData2['default'].DS(_this.defaults);
+	    var store = new JSData.DS(_this.defaults);
 	    var originals = {};
 
 	    function QPromise(executor) {
 	      var deferred = $q.defer();
 
 	      try {
-	        executor.call(undefined, _angular2['default'].bind(deferred, deferred.resolve), _angular2['default'].bind(deferred, deferred.reject));
+	        executor.call(undefined, angular.bind(deferred, deferred.resolve), angular.bind(deferred, deferred.reject));
 	      } catch (err) {
 	        deferred.reject(err);
 	      }
@@ -315,7 +301,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  _this.$get = deps;
 	};
 
-	_angular2['default'].module('js-data', ['ng']).value('DSUtils', DSUtils).value('DSErrors', DSErrors).value('DSVersion', _JSData2['default'].version).provider('DS', DSProvider).provider('DSHttpAdapter', DSHttpAdapterProvider).run(['DS', 'DSHttpAdapter', function (DS, DSHttpAdapter) {
+	angular.module('js-data', ['ng']).value('DSUtils', DSUtils).value('DSErrors', DSErrors).value('DSVersion', JSData.version).provider('DS', DSProvider).provider('DSHttpAdapter', DSHttpAdapterProvider).run(['DS', 'DSHttpAdapter', function (DS, DSHttpAdapter) {
 	  DS.registerAdapter('http', DSHttpAdapter, { 'default': true });
 	}]);
 
@@ -324,8 +310,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 	// return the module name
-	exports['default'] = 'js-data';
-	module.exports = exports['default'];
+	module.exports = 'js-data';
+	module.exports.name = 'js-data';
 
 /***/ },
 /* 1 */
@@ -362,27 +348,18 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var _interopRequireWildcard = function (obj) { return obj && obj.__esModule ? obj : { 'default': obj }; };
-
-	var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } };
-
 	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-	Object.defineProperty(exports, '__esModule', {
-	  value: true
-	});
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-	var _JSData = __webpack_require__(1);
-
-	var _JSData2 = _interopRequireWildcard(_JSData);
-
+	var JSData = __webpack_require__(1);
 	var axios = null;
 
 	try {
 	  axios = __webpack_require__(5);
 	} catch (e) {}
 
-	var DSUtils = _JSData2['default'].DSUtils;
+	var DSUtils = JSData.DSUtils;
 	var deepMixIn = DSUtils.deepMixIn;
 	var removeCircular = DSUtils.removeCircular;
 	var copy = DSUtils.copy;
@@ -449,11 +426,62 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 
 	  _createClass(DSHttpAdapter, [{
+	    key: 'getEndpoint',
+	    value: function getEndpoint(resourceConfig, id, options) {
+	      var _this2 = this;
+
+	      options = options || {};
+	      options.params = options.params || {};
+
+	      var item = undefined;
+	      var parentKey = resourceConfig.parentKey;
+	      var endpoint = options.hasOwnProperty('endpoint') ? options.endpoint : resourceConfig.endpoint;
+	      var parentField = resourceConfig.parentField;
+	      var parentDef = resourceConfig.getResource(resourceConfig.parent);
+	      var parentId = options.params[parentKey];
+
+	      if (parentId === false || !parentKey || !parentDef) {
+	        if (parentId === false) {
+	          delete options.params[parentKey];
+	        }
+	        return endpoint;
+	      } else {
+	        delete options.params[parentKey];
+
+	        if (DSUtils._sn(id)) {
+	          item = resourceConfig.get(id);
+	        } else if (DSUtils._o(id)) {
+	          item = id;
+	        }
+
+	        if (item) {
+	          parentId = parentId || item[parentKey] || (item[parentField] ? item[parentField][parentDef.idAttribute] : null);
+	        }
+
+	        if (parentId) {
+	          var _ret = (function () {
+	            delete options.endpoint;
+	            var _options = {};
+	            DSUtils.forOwn(options, function (value, key) {
+	              _options[key] = value;
+	            });
+	            return {
+	              v: DSUtils.makePath(_this2.getEndpoint(parentDef, parentId, DSUtils._(parentDef, _options)), parentId, endpoint)
+	            };
+	          })();
+
+	          if (typeof _ret === 'object') return _ret.v;
+	        } else {
+	          return endpoint;
+	        }
+	      }
+	    }
+	  }, {
 	    key: 'getPath',
 	    value: function getPath(method, resourceConfig, id, options) {
 	      var _this = this;
 	      options = options || {};
-	      var args = [options.basePath || _this.defaults.basePath || resourceConfig.basePath, resourceConfig.getEndpoint(isString(id) || isNumber(id) || method === 'create' ? id : null, options)];
+	      var args = [options.basePath || _this.defaults.basePath || resourceConfig.basePath, this.getEndpoint(resourceConfig, isString(id) || isNumber(id) || method === 'create' ? id : null, options)];
 	      if (method === 'find' || method === 'update' || method === 'destroy') {
 	        args.push(id);
 	      }
@@ -479,7 +507,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }
 
 	      function logResponse(data) {
-	        var str = '' + start.toUTCString() + ' - ' + data.config.method.toUpperCase() + ' ' + data.config.url + ' - ' + data.status + ' ' + (new Date().getTime() - start.getTime()) + 'ms';
+	        var str = start.toUTCString() + ' - ' + data.config.method.toUpperCase() + ' ' + data.config.url + ' - ' + data.status + ' ' + (new Date().getTime() - start.getTime()) + 'ms';
 	        if (data.status >= 200 && data.status < 300) {
 	          if (_this.defaults.log) {
 	            _this.defaults.log(str, data);
@@ -644,8 +672,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return DSHttpAdapter;
 	})();
 
-	exports['default'] = DSHttpAdapter;
-	module.exports = exports['default'];
+	module.exports = DSHttpAdapter;
 
 /***/ },
 /* 5 */

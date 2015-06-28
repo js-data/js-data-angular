@@ -1,7 +1,7 @@
 {
   "name": "js-data-angular",
   "description": "Angular wrapper for js-data.",
-  "version": "3.0.0-beta.2",
+  "version": "3.0.0-rc.1",
   "homepage": "http://www.js-data.io/docs/js-data-angular",
   "repository": {
     "type": "git",
@@ -20,38 +20,38 @@
   ],
   "main": "dist/js-data-angular.js",
   "devDependencies": {
-    "babel-core": "5.1.10",
-    "babel-loader": "5.0.0",
+    "babel-core": "5.6.15",
+    "babel-loader": "5.2.2",
     "grunt": "0.4.5",
     "grunt-contrib-clean": "0.6.0",
     "grunt-contrib-uglify": "0.9.1",
     "grunt-contrib-watch": "0.6.1",
-    "grunt-karma": "0.10.1",
+    "grunt-karma": "0.11.1",
     "grunt-karma-coveralls": "2.5.3",
-    "grunt-webpack": "1.0.8",
+    "grunt-webpack": "1.0.10",
     "jit-grunt": "0.9.1",
     "jshint-loader": "0.8.3",
-    "karma": "0.12.31",
+    "karma": "0.12.37",
     "karma-chai": "0.1.0",
-    "karma-chrome-launcher": "0.1.8",
-    "karma-coverage": "0.3.1",
-    "karma-firefox-launcher": "0.1.4",
-    "karma-mocha": "0.1.10",
-    "karma-phantomjs-launcher": "0.1.4",
+    "karma-chrome-launcher": "0.2.0",
+    "karma-coverage": "0.4.2",
+    "karma-firefox-launcher": "0.1.6",
+    "karma-mocha": "0.2.0",
+    "karma-phantomjs-launcher": "0.2.0",
     "karma-script-launcher": "0.1.0",
     "karma-sinon": "1.0.4",
     "karma-spec-reporter": "0.0.19",
-    "time-grunt": "1.1.1",
-    "webpack-dev-server": "1.8.0"
+    "time-grunt": "1.2.1",
+    "webpack-dev-server": "1.10.1"
   },
   "scripts": {
     "test": "grunt test"
   },
   "peerDependencies": {
-    "angular": ">=1.1.0"
+    "angular": ">=1.1.0",
+    "js-data": "2.0.0-rc.1"
   },
   "dependencies": {
-    "js-data": ">=2.0.0-beta.3",
-    "js-data-http": ">=2.0.0-beta.3"
+    "js-data-http": "2.0.0-rc.1"
   }
 }
