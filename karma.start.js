@@ -80,7 +80,7 @@ beforeEach(function () {
   lifecycle.beforeInject = function () {
     lifecycle.beforeInject.callCount += 1;
   };
-  lifecycle.afterInject = function () {
+  lifecycle.afterInject = function (resource, data) {
     lifecycle.afterInject.callCount += 1;
   };
   lifecycle.serialize = function (resourceName, data) {

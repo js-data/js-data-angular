@@ -5,7 +5,7 @@
 Angular wrapper for [js-data](http://www.js-data.io).
 
 #### What happened Angular-data?
-Js-data-angular is Angular-data 2.0, with [js-data](http://www.js-data.io) as the framework-agnostic core. Documentation for Angular-data 1.x can be found at [angular-data.pseudobry.com](http://angular-data.pseudobry.com).
+Angular-data is deprecated. js-data + js-data-angular is the new hotness.
 
 ### Guides
 - [Angular + JSData (js-data-angular)](http://www.js-data.io/docs/js-data-angular)
@@ -41,7 +41,7 @@ __Latest Release:__ [![Latest Release](https://img.shields.io/github/release/js-
 
 __Status:__
 
-[![Dependency Status](https://img.shields.io/gemnasium/js-data/js-data-angular.svg?style=flat-square)](https://gemnasium.com/js-data/js-data-angular) [![Coverage Status](https://img.shields.io/coveralls/js-data/js-data-angular/master.svg?style=flat-square)](https://coveralls.io/r/js-data/js-data-angular?branch=master) [![Codacity](https://img.shields.io/codacy/e7690b906dfa471ebcc8b2bdc52e9662.svg?style=flat-square)](https://www.codacy.com/public/jasondobry/js-data-angular/dashboard) 
+[![Dependency Status](https://img.shields.io/gemnasium/js-data/js-data-angular.svg?style=flat-square)](https://gemnasium.com/js-data/js-data-angular) [![Coverage Status](https://img.shields.io/coveralls/js-data/js-data-angular/master.svg?style=flat-square)](https://coveralls.io/r/js-data/js-data-angular?branch=master) [![Codacity](https://img.shields.io/codacy/e7690b906dfa471ebcc8b2bdc52e9662.svg?style=flat-square)](https://www.codacy.com/public/jasondobry/js-data-angular/dashboard)
 
 __Supported Platforms:__
 
@@ -99,6 +99,8 @@ app.controller('postCtrl', function ($scope, $routeParams, Post, Comment) {
 [CHANGELOG.md](https://github.com/js-data/js-data-angular/blob/master/CHANGELOG.md)
 
 ### Community
+- [Gitter Channel](https://gitter.im/js-data/js-data) - Better than IRC!
+- [Announcements](http://www.js-data.io/blog)
 - [Mailing List](https://groups.io/org/groupsio/jsdata) - Ask your questions!
 - [Issues](https://github.com/js-data/js-data-angular/issues) - Found a bug? Feature request? Submit an issue!
 - [GitHub](https://github.com/js-data/js-data-angular) - View the source code for js-data.
