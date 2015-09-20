@@ -1,10 +1,10 @@
-/*jshint loopfunc:true*/
-let JSData = require('js-data');
-let DSHttpAdapter = require('../node_modules/js-data-http/src/index.js');
-let angular = require('angular');
+/* jshint loopfunc:true */
+let JSData = require('js-data')
+let DSHttpAdapter = require('../node_modules/js-data-http/src/index.js')
+let angular = require('angular')
 
-let { DSUtils, DSErrors } = JSData;
-let { isString, isNumber, isObject, set, resolveId } = DSUtils;
+let { DSUtils, DSErrors } = JSData
+let { isString, isNumber, isObject, set, resolveId } = DSUtils
 
 let adapters = [
   {
@@ -27,165 +27,164 @@ let adapters = [
     name: 'sql',
     'class': 'DSSqlAdapter'
   }
-];
+]
 
 let functionsToWrap = [
   'compute',
   'digest',
   'eject',
   'inject'
-];
+]
 
-function registerAdapter(adapter) {
-  let Adapter;
+function registerAdapter (adapter) {
+  let Adapter
 
   try {
-    Adapter = require(adapter.project);
-  } catch (e) {
-
-  }
+    Adapter = require(adapter.project)
+  } catch (e) {}
 
   if (!Adapter) {
-    Adapter = window[adapter.class];
+    Adapter = window[adapter.class]
   }
 
   if (Adapter) {
-    adapter.loaded = true;
+    adapter.loaded = true
     angular.module('js-data').provider(adapter.class, function () {
-      let _this = this;
-      _this.defaults = {};
-      _this.$get = [() => new Adapter(_this.defaults)];
-    });
+      let _this = this
+      _this.defaults = {}
+      _this.$get = [() => new Adapter(_this.defaults)]
+    })
   }
 }
 
 class DSHttpAdapterProvider {
-  constructor() {
-    let defaults = {};
-    this.defaults = defaults;
+  constructor () {
+    let defaults = {}
+    this.defaults = defaults
 
     this.$get = ['$http', 'DS', ($http, DS) => {
-      defaults.http = defaults.http || $http;
-      let adapter = new DSHttpAdapter(defaults);
-      DS.registerAdapter('http', adapter, { 'default': true });
-      return adapter;
-    }];
+      defaults.http = defaults.http || $http
+      let adapter = new DSHttpAdapter(defaults)
+      DS.registerAdapter('http', adapter, { 'default': true })
+      return adapter
+    }]
   }
 }
 
 class DSProvider {
-  constructor() {
-    let _this = this;
-    let deps = [];
+  constructor () {
+    let _this = this
+    let deps = []
 
     for (var i = 0; i < adapters.length; i++) {
       if (adapters[i].loaded) {
-        deps.push(adapters[i].class);
+        deps.push(adapters[i].class)
       }
     }
 
-    _this.defaults = {};
+    _this.defaults = {}
 
     JSData.DS.prototype.bindAll = function (resourceName, params, scope, expr, cb) {
-      let _this = this;
+      let _this = this
 
-      params = params || {};
+      params = params || {}
 
       if (!_this.definitions[resourceName]) {
-        throw new DSErrors.NER(resourceName);
+        throw new DSErrors.NER(resourceName)
       } else if (!isObject(params)) {
-        throw new DSErrors.IA('"params" must be an object!');
+        throw new DSErrors.IA('"params" must be an object!')
       } else if (!isObject(scope)) {
-        throw new DSErrors.IA('"scope" must be an object!');
+        throw new DSErrors.IA('"scope" must be an object!')
       } else if (!isString(expr)) {
-        throw new DSErrors.IA('"expr" must be a string!');
+        throw new DSErrors.IA('"expr" must be a string!')
       }
 
       try {
         return scope.$watch(() => _this.lastModified(resourceName), () => {
-          let items = _this.filter(resourceName, params);
-          set(scope, expr, items);
+          let items = _this.filter(resourceName, params)
+          set(scope, expr, items)
           if (cb) {
-            cb(null, items);
+            cb(null, items)
           }
-        });
+        })
       } catch (err) {
         if (cb) {
-          cb(err);
+          cb(err)
         } else {
-          throw err;
+          throw err
         }
       }
-    };
+    }
 
     JSData.DS.prototype.bindOne = function (resourceName, id, scope, expr, cb) {
-      let _this = this;
+      let _this = this
 
-      id = resolveId(_this.definitions[resourceName], id);
+      id = resolveId(_this.definitions[resourceName], id)
       if (!_this.definitions[resourceName]) {
-        throw new DSErrors.NER(resourceName);
+        throw new DSErrors.NER(resourceName)
       } else if (!isString(id) && !isNumber(id)) {
-        throw new DSErrors.IA('"id" must be a string or a number!');
+        throw new DSErrors.IA('"id" must be a string or a number!')
       } else if (!isObject(scope)) {
-        throw new DSErrors.IA('"scope" must be an object!');
+        throw new DSErrors.IA('"scope" must be an object!')
       } else if (!isString(expr)) {
-        throw new DSErrors.IA('"expr" must be a string!');
+        throw new DSErrors.IA('"expr" must be a string!')
       }
 
       try {
         return scope.$watch(() => _this.lastModified(resourceName, id), () => {
-          let item = _this.get(resourceName, id);
+          let item = _this.get(resourceName, id)
           if (item) {
-            _this.compute(resourceName, id);
+            _this.compute(resourceName, id)
           }
-          set(scope, expr, item);
+          set(scope, expr, item)
           if (cb) {
-            cb(null, item);
+            cb(null, item)
           }
-        });
+        })
       } catch (err) {
         if (cb) {
-          cb(err);
+          cb(err)
         } else {
-          throw err;
+          throw err
         }
       }
-    };
+    }
 
-    function load(...args) {
-      let $rootScope = args[args.length - 2];
-      let $q = args[args.length - 1];
-      let store = new JSData.DS(_this.defaults);
-      let originals = {};
+    function load (...args) {
+      let $rootScope = args[args.length - 2]
+      let $q = args[args.length - 1]
+      let store = new JSData.DS(_this.defaults)
+      let originals = {}
 
-      function QPromise(executor) {
-        let deferred = $q.defer();
+      function QPromise (executor) {
+        let deferred = $q.defer()
 
         try {
-          executor.call(undefined,
+          executor(
             angular.bind(deferred, deferred.resolve),
-            angular.bind(deferred, deferred.reject));
+            angular.bind(deferred, deferred.reject)
+          )
         } catch (err) {
-          deferred.reject(err);
+          deferred.reject(err)
         }
 
-        return deferred.promise;
+        return deferred.promise
       }
 
-      QPromise.all = $q.all;
-      QPromise.when = $q.when;
-      QPromise.reject = $q.reject;
+      QPromise.all = $q.all
+      QPromise.when = $q.when
+      QPromise.reject = $q.reject
 
-      DSUtils.Promise = QPromise;
+      DSUtils.Promise = QPromise
 
       // Register any adapters that have been loaded
       if (args.length) {
         for (var i = 0; i < args.length; i++) {
           for (var j = 0; j < adapters.length; j++) {
             if (adapters[j].loaded && !adapters[j].registered) {
-              adapters[j].registered = true;
-              store.registerAdapter(adapters[j].name, args[i]);
-              break;
+              adapters[j].registered = true
+              store.registerAdapter(adapters[j].name, args[i])
+              break
             }
           }
         }
@@ -193,29 +192,29 @@ class DSProvider {
 
       // Wrap certain sync functions with $apply
       for (var k = 0; k < functionsToWrap.length; k++) {
-        let name = functionsToWrap[k];
-        originals[name] = store[name];
+        let name = functionsToWrap[k]
+        originals[name] = store[name]
         store[name] = (...args) => {
           if (!$rootScope.$$phase) {
-            return $rootScope.$apply(() => originals[name].apply(store, args));
+            return $rootScope.$apply(() => originals[name].apply(store, args))
           }
-          return originals[name].apply(store, args);
-        };
+          return originals[name].apply(store, args)
+        }
       }
 
       // Hook into the digest loop
       if (typeof Object.observe !== 'function' || typeof Array.observe !== 'function') {
-        $rootScope.$watch(() => store.observe.Platform.performMicrotaskCheckpoint());
+        $rootScope.$watch(() => store.observe.Platform.performMicrotaskCheckpoint())
       }
 
-      return store;
+      return store
     }
 
-    deps.push('$rootScope');
-    deps.push('$q');
-    deps.push(load);
+    deps.push('$rootScope')
+    deps.push('$q')
+    deps.push(load)
 
-    _this.$get = deps;
+    _this.$get = deps
   }
 }
 angular.module('js-data', ['ng'])
@@ -225,14 +224,13 @@ angular.module('js-data', ['ng'])
   .provider('DS', DSProvider)
   .provider('DSHttpAdapter', DSHttpAdapterProvider)
   .run(['DS', 'DSHttpAdapter', (DS, DSHttpAdapter) => {
-    DS.registerAdapter('http', DSHttpAdapter, { 'default': true });
-  }]);
-
+    DS.registerAdapter('http', DSHttpAdapter, { 'default': true })
+  }])
 
 for (var i = 0; i < adapters.length; i++) {
-  registerAdapter(adapters[i]);
+  registerAdapter(adapters[i])
 }
 
 // return the module name
-module.exports = 'js-data';
-module.exports.name = 'js-data';
+module.exports = 'js-data'
+module.exports.name = 'js-data'

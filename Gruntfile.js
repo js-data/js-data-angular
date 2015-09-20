@@ -78,6 +78,19 @@ module.exports = function (grunt) {
             'test/**/*.js'
           ]
         }
+      },
+      c9: {
+        browsers: ['PhantomJS'],
+        options: {
+          files: [
+            'bower_components/angular-1.3.2/angular.js',
+            'bower_components/angular-mocks-1.3.2/angular-mocks.js',
+            'node_modules/js-data/dist/js-data.min.js',
+            'dist/js-data-angular.min.js',
+            'karma.start.js',
+            'test/**/*.js'
+          ]
+        }
       }
     },
     coveralls: {
@@ -123,6 +136,22 @@ module.exports = function (grunt) {
     }
   });
 
+  grunt.registerTask('standard', function () {
+    var child_process = require('child_process');
+    var done = this.async();
+    grunt.log.writeln('Linting for correcting formatting...');
+    child_process.exec('node node_modules/standard/bin/cmd.js --parser babel-eslint src/*.js src/**/*.js src/**/**/*.js', function (err, stdout) {
+      console.log(stdout);
+      if (err) {
+        grunt.log.writeln('Failed due to ' + (stdout.split('\n').length - 2) + ' lint errors!');
+        done(err);
+      } else {
+        grunt.log.writeln('Done linting.');
+        done();
+      }
+    });
+  });
+
   grunt.registerTask('version', function (filePath) {
     var file = grunt.file.read(filePath);
 
@@ -133,10 +162,12 @@ module.exports = function (grunt) {
 
   grunt.registerTask('build', [
     'clean',
+    'standard',
     'webpack',
     'uglify'
   ]);
   grunt.registerTask('go', ['build', 'watch:dist']);
   grunt.registerTask('default', ['build']);
   grunt.registerTask('test', ['build', 'karma:min']);
+  grunt.registerTask('test_c9', ['build', 'karma:c9']);
 };

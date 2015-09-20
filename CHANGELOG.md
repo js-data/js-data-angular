@@ -1,3 +1,14 @@
+##### 3.1.1 - 20 September 2015
+
+Stable Version 3.1.0
+
+###### Backwards compatible API changes
+- #335 - Calling $q.reject in http interceptor doesn't resolve to calling reject handler in DS.findAll.then
+
+###### Other
+- Built with js-data-http 2.1.1
+- Upgraded dependencies
+
 ##### 3.0.0 - 02 July 2015
 
 Stable Version 3.0.0

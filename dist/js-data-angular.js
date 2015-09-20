@@ -1,6 +1,6 @@
 /*!
  * js-data-angular
- * @version 3.0.0 - Homepage <https://www.js-data.io/docs/js-data-angular/>
+ * @version 3.1.0 - Homepage <https://www.js-data.io/docs/js-data-angular/>
  * @author Jason Dobry <jason.dobry@gmail.com>
  * @copyright (c) 2014-2015 Jason Dobry 
  * @license MIT <https://github.com/js-data/js-data-angular/blob/master/LICENSE>
@@ -11,14 +11,14 @@
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory(require("js-data"), require("angular"), (function webpackLoadOptionalExternalModule() { try { return require("axios"); } catch(e) {} }()));
 	else if(typeof define === 'function' && define.amd)
-		define(["js-data", "angular"], function webpackLoadOptionalExternalModuleAmd(__WEBPACK_EXTERNAL_MODULE_1__, __WEBPACK_EXTERNAL_MODULE_2__) {
-			return factory(__WEBPACK_EXTERNAL_MODULE_1__, __WEBPACK_EXTERNAL_MODULE_2__, root["axios"]);
+		define(["js-data", "angular"], function webpackLoadOptionalExternalModuleAmd(__WEBPACK_EXTERNAL_MODULE_1__, __WEBPACK_EXTERNAL_MODULE_4__) {
+			return factory(__WEBPACK_EXTERNAL_MODULE_1__, __WEBPACK_EXTERNAL_MODULE_4__, root["axios"]);
 		});
 	else if(typeof exports === 'object')
 		exports["jsDataAngularModuleName"] = factory(require("js-data"), require("angular"), (function webpackLoadOptionalExternalModule() { try { return require("axios"); } catch(e) {} }()));
 	else
 		root["jsDataAngularModuleName"] = factory(root["JSData"], root["angular"], root["axios"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_1__, __WEBPACK_EXTERNAL_MODULE_2__, __WEBPACK_EXTERNAL_MODULE_5__) {
+})(this, function(__WEBPACK_EXTERNAL_MODULE_1__, __WEBPACK_EXTERNAL_MODULE_4__, __WEBPACK_EXTERNAL_MODULE_3__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -67,10 +67,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-	/*jshint loopfunc:true*/
+	/* jshint loopfunc:true */
 	var JSData = __webpack_require__(1);
-	var DSHttpAdapter = __webpack_require__(4);
-	var angular = __webpack_require__(2);
+	var DSHttpAdapter = __webpack_require__(2);
+	var angular = __webpack_require__(4);
 
 	var DSUtils = JSData.DSUtils;
 	var DSErrors = JSData.DSErrors;
@@ -104,7 +104,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var Adapter = undefined;
 
 	  try {
-	    Adapter = __webpack_require__(3)(adapter.project);
+	    Adapter = __webpack_require__(5)(adapter.project);
 	  } catch (e) {}
 
 	  if (!Adapter) {
@@ -235,7 +235,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var deferred = $q.defer();
 
 	      try {
-	        executor.call(undefined, angular.bind(deferred, deferred.resolve), angular.bind(deferred, deferred.reject));
+	        executor(angular.bind(deferred, deferred.resolve), angular.bind(deferred, deferred.reject));
 	      } catch (err) {
 	        deferred.reject(err);
 	      }
@@ -262,6 +262,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }
 	    }
 
+	    // Wrap certain sync functions with $apply
+
 	    var _loop = function () {
 	      var name = functionsToWrap[k];
 	      originals[name] = store[name];
@@ -279,7 +281,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	      };
 	    };
 
-	    // Wrap certain sync functions with $apply
 	    for (var k = 0; k < functionsToWrap.length; k++) {
 	      _loop();
 	    }
@@ -315,37 +316,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 1 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 	module.exports = __WEBPACK_EXTERNAL_MODULE_1__;
 
 /***/ },
 /* 2 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = __WEBPACK_EXTERNAL_MODULE_2__;
-
-/***/ },
-/* 3 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var map = {};
-	function webpackContext(req) {
-		return __webpack_require__(webpackContextResolve(req));
-	};
-	function webpackContextResolve(req) {
-		return map[req] || (function() { throw new Error("Cannot find module '" + req + "'.") }());
-	};
-	webpackContext.keys = function webpackContextKeys() {
-		return Object.keys(map);
-	};
-	webpackContext.resolve = webpackContextResolve;
-	module.exports = webpackContext;
-	webpackContext.id = 3;
-
-
-/***/ },
-/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -356,7 +332,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var axios = null;
 
 	try {
-	  axios = __webpack_require__(5);
+	  axios = __webpack_require__(3);
 	} catch (e) {}
 
 	var DSUtils = JSData.DSUtils;
@@ -406,10 +382,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	defaultsPrototype.httpConfig = {};
 
+	defaultsPrototype.verbsUseBasePath = false;
+
 	var DSHttpAdapter = (function () {
 	  function DSHttpAdapter(options) {
 	    _classCallCheck(this, DSHttpAdapter);
 
+	    options = options || {};
 	    this.defaults = new Defaults();
 	    if (console) {
 	      this.defaults.log = function (a, b) {
@@ -481,11 +460,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	    value: function getPath(method, resourceConfig, id, options) {
 	      var _this = this;
 	      options = options || {};
-	      var args = [options.basePath || _this.defaults.basePath || resourceConfig.basePath, this.getEndpoint(resourceConfig, isString(id) || isNumber(id) || method === 'create' ? id : null, options)];
-	      if (method === 'find' || method === 'update' || method === 'destroy') {
-	        args.push(id);
+	      if (isString(options.urlPath)) {
+	        return makePath.apply(DSUtils, [options.basePath || _this.defaults.basePath || resourceConfig.basePath, options.urlPath]);
+	      } else {
+	        var args = [options.basePath || _this.defaults.basePath || resourceConfig.basePath, this.getEndpoint(resourceConfig, isString(id) || isNumber(id) || method === 'create' ? id : null, options)];
+	        if (method === 'find' || method === 'update' || method === 'destroy') {
+	          args.push(id);
+	        }
+	        return makePath.apply(DSUtils, args);
 	      }
-	      return makePath.apply(DSUtils, args);
 	    }
 	  }, {
 	    key: 'HTTP',
@@ -494,7 +477,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var start = new Date();
 	      config = copy(config);
 	      config = deepMixIn(config, _this.defaults.httpConfig);
-	      if (_this.defaults.forceTrailingSlash && config.url[config.url.length - 1] !== '/') {
+	      if (!('verbsUseBasePath' in config)) {
+	        config.verbsUseBasePath = _this.defaults.verbsUseBasePath;
+	      }
+	      if (!config.urlOverride && config.verbsUseBasePath) {
+	        config.url = makePath(config.basePath || _this.defaults.basePath, config.url);
+	      }
+	      if (_this.defaults.forceTrailingSlash && config.url[config.url.length - 1] !== '/' && !config.urlOverride) {
 	        config.url += '/';
 	      }
 	      if (typeof config.data === 'object') {
@@ -502,21 +491,35 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }
 	      config.method = config.method.toUpperCase();
 	      var suffix = config.suffix || _this.defaults.suffix;
-	      if (suffix && config.url.substr(config.url.length - suffix.length) !== suffix) {
+	      if (suffix && config.url.substr(config.url.length - suffix.length) !== suffix && !config.urlOverride) {
 	        config.url += suffix;
 	      }
 
-	      function logResponse(data) {
-	        var str = start.toUTCString() + ' - ' + data.config.method.toUpperCase() + ' ' + data.config.url + ' - ' + data.status + ' ' + (new Date().getTime() - start.getTime()) + 'ms';
-	        if (data.status >= 200 && data.status < 300) {
-	          if (_this.defaults.log) {
-	            _this.defaults.log(str, data);
+	      // logs the HTTP response
+	      function logResponse(data, isRejection) {
+	        data = data || {};
+	        // examine the data object
+	        if (data instanceof Error) {
+	          // log the Error object
+	          _this.defaults.error('FAILED: ' + (data.message || 'Unknown Error'), data);
+	          return DSUtils.Promise.reject(data);
+	        } else if (typeof data === 'object') {
+	          var str = start.toUTCString() + ' - ' + config.method + ' ' + config.url + ' - ' + data.status + ' ' + (new Date().getTime() - start.getTime()) + 'ms';
+
+	          if (data.status >= 200 && data.status < 300 && !isRejection) {
+	            if (_this.defaults.log) {
+	              _this.defaults.log(str, data);
+	            }
+	            return data;
+	          } else {
+	            if (_this.defaults.error) {
+	              _this.defaults.error('FAILED: ' + str, data);
+	            }
+	            return DSUtils.Promise.reject(data);
 	          }
-	          return data;
 	        } else {
-	          if (_this.defaults.error) {
-	            _this.defaults.error('\'FAILED: ' + str, data);
-	          }
+	          // unknown type for 'data' that is not an Object or Error
+	          _this.defaults.error('FAILED', data);
 	          return DSUtils.Promise.reject(data);
 	        }
 	      }
@@ -525,53 +528,47 @@ return /******/ (function(modules) { // webpackBootstrap
 	        throw new Error('You have not configured this adapter with an http library!');
 	      }
 
-	      return this.http(config).then(logResponse, logResponse);
+	      return this.http(config).then(logResponse, function (data) {
+	        return logResponse(data, true);
+	      });
 	    }
 	  }, {
 	    key: 'GET',
 	    value: function GET(url, config) {
 	      config = config || {};
-	      if (!('method' in config)) {
-	        config.method = 'get';
-	      }
-	      return this.HTTP(deepMixIn(config, {
-	        url: url
-	      }));
+	      config.method = config.method || 'get';
+	      config.urlOverride = !!config.url;
+	      config.url = config.url || url;
+	      return this.HTTP(config);
 	    }
 	  }, {
 	    key: 'POST',
 	    value: function POST(url, attrs, config) {
 	      config = config || {};
-	      if (!('method' in config)) {
-	        config.method = 'post';
-	      }
-	      return this.HTTP(deepMixIn(config, {
-	        url: url,
-	        data: attrs
-	      }));
+	      config.method = config.method || 'post';
+	      config.urlOverride = !!config.url;
+	      config.url = config.url || url;
+	      config.data = config.data || attrs;
+	      return this.HTTP(config);
 	    }
 	  }, {
 	    key: 'PUT',
 	    value: function PUT(url, attrs, config) {
 	      config = config || {};
-	      if (!('method' in config)) {
-	        config.method = 'put';
-	      }
-	      return this.HTTP(deepMixIn(config, {
-	        url: url,
-	        data: attrs || {}
-	      }));
+	      config.method = config.method || 'put';
+	      config.urlOverride = !!config.url;
+	      config.url = config.url || url;
+	      config.data = config.data || attrs;
+	      return this.HTTP(config);
 	    }
 	  }, {
 	    key: 'DEL',
 	    value: function DEL(url, config) {
 	      config = config || {};
-	      if (!('method' in config)) {
-	        config.method = 'delete';
-	      }
-	      return this.HTTP(deepMixIn(config, {
-	        url: url
-	      }));
+	      config.method = config.method || 'delete';
+	      config.urlOverride = !!config.url;
+	      config.url = config.url || url;
+	      return this.HTTP(config);
 	    }
 	  }, {
 	    key: 'find',
@@ -675,11 +672,36 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = DSHttpAdapter;
 
 /***/ },
+/* 3 */
+/***/ function(module, exports) {
+
+	if(typeof __WEBPACK_EXTERNAL_MODULE_3__ === 'undefined') {var e = new Error("Cannot find module \"axios\""); e.code = 'MODULE_NOT_FOUND'; throw e;}
+	module.exports = __WEBPACK_EXTERNAL_MODULE_3__;
+
+/***/ },
+/* 4 */
+/***/ function(module, exports) {
+
+	module.exports = __WEBPACK_EXTERNAL_MODULE_4__;
+
+/***/ },
 /* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
-	if(typeof __WEBPACK_EXTERNAL_MODULE_5__ === 'undefined') {var e = new Error("Cannot find module \"axios\""); e.code = 'MODULE_NOT_FOUND'; throw e;}
-	module.exports = __WEBPACK_EXTERNAL_MODULE_5__;
+	var map = {};
+	function webpackContext(req) {
+		return __webpack_require__(webpackContextResolve(req));
+	};
+	function webpackContextResolve(req) {
+		return map[req] || (function() { throw new Error("Cannot find module '" + req + "'.") }());
+	};
+	webpackContext.keys = function webpackContextKeys() {
+		return Object.keys(map);
+	};
+	webpackContext.resolve = webpackContextResolve;
+	module.exports = webpackContext;
+	webpackContext.id = 5;
+
 
 /***/ }
 /******/ ])
