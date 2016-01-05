@@ -99,7 +99,7 @@ app.controller('postCtrl', function ($scope, $routeParams, Post, Comment) {
 [CHANGELOG.md](https://github.com/js-data/js-data-angular/blob/master/CHANGELOG.md)
 
 ### Community
-- [Gitter Channel](https://gitter.im/js-data/js-data) - Better than IRC!
+- [Slack Room](http://slack.js-data.io) - Better than IRC!
 - [Announcements](http://www.js-data.io/blog)
 - [Mailing List](https://groups.io/org/groupsio/jsdata) - Ask your questions!
 - [Issues](https://github.com/js-data/js-data-angular/issues) - Found a bug? Feature request? Submit an issue!
