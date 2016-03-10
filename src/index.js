@@ -233,4 +233,3 @@ for (var i = 0; i < adapters.length; i++) {
 
 // return the module name
 module.exports = 'js-data'
-module.exports.name = 'js-data'
