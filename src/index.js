@@ -1,6 +1,6 @@
 /* jshint loopfunc:true */
 let JSData = require('js-data')
-let DSHttpAdapter = require('../.js-data-http.js')
+let DSHttpAdapter = require('js-data-http')
 let angular = require('angular')
 
 let { DSUtils, DSErrors } = JSData
