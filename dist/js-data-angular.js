@@ -1,6 +1,6 @@
 /*!
 * js-data-angular
-* @version 3.2.0 - Homepage <https://github.com/js-data/js-data-angular>
+* @version 3.2.1 - Homepage <https://github.com/js-data/js-data-angular>
 * @copyright (c) 2014-2016 js-data-angular project authors
 * @license MIT <https://github.com/js-data/js-data-angular/blob/master/LICENSE>
 *
@@ -361,6 +361,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	var isString = DSUtils.isString;
 	var isNumber = DSUtils.isNumber;
 	
+	
+	function isUndefined(value) {
+	  return value === undefined;
+	}
+	
 	var Defaults = function () {
 	  function Defaults() {
 	    _classCallCheck(this, Defaults);
@@ -406,7 +411,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  function DSHttpAdapter(options) {
 	    _classCallCheck(this, DSHttpAdapter);
 	
-	    options = options || {};
+	    options || (options = {});
 	    this.defaults = new Defaults();
 	    if (console) {
 	      this.defaults.log = function (a, b) {
@@ -425,8 +430,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  _createClass(DSHttpAdapter, [{
 	    key: 'getEndpoint',
 	    value: function getEndpoint(resourceConfig, id, options) {
-	      options = options || {};
-	      options.params = options.params || {};
+	      options || (options = {});
+	      options.params = isUndefined(options.params) ? {} : options.params;
 	
 	      var endpoint = options.hasOwnProperty('endpoint') ? options.endpoint : resourceConfig.endpoint;
 	      var parents = resourceConfig.parents || (resourceConfig.parent ? _defineProperty({}, resourceConfig.parent, {
@@ -455,7 +460,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	          } else if (DSUtils._o(id)) {
 	            item = id;
 	          }
-	          console.log('item', item);
 	
 	          if (item) {
 	            parentId = parentId || item[parentKey] || (item[parentField] ? item[parentField][parentDef.idAttribute] : null);
@@ -480,7 +484,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'getPath',
 	    value: function getPath(method, resourceConfig, id, options) {
 	      var _this = this;
-	      options = options || {};
+	      options || (options = {});
 	      if (isString(options.urlPath)) {
 	        return makePath.apply(DSUtils, [options.basePath || _this.defaults.basePath || resourceConfig.basePath, options.urlPath]);
 	      } else {
@@ -519,7 +523,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        config.data = removeCircular(config.data);
 	      }
 	      config.method = config.method.toUpperCase();
-	      var suffix = config.suffix || _this.defaults.suffix;
+	      var suffix = isUndefined(config.suffix) ? _this.defaults.suffix : config.suffix;
 	      if (suffix && config.url.substr(config.url.length - suffix.length) !== suffix && !config.urlOverride) {
 	        config.url += suffix;
 	      }
@@ -603,9 +607,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'find',
 	    value: function find(resourceConfig, id, options) {
 	      var _this = this;
-	      options = options ? copy(options) : {};
-	      options.suffix = options.suffix || resourceConfig.suffix;
-	      options.params = options.params || {};
+	      options || (options = {});
+	      options.suffix = isUndefined(options.suffix) ? resourceConfig.suffix : options.suffix;
+	      options.params = isUndefined(options.params) ? {} : copy(options.params);
 	      options.params = _this.defaults.queryTransform(resourceConfig, options.params);
 	      return _this.GET(_this.getPath('find', resourceConfig, id, options), options).then(function (data) {
 	        var item = (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig, data);
@@ -616,9 +620,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'findAll',
 	    value: function findAll(resourceConfig, params, options) {
 	      var _this = this;
-	      options = options ? copy(options) : {};
-	      options.suffix = options.suffix || resourceConfig.suffix;
-	      options.params = options.params || {};
+	      options || (options = {});
+	      options.suffix = isUndefined(options.suffix) ? resourceConfig.suffix : options.suffix;
+	      options.params = isUndefined(options.params) ? {} : copy(options.params);
 	      if (params) {
 	        params = _this.defaults.queryTransform(resourceConfig, params);
 	        deepMixIn(options.params, params);
@@ -631,9 +635,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'create',
 	    value: function create(resourceConfig, attrs, options) {
 	      var _this = this;
-	      options = options ? copy(options) : {};
-	      options.suffix = options.suffix || resourceConfig.suffix;
-	      options.params = options.params || {};
+	      options || (options = {});
+	      options.suffix = isUndefined(options.suffix) ? resourceConfig.suffix : options.suffix;
+	      options.params = isUndefined(options.params) ? {} : copy(options.params);
 	      options.params = _this.defaults.queryTransform(resourceConfig, options.params);
 	      return _this.POST(_this.getPath('create', resourceConfig, attrs, options), options.serialize ? options.serialize(resourceConfig, attrs) : _this.defaults.serialize(resourceConfig, attrs), options).then(function (data) {
 	        return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig, data);
@@ -643,9 +647,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'update',
 	    value: function update(resourceConfig, id, attrs, options) {
 	      var _this = this;
-	      options = options ? copy(options) : {};
-	      options.suffix = options.suffix || resourceConfig.suffix;
-	      options.params = options.params || {};
+	      options || (options = {});
+	      options.suffix = isUndefined(options.suffix) ? resourceConfig.suffix : options.suffix;
+	      options.params = isUndefined(options.params) ? {} : copy(options.params);
 	      options.params = _this.defaults.queryTransform(resourceConfig, options.params);
 	      return _this.PUT(_this.getPath('update', resourceConfig, id, options), options.serialize ? options.serialize(resourceConfig, attrs) : _this.defaults.serialize(resourceConfig, attrs), options).then(function (data) {
 	        return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig, data);
@@ -655,9 +659,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'updateAll',
 	    value: function updateAll(resourceConfig, attrs, params, options) {
 	      var _this = this;
-	      options = options ? copy(options) : {};
-	      options.suffix = options.suffix || resourceConfig.suffix;
-	      options.params = options.params || {};
+	      options || (options = {});
+	      options.suffix = isUndefined(options.suffix) ? resourceConfig.suffix : options.suffix;
+	      options.params = isUndefined(options.params) ? {} : copy(options.params);
 	      if (params) {
 	        params = _this.defaults.queryTransform(resourceConfig, params);
 	        deepMixIn(options.params, params);
@@ -670,9 +674,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'destroy',
 	    value: function destroy(resourceConfig, id, options) {
 	      var _this = this;
-	      options = options ? copy(options) : {};
-	      options.suffix = options.suffix || resourceConfig.suffix;
-	      options.params = options.params || {};
+	      options || (options = {});
+	      options.suffix = isUndefined(options.suffix) ? resourceConfig.suffix : options.suffix;
+	      options.params = isUndefined(options.params) ? {} : copy(options.params);
 	      options.params = _this.defaults.queryTransform(resourceConfig, options.params);
 	      return _this.DEL(_this.getPath('destroy', resourceConfig, id, options), options).then(function (data) {
 	        return (options.deserialize ? options.deserialize : _this.defaults.deserialize)(resourceConfig, data);
@@ -682,9 +686,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'destroyAll',
 	    value: function destroyAll(resourceConfig, params, options) {
 	      var _this = this;
-	      options = options ? copy(options) : {};
-	      options.suffix = options.suffix || resourceConfig.suffix;
-	      options.params = options.params || {};
+	      options || (options = {});
+	      options.suffix = isUndefined(options.suffix) ? resourceConfig.suffix : options.suffix;
+	      options.params = isUndefined(options.params) ? {} : copy(options.params);
 	      if (params) {
 	        params = _this.defaults.queryTransform(resourceConfig, params);
 	        deepMixIn(options.params, params);
@@ -699,10 +703,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	}();
 	
 	DSHttpAdapter.version = {
-	  full: '3.2.0',
+	  full: '3.2.1',
 	  major: parseInt('3', 10),
 	  minor: parseInt('2', 10),
-	  patch: parseInt('0', 10),
+	  patch: parseInt('1', 10),
 	  alpha:  true ? 'false' : false,
 	  beta:  true ? 'false' : false
 	};

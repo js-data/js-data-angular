@@ -1,3 +1,8 @@
+##### 3.2.1 - 18 March 2016
+
+###### Backwards compatible bug fixes
+- Upgraded to js-data-http 2.2.2
+
 ##### 3.2.0 - 17 March 2016
 
 ###### Backwards compatible bug fixes

@@ -1,7 +1,7 @@
 {
   "name": "js-data-angular",
   "description": "Angular wrapper for js-data.",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "homepage": "http://www.js-data.io/docs/js-data-angular",
   "repository": {
     "type": "git",
@@ -55,14 +55,15 @@
     "karma": "0.13.22",
     "karma-browserstack-launcher": "0.1.10",
     "karma-chai": "0.1.0",
+    "karma-coverage": "0.5.5",
     "karma-mocha": "0.2.2",
     "karma-phantomjs-launcher": "1.0.0",
     "karma-sinon": "1.0.4",
     "mocha": "2.4.5",
-    "phantomjs-prebuilt": "2.1.5",
-    "request": "^2.69.0",
+    "phantomjs-prebuilt": "2.1.6",
+    "request": "2.69.0",
     "sinon": "1.17.3",
-    "tar.gz": "^1.0.3",
+    "tar.gz": "1.0.3",
     "tarball-extract": "0.0.3",
     "uglify-js": "2.6.2",
     "webpack": "1.12.14"
