@@ -1,12 +1,11 @@
 /*!
- * js-data-angular
- * @version 3.1.0 - Homepage <https://www.js-data.io/docs/js-data-angular/>
- * @author Jason Dobry <jason.dobry@gmail.com>
- * @copyright (c) 2014-2015 Jason Dobry 
- * @license MIT <https://github.com/js-data/js-data-angular/blob/master/LICENSE>
- * 
- * @overview Angular wrapper for js-data.
- */
+* js-data-angular
+* @version 3.2.0 - Homepage <https://github.com/js-data/js-data-angular>
+* @copyright (c) 2014-2016 js-data-angular project authors
+* @license MIT <https://github.com/js-data/js-data-angular/blob/master/LICENSE>
+*
+* @overview Angular wrapper for js-data.
+*/
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory(require("js-data"), require("angular"), (function webpackLoadOptionalExternalModule() { try { return require("axios"); } catch(e) {} }()));
@@ -22,41 +21,41 @@
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
-
+/******/
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
-
+/******/
 /******/ 		// Check if module is in cache
 /******/ 		if(installedModules[moduleId])
 /******/ 			return installedModules[moduleId].exports;
-
+/******/
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = installedModules[moduleId] = {
 /******/ 			exports: {},
 /******/ 			id: moduleId,
 /******/ 			loaded: false
 /******/ 		};
-
+/******/
 /******/ 		// Execute the module function
 /******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-
+/******/
 /******/ 		// Flag the module as loaded
 /******/ 		module.loaded = true;
-
+/******/
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
-
-
+/******/
+/******/
 /******/ 	// expose the modules object (__webpack_modules__)
 /******/ 	__webpack_require__.m = modules;
-
+/******/
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
-
+/******/
 /******/ 	// __webpack_public_path__
 /******/ 	__webpack_require__.p = "";
-
+/******/
 /******/ 	// Load entry module and return exports
 /******/ 	return __webpack_require__(0);
 /******/ })
@@ -65,21 +64,25 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
+	'use strict';
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
 	/* jshint loopfunc:true */
 	var JSData = __webpack_require__(1);
 	var DSHttpAdapter = __webpack_require__(2);
 	var angular = __webpack_require__(4);
-
+	
 	var DSUtils = JSData.DSUtils;
 	var DSErrors = JSData.DSErrors;
+	var get = DSUtils.get;
 	var isString = DSUtils.isString;
 	var isNumber = DSUtils.isNumber;
 	var isObject = DSUtils.isObject;
 	var set = DSUtils.set;
 	var resolveId = DSUtils.resolveId;
-
+	
+	
 	var adapters = [{
 	  project: 'js-data-localstorage',
 	  name: 'localstorage',
@@ -97,23 +100,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	  name: 'sql',
 	  'class': 'DSSqlAdapter'
 	}];
-
+	
 	var functionsToWrap = ['compute', 'digest', 'eject', 'inject'];
-
+	
 	function registerAdapter(adapter) {
-	  var Adapter = undefined;
-
+	  var Adapter = void 0;
+	
 	  try {
 	    Adapter = __webpack_require__(5)(adapter.project);
 	  } catch (e) {}
-
+	
 	  if (!Adapter) {
-	    Adapter = window[adapter['class']];
+	    Adapter = window[adapter.class];
 	  }
-
+	
 	  if (Adapter) {
 	    adapter.loaded = true;
-	    angular.module('js-data').provider(adapter['class'], function () {
+	    angular.module('js-data').provider(adapter.class, function () {
 	      var _this = this;
 	      _this.defaults = {};
 	      _this.$get = [function () {
@@ -122,13 +125,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    });
 	  }
 	}
-
+	
 	var DSHttpAdapterProvider = function DSHttpAdapterProvider() {
 	  _classCallCheck(this, DSHttpAdapterProvider);
-
+	
 	  var defaults = {};
 	  this.defaults = defaults;
-
+	
 	  this.$get = ['$http', 'DS', function ($http, DS) {
 	    defaults.http = defaults.http || $http;
 	    var adapter = new DSHttpAdapter(defaults);
@@ -136,26 +139,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return adapter;
 	  }];
 	};
-
+	
 	var DSProvider = function DSProvider() {
 	  _classCallCheck(this, DSProvider);
-
+	
 	  var _this = this;
 	  var deps = [];
-
+	
 	  for (var i = 0; i < adapters.length; i++) {
 	    if (adapters[i].loaded) {
-	      deps.push(adapters[i]['class']);
+	      deps.push(adapters[i].class);
 	    }
 	  }
-
+	
 	  _this.defaults = {};
-
+	
 	  JSData.DS.prototype.bindAll = function (resourceName, params, scope, expr, cb) {
 	    var _this = this;
-
+	
 	    params = params || {};
-
+	
 	    if (!_this.definitions[resourceName]) {
 	      throw new DSErrors.NER(resourceName);
 	    } else if (!isObject(params)) {
@@ -165,12 +168,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	    } else if (!isString(expr)) {
 	      throw new DSErrors.IA('"expr" must be a string!');
 	    }
-
+	
+	    var idAttribute = _this.definitions[resourceName].idAttribute;
+	
 	    try {
 	      return scope.$watch(function () {
 	        return _this.lastModified(resourceName);
 	      }, function () {
 	        var items = _this.filter(resourceName, params);
+	        if (items && items.length) {
+	          angular.forEach(items, function (item) {
+	            _this.compute(resourceName, get(item, idAttribute));
+	          });
+	        }
 	        set(scope, expr, items);
 	        if (cb) {
 	          cb(null, items);
@@ -184,10 +194,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }
 	    }
 	  };
-
+	
 	  JSData.DS.prototype.bindOne = function (resourceName, id, scope, expr, cb) {
 	    var _this = this;
-
+	
 	    id = resolveId(_this.definitions[resourceName], id);
 	    if (!_this.definitions[resourceName]) {
 	      throw new DSErrors.NER(resourceName);
@@ -198,7 +208,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    } else if (!isString(expr)) {
 	      throw new DSErrors.IA('"expr" must be a string!');
 	    }
-
+	
 	    try {
 	      return scope.$watch(function () {
 	        return _this.lastModified(resourceName, id);
@@ -220,35 +230,35 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }
 	    }
 	  };
-
+	
 	  function load() {
 	    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
 	      args[_key] = arguments[_key];
 	    }
-
+	
 	    var $rootScope = args[args.length - 2];
 	    var $q = args[args.length - 1];
 	    var store = new JSData.DS(_this.defaults);
 	    var originals = {};
-
+	
 	    function QPromise(executor) {
 	      var deferred = $q.defer();
-
+	
 	      try {
 	        executor(angular.bind(deferred, deferred.resolve), angular.bind(deferred, deferred.reject));
 	      } catch (err) {
 	        deferred.reject(err);
 	      }
-
+	
 	      return deferred.promise;
 	    }
-
+	
 	    QPromise.all = $q.all;
 	    QPromise.when = $q.when;
 	    QPromise.reject = $q.reject;
-
+	
 	    DSUtils.Promise = QPromise;
-
+	
 	    // Register any adapters that have been loaded
 	    if (args.length) {
 	      for (var i = 0; i < args.length; i++) {
@@ -261,17 +271,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	      }
 	    }
-
+	
 	    // Wrap certain sync functions with $apply
-
-	    var _loop = function () {
+	
+	    var _loop = function _loop() {
 	      var name = functionsToWrap[k];
 	      originals[name] = store[name];
 	      store[name] = function () {
 	        for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
 	          args[_key2] = arguments[_key2];
 	        }
-
+	
 	        if (!$rootScope.$$phase) {
 	          return $rootScope.$apply(function () {
 	            return originals[name].apply(store, args);
@@ -280,39 +290,41 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return originals[name].apply(store, args);
 	      };
 	    };
-
+	
 	    for (var k = 0; k < functionsToWrap.length; k++) {
 	      _loop();
 	    }
-
+	
 	    // Hook into the digest loop
 	    if (typeof Object.observe !== 'function' || typeof Array.observe !== 'function') {
 	      $rootScope.$watch(function () {
 	        return store.observe.Platform.performMicrotaskCheckpoint();
 	      });
 	    }
-
+	
 	    return store;
 	  }
-
+	
 	  deps.push('$rootScope');
 	  deps.push('$q');
 	  deps.push(load);
-
+	
 	  _this.$get = deps;
 	};
-
+	
 	angular.module('js-data', ['ng']).value('DSUtils', DSUtils).value('DSErrors', DSErrors).value('DSVersion', JSData.version).provider('DS', DSProvider).provider('DSHttpAdapter', DSHttpAdapterProvider).run(['DS', 'DSHttpAdapter', function (DS, DSHttpAdapter) {
 	  DS.registerAdapter('http', DSHttpAdapter, { 'default': true });
 	}]);
-
+	
 	for (var i = 0; i < adapters.length; i++) {
 	  registerAdapter(adapters[i]);
 	}
-
+	
 	// return the module name
 	module.exports = 'js-data';
-	module.exports.name = 'js-data';
+	try {
+	  module.exports.name = 'js-data';
+	} catch (e) {}
 
 /***/ },
 /* 1 */
@@ -324,17 +336,23 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
+	'use strict';
+	
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
 	var JSData = __webpack_require__(1);
 	var axios = null;
-
+	
 	try {
 	  axios = __webpack_require__(3);
 	} catch (e) {}
-
+	
 	var DSUtils = JSData.DSUtils;
 	var deepMixIn = DSUtils.deepMixIn;
 	var removeCircular = DSUtils.removeCircular;
@@ -342,12 +360,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	var makePath = DSUtils.makePath;
 	var isString = DSUtils.isString;
 	var isNumber = DSUtils.isNumber;
-
-	var Defaults = (function () {
+	
+	var Defaults = function () {
 	  function Defaults() {
 	    _classCallCheck(this, Defaults);
 	  }
-
+	
 	  _createClass(Defaults, [{
 	    key: 'queryTransform',
 	    value: function queryTransform(resourceConfig, params) {
@@ -370,24 +388,24 @@ return /******/ (function(modules) { // webpackBootstrap
 	    key: 'error',
 	    value: function error() {}
 	  }]);
-
+	
 	  return Defaults;
-	})();
-
+	}();
+	
 	var defaultsPrototype = Defaults.prototype;
-
+	
 	defaultsPrototype.basePath = '';
-
+	
 	defaultsPrototype.forceTrailingSlash = '';
-
+	
 	defaultsPrototype.httpConfig = {};
-
+	
 	defaultsPrototype.verbsUseBasePath = false;
-
-	var DSHttpAdapter = (function () {
+	
+	var DSHttpAdapter = function () {
 	  function DSHttpAdapter(options) {
 	    _classCallCheck(this, DSHttpAdapter);
-
+	
 	    options = options || {};
 	    this.defaults = new Defaults();
 	    if (console) {
@@ -403,57 +421,60 @@ return /******/ (function(modules) { // webpackBootstrap
 	    deepMixIn(this.defaults, options);
 	    this.http = options.http || axios;
 	  }
-
+	
 	  _createClass(DSHttpAdapter, [{
 	    key: 'getEndpoint',
 	    value: function getEndpoint(resourceConfig, id, options) {
-	      var _this2 = this;
-
 	      options = options || {};
 	      options.params = options.params || {};
-
-	      var item = undefined;
-	      var parentKey = resourceConfig.parentKey;
+	
 	      var endpoint = options.hasOwnProperty('endpoint') ? options.endpoint : resourceConfig.endpoint;
-	      var parentField = resourceConfig.parentField;
-	      var parentDef = resourceConfig.getResource(resourceConfig.parent);
-	      var parentId = options.params[parentKey];
-
-	      if (parentId === false || !parentKey || !parentDef) {
-	        if (parentId === false) {
-	          delete options.params[parentKey];
-	        }
-	        return endpoint;
-	      } else {
-	        delete options.params[parentKey];
-
-	        if (DSUtils._sn(id)) {
-	          item = resourceConfig.get(id);
-	        } else if (DSUtils._o(id)) {
-	          item = id;
-	        }
-
-	        if (item) {
-	          parentId = parentId || item[parentKey] || (item[parentField] ? item[parentField][parentDef.idAttribute] : null);
-	        }
-
-	        if (parentId) {
-	          var _ret = (function () {
-	            delete options.endpoint;
-	            var _options = {};
-	            DSUtils.forOwn(options, function (value, key) {
-	              _options[key] = value;
-	            });
-	            return {
-	              v: DSUtils.makePath(_this2.getEndpoint(parentDef, parentId, DSUtils._(parentDef, _options)), parentId, endpoint)
-	            };
-	          })();
-
-	          if (typeof _ret === 'object') return _ret.v;
+	      var parents = resourceConfig.parents || (resourceConfig.parent ? _defineProperty({}, resourceConfig.parent, {
+	        key: resourceConfig.parentKey,
+	        field: resourceConfig.parentField
+	      }) : {});
+	
+	      DSUtils.forOwn(parents, function (parent, parentName) {
+	        var _this2 = this;
+	
+	        var item = void 0;
+	        var parentKey = parent.key;
+	        var parentField = parent.field;
+	        var parentDef = resourceConfig.getResource(parentName);
+	        var parentId = options.params[parentKey];
+	
+	        if (parentId === false || !parentKey || !parentDef) {
+	          if (parentId === false) {
+	            delete options.params[parentKey];
+	          }
 	        } else {
-	          return endpoint;
+	          delete options.params[parentKey];
+	
+	          if (DSUtils._sn(id)) {
+	            item = resourceConfig.get(id);
+	          } else if (DSUtils._o(id)) {
+	            item = id;
+	          }
+	          console.log('item', item);
+	
+	          if (item) {
+	            parentId = parentId || item[parentKey] || (item[parentField] ? item[parentField][parentDef.idAttribute] : null);
+	          }
+	
+	          if (parentId) {
+	            (function () {
+	              delete options.endpoint;
+	              var _options = {};
+	              DSUtils.forOwn(options, function (value, key) {
+	                _options[key] = value;
+	              });
+	              endpoint = DSUtils.makePath(_this2.getEndpoint(parentDef, parentId, DSUtils._(parentDef, _options)), parentId, endpoint);
+	            })();
+	          }
 	        }
-	      }
+	      }, this);
+	
+	      return endpoint;
 	    }
 	  }, {
 	    key: 'getPath',
@@ -475,8 +496,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	    value: function HTTP(config) {
 	      var _this = this;
 	      var start = new Date();
-	      config = copy(config);
+	
+	      // blacklist `data` as it can be large and will take a lot of time to copy
+	      var payload = config.data;
+	      var cache = config.cache;
+	      var timeout = config.timeout;
+	      config = copy(config, null, null, null, ['data', 'cache', 'timeout']);
 	      config = deepMixIn(config, _this.defaults.httpConfig);
+	      config.data = payload;
+	      config.cache = cache;
+	      config.timeout = timeout;
 	      if (!('verbsUseBasePath' in config)) {
 	        config.verbsUseBasePath = _this.defaults.verbsUseBasePath;
 	      }
@@ -486,7 +515,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      if (_this.defaults.forceTrailingSlash && config.url[config.url.length - 1] !== '/' && !config.urlOverride) {
 	        config.url += '/';
 	      }
-	      if (typeof config.data === 'object') {
+	      if (_typeof(config.data) === 'object') {
 	        config.data = removeCircular(config.data);
 	      }
 	      config.method = config.method.toUpperCase();
@@ -494,7 +523,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      if (suffix && config.url.substr(config.url.length - suffix.length) !== suffix && !config.urlOverride) {
 	        config.url += suffix;
 	      }
-
+	
 	      // logs the HTTP response
 	      function logResponse(data, isRejection) {
 	        data = data || {};
@@ -503,9 +532,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	          // log the Error object
 	          _this.defaults.error('FAILED: ' + (data.message || 'Unknown Error'), data);
 	          return DSUtils.Promise.reject(data);
-	        } else if (typeof data === 'object') {
+	        } else if ((typeof data === 'undefined' ? 'undefined' : _typeof(data)) === 'object') {
 	          var str = start.toUTCString() + ' - ' + config.method + ' ' + config.url + ' - ' + data.status + ' ' + (new Date().getTime() - start.getTime()) + 'ms';
-
+	
 	          if (data.status >= 200 && data.status < 300 && !isRejection) {
 	            if (_this.defaults.log) {
 	              _this.defaults.log(str, data);
@@ -523,11 +552,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	          return DSUtils.Promise.reject(data);
 	        }
 	      }
-
+	
 	      if (!this.http) {
 	        throw new Error('You have not configured this adapter with an http library!');
 	      }
-
+	
 	      return this.http(config).then(logResponse, function (data) {
 	        return logResponse(data, true);
 	      });
@@ -665,10 +694,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	      });
 	    }
 	  }]);
-
+	
 	  return DSHttpAdapter;
-	})();
-
+	}();
+	
+	DSHttpAdapter.version = {
+	  full: '3.2.0',
+	  major: parseInt('3', 10),
+	  minor: parseInt('2', 10),
+	  patch: parseInt('0', 10),
+	  alpha:  true ? 'false' : false,
+	  beta:  true ? 'false' : false
+	};
+	
 	module.exports = DSHttpAdapter;
 
 /***/ },
@@ -707,3 +745,4 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ ])
 });
 ;
+//# sourceMappingURL=js-data-angular.js.map

@@ -13,26 +13,26 @@ describe('DS.bindAll', function () {
   it('should throw an error when method pre-conditions are not met', function () {
     assert.throws(function () {
       DS.bindAll('does not exist');
-    }, DS.errors.NonexistentResourceError, 'does not exist is not a registered resource!');
+    }, Error, 'does not exist is not a registered resource!');
 
     angular.forEach(TYPES_EXCEPT_OBJECT, function (key) {
       if (key) {
         assert.throws(function () {
           DS.bindAll('post', key);
-        }, DS.errors.IllegalArgumentError, '"params" must be an object!');
+        }, Error, '"params" must be an object!');
       }
     });
 
     angular.forEach(TYPES_EXCEPT_OBJECT, function (key) {
       assert.throws(function () {
         DS.bindAll('post', {}, key);
-      }, DS.errors.IllegalArgumentError, '"scope" must be an object!');
+      }, Error, '"scope" must be an object!');
     });
 
     angular.forEach(TYPES_EXCEPT_STRING, function (key) {
       assert.throws(function () {
         DS.bindAll('post', {}, $scope, key);
-      }, DS.errors.IllegalArgumentError, '"expr" must be a string!');
+      }, Error, '"expr" must be a string!');
     });
   });
   it('should bind an item in the data store to the scope', function () {

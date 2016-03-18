@@ -1,10 +1,10 @@
 /* jshint loopfunc:true */
 let JSData = require('js-data')
-let DSHttpAdapter = require('../node_modules/js-data-http/src/index.js')
+let DSHttpAdapter = require('../.js-data-http.js')
 let angular = require('angular')
 
 let { DSUtils, DSErrors } = JSData
-let { isString, isNumber, isObject, set, resolveId } = DSUtils
+let { get, isString, isNumber, isObject, set, resolveId } = DSUtils
 
 let adapters = [
   {
@@ -99,9 +99,16 @@ class DSProvider {
         throw new DSErrors.IA('"expr" must be a string!')
       }
 
+      let idAttribute = _this.definitions[resourceName].idAttribute
+
       try {
         return scope.$watch(() => _this.lastModified(resourceName), () => {
           let items = _this.filter(resourceName, params)
+          if (items && items.length) {
+            angular.forEach(items, (item) => {
+              _this.compute(resourceName, get(item, idAttribute))
+            })
+          }
           set(scope, expr, items)
           if (cb) {
             cb(null, items)
@@ -233,4 +240,6 @@ for (var i = 0; i < adapters.length; i++) {
 
 // return the module name
 module.exports = 'js-data'
-module.exports.name = 'js-data'
+try {
+  module.exports.name = 'js-data'
+} catch (e) {}

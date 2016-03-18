@@ -1,3 +1,10 @@
+##### 3.2.0 - 17 March 2016
+
+###### Backwards compatible bug fixes
+- #347 - BindOne recomputing computed properties
+- #353 - jshint or standard?
+- #356 - Multiple parents isn't working
+
 ##### 3.1.1 - 20 September 2015
 
 Stable Version 3.1.0

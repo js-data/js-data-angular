@@ -8,3 +8,8 @@ bower_components/
 karma*
 guide/
 doc/
+webpack.config.js
+circle.yml
+
+.js-data-http.js
+.js-data-http/
