@@ -28,7 +28,7 @@
   },
   "scripts": {
     "lint": "repo-tools lint karma.conf.js src/*.js scripts/*.js",
-    "webpack": "node scripts/js-data-http.js && webpack --config webpack.config.js",
+    "webpack": "webpack --config webpack.config.js",
     "min": "uglifyjs dist/js-data-angular.js -o dist/js-data-angular.min.js --source-map dist/js-data-angular.min.map --source-map-url js-data-angular.min.map -v -m -c --screw-ie8",
     "version": "node scripts/version.js",
     "banner": "node scripts/banner.js",
@@ -42,7 +42,8 @@
   },
   "peerDependencies": {
     "angular": ">=1.1.0",
-    "js-data": ">=2.0.0 <3"
+    "js-data": ">=2.0.0 <3",
+    "js-data-http": "^2.2.1"
   },
   "devDependencies": {
     "babel-core": "6.7.2",

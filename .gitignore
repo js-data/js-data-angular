@@ -26,5 +26,3 @@ build_examples/browserify/bundle.js
 build_examples/webpack/bundle.js
 build_examples/webpack_es6/bundle.js
 build_examples/webpack_es6_2/bundle.js
-.js-data-http.js
-.js-data-http/
