@@ -36,6 +36,41 @@ let functionsToWrap = [
   'inject'
 ]
 
+let unregisterDigestHook = null
+
+
+function registerDigestHook() {
+  return $rootScope.$watch(() => store.observe.Platform.performMicrotaskCheckpoint())
+}
+
+
+(window => {
+  let timeout = null;
+
+  window.document.addEventListener('scroll', function(event){
+    clearTimeout(timeout);
+
+    if (event.target.className.indexOf('ui-grid') > -1) {
+
+      // Unregister the watcher when scrolling inside of ui-grid
+      unregisterDigestHook();
+
+      // Reattach the watcher when scrolling has completed. This timeout will be
+      // replaced with a new one if another scroll event fires within 500ms.
+      timeout = setTimeout(function(){
+          unregisterDigestHook = registerDigestHook();
+      }, 500);
+
+    } else {
+      return;
+    }
+
+  });
+
+}(window))
+
+
+
 function registerAdapter (adapter) {
   let Adapter
 
@@ -211,7 +246,7 @@ class DSProvider {
 
       // Hook into the digest loop
       if (typeof Object.observe !== 'function' || typeof Array.observe !== 'function') {
-        $rootScope.$watch(() => store.observe.Platform.performMicrotaskCheckpoint())
+        unregisterDigestHook = registerDigestHook()
       }
 
       return store
@@ -224,10 +259,12 @@ class DSProvider {
     _this.$get = deps
   }
 }
+
 angular.module('js-data', ['ng'])
   .value('DSUtils', DSUtils)
   .value('DSErrors', DSErrors)
   .value('DSVersion', JSData.version)
+  .constant('DigestHook', DigestHook)
   .provider('DS', DSProvider)
   .provider('DSHttpAdapter', DSHttpAdapterProvider)
   .run(['DS', 'DSHttpAdapter', (DS, DSHttpAdapter) => {
