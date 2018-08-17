@@ -1,5 +1,5 @@
 var fs = require('fs')
-var url = 'https://github.com/js-data/js-data-http/archive/2.2.2.tar.gz'
+var url = 'https://github.com/js-data/js-data-http/archive/2.2.3.tar.gz'
 var directory = './.js-data-http/'
 var request = require('request')
 var targz = require('tar.gz')
@@ -16,7 +16,7 @@ try {
   read.pipe(write)
 
   write.on('finish', function () {
-    var copyRead = fs.createReadStream(directory + 'js-data-http-2.2.2/src/index.js')
+    var copyRead = fs.createReadStream(directory + 'js-data-http-2.2.3/src/index.js')
     var copyWrite = fs.createWriteStream('./.js-data-http.js')
     copyRead.pipe(copyWrite)
   })
