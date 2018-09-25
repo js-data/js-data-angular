@@ -1,6 +1,6 @@
 /*!
 * js-data-angular
-* @version 3.2.3 - Homepage <https://github.com/js-data/js-data-angular>
+* @version 3.2.4 - Homepage <https://github.com/js-data/js-data-angular>
 * @copyright (c) 2014-2016 js-data-angular project authors
 * @license MIT <https://github.com/js-data/js-data-angular/blob/master/LICENSE>
 *
@@ -701,10 +701,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	}();
 	
 	DSHttpAdapter.version = {
-	  full: '3.2.3',
+	  full: '3.2.4',
 	  major: parseInt('3', 10),
 	  minor: parseInt('2', 10),
-	  patch: parseInt('3', 10),
+	  patch: parseInt('4', 10),
 	  alpha:  true ? 'false' : false,
 	  beta:  true ? 'false' : false
 	};
