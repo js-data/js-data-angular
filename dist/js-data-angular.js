@@ -501,7 +501,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var payload = config.data;
 	      var cache = config.cache;
 	      var timeout = config.timeout;
-	      config = copy(config, null, null, null, ['data', 'cache', 'timeout']);
+	      var params = config.params;
+	      config = copy(config, null, null, null, ['data', 'cache', 'timeout', 'params']); // params could have data, cache, timeout
+	      config.params = copy(params);
 	      config = deepMixIn(config, _this.defaults.httpConfig);
 	      config.data = payload;
 	      config.cache = cache;
